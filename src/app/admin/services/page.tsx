@@ -43,7 +43,10 @@ export default async function AdminServicesPage() {
           actions={undefined}
         >
           {services.length === 0 ? (
-            <AdminEmptyState title="暂时还没有服务数据" description="可能是数据库还没接通，或者你还没有创建第一条服务。接通数据库后可以直接在这里新建并维护双语服务。" />
+            <AdminEmptyState
+              title={pick(lang, '暂时还没有服务数据', 'No services yet')}
+              description={pick(lang, '可能是数据库还没接通，或者你还没有创建第一条服务。接通数据库后可以直接在这里新建并维护双语服务。', 'The database may not be connected yet, or no service has been created. Once connected, you can create and manage bilingual services here.')}
+            />
           ) : (
             <AdminListFrame
               title={pick(lang, '服务列表', 'Service list')}
@@ -53,7 +56,14 @@ export default async function AdminServicesPage() {
                 <table className="min-w-full divide-y divide-stone-100 text-sm">
                   <thead className="bg-stone-50">
                     <tr>
-                      {['服务', '英文名', '时长 / 价格', '状态与排序', '编辑', 'Slug'].map((label) => (
+                      {[
+                        pick(lang, '服务', 'Service'),
+                        pick(lang, '英文名', 'English name'),
+                        pick(lang, '时长 / 价格', 'Duration / price'),
+                        pick(lang, '状态与排序', 'Status / sorting'),
+                        pick(lang, '编辑', 'Edit'),
+                        'Slug',
+                      ].map((label) => (
                         <th key={label} className="px-6 py-4 text-left font-semibold text-stone-700">
                           {label}
                         </th>
@@ -82,7 +92,7 @@ export default async function AdminServicesPage() {
                         </td>
                         <td className="px-6 py-5">
                           <Link href={`/admin/services/${item.id}`} className="rounded-full border border-stone-300 bg-white px-4 py-2 text-xs font-medium text-stone-700 transition hover:border-stone-500">
-                            编辑
+                            {pick(lang, '编辑', 'Edit')}
                           </Link>
                         </td>
                         <td className="px-6 py-5 text-xs text-stone-500">{item.slug}</td>
