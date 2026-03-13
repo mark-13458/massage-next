@@ -299,15 +299,28 @@
 ## 12. 部署结果记录模板
 
 ### 本次部署信息
-- 日期：
-- 环境：本地 / 测试 / 生产
-- 分支：
-- Commit：
-- 操作人：
+- 日期：2026-03-13
+- 环境：本地（非 Docker，生产模式启动测试）
+- 分支：main
+- Commit：fed389a
+- 操作人：OpenClaw
 
 ### 结果
 - 成功项：
+  - `npm run build` 成功
+  - 本地生产模式可启动
+  - `/de` 返回 200
+  - `/admin/login` 返回 200
+  - `/robots.txt` 返回 200
 - 失败项：
+  - `/api/healthz` 在首次探测时未连通
+  - 数据库依赖未接通，Prisma 无法连接 `127.0.0.1:3307`
 - 发现问题：
+  - 当前存在 `output: standalone` 配置，生产启动应进一步验证 `node .next/standalone/server.js`
+  - 数据库未启动或未映射到本地 3307，导致完整业务链无法验证
 - 回滚措施：
+  - 已停止本地测试进程
 - 下一步：
+  - 接通本地 MySQL / Docker MySQL
+  - 再跑一次本地完整业务联调
+  - 验证 `node .next/standalone/server.js` 启动路径
