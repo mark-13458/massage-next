@@ -1,6 +1,7 @@
 import Link from 'next/link'
 import { redirect } from 'next/navigation'
 import { AdminEmptyState } from '../../../components/admin/AdminEmptyState'
+import { GalleryQuickActions } from '../../../components/admin/GalleryQuickActions'
 import { AdminSectionCard } from '../../../components/admin/AdminSectionCard'
 import { AdminShell } from '../../../components/admin/AdminShell'
 import { getCurrentAdmin } from '../../../lib/auth'
@@ -192,6 +193,13 @@ export default async function AdminGalleryPage({
                         <div className="rounded-2xl border border-stone-200 bg-white px-4 py-3 text-xs leading-6 text-stone-500">
                           {item.file.filePath}
                         </div>
+
+                        <GalleryQuickActions
+                          id={item.id}
+                          lang={lang}
+                          initialActive={item.isActive}
+                          initialCover={item.isCover}
+                        />
                       </div>
                     </article>
                   )
