@@ -5,6 +5,7 @@ import { AdminShell } from '../../../../components/admin/AdminShell'
 import { ServiceForm } from '../../../../components/admin/ServiceForm'
 import { DeleteServiceButton } from '../../../../components/admin/DeleteServiceButton'
 import { getCurrentAdmin } from '../../../../lib/auth'
+import { getAdminLang, pick } from '../../../../lib/admin-i18n'
 
 export const dynamic = 'force-dynamic'
 export const revalidate = 0
@@ -25,6 +26,7 @@ export default async function EditServicePage({ params }: { params: { id: string
   const admin = await getCurrentAdmin()
   if (!admin) redirect('/admin/login')
 
+  const lang = await getAdminLang()
   const id = Number(params.id)
   if (!Number.isFinite(id)) notFound()
 
@@ -32,15 +34,20 @@ export default async function EditServicePage({ params }: { params: { id: string
   if (!service) notFound()
 
   return (
-    <AdminShell title="编辑服务" subtitle="这一步已经不只是开关控制，而是可以直接维护服务的完整字段，并支持删除无关联预约的服务。">
+    <AdminShell
+      lang={lang}
+      title={pick(lang, '编辑服务', 'Edit service')}
+      subtitle={pick(lang, '这一步已经不只是开关控制，而是可以直接维护服务的完整字段，并支持删除无关联预约的服务。', 'This page now goes beyond toggles: it supports editing the full service payload and deleting services with no related bookings.')}
+    >
       <div className="mb-6 flex flex-wrap items-center justify-between gap-3">
         <Link href="/admin/services" className="rounded-full border border-stone-300 bg-white px-4 py-2 text-sm font-medium text-stone-700 transition hover:border-stone-500">
-          返回服务列表
+          {pick(lang, '返回服务列表', 'Back to services')}
         </Link>
-        <DeleteServiceButton id={service.id} />
+        <DeleteServiceButton id={service.id} lang={lang} />
       </div>
       <ServiceForm
         mode="edit"
+        lang={lang}
         service={{
           id: service.id,
           slug: service.slug,

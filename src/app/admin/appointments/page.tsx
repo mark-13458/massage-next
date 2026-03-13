@@ -5,6 +5,7 @@ import { prisma } from '../../../lib/prisma'
 import { AdminShell } from '../../../components/admin/AdminShell'
 import { AppointmentStatusControls } from '../../../components/admin/AppointmentStatusControls'
 import { getCurrentAdmin } from '../../../lib/auth'
+import { getAdminLang, pick } from '../../../lib/admin-i18n'
 
 export const dynamic = 'force-dynamic'
 export const revalidate = 0
@@ -54,16 +55,21 @@ export default async function AdminAppointmentsPage({
   const admin = await getCurrentAdmin()
   if (!admin) redirect('/admin/login')
 
+  const lang = await getAdminLang()
   const resolvedSearchParams = (await searchParams) ?? {}
   const rawStatus = String(resolvedSearchParams.status || 'ALL').toUpperCase()
   const selectedStatus = (allowedStatuses.includes(rawStatus as StatusFilter) ? rawStatus : 'ALL') as StatusFilter
   const appointments = await getAppointments(selectedStatus)
 
   return (
-    <AdminShell title="预约管理" subtitle="现在这页已经进入可操作阶段：支持状态筛选、状态修改、内部备注，并可进入详情页查看完整预约信息。">
+    <AdminShell
+      lang={lang}
+      title={pick(lang, '预约管理', 'Bookings')}
+      subtitle={pick(lang, '现在这页已经进入可操作阶段：支持状态筛选、状态修改、内部备注，并可进入详情页查看完整预约信息。', 'This page is now operational: filter by status, update states, leave internal notes and open full booking details.')}
+    >
       <div className="mb-6 flex flex-wrap items-center gap-3">
         <Link href="/admin" className="rounded-full border border-stone-300 bg-white px-4 py-2 text-sm font-medium text-stone-700 transition hover:border-stone-500">
-          返回 Dashboard
+          {pick(lang, '返回 Dashboard', 'Back to dashboard')}
         </Link>
         {allowedStatuses.map((status) => (
           <Link
@@ -78,18 +84,18 @@ export default async function AdminAppointmentsPage({
 
       <div className="overflow-hidden rounded-3xl bg-white shadow-sm">
         <div className="border-b border-stone-100 px-6 py-5">
-          <h2 className="text-lg font-semibold text-stone-900">预约列表</h2>
-          <p className="mt-2 text-sm text-stone-600">当前展示最近 50 条记录，可按状态筛选，并可直接修改状态、内部备注或进入详情页查看完整信息。</p>
+          <h2 className="text-lg font-semibold text-stone-900">{pick(lang, '预约列表', 'Booking list')}</h2>
+          <p className="mt-2 text-sm text-stone-600">{pick(lang, '当前展示最近 50 条记录，可按状态筛选，并可直接修改状态、内部备注或进入详情页查看完整信息。', 'Showing the latest 50 records. Filter by status, update status and internal notes, or open the detail page for full context.')}</p>
         </div>
 
         {appointments.length === 0 ? (
-          <div className="px-6 py-12 text-sm text-stone-500">当前没有符合条件的预约数据，或运行环境尚未连接数据库。</div>
+          <div className="px-6 py-12 text-sm text-stone-500">{pick(lang, '当前没有符合条件的预约数据，或运行环境尚未连接数据库。', 'No matching bookings yet, or the current environment is not connected to the database.')}</div>
         ) : (
           <div className="overflow-x-auto">
             <table className="min-w-full divide-y divide-stone-100 text-sm">
               <thead className="bg-stone-50">
                 <tr>
-                  {['客户', '服务', '预约时间', '当前状态 / 操作', '来源', '联系方式', '详情', '提交时间'].map((label) => (
+                  {[pick(lang, '客户', 'Customer'), pick(lang, '服务', 'Service'), pick(lang, '预约时间', 'Booking time'), pick(lang, '当前状态 / 操作', 'Status / actions'), pick(lang, '来源', 'Source'), pick(lang, '联系方式', 'Contact'), pick(lang, '详情', 'Details'), pick(lang, '提交时间', 'Created at')].map((label) => (
                     <th key={label} className="px-6 py-4 text-left font-semibold text-stone-700">
                       {label}
                     </th>
@@ -101,7 +107,7 @@ export default async function AdminAppointmentsPage({
                   <tr key={item.id} className="align-top">
                     <td className="px-6 py-4">
                       <div className="font-semibold text-stone-900">{item.customerName}</div>
-                      {item.notes ? <div className="mt-2 max-w-xs text-xs leading-6 text-stone-500">客户备注：{item.notes}</div> : null}
+                      {item.notes ? <div className="mt-2 max-w-xs text-xs leading-6 text-stone-500">{pick(lang, '客户备注：', 'Customer note: ')}{item.notes}</div> : null}
                     </td>
                     <td className="px-6 py-4 text-stone-700">{item.service.nameDe}</td>
                     <td className="px-6 py-4 text-stone-700">
@@ -111,7 +117,7 @@ export default async function AdminAppointmentsPage({
                     <td className="px-6 py-4">
                       <div className="space-y-3">
                         <div>{getStatusBadge(item.status)}</div>
-                        <AppointmentStatusControls id={item.id} currentStatus={item.status} internalNote={item.internalNote} />
+                        <AppointmentStatusControls id={item.id} currentStatus={item.status} internalNote={item.internalNote} lang={lang} />
                       </div>
                     </td>
                     <td className="px-6 py-4 text-stone-700">{item.source}</td>
@@ -121,7 +127,7 @@ export default async function AdminAppointmentsPage({
                     </td>
                     <td className="px-6 py-4">
                       <Link href={`/admin/appointments/${item.id}`} className="rounded-full border border-stone-300 bg-white px-4 py-2 text-xs font-medium text-stone-700 transition hover:border-stone-500">
-                        查看详情
+                        {pick(lang, '查看详情', 'View details')}
                       </Link>
                     </td>
                     <td className="px-6 py-4 text-stone-500">{new Intl.DateTimeFormat('de-DE', { dateStyle: 'medium', timeStyle: 'short' }).format(item.createdAt)}</td>

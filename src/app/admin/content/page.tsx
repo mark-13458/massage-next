@@ -6,6 +6,7 @@ import { AdminSectionCard } from '../../../components/admin/AdminSectionCard'
 import { AdminShell } from '../../../components/admin/AdminShell'
 import { ContentEditor } from '../../../components/admin/ContentEditor'
 import { getCurrentAdmin } from '../../../lib/auth'
+import { getAdminLang, pick } from '../../../lib/admin-i18n'
 import { getBusinessHours, getContactSettings } from '../../../server/services/site.service'
 
 export const dynamic = 'force-dynamic'
@@ -82,9 +83,14 @@ export default async function AdminContentPage() {
   if (!admin) redirect('/admin/login')
 
   const data = await getContentData()
+  const lang = await getAdminLang()
 
   return (
-    <AdminShell title="网站内容" subtitle="内容管理继续增强：现在不仅能编辑 contact / hours / FAQ，也能接管首页 Hero 和图库基础内容。">
+    <AdminShell
+      lang={lang}
+      title={pick(lang, '网站内容', 'Content')}
+      subtitle={pick(lang, '内容管理继续增强：现在不仅能编辑 contact / hours / FAQ，也能接管首页 Hero 和图库基础内容。', 'Content management now goes beyond contact, hours and FAQ into homepage hero and gallery operations.')}
+    >
       <div className="grid gap-6 xl:grid-cols-[1.2fr_0.8fr]">
         <div className="space-y-6">
           <AdminSectionCard

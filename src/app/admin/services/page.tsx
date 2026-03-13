@@ -6,6 +6,7 @@ import { AdminEmptyState } from '../../../components/admin/AdminEmptyState'
 import { AdminSectionCard } from '../../../components/admin/AdminSectionCard'
 import { ServiceControls } from '../../../components/admin/ServiceControls'
 import { getCurrentAdmin } from '../../../lib/auth'
+import { getAdminLang, pick } from '../../../lib/admin-i18n'
 
 export const dynamic = 'force-dynamic'
 export const revalidate = 0
@@ -30,9 +31,14 @@ export default async function AdminServicesPage() {
   if (!admin) redirect('/admin/login')
 
   const services = await getServices()
+  const lang = await getAdminLang()
 
   return (
-    <AdminShell title="服务项目" subtitle="把服务清单做成可维护资产：双语文案、价格、时长、精选与上下架都在一个工作台里完成。">
+    <AdminShell
+      lang={lang}
+      title={pick(lang, '服务项目', 'Services')}
+      subtitle={pick(lang, '把服务清单做成可维护资产：双语文案、价格、时长、精选与上下架都在一个工作台里完成。', 'Turn the service library into a maintainable asset with bilingual copy, pricing, duration, featured status and publishing controls in one workspace.')}
+    >
       <div className="grid gap-6 xl:grid-cols-[1.15fr_0.85fr]">
         <AdminSectionCard
           eyebrow="Service Library"
@@ -41,10 +47,10 @@ export default async function AdminServicesPage() {
           actions={
             <>
               <Link href="/admin" className="rounded-full border border-stone-300 bg-white px-4 py-2 text-sm font-medium text-stone-700 transition hover:border-stone-500">
-                返回 Dashboard
+                {pick(lang, '返回 Dashboard', 'Back to dashboard')}
               </Link>
               <Link href="/admin/services/new" className="rounded-full bg-stone-900 px-4 py-2 text-sm font-medium text-white transition hover:bg-stone-800">
-                新建服务
+                {pick(lang, '新建服务', 'New service')}
               </Link>
             </>
           }

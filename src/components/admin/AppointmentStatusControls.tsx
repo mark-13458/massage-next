@@ -6,6 +6,7 @@ import { useState, useTransition } from 'react'
 const statuses = ['PENDING', 'CONFIRMED', 'COMPLETED', 'CANCELLED', 'NO_SHOW'] as const
 
 type NoticeTone = 'success' | 'error' | 'info'
+type AdminLang = 'zh' | 'en'
 
 function noticeClassName(tone: NoticeTone) {
   if (tone === 'success') return 'text-emerald-700'
@@ -13,13 +14,18 @@ function noticeClassName(tone: NoticeTone) {
   return 'text-stone-500'
 }
 
+function t(lang: AdminLang, zh: string, en: string) {
+  return lang === 'en' ? en : zh
+}
+
 type Props = {
   id: number
   currentStatus: string
   internalNote?: string | null
+  lang?: AdminLang
 }
 
-export function AppointmentStatusControls({ id, currentStatus, internalNote }: Props) {
+export function AppointmentStatusControls({ id, currentStatus, internalNote, lang = 'zh' }: Props) {
   const router = useRouter()
   const [status, setStatus] = useState(currentStatus)
   const [note, setNote] = useState(internalNote ?? '')
@@ -28,7 +34,7 @@ export function AppointmentStatusControls({ id, currentStatus, internalNote }: P
   const [isPending, startTransition] = useTransition()
 
   async function save() {
-    setMessage('正在保存预约状态…')
+    setMessage(t(lang, '正在保存预约状态…', 'Saving booking status...'))
     setMessageTone('info')
 
     startTransition(async () => {
@@ -41,14 +47,14 @@ export function AppointmentStatusControls({ id, currentStatus, internalNote }: P
         const json = await response.json().catch(() => ({}))
 
         if (!response.ok) {
-          throw new Error(json.error || 'Update failed')
+          throw new Error(json.error || t(lang, '更新失败', 'Update failed'))
         }
 
-        setMessage('预约状态已保存，页面已刷新')
+        setMessage(t(lang, '预约状态已保存，页面已刷新', 'Booking status saved and page refreshed'))
         setMessageTone('success')
         router.refresh()
       } catch (error) {
-        setMessage(error instanceof Error ? error.message : '保存失败')
+        setMessage(error instanceof Error ? error.message : t(lang, '保存失败', 'Save failed'))
         setMessageTone('error')
       }
     })
@@ -71,7 +77,7 @@ export function AppointmentStatusControls({ id, currentStatus, internalNote }: P
       <textarea
         value={note}
         onChange={(e) => setNote(e.target.value)}
-        placeholder="内部备注"
+        placeholder={t(lang, '内部备注', 'Internal note')}
         rows={3}
         className="w-full rounded-2xl border border-stone-200 px-3 py-2 text-sm outline-none focus:border-amber-500"
       />
@@ -83,7 +89,7 @@ export function AppointmentStatusControls({ id, currentStatus, internalNote }: P
           disabled={isPending}
           className="rounded-full bg-stone-900 px-4 py-2 text-xs font-semibold text-white transition hover:bg-stone-800 disabled:cursor-not-allowed disabled:opacity-70"
         >
-          {isPending ? '保存中…' : '保存'}
+          {isPending ? t(lang, '保存中…', 'Saving...') : t(lang, '保存', 'Save')}
         </button>
         {message ? <span className={`text-xs ${noticeClassName(messageTone)}`}>{message}</span> : null}
       </div>

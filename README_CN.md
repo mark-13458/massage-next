@@ -26,7 +26,10 @@
 ### 后台管理（`/admin`）
 - 登录页：`/admin/login`
 - 基础 session + middleware 保护
+- 后台中英切换（中文 / English）
 - Dashboard 概览
+- 系统设置页
+- 管理员修改密码
 - 预约管理
   - 列表
   - 状态筛选

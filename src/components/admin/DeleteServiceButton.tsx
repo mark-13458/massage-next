@@ -3,13 +3,19 @@
 import { useRouter } from 'next/navigation'
 import { useState, useTransition } from 'react'
 
-export function DeleteServiceButton({ id }: { id: number }) {
+type AdminLang = 'zh' | 'en'
+
+function t(lang: AdminLang, zh: string, en: string) {
+  return lang === 'en' ? en : zh
+}
+
+export function DeleteServiceButton({ id, lang = 'zh' }: { id: number; lang?: AdminLang }) {
   const router = useRouter()
   const [message, setMessage] = useState('')
   const [isPending, startTransition] = useTransition()
 
   async function remove() {
-    const ok = window.confirm('确认删除这个服务吗？此操作不可撤销。')
+    const ok = window.confirm(t(lang, '确认删除这个服务吗？此操作不可撤销。', 'Are you sure you want to delete this service? This action cannot be undone.'))
     if (!ok) return
 
     setMessage('')
@@ -20,14 +26,14 @@ export function DeleteServiceButton({ id }: { id: number }) {
         })
 
         if (!response.ok) {
-          throw new Error('Delete failed')
+          throw new Error(t(lang, '删除失败', 'Delete failed'))
         }
 
-        setMessage('已删除')
+        setMessage(t(lang, '已删除', 'Deleted'))
         router.push('/admin/services')
         router.refresh()
       } catch {
-        setMessage('删除失败')
+        setMessage(t(lang, '删除失败', 'Delete failed'))
       }
     })
   }
@@ -40,7 +46,7 @@ export function DeleteServiceButton({ id }: { id: number }) {
         disabled={isPending}
         className="rounded-full border border-rose-200 bg-rose-50 px-4 py-2 text-xs font-medium text-rose-700 transition hover:bg-rose-100 disabled:cursor-not-allowed disabled:opacity-70"
       >
-        {isPending ? '删除中…' : '删除服务'}
+        {isPending ? t(lang, '删除中…', 'Deleting...') : t(lang, '删除服务', 'Delete service')}
       </button>
       {message ? <span className="text-xs text-stone-500">{message}</span> : null}
     </div>

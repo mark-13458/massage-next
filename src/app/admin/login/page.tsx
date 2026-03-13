@@ -1,6 +1,7 @@
 import { redirect } from 'next/navigation'
 import { AdminLoginForm } from '../../../../src/components/admin/AdminLoginForm'
 import { getCurrentAdmin } from '../../../../src/lib/auth'
+import { getAdminLang, pick } from '../../../../src/lib/admin-i18n'
 
 export default async function AdminLoginPage() {
   const admin = await getCurrentAdmin()
@@ -8,15 +9,17 @@ export default async function AdminLoginPage() {
     redirect('/admin')
   }
 
+  const lang = await getAdminLang()
+
   return (
     <main className="min-h-screen bg-stone-100 px-4 py-16">
       <div className="mx-auto max-w-xl">
         <div className="mb-6 rounded-3xl bg-white p-8 shadow-sm">
           <p className="text-sm font-semibold uppercase tracking-[0.18em] text-amber-700">Admin Access</p>
-          <h1 className="mt-2 text-3xl font-semibold text-stone-900">后台登录</h1>
-          <p className="mt-3 text-sm leading-6 text-stone-600">先把后台加上最基本的认证保护。后面可以再继续升级成完整 session / role-based auth。</p>
+          <h1 className="mt-2 text-3xl font-semibold text-stone-900">{pick(lang, '后台登录', 'Admin sign in')}</h1>
+          <p className="mt-3 text-sm leading-6 text-stone-600">{pick(lang, '先把后台加上最基本的认证保护。后面可以再继续升级成完整 session / role-based auth。', 'Start with a protected admin login, then continue upgrading toward fuller session and role-based auth.')}</p>
         </div>
-        <AdminLoginForm />
+        <AdminLoginForm lang={lang} />
       </div>
     </main>
   )
