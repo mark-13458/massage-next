@@ -1,11 +1,12 @@
-import { NextRequest, NextResponse } from 'next/server'
+import { NextRequest } from 'next/server'
 import bcrypt from 'bcryptjs'
+import { apiError, apiOk } from '../../../../../src/lib/api-response'
 import { prisma } from '../../../../../src/lib/prisma'
 import { setAdminSession } from '../../../../../src/lib/auth'
 
 export async function POST(request: NextRequest) {
   if (!process.env.DATABASE_URL) {
-    return NextResponse.json({ status: 'error', error: 'DATABASE_URL is not configured' }, { status: 500 })
+    return apiError('DATABASE_URL is not configured', 500)
   }
 
   try {
@@ -14,25 +15,22 @@ export async function POST(request: NextRequest) {
     const password = String(json.password || '')
 
     if (!email || !password) {
-      return NextResponse.json({ status: 'error', error: 'Email and password are required' }, { status: 400 })
+      return apiError('Email and password are required', 400)
     }
 
     const user = await prisma.user.findUnique({ where: { email } })
     if (!user || !user.isActive) {
-      return NextResponse.json({ status: 'error', error: 'Invalid credentials' }, { status: 401 })
+      return apiError('Invalid credentials', 401)
     }
 
     const ok = await bcrypt.compare(password, user.passwordHash)
     if (!ok) {
-      return NextResponse.json({ status: 'error', error: 'Invalid credentials' }, { status: 401 })
+      return apiError('Invalid credentials', 401)
     }
 
     await setAdminSession(user.id, user.email)
-    return NextResponse.json({ status: 'ok' })
+    return apiOk()
   } catch (error) {
-    return NextResponse.json(
-      { status: 'error', error: error instanceof Error ? error.message : 'Unknown error' },
-      { status: 500 },
-    )
+    return apiError(error instanceof Error ? error.message : 'Unknown error', 500)
   }
 }

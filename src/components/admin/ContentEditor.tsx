@@ -198,9 +198,10 @@ export function ContentEditor({
       try {
         const response = await fetch('/api/admin/upload', { method: 'POST', body: formData })
         const json = await response.json().catch(() => ({}))
-        if (!response.ok || !json.item) throw new Error(json.error || t(lang, '上传失败', 'Upload failed'))
-        setGallery((current) => [...current, json.item])
-        setUploadMessage(t(lang, `上传成功，已加入图库列表（${json.item.width || '?'}×${json.item.height || '?'}）`, `Upload succeeded and was added to the gallery list (${json.item.width || '?'}×${json.item.height || '?'})`))
+        const item = json.data?.item
+        if (!response.ok || !item) throw new Error(json.error || t(lang, '上传失败', 'Upload failed'))
+        setGallery((current) => [...current, item])
+        setUploadMessage(t(lang, `上传成功，已加入图库列表（${item.width || '?'}×${item.height || '?'}）`, `Upload succeeded and was added to the gallery list (${item.width || '?'}×${item.height || '?'})`))
         setUploadMessageTone('success')
       } catch (error) {
         setUploadMessage(error instanceof Error ? error.message : t(lang, '上传失败', 'Upload failed'))
@@ -233,9 +234,10 @@ export function ContentEditor({
       try {
         const response = await fetch('/api/admin/upload', { method: 'POST', body: formData })
         const json = await response.json().catch(() => ({}))
-        if (!response.ok || !json.item?.imageUrl) throw new Error(json.error || t(lang, '上传失败', 'Upload failed'))
-        setHero((current) => ({ ...current, imageUrl: json.item.imageUrl }))
-        setHeroUploadMessage(t(lang, `Hero 图片上传成功（${json.item.width || '?'}×${json.item.height || '?'}）`, `Hero image uploaded successfully (${json.item.width || '?'}×${json.item.height || '?'})`))
+        const item = json.data?.item
+        if (!response.ok || !item?.imageUrl) throw new Error(json.error || t(lang, '上传失败', 'Upload failed'))
+        setHero((current) => ({ ...current, imageUrl: item.imageUrl }))
+        setHeroUploadMessage(t(lang, `Hero 图片上传成功（${item.width || '?'}×${item.height || '?'}）`, `Hero image uploaded successfully (${item.width || '?'}×${item.height || '?'})`))
         setHeroUploadMessageTone('success')
       } catch (error) {
         setHeroUploadMessage(error instanceof Error ? error.message : t(lang, '上传失败', 'Upload failed'))

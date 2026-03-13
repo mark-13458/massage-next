@@ -1152,3 +1152,36 @@ Docker 部署当前已经不只是“页面能打开”，而是：
 1. 继续把 `settings / content / upload / login` 等 admin API 也逐步迁到统一 envelope。
 2. 抽共享 admin mapper，进一步减少 view model 层重复。
 3. 把 Dashboard / Settings / Gallery 继续收进统一工作台布局模式。
+
+#### 37) 继续统一剩余高频 admin API envelope
+- 已继续接入统一响应协议的后台接口：
+  - `GET /api/admin/settings`
+  - `PATCH /api/admin/settings`
+  - `PATCH /api/admin/content`
+  - `POST /api/admin/upload`
+  - `POST /api/admin/login`
+  - `POST /api/admin/password`
+- 当前统一目标继续保持：
+  - 成功：`{ status: 'ok', data: ... }`
+  - 失败：`{ status: 'error', error: ... }`
+- 已同步处理受影响的后台组件：
+  - `AdminLoginForm`
+  - `ContentEditor`
+  - 其余设置/密码组件因本就只依赖 `json.error`，无需额外改动
+- 当前效果：
+  - admin 核心入口接口的协议开始明显一致
+  - 上传 / 内容保存 / 登录 / 设置 / 密码修改这些高频后台操作，更适合后续继续抽客户端工具层
+
+### 本阶段验证追加
+- `npm run build` 已通过。
+
+### 本阶段结论
+这一轮继续减少后台长期维护成本：
+- 高价值 admin API 基本都在向统一 envelope 靠拢
+- 页面与组件层后续更容易抽通用请求工具
+- 后台架构开始同时在页面层、服务层、接口层三条线上收口
+
+### 下一步建议
+1. 抽共享 admin request helper，让客户端组件减少重复 fetch + error 处理。
+2. 继续统一 Dashboard / Settings / Gallery 的工作台布局模式。
+3. 抽共享 admin mapper，继续压缩 view model 层重复逻辑。

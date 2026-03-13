@@ -1,6 +1,7 @@
 import { unlink } from 'fs/promises'
 import path from 'path'
-import { NextRequest, NextResponse } from 'next/server'
+import { NextRequest } from 'next/server'
+import { apiError, apiOk } from '../../../../lib/api-response'
 import { getCurrentAdmin } from '../../../../lib/auth'
 import { prisma } from '../../../../lib/prisma'
 
@@ -18,12 +19,12 @@ async function cleanupLocalUpload(filePath?: string | null) {
 
 export async function PATCH(request: NextRequest) {
   if (!process.env.DATABASE_URL) {
-    return NextResponse.json({ status: 'error', error: 'DATABASE_URL is not configured' }, { status: 500 })
+    return apiError('DATABASE_URL is not configured', 500)
   }
 
   const admin = await getCurrentAdmin()
   if (!admin) {
-    return NextResponse.json({ status: 'error', error: 'Unauthorized' }, { status: 401 })
+    return apiError('Unauthorized', 401)
   }
 
   try {
@@ -140,8 +141,8 @@ export async function PATCH(request: NextRequest) {
       }
     }
 
-    return NextResponse.json({ status: 'ok' })
+    return apiOk()
   } catch (error) {
-    return NextResponse.json({ status: 'error', error: error instanceof Error ? error.message : 'Unknown error' }, { status: 500 })
+    return apiError(error instanceof Error ? error.message : 'Unknown error', 500)
   }
 }

@@ -1,7 +1,8 @@
 import { mkdir, writeFile } from 'fs/promises'
 import path from 'path'
 import { randomUUID } from 'crypto'
-import { NextRequest, NextResponse } from 'next/server'
+import { NextRequest } from 'next/server'
+import { apiError, apiOk } from '../../../../../src/lib/api-response'
 import { getCurrentAdmin } from '../../../../../src/lib/auth'
 import { prisma } from '../../../../../src/lib/prisma'
 
@@ -126,12 +127,12 @@ function getImageDimensions(buffer: Buffer, mimeType: string): ImageDimensions |
 
 export async function POST(request: NextRequest) {
   if (!process.env.DATABASE_URL) {
-    return NextResponse.json({ status: 'error', error: 'DATABASE_URL is not configured' }, { status: 500 })
+    return apiError('DATABASE_URL is not configured', 500)
   }
 
   const admin = await getCurrentAdmin()
   if (!admin) {
-    return NextResponse.json({ status: 'error', error: 'Unauthorized' }, { status: 401 })
+    return apiError('Unauthorized', 401)
   }
 
   try {
@@ -147,19 +148,19 @@ export async function POST(request: NextRequest) {
     const isCover = String(formData.get('isCover') || 'false') === 'true'
 
     if (!(file instanceof File)) {
-      return NextResponse.json({ status: 'error', error: 'No file uploaded' }, { status: 400 })
+      return apiError('No file uploaded', 400)
     }
 
     if (!ALLOWED_USAGES.has(usage)) {
-      return NextResponse.json({ status: 'error', error: 'Invalid upload usage' }, { status: 400 })
+      return apiError('Invalid upload usage', 400)
     }
 
     if (!ALLOWED_IMAGE_TYPES.has(file.type)) {
-      return NextResponse.json({ status: 'error', error: 'Only JPG, PNG, WEBP, and GIF uploads are allowed' }, { status: 400 })
+      return apiError('Only JPG, PNG, WEBP, and GIF uploads are allowed', 400)
     }
 
     if (file.size > MAX_FILE_SIZE) {
-      return NextResponse.json({ status: 'error', error: 'File too large (max 10MB)' }, { status: 400 })
+      return apiError('File too large (max 10MB)', 400)
     }
 
     const uploadDir = path.join(process.cwd(), 'public', 'uploads')
@@ -167,7 +168,7 @@ export async function POST(request: NextRequest) {
 
     const extension = EXTENSION_BY_MIME_TYPE[file.type]
     if (!extension) {
-      return NextResponse.json({ status: 'error', error: 'Unsupported image type' }, { status: 400 })
+      return apiError('Unsupported image type', 400)
     }
 
     const storedFilename = `${randomUUID()}${extension}`
@@ -177,25 +178,18 @@ export async function POST(request: NextRequest) {
     const bytes = Buffer.from(await file.arrayBuffer())
     const dimensions = getImageDimensions(bytes, file.type)
     if (!dimensions) {
-      return NextResponse.json({ status: 'error', error: 'Unable to read image dimensions' }, { status: 400 })
+      return apiError('Unable to read image dimensions', 400)
     }
 
     const minDimensions = MIN_DIMENSIONS[usage as keyof typeof MIN_DIMENSIONS]
     if (dimensions.width < minDimensions.width || dimensions.height < minDimensions.height) {
-      return NextResponse.json(
-        {
-          status: 'error',
-          error: `${usage === 'hero' ? 'Hero' : 'Gallery'} image must be at least ${minDimensions.width}x${minDimensions.height}`,
-        },
-        { status: 400 },
-      )
+      return apiError(`${usage === 'hero' ? 'Hero' : 'Gallery'} image must be at least ${minDimensions.width}x${minDimensions.height}`, 400)
     }
 
     await writeFile(outputPath, bytes)
 
     if (usage === 'hero') {
-      return NextResponse.json({
-        status: 'ok',
+      return apiOk({
         item: {
           imageUrl: publicPath,
           width: dimensions.width,
@@ -238,8 +232,7 @@ export async function POST(request: NextRequest) {
       include: { file: true },
     })
 
-    return NextResponse.json({
-      status: 'ok',
+    return apiOk({
       item: {
         id: gallery.id,
         titleDe: gallery.titleDe || '',
@@ -255,9 +248,6 @@ export async function POST(request: NextRequest) {
       },
     })
   } catch (error) {
-    return NextResponse.json(
-      { status: 'error', error: error instanceof Error ? error.message : 'Unknown error' },
-      { status: 500 },
-    )
+    return apiError(error instanceof Error ? error.message : 'Unknown error', 500)
   }
 }

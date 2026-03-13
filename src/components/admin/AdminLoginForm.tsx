@@ -25,8 +25,9 @@ export function AdminLoginForm({ lang = 'zh' }: { lang?: 'zh' | 'en' }) {
           body: JSON.stringify({ email, password }),
         })
 
+        const json = await response.json().catch(() => ({}))
+
         if (!response.ok) {
-          const json = await response.json().catch(() => ({}))
           throw new Error(json.error || 'Login failed')
         }
 
