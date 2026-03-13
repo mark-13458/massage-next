@@ -139,6 +139,8 @@
 - 本地生产模式启动测试已跑通（页面可起，数据库未接通）
 - Docker standalone 启动方式已修正并验证通过
 - `.dockerignore` 已补齐，构建上下文已大幅缩小
+- Docker Prisma 运行时兼容性已修复（bookworm -> bullseye）
+- Docker 登录 / seed / 预约 smoke test 已通过
 - Docker 上传目录持久化卷已补上
 - `DEVELOPMENT_LOG.md` 已建立
 - `HANDOFF.md` 已建立

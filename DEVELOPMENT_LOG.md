@@ -474,6 +474,31 @@
   - `http://127.0.0.1/admin/login` 返回 `200`
   - `http://127.0.0.1/api/healthz` 返回 `{"status":"ok"}`
 - 当前 `massage-web` 日志中已不再出现 `next start` 与 standalone 不匹配的警告。
+- 在继续做 Docker 业务 smoke test 时又发现：Prisma 5.9 在 `node:20-bookworm-slim` 运行镜像里会因 `libssl.so.1.1` 缺失而报错，导致页面可访问但所有依赖 Prisma 的业务 API 会 500。
+- 因此已继续调整 Docker 基座，改为更兼容 Prisma 5.9 的 Debian 变体以修复运行时依赖问题。
+- 经过切换到 `node:20-bullseye-slim` 后，Prisma 运行时错误已消失，Docker 业务 API 恢复可用。
+
+#### 15) Docker 业务 smoke test（登录 / seed / 预约）
+- 已在 Docker 运行环境外，通过本机连接 `127.0.0.1:3307` 执行：
+  - `prisma db push`
+  - `npm run db:seed`
+- 已验证后台登录：
+  - `POST /api/admin/login` 返回 `{"status":"ok"}`
+  - 登录后访问 `/admin` 返回 `200`
+- 已验证预约提交：
+  - 先从数据库读取真实 `Service.id`
+  - 再调用 `POST /api/booking`
+  - 返回 `{"status":"ok", ...}`
+- 已验证数据库写入：
+  - `Appointment` 表中出现新预约记录，状态为 `PENDING`
+
+### 当前结论更新
+Docker 部署当前已经不只是“页面能打开”，而是：
+- 容器能正常启动
+- 健康检查正常
+- 后台登录正常
+- 数据库初始化正常
+- 预约业务写入正常
 
 ---
 

@@ -318,12 +318,19 @@
   - Docker 下 `/api/healthz` 返回 `{"status":"ok"}`
   - Docker standalone 启动方式已验证通过
   - `.dockerignore` 优化后 build context 已显著下降
+  - `prisma db push` 成功
+  - `npm run db:seed` 成功
+  - Docker 下后台登录成功
+  - Docker 下预约提交成功
+  - 数据库内已验证 `Appointment` 记录创建成功
 - 失败项：
   - 非 Docker 本地生产模式测试时，数据库依赖曾未接通
+  - 初版 Docker 运行镜像因 Prisma/libssl 兼容问题导致业务 API 500（现已修复）
 - 发现问题：
-  - Prisma 在构建阶段仍会提示 OpenSSL / libssl 兼容警告，但当前镜像已可完成构建并正常运行
+  - 预约 smoke test 不能写死 `serviceId=1`，因为 seed 重跑后自增 id 可能变化，应基于 slug 或查询后的真实 id
 - 回滚措施：
   - Docker 服务目前保持运行，可按需执行 `docker compose down`
 - 下一步：
-  - 在 Docker 环境内补数据库迁移 / seed 验证
-  - 继续做后台业务链 smoke test（登录、预约、内容、上传）
+  - 继续做内容后台 / 上传链 smoke test
+  - 验证上传目录持久化是否在重启后保留
+  - 视情况补数据库迁移脚本或部署脚本
