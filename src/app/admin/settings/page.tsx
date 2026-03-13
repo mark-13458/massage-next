@@ -1,8 +1,10 @@
 import { redirect } from 'next/navigation'
+import { AdminInfoList } from '../../../components/admin/AdminInfoList'
 import { AdminPasswordForm } from '../../../components/admin/AdminPasswordForm'
 import { AdminSectionCard } from '../../../components/admin/AdminSectionCard'
 import { AdminSettingsForm } from '../../../components/admin/AdminSettingsForm'
 import { AdminShell } from '../../../components/admin/AdminShell'
+import { AdminWorkspaceLayout } from '../../../components/admin/AdminWorkspaceLayout'
 import { getCurrentAdmin } from '../../../lib/auth'
 import { getAdminLang, pick } from '../../../lib/admin-i18n'
 import { getAdminSystemSettings } from '../../../server/services/admin-settings.service'
@@ -23,8 +25,9 @@ export default async function AdminSettingsPage() {
       title={pick(lang, '系统设置', 'System settings')}
       subtitle={pick(lang, '这里集中放后台偏好、系统参数、管理员密码与后续可扩展的运营配置。', 'A central place for admin preferences, system parameters, password management and future operational settings.')}
     >
-      <div className="grid gap-6 xl:grid-cols-[1.2fr_0.8fr]">
-        <div className="space-y-6">
+      <AdminWorkspaceLayout
+        ratio="content-heavy"
+        main={
           <AdminSectionCard
             eyebrow={pick(lang, 'System Preferences', 'System Preferences')}
             title={pick(lang, '基础系统配置', 'Core system configuration')}
@@ -32,9 +35,9 @@ export default async function AdminSettingsPage() {
           >
             <AdminSettingsForm lang={lang} initialSettings={settings} />
           </AdminSectionCard>
-        </div>
-
-        <div className="space-y-6">
+        }
+        aside={
+          <>
           <AdminSectionCard
             eyebrow={pick(lang, 'Security', 'Security')}
             title={pick(lang, '管理员安全', 'Admin security')}
@@ -49,12 +52,14 @@ export default async function AdminSettingsPage() {
             title={pick(lang, '当前登录信息', 'Current admin session')}
             description={pick(lang, '展示当前管理员的基础信息；后续还可以继续扩展为多管理员与角色体系。', 'This shows the active admin basics today and can later evolve into multi-admin roles and permissions.')}
           >
-            <div className="grid gap-4 text-sm text-stone-700">
-              <div><span className="font-semibold text-stone-900">{pick(lang, '姓名：', 'Name: ')}</span>{admin.name}</div>
-              <div><span className="font-semibold text-stone-900">{pick(lang, '邮箱：', 'Email: ')}</span>{admin.email}</div>
-              <div><span className="font-semibold text-stone-900">{pick(lang, '角色：', 'Role: ')}</span>{admin.role}</div>
-              <div><span className="font-semibold text-stone-900">{pick(lang, '状态：', 'Status: ')}</span>{admin.isActive ? pick(lang, '启用中', 'Active') : pick(lang, '禁用', 'Inactive')}</div>
-            </div>
+            <AdminInfoList
+              items={[
+                { label: pick(lang, '姓名：', 'Name: '), value: admin.name },
+                { label: pick(lang, '邮箱：', 'Email: '), value: admin.email },
+                { label: pick(lang, '角色：', 'Role: '), value: admin.role },
+                { label: pick(lang, '状态：', 'Status: '), value: admin.isActive ? pick(lang, '启用中', 'Active') : pick(lang, '禁用', 'Inactive') },
+              ]}
+            />
           </AdminSectionCard>
 
           <AdminSectionCard
@@ -62,15 +67,18 @@ export default async function AdminSettingsPage() {
             title={pick(lang, '当前配置快照', 'Current configuration snapshot')}
             description={pick(lang, '用一个轻量面板快速确认前台默认语言、后台默认语言、货币和验证码开关当前是什么状态。', 'Use this lightweight panel to quickly confirm the current frontend locale, admin language, currency and captcha state.')}
           >
-            <div className="grid gap-3 text-sm text-stone-700">
-              <div><span className="font-semibold text-stone-900">{pick(lang, '前台默认语言：', 'Frontend locale: ')}</span>{settings?.defaultFrontendLocale || 'de'}</div>
-              <div><span className="font-semibold text-stone-900">{pick(lang, '后台默认语言：', 'Admin language: ')}</span>{settings?.adminDefaultLanguage || 'zh'}</div>
-              <div><span className="font-semibold text-stone-900">{pick(lang, '货币：', 'Currency: ')}</span>{settings?.currency || 'EUR'}</div>
-              <div><span className="font-semibold text-stone-900">{pick(lang, '验证码：', 'Captcha: ')}</span>{settings?.cfTurnstileEnabled ? pick(lang, '已开启', 'Enabled') : pick(lang, '已关闭', 'Disabled')}</div>
-            </div>
+            <AdminInfoList
+              items={[
+                { label: pick(lang, '前台默认语言：', 'Frontend locale: '), value: settings?.defaultFrontendLocale || 'de' },
+                { label: pick(lang, '后台默认语言：', 'Admin language: '), value: settings?.adminDefaultLanguage || 'zh' },
+                { label: pick(lang, '货币：', 'Currency: '), value: settings?.currency || 'EUR' },
+                { label: pick(lang, '验证码：', 'Captcha: '), value: settings?.cfTurnstileEnabled ? pick(lang, '已开启', 'Enabled') : pick(lang, '已关闭', 'Disabled') },
+              ]}
+            />
           </AdminSectionCard>
-        </div>
-      </div>
+          </>
+        }
+      />
     </AdminShell>
   )
 }

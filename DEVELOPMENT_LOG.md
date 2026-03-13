@@ -1266,3 +1266,34 @@ Docker 部署当前已经不只是“页面能打开”，而是：
 1. 继续统一 Dashboard / Settings / Gallery 的工作台布局模式。
 2. 抽共享 admin mapper，继续压缩 view model 层重复逻辑。
 3. 开始整理后台共享 section / summary / stat card 组件，让六大模块视觉和结构更一致。
+
+#### 41) 继续统一 Dashboard / Settings / Gallery 的工作台骨架
+- 已新增共享运营卡片组件：
+  - `src/components/admin/AdminStatGrid.tsx`
+  - `src/components/admin/AdminInfoList.tsx`
+- 当前作用：
+  - `AdminStatGrid` 统一后台统计卡片网格
+  - `AdminInfoList` 统一后台信息列表展示
+- 已进一步收口的后台页面：
+  - `/admin`（Dashboard）
+  - `/admin/settings`
+  - `/admin/gallery`
+- 当前效果：
+  - Dashboard 开始复用统一工作台骨架，不再单独手写一套双栏结构
+  - Settings 的“当前登录信息 / 配置快照”开始复用共享信息列表组件
+  - Gallery 的统计卡开始复用共享统计卡网格
+  - 后台六大模块的页面结构和视觉骨架更加趋于一致
+
+### 本阶段验证追加
+- `npm run build` 已通过。
+
+### 本阶段结论
+这一轮继续围绕“后台像一个完整运营系统”推进：
+- 不再只是逻辑层统一
+- 页面结构与视觉骨架也开始系统化
+- 后续继续做共享 mapper / 共享 section / summary 组件时，基础已经更稳
+
+### 下一步建议
+1. 抽共享 admin mapper，继续减少 view model 层重复字段映射。
+2. 继续统一 section / summary / stat card 组合模式，让六大模块页面更像同一套后台系统。
+3. 开始检查后台文案、组件命名与模块目录是否还能进一步整理。

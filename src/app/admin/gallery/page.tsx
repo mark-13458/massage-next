@@ -4,6 +4,8 @@ import { AdminEmptyState } from '../../../components/admin/AdminEmptyState'
 import { GalleryQuickActions } from '../../../components/admin/GalleryQuickActions'
 import { AdminSectionCard } from '../../../components/admin/AdminSectionCard'
 import { AdminShell } from '../../../components/admin/AdminShell'
+import { AdminStatGrid } from '../../../components/admin/AdminStatGrid'
+import { AdminWorkspaceLayout } from '../../../components/admin/AdminWorkspaceLayout'
 import { getCurrentAdmin } from '../../../lib/auth'
 import { getAdminLang, pick } from '../../../lib/admin-i18n'
 import { getAdminGalleryOverview } from '../../../server/services/admin-media.service'
@@ -47,8 +49,8 @@ export default async function AdminGalleryPage({
         'Treat the gallery as a dedicated operations module: quickly inspect covers, active states, local uploads, and jump into content editing when needed.',
       )}
     >
-      <div className="grid gap-6 xl:grid-cols-[1.15fr_0.85fr]">
-        <div className="space-y-6">
+      <AdminWorkspaceLayout
+        main={
           <AdminSectionCard
             eyebrow="Gallery Library"
             title={pick(lang, '图库资源总览', 'Gallery library overview')}
@@ -173,10 +175,10 @@ export default async function AdminGalleryPage({
               </div>
             )}
           </AdminSectionCard>
-        </div>
-
-        <div className="space-y-6">
-          <AdminSectionCard
+        }
+        aside={
+          <>
+            <AdminSectionCard
             eyebrow="Gallery Stats"
             title={pick(lang, '图库状态面板', 'Gallery status panel')}
             description={pick(
@@ -186,19 +188,15 @@ export default async function AdminGalleryPage({
             )}
             tone="dark"
           >
-            <div className="grid gap-4 sm:grid-cols-2">
-              {[
+            <AdminStatGrid
+              dark
+              items={[
                 { label: pick(lang, '全部图片', 'All images'), value: stats.total },
                 { label: pick(lang, '启用图片', 'Active images'), value: stats.active },
                 { label: pick(lang, '封面数量', 'Cover count'), value: stats.covers },
                 { label: pick(lang, '本地上传', 'Local uploads'), value: stats.localUploads },
-              ].map((item) => (
-                <div key={item.label} className="rounded-3xl border border-white/10 bg-white/5 p-4">
-                  <p className="text-[11px] font-semibold uppercase tracking-[0.24em] text-stone-400">{item.label}</p>
-                  <p className="mt-3 text-3xl font-semibold text-white">{item.value}</p>
-                </div>
-              ))}
-            </div>
+              ]}
+            />
           </AdminSectionCard>
 
           <AdminSectionCard
@@ -216,8 +214,9 @@ export default async function AdminGalleryPage({
               <p>3. {pick(lang, '后续可扩展批量上传、筛选和 alt 文本质量检查。', 'Later this can grow into batch upload, filtering and alt-text quality checks.')}</p>
             </div>
           </AdminSectionCard>
-        </div>
-      </div>
+          </>
+        }
+      />
     </AdminShell>
   )
 }
