@@ -38,14 +38,17 @@ export default async function AdminServicesPage() {
       <div className="grid gap-6 xl:grid-cols-[1.15fr_0.85fr]">
         <AdminSectionCard
           eyebrow="Service Library"
-          title="服务列表"
-          description="当前支持完整内容维护、上架/下架、精选开关和排序调整。先维持现有业务逻辑，只升级后台视觉结构与管理节奏。"
+          title={pick(lang, '服务列表', 'Service list')}
+          description={pick(lang, '当前支持完整内容维护、上架/下架、精选开关和排序调整。先维持现有业务逻辑，只升级后台视觉结构与管理节奏。', 'Support full content maintenance, publishing controls, featured toggles and sorting in one stable service workspace.')}
           actions={undefined}
         >
           {services.length === 0 ? (
             <AdminEmptyState title="暂时还没有服务数据" description="可能是数据库还没接通，或者你还没有创建第一条服务。接通数据库后可以直接在这里新建并维护双语服务。" />
           ) : (
-            <AdminListFrame title="服务列表" description="当前支持完整内容维护、上架/下架、精选开关和排序调整。先维持现有业务逻辑，只升级后台视觉结构与管理节奏。">
+            <AdminListFrame
+              title={pick(lang, '服务列表', 'Service list')}
+              description={pick(lang, '当前支持完整内容维护、上架/下架、精选开关和排序调整。先维持现有业务逻辑，只升级后台视觉结构与管理节奏。', 'Support full content maintenance, publishing controls, featured toggles and sorting in one stable service workspace.')}
+            >
               <div className="overflow-x-auto">
                 <table className="min-w-full divide-y divide-stone-100 text-sm">
                   <thead className="bg-stone-50">
@@ -94,8 +97,8 @@ export default async function AdminServicesPage() {
 
         <AdminSectionCard
           eyebrow="Management Notes"
-          title="服务管理建议"
-          description="先把服务条目做干净，再继续补更细的封面、批量操作和内容模板化能力。"
+          title={pick(lang, '服务管理建议', 'Service management notes')}
+          description={pick(lang, '先把服务条目做干净，再继续补更细的封面、批量操作和内容模板化能力。', 'Keep the service catalog clean first, then layer richer media, batch actions and templated editing on top.')}
           tone="dark"
         >
           <div className="space-y-4 text-sm leading-7 text-stone-300">
