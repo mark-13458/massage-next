@@ -1,3 +1,4 @@
+import Link from 'next/link'
 import { redirect } from 'next/navigation'
 import { AdminSectionCard } from '../../components/admin/AdminSectionCard'
 import { AdminShell } from '../../components/admin/AdminShell'
@@ -37,18 +38,42 @@ export default async function AdminPage() {
       <div className="mt-8">
         <AdminWorkspaceLayout
           main={
-            <AdminSectionCard eyebrow="Roadmap" title="模块路线图" description="把后台六大模块整理成更稳定的运营工作台结构。">
-              <div className="grid gap-4">
+            <AdminSectionCard eyebrow="Workspace" title={pick(lang, '快速开始', 'Quick start')} description={pick(lang, '选择一个模块开始管理你的站点。', 'Select a module to manage your site.')}>
+              <div className="grid gap-4 sm:grid-cols-2">
                 {[
-                  { title: pick(lang, '预约管理', 'Bookings'), desc: pick(lang, '查看预约、改状态、写备注、确认完成（下一步继续补完整操作）', 'Review bookings, update statuses, add notes and handle completion workflows.') },
-                  { title: pick(lang, '服务项目', 'Services'), desc: pick(lang, '新增、编辑、上下架、排序、封面图', 'Create, edit, publish, reorder and refine the service catalog.') },
-                  { title: pick(lang, '网站内容', 'Content'), desc: pick(lang, '首页文案、联系信息、FAQ、SEO', 'Maintain hero copy, contact info, FAQ and site-facing content.') },
-                  { title: pick(lang, '图片管理', 'Media'), desc: pick(lang, '图库上传、替换、alt 文本、排序', 'Handle gallery uploads, replacement, alt text and media ordering.') },
+                  {
+                    title: pick(lang, '预约管理', 'Bookings'),
+                    desc: pick(lang, '查看预约、改状态、写备注、确认完成', 'Review bookings, update statuses, add notes and handle completion workflows.'),
+                    href: '/admin/appointments',
+                    icon: '📅'
+                  },
+                  {
+                    title: pick(lang, '服务项目', 'Services'),
+                    desc: pick(lang, '新增、编辑、上下架、排序、封面图', 'Create, edit, publish, reorder and refine the service catalog.'),
+                    href: '/admin/services',
+                    icon: '💆‍♀️'
+                  },
+                  {
+                    title: pick(lang, '网站内容', 'Content'),
+                    desc: pick(lang, '首页文案、联系信息、FAQ、SEO', 'Maintain hero copy, contact info, FAQ and site-facing content.'),
+                    href: '/admin/content',
+                    icon: '📝'
+                  },
+                  {
+                    title: pick(lang, '图片管理', 'Media'),
+                    desc: pick(lang, '图库上传、替换、alt 文本、排序', 'Handle gallery uploads, replacement, alt text and media ordering.'),
+                    href: '/admin/gallery',
+                    icon: '🖼️'
+                  },
                 ].map((item) => (
-                  <div key={item.title} className="rounded-3xl border border-stone-100 bg-[linear-gradient(180deg,#fff_0%,#fcfbf9_100%)] p-5">
+                  <Link key={item.title} href={item.href} className="group relative flex flex-col gap-2 rounded-3xl border border-stone-100 bg-[linear-gradient(180deg,#fff_0%,#fcfbf9_100%)] p-5 transition hover:border-stone-300 hover:shadow-sm">
+                    <div className="flex items-center justify-between">
+                      <span className="text-2xl">{item.icon}</span>
+                      <span className="text-stone-300 transition group-hover:text-stone-500">→</span>
+                    </div>
                     <h3 className="font-semibold text-stone-900">{item.title}</h3>
-                    <p className="mt-2 text-sm leading-6 text-stone-600">{item.desc}</p>
-                  </div>
+                    <p className="text-sm leading-6 text-stone-500">{item.desc}</p>
+                  </Link>
                 ))}
               </div>
             </AdminSectionCard>
