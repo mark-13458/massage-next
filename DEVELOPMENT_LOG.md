@@ -458,6 +458,23 @@
   - 关键页面路由可以响应
   - 但数据库依赖仍需本地 MySQL / Docker MySQL / 远端库接通后，才能完成完整业务联调
 
+#### 14) Docker 启动方式与构建上下文优化
+- 已新增 `.dockerignore`，把构建上下文中的高体积无关内容排除。
+- 实测 Docker build context 已从接近 `500MB` 降到约 `5KB` 级别，构建效率明显改善。
+- 已重写 `Dockerfile`：
+  - 由 `npm start` 切换为 `node server.js`
+  - 直接使用 `.next/standalone` 产物启动
+  - 运行镜像改为 `node:20-bookworm-slim`
+- 已重新执行 `docker compose up -d --build`。
+- 回归验证结果：
+  - `massage-mysql` healthy
+  - `massage-web` up
+  - `massage-nginx` up
+  - `http://127.0.0.1` 返回 `200`
+  - `http://127.0.0.1/admin/login` 返回 `200`
+  - `http://127.0.0.1/api/healthz` 返回 `{"status":"ok"}`
+- 当前 `massage-web` 日志中已不再出现 `next start` 与 standalone 不匹配的警告。
+
 ---
 
 ## 当前整体状态（截至 2026-03-13）

@@ -312,15 +312,18 @@
   - `/de` 返回 200
   - `/admin/login` 返回 200
   - `/robots.txt` 返回 200
+  - `docker compose up -d --build` 成功
+  - Docker 下 `/` 返回 200
+  - Docker 下 `/admin/login` 返回 200
+  - Docker 下 `/api/healthz` 返回 `{"status":"ok"}`
+  - Docker standalone 启动方式已验证通过
+  - `.dockerignore` 优化后 build context 已显著下降
 - 失败项：
-  - `/api/healthz` 在首次探测时未连通
-  - 数据库依赖未接通，Prisma 无法连接 `127.0.0.1:3307`
+  - 非 Docker 本地生产模式测试时，数据库依赖曾未接通
 - 发现问题：
-  - 当前存在 `output: standalone` 配置，生产启动应进一步验证 `node .next/standalone/server.js`
-  - 数据库未启动或未映射到本地 3307，导致完整业务链无法验证
+  - Prisma 在构建阶段仍会提示 OpenSSL / libssl 兼容警告，但当前镜像已可完成构建并正常运行
 - 回滚措施：
-  - 已停止本地测试进程
+  - Docker 服务目前保持运行，可按需执行 `docker compose down`
 - 下一步：
-  - 接通本地 MySQL / Docker MySQL
-  - 再跑一次本地完整业务联调
-  - 验证 `node .next/standalone/server.js` 启动路径
+  - 在 Docker 环境内补数据库迁移 / seed 验证
+  - 继续做后台业务链 smoke test（登录、预约、内容、上传）

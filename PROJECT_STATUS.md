@@ -137,6 +137,8 @@
 - 预约后台反馈体验对齐已补上
 - 预约状态可视化增强已补上
 - 本地生产模式启动测试已跑通（页面可起，数据库未接通）
+- Docker standalone 启动方式已修正并验证通过
+- `.dockerignore` 已补齐，构建上下文已大幅缩小
 - Docker 上传目录持久化卷已补上
 - `DEVELOPMENT_LOG.md` 已建立
 - `HANDOFF.md` 已建立
