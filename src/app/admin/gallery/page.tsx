@@ -1,0 +1,201 @@
+import Link from 'next/link'
+import { redirect } from 'next/navigation'
+import { AdminEmptyState } from '../../../components/admin/AdminEmptyState'
+import { AdminSectionCard } from '../../../components/admin/AdminSectionCard'
+import { AdminShell } from '../../../components/admin/AdminShell'
+import { getCurrentAdmin } from '../../../lib/auth'
+import { getAdminLang, pick } from '../../../lib/admin-i18n'
+import { prisma } from '../../../lib/prisma'
+
+export const dynamic = 'force-dynamic'
+export const revalidate = 0
+
+async function getGalleryData() {
+  if (!process.env.DATABASE_URL) {
+    return { items: [], stats: { total: 0, active: 0, covers: 0, localUploads: 0 } }
+  }
+
+  try {
+    const items = await prisma.galleryImage.findMany({
+      include: { file: true },
+      orderBy: [{ isCover: 'desc' }, { sortOrder: 'asc' }, { createdAt: 'desc' }],
+    })
+
+    return {
+      items,
+      stats: {
+        total: items.length,
+        active: items.filter((item) => item.isActive).length,
+        covers: items.filter((item) => item.isCover).length,
+        localUploads: items.filter((item) => item.file.filePath.startsWith('/uploads/')).length,
+      },
+    }
+  } catch {
+    return { items: [], stats: { total: 0, active: 0, covers: 0, localUploads: 0 } }
+  }
+}
+
+export default async function AdminGalleryPage() {
+  const admin = await getCurrentAdmin()
+  if (!admin) redirect('/admin/login')
+
+  const lang = await getAdminLang()
+  const { items, stats } = await getGalleryData()
+
+  return (
+    <AdminShell
+      lang={lang}
+      title={pick(lang, '图库管理', 'Gallery management')}
+      subtitle={pick(
+        lang,
+        '把图库作为独立运营模块查看：快速检查封面、启用状态、本地上传占比，并跳转到内容页继续编辑。',
+        'Treat the gallery as a dedicated operations module: quickly inspect covers, active states, local uploads, and jump into content editing when needed.',
+      )}
+    >
+      <div className="grid gap-6 xl:grid-cols-[1.15fr_0.85fr]">
+        <div className="space-y-6">
+          <AdminSectionCard
+            eyebrow="Gallery Library"
+            title={pick(lang, '图库资源总览', 'Gallery library overview')}
+            description={pick(
+              lang,
+              '这一页先解决“快速看全图库状态”的问题；具体新增、上传、替换仍然复用现有内容工作台。',
+              'This page solves the fast overview problem first; creation, upload and replacement continue to reuse the existing content workspace.',
+            )}
+            actions={
+              <Link
+                href="/admin/content"
+                className="rounded-full border border-stone-300 bg-white px-4 py-2 text-sm font-medium text-stone-700 transition hover:border-stone-500"
+              >
+                {pick(lang, '前往内容工作台', 'Open content workspace')}
+              </Link>
+            }
+          >
+            {items.length === 0 ? (
+              <AdminEmptyState
+                title={pick(lang, '当前还没有图库图片', 'There are no gallery images yet')}
+                description={pick(
+                  lang,
+                  '你可以先去内容工作台上传第一张图库图片，之后这里会成为日常巡检与资源确认入口。',
+                  'Go to the content workspace to upload the first gallery image; after that, this page becomes the daily inspection and media review entry.',
+                )}
+              />
+            ) : (
+              <div className="grid gap-4">
+                {items.map((item) => {
+                  const dimensionText = item.file.width && item.file.height ? `${item.file.width}×${item.file.height}` : '—'
+                  const sourceLabel = item.file.filePath.startsWith('/uploads/')
+                    ? pick(lang, '本地上传', 'Local upload')
+                    : pick(lang, '外部链接/历史资源', 'External or legacy asset')
+
+                  return (
+                    <article
+                      key={item.id}
+                      className="grid gap-4 rounded-3xl border border-stone-100 bg-[linear-gradient(180deg,#fff_0%,#fcfbf9_100%)] p-5 md:grid-cols-[180px_1fr]"
+                    >
+                      <img
+                        src={item.file.filePath || 'https://placehold.co/640x480?text=Gallery'}
+                        alt={item.altDe || item.altEn || item.titleDe || item.titleEn || 'Gallery image'}
+                        className="h-36 w-full rounded-[24px] border border-stone-200 object-cover"
+                      />
+
+                      <div className="grid gap-4">
+                        <div className="flex flex-wrap items-start justify-between gap-3">
+                          <div>
+                            <h3 className="text-base font-semibold text-stone-900">
+                              {item.titleDe || item.titleEn || pick(lang, '未命名图片', 'Untitled image')}
+                            </h3>
+                            <p className="mt-1 text-sm text-stone-500">
+                              {item.altDe || item.altEn || pick(lang, '暂无 alt 文本', 'No alt text yet')}
+                            </p>
+                          </div>
+
+                          <div className="flex flex-wrap gap-2 text-xs font-medium">
+                            <span className={`rounded-full px-3 py-1 ${item.isActive ? 'bg-emerald-50 text-emerald-700' : 'bg-stone-100 text-stone-500'}`}>
+                              {item.isActive ? pick(lang, '启用中', 'Active') : pick(lang, '已停用', 'Inactive')}
+                            </span>
+                            {item.isCover ? (
+                              <span className="rounded-full bg-amber-100 px-3 py-1 text-amber-800">
+                                {pick(lang, '当前封面', 'Current cover')}
+                              </span>
+                            ) : null}
+                          </div>
+                        </div>
+
+                        <dl className="grid gap-3 text-sm text-stone-600 sm:grid-cols-2 xl:grid-cols-4">
+                          <div>
+                            <dt className="text-xs uppercase tracking-[0.2em] text-stone-400">ID</dt>
+                            <dd className="mt-1 font-medium text-stone-800">#{item.id}</dd>
+                          </div>
+                          <div>
+                            <dt className="text-xs uppercase tracking-[0.2em] text-stone-400">{pick(lang, '尺寸', 'Dimensions')}</dt>
+                            <dd className="mt-1 font-medium text-stone-800">{dimensionText}</dd>
+                          </div>
+                          <div>
+                            <dt className="text-xs uppercase tracking-[0.2em] text-stone-400">{pick(lang, '排序', 'Sort')}</dt>
+                            <dd className="mt-1 font-medium text-stone-800">{item.sortOrder}</dd>
+                          </div>
+                          <div>
+                            <dt className="text-xs uppercase tracking-[0.2em] text-stone-400">{pick(lang, '来源', 'Source')}</dt>
+                            <dd className="mt-1 font-medium text-stone-800">{sourceLabel}</dd>
+                          </div>
+                        </dl>
+
+                        <div className="rounded-2xl border border-stone-200 bg-white px-4 py-3 text-xs leading-6 text-stone-500">
+                          {item.file.filePath}
+                        </div>
+                      </div>
+                    </article>
+                  )
+                })}
+              </div>
+            )}
+          </AdminSectionCard>
+        </div>
+
+        <div className="space-y-6">
+          <AdminSectionCard
+            eyebrow="Gallery Stats"
+            title={pick(lang, '图库状态面板', 'Gallery status panel')}
+            description={pick(
+              lang,
+              '先把高频巡检信息抽出来，减少每次都进长表单翻查资源状态。',
+              'Pull the high-frequency inspection signals up front so you do not need to scan a long editor every time.',
+            )}
+            tone="dark"
+          >
+            <div className="grid gap-4 sm:grid-cols-2">
+              {[
+                { label: pick(lang, '全部图片', 'All images'), value: stats.total },
+                { label: pick(lang, '启用图片', 'Active images'), value: stats.active },
+                { label: pick(lang, '封面数量', 'Cover count'), value: stats.covers },
+                { label: pick(lang, '本地上传', 'Local uploads'), value: stats.localUploads },
+              ].map((item) => (
+                <div key={item.label} className="rounded-3xl border border-white/10 bg-white/5 p-4">
+                  <p className="text-[11px] font-semibold uppercase tracking-[0.24em] text-stone-400">{item.label}</p>
+                  <p className="mt-3 text-3xl font-semibold text-white">{item.value}</p>
+                </div>
+              ))}
+            </div>
+          </AdminSectionCard>
+
+          <AdminSectionCard
+            eyebrow="Gallery Notes"
+            title={pick(lang, '建议的下一步', 'Suggested next steps')}
+            description={pick(
+              lang,
+              '把图库单独拉出来后，下一轮可以继续做更专业的资源运营能力。',
+              'Now that the gallery has its own surface, the next iteration can focus on more professional media operations.',
+            )}
+          >
+            <div className="space-y-3 text-sm leading-7 text-stone-600">
+              <p>1. {pick(lang, '补图片压缩与规范化导出，减少上传体积。', 'Add image compression and normalized exports to reduce upload weight.')}</p>
+              <p>2. {pick(lang, '继续做图片元数据与替换策略统一。', 'Continue unifying metadata handling and replacement strategy.')}</p>
+              <p>3. {pick(lang, '后续可扩展批量上传、筛选和 alt 文本质量检查。', 'Later this can grow into batch upload, filtering and alt-text quality checks.')}</p>
+            </div>
+          </AdminSectionCard>
+        </div>
+      </div>
+    </AdminShell>
+  )
+}
