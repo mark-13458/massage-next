@@ -6,6 +6,7 @@ import { AdminShell } from '../../../components/admin/AdminShell'
 import { AppointmentStatusControls } from '../../../components/admin/AppointmentStatusControls'
 import { getCurrentAdmin } from '../../../lib/auth'
 import { getAdminLang, pick } from '../../../lib/admin-i18n'
+import { bookingSourceLabel } from '../../../lib/admin-booking-copy'
 import { appointmentStatusLabel } from '../../../lib/admin-status'
 import { getAdminAppointments } from '../../../server/services/admin-booking.service'
 
@@ -104,7 +105,7 @@ export default async function AdminAppointmentsPage({
                         <AppointmentStatusControls id={item.id} currentStatus={item.status} internalNote={item.internalNote} lang={lang} />
                       </div>
                     </td>
-                    <td className="px-6 py-4 text-stone-700">{item.source}</td>
+                    <td className="px-6 py-4 text-stone-700">{bookingSourceLabel(item.source, lang)}</td>
                     <td className="px-6 py-4 text-stone-700">
                       <div>{item.customerPhone}</div>
                       {item.customerEmail ? <div className="mt-1 text-xs text-stone-500">{item.customerEmail}</div> : null}

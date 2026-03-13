@@ -9,6 +9,7 @@ import { AppointmentQuickActions } from '../../../../components/admin/Appointmen
 import { AdminWorkspaceLayout } from '../../../../components/admin/AdminWorkspaceLayout'
 import { getCurrentAdmin } from '../../../../lib/auth'
 import { getAdminLang, pick } from '../../../../lib/admin-i18n'
+import { bookingSourceLabel, localeLabel } from '../../../../lib/admin-booking-copy'
 import { appointmentStatusLabel } from '../../../../lib/admin-status'
 import { getAdminAppointmentDetail } from '../../../../server/services/admin-booking.service'
 
@@ -68,9 +69,9 @@ export default async function AppointmentDetailPage({ params }: { params: { id: 
               <div><span className="font-semibold text-stone-900">{pick(lang, '客户姓名：', 'Customer name: ')}</span>{appointment.customerName}</div>
               <div><span className="font-semibold text-stone-900">{pick(lang, '联系电话：', 'Phone: ')}</span>{appointment.customerPhone}</div>
               <div><span className="font-semibold text-stone-900">{pick(lang, '邮箱：', 'Email: ')}</span>{appointment.customerEmail || '—'}</div>
-              <div><span className="font-semibold text-stone-900">{pick(lang, '语言：', 'Locale: ')}</span>{appointment.locale}</div>
+              <div><span className="font-semibold text-stone-900">{pick(lang, '语言：', 'Locale: ')}</span>{localeLabel(appointment.locale, lang)}</div>
               <div><span className="font-semibold text-stone-900">{pick(lang, '服务项目：', 'Service: ')}</span>{appointment.service.nameDe}</div>
-              <div><span className="font-semibold text-stone-900">{pick(lang, '来源：', 'Source: ')}</span>{appointment.source}</div>
+              <div><span className="font-semibold text-stone-900">{pick(lang, '来源：', 'Source: ')}</span>{bookingSourceLabel(appointment.source, lang)}</div>
               <div><span className="font-semibold text-stone-900">{pick(lang, '预约日期：', 'Date: ')}</span>{new Intl.DateTimeFormat('de-DE').format(appointment.appointmentDate)}</div>
               <div><span className="font-semibold text-stone-900">{pick(lang, '预约时间：', 'Time: ')}</span>{appointment.appointmentTime}</div>
               <div><span className="font-semibold text-stone-900">{pick(lang, '时长：', 'Duration: ')}</span>{appointment.durationMin} min</div>
