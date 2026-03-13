@@ -179,6 +179,7 @@ docker compose up -d --build
 从当前版本开始，项目会把开发阶段过程持续写入仓库内文档，方便其他人接手：
 
 - `DEVELOPMENT_LOG.md`：按阶段记录“做了什么 / 为什么 / 验证结果 / 遗留问题 / 下一步”
+- `PROJECT_STATUS.md`：当前已完成 / 正在推进 / 未完成阶段的总览面板
 - `HANDOFF.md`：给下一位开发者的快速接手说明
 
 建议接手顺序：
@@ -186,4 +187,6 @@ docker compose up -d --build
 2. `ARCHITECTURE.md`
 3. `ROADMAP.md`
 4. `DEVELOPMENT_LOG.md`
-5. `HANDOFF.md`
+5. `PROJECT_STATUS.md`
+6. `HANDOFF.md`
+6. `DEPLOYMENT_CHECKLIST.md`

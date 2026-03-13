@@ -14,6 +14,7 @@
 2. `ARCHITECTURE.md` —— 为什么这样设计
 3. `ROADMAP.md` —— 原始路线规划
 4. `DEVELOPMENT_LOG.md` —— 当前实际推进历史与阶段状态
+5. `PROJECT_STATUS.md` —— 当前已完成 / 进行中 / 未完成阶段总览
 
 如果只想快速进入代码，请先看：
 - `src/app/admin/content/page.tsx`

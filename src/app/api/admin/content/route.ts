@@ -8,6 +8,13 @@ function publicPathToDiskPath(filePath: string) {
   return path.join(process.cwd(), 'public', filePath.replace(/^\//, ''))
 }
 
+async function cleanupLocalUpload(filePath?: string | null) {
+  if (!filePath) return
+  const diskPath = publicPathToDiskPath(filePath)
+  if (!diskPath) return
+  await unlink(diskPath).catch(() => null)
+}
+
 export async function PATCH(request: NextRequest) {
   if (!process.env.DATABASE_URL) {
     return NextResponse.json({ status: 'error', error: 'DATABASE_URL is not configured' }, { status: 500 })
@@ -26,7 +33,18 @@ export async function PATCH(request: NextRequest) {
     }
 
     if (hero && typeof hero === 'object') {
+      const existingHeroSetting = await prisma.siteSetting.findUnique({ where: { key: 'hero' } })
+      const existingHeroValue = existingHeroSetting?.value && typeof existingHeroSetting.value === 'object' && !Array.isArray(existingHeroSetting.value)
+        ? (existingHeroSetting.value as Record<string, unknown>)
+        : null
+      const previousImageUrl = typeof existingHeroValue?.imageUrl === 'string' ? existingHeroValue.imageUrl : null
+      const nextImageUrl = typeof hero.imageUrl === 'string' ? hero.imageUrl : null
+
       await prisma.siteSetting.upsert({ where: { key: 'hero' }, update: { value: hero }, create: { key: 'hero', value: hero } })
+
+      if (previousImageUrl && previousImageUrl !== nextImageUrl) {
+        await cleanupLocalUpload(previousImageUrl)
+      }
     }
 
     for (const item of hours) {
@@ -52,8 +70,7 @@ export async function PATCH(request: NextRequest) {
         const existing = await prisma.galleryImage.findUnique({ where: { id: item.id }, include: { file: true } })
         await prisma.galleryImage.delete({ where: { id: item.id } })
         if (existing?.fileId) {
-          const diskPath = existing.file ? publicPathToDiskPath(existing.file.filePath) : null
-          if (diskPath) await unlink(diskPath).catch(() => null)
+          await cleanupLocalUpload(existing.file?.filePath)
           await prisma.file.delete({ where: { id: existing.fileId } }).catch(() => null)
         }
         continue

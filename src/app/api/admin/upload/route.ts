@@ -5,6 +5,8 @@ import { NextRequest, NextResponse } from 'next/server'
 import { prisma } from '../../../../../src/lib/prisma'
 
 const MAX_FILE_SIZE = 10 * 1024 * 1024
+const ALLOWED_IMAGE_TYPES = new Set(['image/jpeg', 'image/png', 'image/webp', 'image/gif'])
+const ALLOWED_USAGES = new Set(['hero', 'gallery'])
 
 export async function POST(request: NextRequest) {
   if (!process.env.DATABASE_URL) {
@@ -27,8 +29,12 @@ export async function POST(request: NextRequest) {
       return NextResponse.json({ status: 'error', error: 'No file uploaded' }, { status: 400 })
     }
 
-    if (!file.type.startsWith('image/')) {
-      return NextResponse.json({ status: 'error', error: 'Only image uploads are allowed' }, { status: 400 })
+    if (!ALLOWED_USAGES.has(usage)) {
+      return NextResponse.json({ status: 'error', error: 'Invalid upload usage' }, { status: 400 })
+    }
+
+    if (!ALLOWED_IMAGE_TYPES.has(file.type)) {
+      return NextResponse.json({ status: 'error', error: 'Only JPG, PNG, WEBP, and GIF uploads are allowed' }, { status: 400 })
     }
 
     if (file.size > MAX_FILE_SIZE) {
