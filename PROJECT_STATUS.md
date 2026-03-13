@@ -129,9 +129,12 @@
 - Hero 旧文件清理逻辑已补上
 - 上传接口用途校验已补上
 - 上传图片类型白名单已补上
+- 前端上传前校验已补上（类型 / 10MB 大小限制）
+- Docker 上传目录持久化卷已补上
 - `DEVELOPMENT_LOG.md` 已建立
 - `HANDOFF.md` 已建立
 - `PROJECT_STATUS.md`（本文件）已建立
+- `DEPLOYMENT_CHECKLIST.md` 已纳入正式交接体系
 
 ### 当前还没做完
 - 图片尺寸校验

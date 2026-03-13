@@ -38,9 +38,11 @@ services:
       SMTP_USERNAME: user@example.com
       SMTP_PASSWORD: password
       SMTP_FROM: no-reply@example.com
-      UPLOAD_DIR: /app/uploads
+      UPLOAD_DIR: /app/public/uploads
     ports:
       - "3002:3000"
+    volumes:
+      - uploads_data:/app/public/uploads
 
   nginx:
     image: nginx:alpine
@@ -55,3 +57,4 @@ services:
 
 volumes:
   db_data:
+  uploads_data:

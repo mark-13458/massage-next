@@ -181,6 +181,7 @@ docker compose up -d --build
 - `DEVELOPMENT_LOG.md`：按阶段记录“做了什么 / 为什么 / 验证结果 / 遗留问题 / 下一步”
 - `PROJECT_STATUS.md`：当前已完成 / 正在推进 / 未完成阶段的总览面板
 - `HANDOFF.md`：给下一位开发者的快速接手说明
+- `DEPLOYMENT_CHECKLIST.md`：部署联调、测试环境 smoke test、上线前检查清单
 
 建议接手顺序：
 1. `README_CN.md`
@@ -189,4 +190,5 @@ docker compose up -d --build
 4. `DEVELOPMENT_LOG.md`
 5. `PROJECT_STATUS.md`
 6. `HANDOFF.md`
+7. `DEPLOYMENT_CHECKLIST.md`
 6. `DEPLOYMENT_CHECKLIST.md`

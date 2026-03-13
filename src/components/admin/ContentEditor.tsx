@@ -2,6 +2,21 @@
 
 import { ChangeEvent, useState, useTransition } from 'react'
 
+const MAX_UPLOAD_SIZE = 10 * 1024 * 1024
+const ALLOWED_UPLOAD_TYPES = new Set(['image/jpeg', 'image/png', 'image/webp', 'image/gif'])
+
+function validateImageFile(file: File) {
+  if (!ALLOWED_UPLOAD_TYPES.has(file.type)) {
+    return '仅支持 JPG、PNG、WEBP、GIF 图片'
+  }
+
+  if (file.size > MAX_UPLOAD_SIZE) {
+    return '图片不能超过 10MB'
+  }
+
+  return null
+}
+
 type Contact = {
   phone?: string | null
   email?: string | null
@@ -124,6 +139,13 @@ export function ContentEditor({
     const file = event.target.files?.[0]
     if (!file) return
 
+    const validationError = validateImageFile(file)
+    if (validationError) {
+      setUploadMessage(validationError)
+      event.target.value = ''
+      return
+    }
+
     setUploadMessage('')
     const formData = new FormData()
     formData.append('usage', 'gallery')
@@ -152,6 +174,13 @@ export function ContentEditor({
   function handleHeroUpload(event: ChangeEvent<HTMLInputElement>) {
     const file = event.target.files?.[0]
     if (!file) return
+
+    const validationError = validateImageFile(file)
+    if (validationError) {
+      setHeroUploadMessage(validationError)
+      event.target.value = ''
+      return
+    }
 
     setHeroUploadMessage('')
     const formData = new FormData()

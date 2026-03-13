@@ -17,6 +17,7 @@ China TCM Massage / massage-next 是一个基于 **Next.js 14（App Router）+ P
 4. `DEVELOPMENT_LOG.md`
 5. `PROJECT_STATUS.md`
 6. `HANDOFF.md`
+7. `DEPLOYMENT_CHECKLIST.md`
 
 ## Current status
 - Frontend core pages are in place
