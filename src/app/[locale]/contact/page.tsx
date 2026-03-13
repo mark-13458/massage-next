@@ -5,8 +5,9 @@ import { SiteFooter } from '../../../components/site/SiteFooter'
 import { SectionShell } from '../../../components/site/SectionShell'
 import { isLocale, Locale } from '../../../lib/i18n'
 import { getMessages } from '../../../lib/copy'
-import { createPageMetadata } from '../../../lib/seo'
-import { getBusinessHours, getContactSettings } from '../../../server/services/site.service'
+import { createPageMetadata, getBaseUrl } from '../../../lib/seo'
+import { buildLocalBusinessJsonLd } from '../../../lib/structured-data'
+import { getBusinessHours, getContactSettings, getSystemSettings } from '../../../server/services/site.service'
 
 export async function generateMetadata({ params }: { params: Promise<{ locale: string }> }): Promise<Metadata> {
   const { locale } = await params
@@ -35,13 +36,26 @@ export default async function ContactPage({ params }: { params: Promise<{ locale
 
   const typedLocale = locale as Locale
   const t = getMessages(typedLocale)
-  const [hours, contact] = await Promise.all([
+  const [hours, contact, settings] = await Promise.all([
     getBusinessHours(typedLocale).catch(() => []),
     getContactSettings().catch(() => null),
+    getSystemSettings().catch(() => null),
   ])
+
+  const localBusinessJsonLd = buildLocalBusinessJsonLd({
+    locale: typedLocale,
+    contact,
+    hours,
+    settings,
+    url: new URL(`/${typedLocale}/contact`, getBaseUrl()).toString(),
+  })
 
   return (
     <main>
+      <script
+        type="application/ld+json"
+        dangerouslySetInnerHTML={{ __html: JSON.stringify(localBusinessJsonLd) }}
+      />
       <SiteHeader locale={typedLocale} />
       <SectionShell
         eyebrow={typedLocale === 'de' ? 'Kontakt' : 'Contact'}

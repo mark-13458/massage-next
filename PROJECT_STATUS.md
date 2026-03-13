@@ -154,6 +154,7 @@
 - `TEST_ARTIFACTS.md` 已建立，用于说明测试临时文件
 - 前台页面级 SEO metadata 已补齐（首页 / services / about / contact / gallery / booking）
 - 前台已补 canonical / `hreflang` alternates / Open Graph / Twitter card 基础能力
+- 前台首页 / contact 已补 `LocalBusiness` / `HealthAndBeautyBusiness` 结构化数据基础
 - 前台一批开发阶段说明式文案已收口，更接近真实上线站点表达
 
 ### 当前还没做完

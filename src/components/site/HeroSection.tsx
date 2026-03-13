@@ -44,7 +44,7 @@ export async function HeroSection({ locale }: { locale: Locale }) {
           <div className="mt-10 grid max-w-xl gap-4 sm:grid-cols-3">
             {[
               locale === 'de' ? ['7 Tage', 'Flexible Zeiten'] : ['7 days', 'Flexible hours'],
-              locale === 'de' ? ['de/en/中文', 'Mehrsprachig'] : ['de/en/中文', 'Multilingual'],
+              locale === 'de' ? ['DE / EN / 中文', 'Mehrsprachig'] : ['DE / EN / 中文', 'Multilingual'],
               locale === 'de' ? ['Transparent', 'Preis & Dauer'] : ['Transparent', 'Price & duration'],
             ].map(([value, label]) => (
               <div key={value} className="rounded-3xl border border-white/70 bg-white/70 p-4 shadow-sm backdrop-blur">

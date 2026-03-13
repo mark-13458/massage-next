@@ -8,7 +8,8 @@ import { SiteFooter } from '../../components/site/SiteFooter'
 import { SiteHeader } from '../../components/site/SiteHeader'
 import { getMessages } from '../../lib/copy'
 import { isLocale, Locale } from '../../lib/i18n'
-import { createPageMetadata } from '../../lib/seo'
+import { createPageMetadata, getBaseUrl } from '../../lib/seo'
+import { buildLocalBusinessJsonLd } from '../../lib/structured-data'
 import {
   getActiveFaqs,
   getActiveServices,
@@ -63,8 +64,20 @@ export default async function LocaleHome({ params }: { params: Promise<{ locale:
     getSystemSettings().catch(() => null),
   ])
 
+  const localBusinessJsonLd = buildLocalBusinessJsonLd({
+    locale: typedLocale,
+    contact,
+    hours,
+    settings,
+    url: new URL(`/${typedLocale}`, getBaseUrl()).toString(),
+  })
+
   return (
     <main>
+      <script
+        type="application/ld+json"
+        dangerouslySetInnerHTML={{ __html: JSON.stringify(localBusinessJsonLd) }}
+      />
       <SiteHeader locale={typedLocale} />
       <HeroSection locale={typedLocale} />
 
@@ -143,7 +156,7 @@ export default async function LocaleHome({ params }: { params: Promise<{ locale:
         title={typedLocale === 'de' ? 'Alle wichtigen Infos für Ihren Besuch' : 'Clear visit and booking information'}
         description={
           typedLocale === 'de'
-            ? '首页直接展示营业时间和联系方式，可以明显减少用户的决策成本。'
+            ? 'Öffnungszeiten und Kontaktinfos direkt auf der Startseite helfen Gästen, schneller eine Entscheidung zu treffen.'
             : 'Showing opening hours and contact details directly on the homepage reduces friction for potential guests.'
         }
       >
