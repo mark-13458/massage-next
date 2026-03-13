@@ -674,6 +674,30 @@ Docker 部署当前已经不只是“页面能打开”，而是：
 ### 本阶段验证追加
 - `npm run build` 已通过。
 
+#### 23) 后台安全配置增强：退出登录跳首页 + Turnstile 配置入口
+- 已增强后台退出登录逻辑：
+  - 点击“退出登录”后不再停留在后台接口返回状态
+  - 现在会清空后台 session，并根据系统设置中的默认前台语言跳转到网站首页（`/de` 或 `/en`）
+- 已在后台系统设置中新增 Cloudflare Turnstile 配置：
+  - `cfTurnstileEnabled`
+  - `cfTurnstileSiteKey`
+  - `cfTurnstileSecretKey`
+- 默认行为：
+  - Turnstile 默认关闭
+  - 未开启时，预约流程不受影响
+- 已新增服务端 Turnstile 校验能力：
+  - 新增 `src/lib/turnstile.ts`
+  - 预约 API `POST /api/booking` 在开启 Turnstile 时会校验 token
+- 已增强预约表单：
+  - 当前先预留 `turnstileToken` 字段
+  - 当后台开启 Turnstile 时才显示
+  - 这样可以先把后台配置链和服务端校验链打通，后续再接真正的 Turnstile 前端小组件
+
+### 当前遗留更新
+1. Turnstile 已完成后台配置 + 服务端校验链路，但前台还只是 token 输入位，下一步应接入真正的 Cloudflare Turnstile widget。
+2. contact 页面仍可进一步统一到系统设置驱动的完整展示范式。
+3. 后台还有继续精修空间：状态枚举本地化、内容编辑器细节、更多系统级配置模块。
+
 ---
 
 ## 当前整体状态（截至 2026-03-13）

@@ -9,6 +9,7 @@ export const bookingSchema = z.object({
   appointmentTime: z.string().min(1).max(20),
   locale: z.enum(['de', 'en']).default('de'),
   notes: z.string().max(1000).optional(),
+  turnstileToken: z.string().optional().or(z.literal('')),
 })
 
 export type BookingInput = z.infer<typeof bookingSchema>

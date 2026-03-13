@@ -143,5 +143,8 @@ export async function getSystemSettings() {
           ? record.bookingNoticeZh
           : '',
     bookingNoticeEn: typeof record.bookingNoticeEn === 'string' ? record.bookingNoticeEn : '',
+    cfTurnstileEnabled: Boolean(record.cfTurnstileEnabled),
+    cfTurnstileSiteKey: typeof record.cfTurnstileSiteKey === 'string' ? record.cfTurnstileSiteKey : '',
+    cfTurnstileSecretKey: typeof record.cfTurnstileSecretKey === 'string' ? record.cfTurnstileSecretKey : '',
   }
 }

@@ -44,6 +44,9 @@ export async function PATCH(request: NextRequest) {
             ? json.bookingNoticeZh
             : '',
       bookingNoticeEn: typeof json.bookingNoticeEn === 'string' ? json.bookingNoticeEn : '',
+      cfTurnstileEnabled: Boolean(json.cfTurnstileEnabled),
+      cfTurnstileSiteKey: typeof json.cfTurnstileSiteKey === 'string' ? json.cfTurnstileSiteKey : '',
+      cfTurnstileSecretKey: typeof json.cfTurnstileSecretKey === 'string' ? json.cfTurnstileSecretKey : '',
     }
 
     await prisma.siteSetting.upsert({

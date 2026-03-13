@@ -25,11 +25,16 @@ type BookingFormProps = {
     isClosed: boolean
   }>
   currency?: string
+  turnstile?: {
+    enabled: boolean
+    siteKey?: string
+  }
 }
 
-export function BookingForm({ locale, services, contact, hours = [], currency = 'EUR' }: BookingFormProps) {
+export function BookingForm({ locale, services, contact, hours = [], currency = 'EUR', turnstile }: BookingFormProps) {
   const [status, setStatus] = useState<'idle' | 'submitting' | 'success' | 'error'>('idle')
   const [message, setMessage] = useState('')
+  const [turnstileToken, setTurnstileToken] = useState('')
 
   const labels = useMemo(() => {
     return locale === 'de'
@@ -51,6 +56,8 @@ export function BookingForm({ locale, services, contact, hours = [], currency = 
           contact: 'Kontakt',
           openingHours: 'Öffnungszeiten',
           closed: 'Geschlossen',
+          captcha: 'Captcha / Turnstile Token',
+          captchaHint: 'Turnstile 已启用。当前先预留 token 字段，后续可接入前端组件。',
         }
       : {
           title: 'Request an appointment',
@@ -70,6 +77,8 @@ export function BookingForm({ locale, services, contact, hours = [], currency = 
           contact: 'Contact',
           openingHours: 'Opening hours',
           closed: 'Closed',
+          captcha: 'Captcha / Turnstile token',
+          captchaHint: 'Turnstile is enabled. A token field is provided for now and can later be replaced with the frontend widget.',
         }
   }, [locale])
 
@@ -87,6 +96,7 @@ export function BookingForm({ locale, services, contact, hours = [], currency = 
       appointmentDate: String(formData.get('appointmentDate') || ''),
       appointmentTime: String(formData.get('appointmentTime') || ''),
       notes: String(formData.get('notes') || ''),
+      turnstileToken: String(formData.get('turnstileToken') || ''),
       locale,
     }
 
@@ -103,6 +113,7 @@ export function BookingForm({ locale, services, contact, hours = [], currency = 
 
       setStatus('success')
       setMessage(labels.success)
+      setTurnstileToken('')
     } catch {
       setStatus('error')
       setMessage(labels.error)
@@ -154,6 +165,14 @@ export function BookingForm({ locale, services, contact, hours = [], currency = 
             <span className="text-sm font-medium text-brown-800">{labels.notes}</span>
             <textarea name="notes" rows={5} className="rounded-2xl border border-stone-200 px-4 py-3 outline-none ring-0 focus:border-brown-400" />
           </label>
+
+          {turnstile?.enabled ? (
+            <label className="flex flex-col gap-2 sm:col-span-2">
+              <span className="text-sm font-medium text-brown-800">{labels.captcha}</span>
+              <input name="turnstileToken" value={turnstileToken} onChange={(e) => setTurnstileToken(e.target.value)} className="rounded-2xl border border-stone-200 px-4 py-3 outline-none ring-0 focus:border-brown-400" placeholder={turnstile.siteKey || 'cf-turnstile-token'} />
+              <span className="text-xs text-stone-500">{labels.captchaHint}</span>
+            </label>
+          ) : null}
         </div>
 
         <div className="mt-6 flex items-center justify-between gap-4">

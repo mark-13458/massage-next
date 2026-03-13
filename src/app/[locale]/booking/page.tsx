@@ -6,6 +6,7 @@ import { BookingForm } from '../../../components/site/BookingForm'
 import { getMessages } from '../../../lib/copy'
 import { isLocale, Locale } from '../../../lib/i18n'
 import { getActiveServices, getBusinessHours, getContactSettings, getSystemSettings } from '../../../server/services/site.service'
+import { getTurnstileSettings } from '../../../lib/turnstile'
 
 export default async function BookingPage({ params }: { params: Promise<{ locale: string }> }) {
   const { locale } = await params
@@ -16,11 +17,12 @@ export default async function BookingPage({ params }: { params: Promise<{ locale
 
   const typedLocale = locale as Locale
   const t = getMessages(typedLocale)
-  const [services, settings, contact, hours] = await Promise.all([
+  const [services, settings, contact, hours, turnstile] = await Promise.all([
     getActiveServices(typedLocale).catch(() => []),
     getSystemSettings().catch(() => null),
     getContactSettings().catch(() => null),
     getBusinessHours(typedLocale).catch(() => []),
+    getTurnstileSettings().catch(() => ({ enabled: false, siteKey: '' })),
   ])
 
   const configuredNotice = typedLocale === 'de' ? settings?.bookingNoticeDe : settings?.bookingNoticeEn
@@ -44,6 +46,7 @@ export default async function BookingPage({ params }: { params: Promise<{ locale
           contact={contact}
           hours={hours}
           currency={settings?.currency || 'EUR'}
+          turnstile={turnstile}
         />
       </SectionShell>
       <SiteFooter locale={typedLocale} />

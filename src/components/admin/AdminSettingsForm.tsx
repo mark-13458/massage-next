@@ -13,6 +13,9 @@ type Settings = {
   currency: string
   bookingNoticeDe: string
   bookingNoticeEn: string
+  cfTurnstileEnabled: boolean
+  cfTurnstileSiteKey: string
+  cfTurnstileSecretKey: string
 }
 
 function t(lang: AdminLang, zh: string, en: string) {
@@ -29,6 +32,9 @@ export function AdminSettingsForm({ lang, initialSettings }: { lang: AdminLang; 
     currency: initialSettings?.currency || 'EUR',
     bookingNoticeDe: initialSettings?.bookingNoticeDe || initialSettings?.bookingNoticeZh || '',
     bookingNoticeEn: initialSettings?.bookingNoticeEn || '',
+    cfTurnstileEnabled: Boolean(initialSettings?.cfTurnstileEnabled),
+    cfTurnstileSiteKey: initialSettings?.cfTurnstileSiteKey || '',
+    cfTurnstileSecretKey: initialSettings?.cfTurnstileSecretKey || '',
   })
   const [message, setMessage] = useState('')
   const [isPending, startTransition] = useTransition()
@@ -95,6 +101,27 @@ export function AdminSettingsForm({ lang, initialSettings }: { lang: AdminLang; 
           <span>{t(lang, '预约说明（英文）', 'Booking notice (English)')}</span>
           <textarea rows={5} value={form.bookingNoticeEn} onChange={(e) => setForm({ ...form, bookingNoticeEn: e.target.value })} className="rounded-2xl border border-stone-200 px-4 py-3 outline-none focus:border-amber-500" />
         </label>
+      </div>
+
+      <div className="rounded-3xl border border-stone-200 bg-stone-50 p-5">
+        <div className="mb-4">
+          <h3 className="text-base font-semibold text-stone-900">{t(lang, 'Cloudflare Turnstile / 验证码', 'Cloudflare Turnstile / Captcha')}</h3>
+          <p className="mt-1 text-sm text-stone-600">{t(lang, '默认关闭。只有开启后，预约提交才会要求验证码校验。', 'Disabled by default. Booking submissions will require captcha verification only when enabled.')}</p>
+        </div>
+        <div className="grid gap-4 md:grid-cols-2">
+          <label className="flex items-center gap-2 text-sm text-stone-700 md:col-span-2">
+            <input type="checkbox" checked={form.cfTurnstileEnabled} onChange={(e) => setForm({ ...form, cfTurnstileEnabled: e.target.checked })} />
+            {t(lang, '启用 Turnstile 验证', 'Enable Turnstile verification')}
+          </label>
+          <label className="flex flex-col gap-2 text-sm text-stone-700">
+            <span>{t(lang, 'Site Key', 'Site key')}</span>
+            <input value={form.cfTurnstileSiteKey} onChange={(e) => setForm({ ...form, cfTurnstileSiteKey: e.target.value })} className="rounded-2xl border border-stone-200 px-4 py-3 outline-none focus:border-amber-500" placeholder="0x4AAAA..." />
+          </label>
+          <label className="flex flex-col gap-2 text-sm text-stone-700">
+            <span>{t(lang, 'Secret Key', 'Secret key')}</span>
+            <input value={form.cfTurnstileSecretKey} onChange={(e) => setForm({ ...form, cfTurnstileSecretKey: e.target.value })} className="rounded-2xl border border-stone-200 px-4 py-3 outline-none focus:border-amber-500" placeholder="0x4AAAA..." />
+          </label>
+        </div>
       </div>
 
       <div className="flex items-center gap-4">
