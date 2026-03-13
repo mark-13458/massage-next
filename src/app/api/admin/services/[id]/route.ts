@@ -1,15 +1,16 @@
-import { NextRequest, NextResponse } from 'next/server'
+import { NextRequest } from 'next/server'
+import { apiError, apiOk } from '../../../../../lib/api-response'
 import { getCurrentAdmin } from '../../../../../lib/auth'
 import { prisma } from '../../../../../lib/prisma'
 
 export async function PATCH(request: NextRequest, { params }: { params: { id: string } }) {
   if (!process.env.DATABASE_URL) {
-    return NextResponse.json({ status: 'error', error: 'DATABASE_URL is not configured' }, { status: 500 })
+    return apiError('DATABASE_URL is not configured', 500)
   }
 
   const admin = await getCurrentAdmin()
   if (!admin) {
-    return NextResponse.json({ status: 'error', error: 'Unauthorized' }, { status: 401 })
+    return apiError('Unauthorized', 401)
   }
 
   try {
@@ -17,7 +18,7 @@ export async function PATCH(request: NextRequest, { params }: { params: { id: st
     const json = await request.json()
 
     if (!Number.isFinite(id)) {
-      return NextResponse.json({ status: 'error', error: 'Invalid service id' }, { status: 400 })
+      return apiError('Invalid service id', 400)
     }
 
     const item = await prisma.service.update({
@@ -38,43 +39,37 @@ export async function PATCH(request: NextRequest, { params }: { params: { id: st
       },
     })
 
-    return NextResponse.json({ status: 'ok', item })
+    return apiOk({ item })
   } catch (error) {
-    return NextResponse.json(
-      { status: 'error', error: error instanceof Error ? error.message : 'Unknown error' },
-      { status: 500 },
-    )
+    return apiError(error instanceof Error ? error.message : 'Unknown error', 500)
   }
 }
 
 export async function DELETE(_: NextRequest, { params }: { params: { id: string } }) {
   if (!process.env.DATABASE_URL) {
-    return NextResponse.json({ status: 'error', error: 'DATABASE_URL is not configured' }, { status: 500 })
+    return apiError('DATABASE_URL is not configured', 500)
   }
 
   const admin = await getCurrentAdmin()
   if (!admin) {
-    return NextResponse.json({ status: 'error', error: 'Unauthorized' }, { status: 401 })
+    return apiError('Unauthorized', 401)
   }
 
   try {
     const id = Number(params.id)
 
     if (!Number.isFinite(id)) {
-      return NextResponse.json({ status: 'error', error: 'Invalid service id' }, { status: 400 })
+      return apiError('Invalid service id', 400)
     }
 
     const appointmentsCount = await prisma.appointment.count({ where: { serviceId: id } })
     if (appointmentsCount > 0) {
-      return NextResponse.json({ status: 'error', error: 'Cannot delete service with related appointments' }, { status: 400 })
+      return apiError('Cannot delete service with related appointments', 400)
     }
 
     await prisma.service.delete({ where: { id } })
-    return NextResponse.json({ status: 'ok' })
+    return apiOk()
   } catch (error) {
-    return NextResponse.json(
-      { status: 'error', error: error instanceof Error ? error.message : 'Unknown error' },
-      { status: 500 },
-    )
+    return apiError(error instanceof Error ? error.message : 'Unknown error', 500)
   }
 }

@@ -51,8 +51,8 @@ export function GalleryQuickActions({
           throw new Error(json.error || t(lang, '操作失败', 'Action failed'))
         }
 
-        if (typeof json.item?.isActive === 'boolean') setIsActive(json.item.isActive)
-        if (typeof json.item?.isCover === 'boolean') setIsCover(json.item.isCover)
+        if (typeof json.data?.item?.isActive === 'boolean') setIsActive(json.data.item.isActive)
+        if (typeof json.data?.item?.isCover === 'boolean') setIsCover(json.data.item.isCover)
 
         setMessage(successMessage)
         setMessageTone('success')

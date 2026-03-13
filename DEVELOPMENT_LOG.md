@@ -1114,3 +1114,41 @@ Docker 部署当前已经不只是“页面能打开”，而是：
 1. 继续把 Dashboard / Settings / Gallery 也收进统一工作台布局习惯。
 2. 抽共享 admin mapper，减少 view model 层字段映射重复。
 3. 统一 admin API 返回 envelope（status / data / error），让前后端交互更稳定。
+
+#### 36) 开始统一 admin API 返回 envelope
+- 已新增共享响应工具：
+  - `src/lib/api-response.ts`
+- 当前提供：
+  - `apiOk(data)`
+  - `apiError(error, status)`
+- 已开始接入的高频 admin 写接口：
+  - `POST /api/admin/services`
+  - `PATCH /api/admin/services/[id]`
+  - `DELETE /api/admin/services/[id]`
+  - `PATCH /api/admin/appointments/[id]`
+  - `PATCH /api/admin/gallery/[id]`
+- 当前统一目标：
+  - 成功：`{ status: 'ok', data: ... }`
+  - 失败：`{ status: 'error', error: ... }`
+- 已同步处理受影响客户端：
+  - `GalleryQuickActions`
+  - `ServiceForm`
+  - `DeleteServiceButton`
+- 当前效果：
+  - admin API 不再每个接口各自定义成功返回结构
+  - 客户端后续可以逐步减少接口特判
+  - 页面 / service / API 三层开始向更稳定的契约靠拢
+
+### 本阶段验证追加
+- `npm run build` 已通过。
+
+### 本阶段结论
+这一轮不是新增功能，而是继续压缩后台维护成本：
+- API 层开始统一协议
+- 客户端与服务端交互开始更可预测
+- 后续再扩展更多后台接口时，可以沿用同一套 envelope 规范
+
+### 下一步建议
+1. 继续把 `settings / content / upload / login` 等 admin API 也逐步迁到统一 envelope。
+2. 抽共享 admin mapper，进一步减少 view model 层重复。
+3. 把 Dashboard / Settings / Gallery 继续收进统一工作台布局模式。

@@ -25,8 +25,10 @@ export function DeleteServiceButton({ id, lang = 'zh' }: { id: number; lang?: Ad
           method: 'DELETE',
         })
 
+        const json = await response.json().catch(() => ({}))
+
         if (!response.ok) {
-          throw new Error(t(lang, '删除失败', 'Delete failed'))
+          throw new Error(json.error || t(lang, '删除失败', 'Delete failed'))
         }
 
         setMessage(t(lang, '已删除', 'Deleted'))

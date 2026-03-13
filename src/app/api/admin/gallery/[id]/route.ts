@@ -1,15 +1,16 @@
-import { NextRequest, NextResponse } from 'next/server'
+import { NextRequest } from 'next/server'
+import { apiError, apiOk } from '../../../../../lib/api-response'
 import { getCurrentAdmin } from '../../../../../lib/auth'
 import { prisma } from '../../../../../lib/prisma'
 
 export async function PATCH(request: NextRequest, { params }: { params: { id: string } }) {
   if (!process.env.DATABASE_URL) {
-    return NextResponse.json({ status: 'error', error: 'DATABASE_URL is not configured' }, { status: 500 })
+    return apiError('DATABASE_URL is not configured', 500)
   }
 
   const admin = await getCurrentAdmin()
   if (!admin) {
-    return NextResponse.json({ status: 'error', error: 'Unauthorized' }, { status: 401 })
+    return apiError('Unauthorized', 401)
   }
 
   try {
@@ -17,7 +18,7 @@ export async function PATCH(request: NextRequest, { params }: { params: { id: st
     const json = await request.json()
 
     if (!Number.isFinite(id)) {
-      return NextResponse.json({ status: 'error', error: 'Invalid gallery id' }, { status: 400 })
+      return apiError('Invalid gallery id', 400)
     }
 
     const existing = await prisma.galleryImage.findUnique({
@@ -26,7 +27,7 @@ export async function PATCH(request: NextRequest, { params }: { params: { id: st
     })
 
     if (!existing) {
-      return NextResponse.json({ status: 'error', error: 'Gallery item not found' }, { status: 404 })
+      return apiError('Gallery item not found', 404)
     }
 
     const nextIsActive = typeof json.isActive === 'boolean' ? json.isActive : existing.isActive
@@ -48,8 +49,7 @@ export async function PATCH(request: NextRequest, { params }: { params: { id: st
       include: { file: true },
     })
 
-    return NextResponse.json({
-      status: 'ok',
+    return apiOk({
       item: {
         id: item.id,
         isActive: item.isActive,
@@ -58,9 +58,6 @@ export async function PATCH(request: NextRequest, { params }: { params: { id: st
       },
     })
   } catch (error) {
-    return NextResponse.json(
-      { status: 'error', error: error instanceof Error ? error.message : 'Unknown error' },
-      { status: 500 },
-    )
+    return apiError(error instanceof Error ? error.message : 'Unknown error', 500)
   }
 }

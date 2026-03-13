@@ -1,5 +1,6 @@
-import { NextRequest, NextResponse } from 'next/server'
+import { NextRequest } from 'next/server'
 import { AppointmentStatus } from '@prisma/client'
+import { apiError, apiOk } from '../../../../../lib/api-response'
 import { getCurrentAdmin } from '../../../../../lib/auth'
 import { prisma } from '../../../../../lib/prisma'
 
@@ -13,12 +14,12 @@ const allowedStatuses = new Set([
 
 export async function PATCH(request: NextRequest, { params }: { params: { id: string } }) {
   if (!process.env.DATABASE_URL) {
-    return NextResponse.json({ status: 'error', error: 'DATABASE_URL is not configured' }, { status: 500 })
+    return apiError('DATABASE_URL is not configured', 500)
   }
 
   const admin = await getCurrentAdmin()
   if (!admin) {
-    return NextResponse.json({ status: 'error', error: 'Unauthorized' }, { status: 401 })
+    return apiError('Unauthorized', 401)
   }
 
   try {
@@ -28,11 +29,11 @@ export async function PATCH(request: NextRequest, { params }: { params: { id: st
     const internalNote = typeof json.internalNote === 'string' ? json.internalNote : undefined
 
     if (!Number.isFinite(id)) {
-      return NextResponse.json({ status: 'error', error: 'Invalid appointment id' }, { status: 400 })
+      return apiError('Invalid appointment id', 400)
     }
 
     if (!allowedStatuses.has(nextStatus)) {
-      return NextResponse.json({ status: 'error', error: 'Invalid appointment status' }, { status: 400 })
+      return apiError('Invalid appointment status', 400)
     }
 
     const data: Record<string, unknown> = {
@@ -60,11 +61,8 @@ export async function PATCH(request: NextRequest, { params }: { params: { id: st
       data,
     })
 
-    return NextResponse.json({ status: 'ok', item })
+    return apiOk({ item })
   } catch (error) {
-    return NextResponse.json(
-      { status: 'error', error: error instanceof Error ? error.message : 'Unknown error' },
-      { status: 500 },
-    )
+    return apiError(error instanceof Error ? error.message : 'Unknown error', 500)
   }
 }

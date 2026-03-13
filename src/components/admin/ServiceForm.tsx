@@ -68,8 +68,10 @@ export function ServiceForm({ mode, service, lang = 'zh' }: ServiceFormProps) {
           }),
         })
 
+        const json = await response.json().catch(() => ({}))
+
         if (!response.ok) {
-          throw new Error(t(lang, '保存失败', 'Save failed'))
+          throw new Error(json.error || t(lang, '保存失败', 'Save failed'))
         }
 
         setMessage(mode === 'create' ? t(lang, '服务已创建', 'Service created') : t(lang, '服务已保存', 'Service saved'))
