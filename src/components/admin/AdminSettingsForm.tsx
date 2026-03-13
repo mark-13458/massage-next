@@ -1,6 +1,7 @@
 'use client'
 
 import { useState, useTransition } from 'react'
+import { adminRequest } from '../../lib/admin-request'
 
 type AdminLang = 'zh' | 'en'
 
@@ -43,13 +44,11 @@ export function AdminSettingsForm({ lang, initialSettings }: { lang: AdminLang; 
     setMessage('')
     startTransition(async () => {
       try {
-        const response = await fetch('/api/admin/settings', {
+        await adminRequest('/api/admin/settings', {
           method: 'PATCH',
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify(form),
         })
-        const json = await response.json().catch(() => ({}))
-        if (!response.ok) throw new Error(json.error || t(lang, '保存设置失败', 'Failed to save settings'))
         setMessage(t(lang, '系统设置已保存', 'Settings saved'))
       } catch (error) {
         setMessage(error instanceof Error ? error.message : t(lang, '保存设置失败', 'Failed to save settings'))

@@ -3,6 +3,7 @@
 import { useRouter } from 'next/navigation'
 import { useState, useTransition } from 'react'
 import { APPOINTMENT_STATUS_OPTIONS, appointmentStatusLabel } from '../../lib/admin-status'
+import { adminRequest } from '../../lib/admin-request'
 
 type NoticeTone = 'success' | 'error' | 'info'
 type AdminLang = 'zh' | 'en'
@@ -38,16 +39,11 @@ export function AppointmentStatusControls({ id, currentStatus, internalNote, lan
 
     startTransition(async () => {
       try {
-        const response = await fetch(`/api/admin/appointments/${id}`, {
+        await adminRequest(`/api/admin/appointments/${id}`, {
           method: 'PATCH',
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify({ status, internalNote: note }),
         })
-        const json = await response.json().catch(() => ({}))
-
-        if (!response.ok) {
-          throw new Error(json.error || t(lang, '更新失败', 'Update failed'))
-        }
 
         setMessage(t(lang, '预约状态已保存，页面已刷新', 'Booking status saved and page refreshed'))
         setMessageTone('success')

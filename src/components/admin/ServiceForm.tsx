@@ -1,6 +1,7 @@
 'use client'
 
 import { useMemo, useState, useTransition } from 'react'
+import { adminRequest } from '../../lib/admin-request'
 
 type AdminLang = 'zh' | 'en'
 
@@ -57,7 +58,7 @@ export function ServiceForm({ mode, service, lang = 'zh' }: ServiceFormProps) {
 
     startTransition(async () => {
       try {
-        const response = await fetch(endpoint, {
+        await adminRequest(endpoint, {
           method,
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify({
@@ -67,12 +68,6 @@ export function ServiceForm({ mode, service, lang = 'zh' }: ServiceFormProps) {
             sortOrder: Number(form.sortOrder) || 0,
           }),
         })
-
-        const json = await response.json().catch(() => ({}))
-
-        if (!response.ok) {
-          throw new Error(json.error || t(lang, '保存失败', 'Save failed'))
-        }
 
         setMessage(mode === 'create' ? t(lang, '服务已创建', 'Service created') : t(lang, '服务已保存', 'Service saved'))
       } catch {

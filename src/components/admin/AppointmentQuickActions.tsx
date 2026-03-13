@@ -2,6 +2,7 @@
 
 import { useRouter } from 'next/navigation'
 import { useState, useTransition } from 'react'
+import { adminRequest } from '../../lib/admin-request'
 
 type AdminLang = 'zh' | 'en'
 
@@ -43,16 +44,11 @@ export function AppointmentQuickActions({ id, lang = 'zh' }: { id: number; lang?
     setMessageTone('info')
     startTransition(async () => {
       try {
-        const response = await fetch(`/api/admin/appointments/${id}`, {
+        await adminRequest(`/api/admin/appointments/${id}`, {
           method: 'PATCH',
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify({ status }),
         })
-        const json = await response.json().catch(() => ({}))
-
-        if (!response.ok) {
-          throw new Error(json.error || t(lang, '操作失败', 'Action failed'))
-        }
 
         setMessage(t(lang, '操作成功，页面已刷新', 'Action succeeded and page refreshed'))
         setMessageTone('success')

@@ -1215,3 +1215,29 @@ Docker 部署当前已经不只是“页面能打开”，而是：
 1. 继续把 `GalleryQuickActions / ServiceForm / Appointment* / Settings` 等组件迁到 `adminRequest`。
 2. 继续统一 Dashboard / Settings / Gallery 的工作台布局模式。
 3. 抽共享 admin mapper，继续压缩 view model 层重复逻辑。
+
+#### 39) 扩大 `adminRequest` 覆盖范围，继续统一客户端交互层
+- 已继续把后台高频交互组件迁到 `src/lib/admin-request.ts`：
+  - `GalleryQuickActions`
+  - `ServiceForm`
+  - `AppointmentQuickActions`
+  - `AppointmentStatusControls`
+  - `AdminSettingsForm`
+- 当前效果：
+  - 这些组件不再重复写 `fetch + response.json + error` 模板逻辑
+  - admin API envelope 统一后的收益开始真正落到客户端层
+  - 后台客户端交互开始具备更明确的统一入口
+
+### 本阶段验证追加
+- `npm run build` 已通过。
+
+### 本阶段结论
+这一轮继续围绕“后台更好维护、更适合持续开发”推进：
+- 不是新增业务功能
+- 而是继续消除后台交互层的重复模板代码
+- 客户端与 API 契约变得更稳定、更容易持续扩展
+
+### 下一步建议
+1. 继续把 `ContentEditor / DeleteServiceButton / ServiceControls / AdminPasswordForm` 也迁到 `adminRequest`。
+2. 统一 Dashboard / Settings / Gallery 的工作台布局模式。
+3. 抽共享 admin mapper，继续压缩 view model 层重复逻辑。

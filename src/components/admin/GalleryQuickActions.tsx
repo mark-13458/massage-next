@@ -2,6 +2,7 @@
 
 import { useRouter } from 'next/navigation'
 import { useState, useTransition } from 'react'
+import { adminRequest } from '../../lib/admin-request'
 
 type AdminLang = 'zh' | 'en'
 type NoticeTone = 'success' | 'error' | 'info'
@@ -40,19 +41,14 @@ export function GalleryQuickActions({
 
     startTransition(async () => {
       try {
-        const response = await fetch(`/api/admin/gallery/${id}`, {
+        const data = await adminRequest<{ item?: { isActive?: boolean; isCover?: boolean } }>(`/api/admin/gallery/${id}`, {
           method: 'PATCH',
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify(payload),
         })
-        const json = await response.json().catch(() => ({}))
 
-        if (!response.ok) {
-          throw new Error(json.error || t(lang, '操作失败', 'Action failed'))
-        }
-
-        if (typeof json.data?.item?.isActive === 'boolean') setIsActive(json.data.item.isActive)
-        if (typeof json.data?.item?.isCover === 'boolean') setIsCover(json.data.item.isCover)
+        if (typeof data?.item?.isActive === 'boolean') setIsActive(data.item.isActive)
+        if (typeof data?.item?.isCover === 'boolean') setIsCover(data.item.isCover)
 
         setMessage(successMessage)
         setMessageTone('success')
