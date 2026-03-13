@@ -147,6 +147,7 @@
 - `HANDOFF.md` 已建立
 - `PROJECT_STATUS.md`（本文件）已建立
 - `DEPLOYMENT_CHECKLIST.md` 已纳入正式交接体系
+- `TEST_ARTIFACTS.md` 已建立，用于说明测试临时文件
 
 ### 当前还没做完
 - 图片尺寸校验

@@ -518,6 +518,7 @@ Docker 部署当前已经不只是“页面能打开”，而是：
   - Gallery 删除后，数据库中的 `GalleryImage` / `File` 记录已清除。
   - 对应 `public/uploads/...` 文件已删除。
   - Hero 替换后，旧 Hero 图片文件已被清理，仅保留最新图片。
+- 同时已建立 `TEST_ARTIFACTS.md`，用于标注当前根目录中的 smoke test 临时文件，并通过 `.gitignore` 将其排除出版本库。
 
 ---
 

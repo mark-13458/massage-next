@@ -25,6 +25,11 @@
 - `src/app/admin/appointments/[id]/page.tsx`
 - `src/app/admin/services/page.tsx`
 
+另外请注意：
+- 根目录里可能保留少量 smoke test 临时文件
+- 它们的用途与范围已写在 `TEST_ARTIFACTS.md`
+- 这些文件不是正式业务资产，不应提交到远端仓库
+
 ---
 
 ## 当前系统能力

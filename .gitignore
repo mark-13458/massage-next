@@ -8,3 +8,15 @@ public/uploads/
 *.log
 *.tsbuildinfo
 .DS_Store
+
+# Smoke test / local deployment artifacts
+content-smoke.json
+delete-gallery.json
+hero-patch.json
+hero1.json
+hero2.json
+login.json
+replace-hero.json
+smoke-cookies.txt
+tmp-smoke.png
+tmp-hero-smoke.png
