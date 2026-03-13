@@ -2,6 +2,14 @@
 
 import { useState, useTransition } from 'react'
 
+type NoticeTone = 'success' | 'error' | 'info'
+
+function noticeClassName(tone: NoticeTone) {
+  if (tone === 'success') return 'text-emerald-700'
+  if (tone === 'error') return 'text-rose-700'
+  return 'text-stone-500'
+}
+
 type Props = {
   id: number
   initialActive: boolean
@@ -14,10 +22,12 @@ export function ServiceControls({ id, initialActive, initialFeatured, initialSor
   const [isFeatured, setIsFeatured] = useState(initialFeatured)
   const [sortOrder, setSortOrder] = useState(String(initialSortOrder))
   const [message, setMessage] = useState('')
+  const [messageTone, setMessageTone] = useState<NoticeTone>('info')
   const [isPending, startTransition] = useTransition()
 
   async function save() {
-    setMessage('')
+    setMessage('正在保存服务配置…')
+    setMessageTone('info')
 
     startTransition(async () => {
       try {
@@ -30,20 +40,23 @@ export function ServiceControls({ id, initialActive, initialFeatured, initialSor
             sortOrder: Number(sortOrder) || 0,
           }),
         })
+        const json = await response.json().catch(() => ({}))
 
         if (!response.ok) {
-          throw new Error('Update failed')
+          throw new Error(json.error || 'Update failed')
         }
 
-        setMessage('已保存')
-      } catch {
-        setMessage('保存失败')
+        setMessage('服务配置已保存')
+        setMessageTone('success')
+      } catch (error) {
+        setMessage(error instanceof Error ? error.message : '保存失败')
+        setMessageTone('error')
       }
     })
   }
 
   return (
-    <div className="min-w-[240px] space-y-3">
+    <div className="min-w-[240px] space-y-3 rounded-2xl border border-stone-200 bg-stone-50/80 p-4">
       <label className="flex items-center gap-2 text-xs text-stone-700">
         <input type="checkbox" checked={isActive} onChange={(e) => setIsActive(e.target.checked)} />
         上架
@@ -72,7 +85,7 @@ export function ServiceControls({ id, initialActive, initialFeatured, initialSor
         >
           {isPending ? '保存中…' : '保存'}
         </button>
-        {message ? <span className="text-xs text-stone-500">{message}</span> : null}
+        {message ? <span className={`text-xs ${noticeClassName(messageTone)}`}>{message}</span> : null}
       </div>
     </div>
   )

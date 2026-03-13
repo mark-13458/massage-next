@@ -239,8 +239,8 @@ export function ContentEditor({
   }
 
   return (
-    <div className="space-y-8">
-      <section className="rounded-3xl bg-white p-6 shadow-sm">
+    <div className="space-y-6">
+      <section className="rounded-[28px] border border-stone-200 bg-[#fcfbf8] p-6 shadow-[0_10px_30px_rgba(28,25,23,0.05)]">
         <div className="flex items-center justify-between gap-4">
           <h2 className="text-lg font-semibold text-stone-900">首页 Hero</h2>
           <label className="cursor-pointer rounded-full border border-stone-300 bg-white px-4 py-2 text-sm font-medium text-stone-700 transition hover:border-stone-500">
@@ -265,8 +265,11 @@ export function ContentEditor({
         </div>
       </section>
 
-      <section className="rounded-3xl bg-white p-6 shadow-sm">
-        <h2 className="text-lg font-semibold text-stone-900">联系信息</h2>
+      <section className="rounded-[28px] border border-stone-200 bg-white p-6 shadow-[0_10px_30px_rgba(28,25,23,0.05)]">
+        <div className="mb-5">
+          <p className="text-[11px] font-semibold uppercase tracking-[0.24em] text-stone-400">Contact</p>
+          <h2 className="mt-2 text-lg font-semibold text-stone-900">联系信息</h2>
+        </div>
         <div className="mt-5 grid gap-4 md:grid-cols-2">
           <label className="flex flex-col gap-2 text-sm text-stone-700 md:col-span-2"><span>地址</span><input value={contact.address ?? ''} onChange={(e) => setContact({ ...contact, address: e.target.value })} className="rounded-2xl border border-stone-200 px-4 py-3 outline-none focus:border-amber-500" /></label>
           <label className="flex flex-col gap-2 text-sm text-stone-700"><span>电话</span><input value={contact.phone ?? ''} onChange={(e) => setContact({ ...contact, phone: e.target.value })} className="rounded-2xl border border-stone-200 px-4 py-3 outline-none focus:border-amber-500" /></label>
@@ -274,8 +277,11 @@ export function ContentEditor({
         </div>
       </section>
 
-      <section className="rounded-3xl bg-white p-6 shadow-sm">
-        <h2 className="text-lg font-semibold text-stone-900">营业时间</h2>
+      <section className="rounded-[28px] border border-stone-200 bg-white p-6 shadow-[0_10px_30px_rgba(28,25,23,0.05)]">
+        <div className="mb-5">
+          <p className="text-[11px] font-semibold uppercase tracking-[0.24em] text-stone-400">Hours</p>
+          <h2 className="mt-2 text-lg font-semibold text-stone-900">营业时间</h2>
+        </div>
         <div className="mt-5 grid gap-4">
           {hours.map((item, index) => (
             <div key={item.weekday} className="grid gap-3 rounded-2xl border border-stone-100 p-4 md:grid-cols-[1.1fr_1fr_1fr_auto] md:items-center">
@@ -288,14 +294,17 @@ export function ContentEditor({
         </div>
       </section>
 
-      <section className="rounded-3xl bg-white p-6 shadow-sm">
+      <section className="rounded-[28px] border border-stone-200 bg-white p-6 shadow-[0_10px_30px_rgba(28,25,23,0.05)]">
         <div className="flex items-center justify-between gap-4">
-          <h2 className="text-lg font-semibold text-stone-900">FAQ</h2>
+          <div>
+            <p className="text-[11px] font-semibold uppercase tracking-[0.24em] text-stone-400">FAQ</p>
+            <h2 className="mt-2 text-lg font-semibold text-stone-900">常见问题</h2>
+          </div>
           <button type="button" onClick={addFaq} className="rounded-full border border-stone-300 bg-white px-4 py-2 text-sm font-medium text-stone-700 transition hover:border-stone-500">新增 FAQ</button>
         </div>
         <div className="mt-5 grid gap-4">
           {faqs.filter((item) => !item._delete).map((item, index) => (
-            <div key={item.id} className="rounded-2xl border border-stone-100 p-4">
+            <div key={item.id} className="rounded-3xl border border-stone-100 bg-[linear-gradient(180deg,#fff_0%,#fcfbf9_100%)] p-5">
               <div className="mb-4 flex justify-end"><button type="button" onClick={() => removeFaq(index)} className="rounded-full border border-rose-200 bg-rose-50 px-3 py-1 text-xs font-medium text-rose-700 transition hover:bg-rose-100">删除</button></div>
               <div className="grid gap-4 md:grid-cols-2">
                 <input value={item.questionDe} onChange={(e) => { const next = [...faqs]; next[index] = { ...item, questionDe: e.target.value }; setFaqs(next) }} className="rounded-2xl border border-stone-200 px-4 py-3 text-sm outline-none focus:border-amber-500" />
@@ -312,9 +321,12 @@ export function ContentEditor({
         </div>
       </section>
 
-      <section className="rounded-3xl bg-white p-6 shadow-sm">
+      <section className="rounded-[28px] border border-stone-200 bg-white p-6 shadow-[0_10px_30px_rgba(28,25,23,0.05)]">
         <div className="flex items-center justify-between gap-4">
-          <h2 className="text-lg font-semibold text-stone-900">图库管理</h2>
+          <div>
+            <p className="text-[11px] font-semibold uppercase tracking-[0.24em] text-stone-400">Gallery</p>
+            <h2 className="mt-2 text-lg font-semibold text-stone-900">图库管理</h2>
+          </div>
           <div className="flex flex-wrap items-center gap-3">
             <label className="cursor-pointer rounded-full border border-stone-300 bg-white px-4 py-2 text-sm font-medium text-stone-700 transition hover:border-stone-500">
               {isUploading ? '上传中…' : '上传图片'}
@@ -328,7 +340,7 @@ export function ContentEditor({
           {gallery.filter((item) => !item._delete).length === 0 ? (
             <div className="text-sm text-stone-500">当前还没有图库数据。现在已经支持直接上传图片，或继续新增 URL 型图片条目。</div>
           ) : gallery.filter((item) => !item._delete).map((item, index) => (
-            <div key={item.id} className="rounded-2xl border border-stone-100 p-4">
+            <div key={item.id} className="rounded-3xl border border-stone-100 bg-[linear-gradient(180deg,#fff_0%,#fcfbf9_100%)] p-5">
               <div className="mb-4 flex justify-end"><button type="button" onClick={() => removeGalleryItem(index)} className="rounded-full border border-rose-200 bg-rose-50 px-3 py-1 text-xs font-medium text-rose-700 transition hover:bg-rose-100">删除</button></div>
               <div className="grid gap-4 md:grid-cols-[140px_1fr]">
                 <img src={item.imageUrl || 'https://placehold.co/400x500?text=Gallery'} alt={item.titleDe || item.titleEn || 'Gallery'} className="h-28 w-full rounded-2xl object-cover" />
@@ -350,7 +362,7 @@ export function ContentEditor({
         </div>
       </section>
 
-      <div className="flex items-center gap-4">
+      <div className="sticky bottom-4 z-10 flex items-center gap-4 rounded-full border border-stone-200 bg-white/95 px-4 py-3 shadow-[0_18px_40px_rgba(28,25,23,0.12)] backdrop-blur">
         <button type="button" onClick={save} disabled={isPending} className="rounded-full bg-stone-900 px-5 py-3 text-sm font-semibold text-white transition hover:bg-stone-800 disabled:cursor-not-allowed disabled:opacity-70">
           {isPending ? '保存中…' : '保存内容'}
         </button>

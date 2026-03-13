@@ -548,6 +548,23 @@ Docker 部署当前已经不只是“页面能打开”，而是：
   - 无 cookie 请求 `/admin/appointments` → `307 /admin/login`
 - 说明后台页面级访问控制现在已经真正生效。
 
+#### 18) 后台模板化改造（B1 第一版）
+- 已开始按“换壳不换核”的方向改造后台。
+- 本轮先不动业务 API，不改 Prisma 和核心工作流，只升级后台外壳：
+  - `AdminShell` 已从顶部按钮导航升级为侧边栏 + 顶部工作区头部。
+  - `AdminTopSummary` 已升级为更成熟的 dashboard 概览卡片风格。
+  - Dashboard 页面已同步适配新的视觉结构。
+  - 服务管理页已接入新的 section card / empty state / 反馈样式。
+  - 内容管理页已升级为“内容工作台 + 右侧状态/预览面板”的布局。
+  - `ContentEditor` 内部各区块（Hero / Contact / Hours / FAQ / Gallery）已开始统一为更成熟的卡片式后台结构。
+- 已完成回归：
+  - `npm run build` 通过
+  - Docker 重建通过
+  - 浏览器与 HTML 检查确认 services/content 新结构已经实际生效
+- 当前方向是：
+  - 先把后台做成更像成熟运营系统的工作区
+  - 再逐页替换预约、服务、内容页面的视觉壳子与交互结构
+
 ---
 
 ## 当前整体状态（截至 2026-03-13）

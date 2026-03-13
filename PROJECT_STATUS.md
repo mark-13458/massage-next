@@ -146,6 +146,7 @@
 - robots/sitemap 已改为走 `APP_URL` 动态生成，并避免构建期误依赖 `DATABASE_URL`
 - 方案 A 继续验证已完成（内容 CRUD / SEO / 浏览器目检）
 - 后台页面访问控制已修复并验证通过（未登录重定向到 `/admin/login`）
+- 后台模板化改造 B1 已继续推进（新 AdminShell / Summary / Services / Content 结构已落地并验证）
 - `DEVELOPMENT_LOG.md` 已建立
 - `HANDOFF.md` 已建立
 - `PROJECT_STATUS.md`（本文件）已建立
