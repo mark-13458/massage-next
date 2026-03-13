@@ -1,5 +1,6 @@
 import Link from 'next/link'
 import { redirect } from 'next/navigation'
+import { AdminPageToolbar } from '../../../components/admin/AdminPageToolbar'
 import { AdminShell } from '../../../components/admin/AdminShell'
 import { AdminEmptyState } from '../../../components/admin/AdminEmptyState'
 import { AdminSectionCard } from '../../../components/admin/AdminSectionCard'
@@ -24,21 +25,21 @@ export default async function AdminServicesPage() {
       title={pick(lang, '服务项目', 'Services')}
       subtitle={pick(lang, '把服务清单做成可维护资产：双语文案、价格、时长、精选与上下架都在一个工作台里完成。', 'Turn the service library into a maintainable asset with bilingual copy, pricing, duration, featured status and publishing controls in one workspace.')}
     >
+      <AdminPageToolbar>
+        <Link href="/admin" className="rounded-full border border-stone-300 bg-white px-4 py-2 text-sm font-medium text-stone-700 transition hover:border-stone-500">
+          {pick(lang, '返回 Dashboard', 'Back to dashboard')}
+        </Link>
+        <Link href="/admin/services/new" className="rounded-full bg-stone-900 px-4 py-2 text-sm font-medium text-white transition hover:bg-stone-800">
+          {pick(lang, '新建服务', 'New service')}
+        </Link>
+      </AdminPageToolbar>
+
       <div className="grid gap-6 xl:grid-cols-[1.15fr_0.85fr]">
         <AdminSectionCard
           eyebrow="Service Library"
           title="服务列表"
           description="当前支持完整内容维护、上架/下架、精选开关和排序调整。先维持现有业务逻辑，只升级后台视觉结构与管理节奏。"
-          actions={
-            <>
-              <Link href="/admin" className="rounded-full border border-stone-300 bg-white px-4 py-2 text-sm font-medium text-stone-700 transition hover:border-stone-500">
-                {pick(lang, '返回 Dashboard', 'Back to dashboard')}
-              </Link>
-              <Link href="/admin/services/new" className="rounded-full bg-stone-900 px-4 py-2 text-sm font-medium text-white transition hover:bg-stone-800">
-                {pick(lang, '新建服务', 'New service')}
-              </Link>
-            </>
-          }
+          actions={undefined}
         >
           {services.length === 0 ? (
             <AdminEmptyState title="暂时还没有服务数据" description="可能是数据库还没接通，或者你还没有创建第一条服务。接通数据库后可以直接在这里新建并维护双语服务。" />

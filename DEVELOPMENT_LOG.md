@@ -1083,3 +1083,34 @@ Docker 部署当前已经不只是“页面能打开”，而是：
 1. 开始统一后台列表页 / 详情页的工作台布局模式。
 2. 继续抽共享的 admin mapper，减少不同 view model 之间字段映射重复。
 3. 再整理 admin API 返回结构，让客户端交互层也更稳定。
+
+#### 35) 开始统一后台工作台布局模式
+- 已新增共享后台布局组件：
+  - `src/components/admin/AdminPageToolbar.tsx`
+  - `src/components/admin/AdminWorkspaceLayout.tsx`
+- 组件职责：
+  - `AdminPageToolbar`：统一列表页 / 详情页顶部操作条
+  - `AdminWorkspaceLayout`：统一主内容区 + 侧边工作区的双栏工作台骨架
+- 已开始接入这些页面：
+  - `/admin/appointments/[id]`
+  - `/admin/services`
+  - `/admin/services/[id]`
+  - `/admin/content`
+- 当前效果：
+  - 后台页面不再各自手写一套顶部操作区与双栏布局
+  - 列表页 / 详情页 / 内容工作台的结构开始趋于一致
+  - 这为后续继续统一 Dashboard / Settings / Media 页面提供了稳定骨架
+
+### 本阶段验证追加
+- `npm run build` 已通过。
+
+### 本阶段结论
+这一轮继续围绕“后台更像运营系统”推进，而不是只修单页：
+- 布局结构开始可复用
+- 页面间的工作台感更一致
+- 后续继续做组件统一、模块收口和 API 风格统一时，会更顺手
+
+### 下一步建议
+1. 继续把 Dashboard / Settings / Gallery 也收进统一工作台布局习惯。
+2. 抽共享 admin mapper，减少 view model 层字段映射重复。
+3. 统一 admin API 返回 envelope（status / data / error），让前后端交互更稳定。

@@ -1,5 +1,6 @@
 import Link from 'next/link'
 import { notFound, redirect } from 'next/navigation'
+import { AdminPageToolbar } from '../../../../components/admin/AdminPageToolbar'
 import { AdminShell } from '../../../../components/admin/AdminShell'
 import { ServiceForm } from '../../../../components/admin/ServiceForm'
 import { DeleteServiceButton } from '../../../../components/admin/DeleteServiceButton'
@@ -27,12 +28,12 @@ export default async function EditServicePage({ params }: { params: { id: string
       title={pick(lang, '编辑服务', 'Edit service')}
       subtitle={pick(lang, '这一步已经不只是开关控制，而是可以直接维护服务的完整字段，并支持删除无关联预约的服务。', 'This page now goes beyond toggles: it supports editing the full service payload and deleting services with no related bookings.')}
     >
-      <div className="mb-6 flex flex-wrap items-center justify-between gap-3">
+      <AdminPageToolbar>
         <Link href="/admin/services" className="rounded-full border border-stone-300 bg-white px-4 py-2 text-sm font-medium text-stone-700 transition hover:border-stone-500">
           {pick(lang, '返回服务列表', 'Back to services')}
         </Link>
         <DeleteServiceButton id={service.id} lang={lang} />
-      </div>
+      </AdminPageToolbar>
       <ServiceForm
         mode="edit"
         lang={lang}
