@@ -181,6 +181,21 @@ src/
 - `admin-media.service.ts`
 - `admin-settings.service.ts`
 
+### 4.5 server/view-models 后台视图模型层
+只负责：
+- 把数据库记录转换为页面稳定可用的数据结构
+- 收口默认值、兼容旧字段、减少页面层字段判断
+- 作为 service 层输出给页面的中间稳定接口
+
+命名建议：
+- `view-models/admin/settings.vm.ts`
+- 后续可继续扩展：
+  - `dashboard.vm.ts`
+  - `booking.vm.ts`
+  - `service.vm.ts`
+  - `content.vm.ts`
+  - `media.vm.ts`
+
 ---
 
 ## 5. 当前推荐演进顺序

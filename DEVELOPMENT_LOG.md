@@ -986,3 +986,34 @@ Docker 部署当前已经不只是“页面能打开”，而是：
 1. 继续把 Settings 模块也迁到 repository / service 分层。
 2. 抽一层统一的 admin view model / mapper，减少页面内字段转换重复。
 3. 继续整理后台组件体系，让各模块卡片、列表、工作台结构更统一。
+
+#### 32) Settings 分层 + admin view model 开始落地
+- 已新增后台 repository：
+  - `src/server/repositories/admin/settings.repository.ts`
+- 已新增后台 service：
+  - `src/server/services/admin-settings.service.ts`
+- 已新增后台 view model：
+  - `src/server/view-models/admin/settings.vm.ts`
+- 已把 `/admin/settings` 页面切到新的 service 层：
+  - 页面不再自己直接读取 Prisma `siteSetting`
+  - 改为通过 service + view model 获取稳定的 settings 结构
+- 当前效果：
+  - Settings 也进入与 Dashboard / Bookings / Services / Content / Media 一致的分层体系
+  - 后台开始从“repository + service”进一步过渡到“repository + service + view model”的更清晰架构
+  - 默认值、旧字段兼容、设置结构收口，不再散落在页面层
+- 已同步更新 `ADMIN_ARCHITECTURE.md`：
+  - 增加 `server/view-models` 层说明
+
+### 本阶段验证追加
+- `npm run build` 已通过。
+
+### 本阶段结论
+这一轮继续沿着“更好维护、更适合持续开发”的目标推进，而不是增加额外复杂度：
+- 后台六大模块的页面层分层已基本成型
+- Settings 成为第一个明确引入 view model 的后台模块
+- 这为后续继续统一 Bookings / Services / Content / Media 的 view model 打下了结构基础
+
+### 下一步建议
+1. 为 Bookings / Services / Media 补 view model 层，进一步减少页面层格式化逻辑。
+2. 整理后台共享类型与 mapper，减少跨模块重复定义。
+3. 继续统一后台工作台页面的 section / summary / list 结构，让运营体验更一致。

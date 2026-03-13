@@ -5,28 +5,17 @@ import { AdminSettingsForm } from '../../../components/admin/AdminSettingsForm'
 import { AdminShell } from '../../../components/admin/AdminShell'
 import { getCurrentAdmin } from '../../../lib/auth'
 import { getAdminLang, pick } from '../../../lib/admin-i18n'
-import { prisma } from '../../../lib/prisma'
+import { getAdminSystemSettings } from '../../../server/services/admin-settings.service'
 
 export const dynamic = 'force-dynamic'
 export const revalidate = 0
-
-async function getSystemSettings() {
-  if (!process.env.DATABASE_URL) return null
-  try {
-    const setting = await prisma.siteSetting.findUnique({ where: { key: 'adminSystemSettings' } })
-    if (!setting?.value || typeof setting.value !== 'object' || Array.isArray(setting.value)) return null
-    return setting.value as Record<string, any>
-  } catch {
-    return null
-  }
-}
 
 export default async function AdminSettingsPage() {
   const admin = await getCurrentAdmin()
   if (!admin) redirect('/admin/login')
 
   const lang = await getAdminLang()
-  const settings = await getSystemSettings()
+  const settings = await getAdminSystemSettings()
 
   return (
     <AdminShell
