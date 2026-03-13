@@ -1,8 +1,17 @@
 'use client'
 
+import { useRouter } from 'next/navigation'
 import { useState, useTransition } from 'react'
 
 const statuses = ['PENDING', 'CONFIRMED', 'COMPLETED', 'CANCELLED', 'NO_SHOW'] as const
+
+type NoticeTone = 'success' | 'error' | 'info'
+
+function noticeClassName(tone: NoticeTone) {
+  if (tone === 'success') return 'text-emerald-700'
+  if (tone === 'error') return 'text-rose-700'
+  return 'text-stone-500'
+}
 
 type Props = {
   id: number
@@ -11,13 +20,16 @@ type Props = {
 }
 
 export function AppointmentStatusControls({ id, currentStatus, internalNote }: Props) {
+  const router = useRouter()
   const [status, setStatus] = useState(currentStatus)
   const [note, setNote] = useState(internalNote ?? '')
   const [message, setMessage] = useState('')
+  const [messageTone, setMessageTone] = useState<NoticeTone>('info')
   const [isPending, startTransition] = useTransition()
 
   async function save() {
-    setMessage('')
+    setMessage('正在保存预约状态…')
+    setMessageTone('info')
 
     startTransition(async () => {
       try {
@@ -26,14 +38,18 @@ export function AppointmentStatusControls({ id, currentStatus, internalNote }: P
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify({ status, internalNote: note }),
         })
+        const json = await response.json().catch(() => ({}))
 
         if (!response.ok) {
-          throw new Error('Update failed')
+          throw new Error(json.error || 'Update failed')
         }
 
-        setMessage('已保存')
-      } catch {
-        setMessage('保存失败')
+        setMessage('预约状态已保存，页面已刷新')
+        setMessageTone('success')
+        router.refresh()
+      } catch (error) {
+        setMessage(error instanceof Error ? error.message : '保存失败')
+        setMessageTone('error')
       }
     })
   }
@@ -69,7 +85,7 @@ export function AppointmentStatusControls({ id, currentStatus, internalNote }: P
         >
           {isPending ? '保存中…' : '保存'}
         </button>
-        {message ? <span className="text-xs text-stone-500">{message}</span> : null}
+        {message ? <span className={`text-xs ${noticeClassName(messageTone)}`}>{message}</span> : null}
       </div>
     </div>
   )
