@@ -1,0 +1,31 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+:root {
+  --bg: #f8f5f0;
+  --fg: #3e2723;
+}
+
+html {
+  scroll-behavior: smooth;
+}
+
+body {
+  background: var(--bg);
+  color: var(--fg);
+}
+
+@layer base {
+  * {
+    @apply border-stone-200;
+  }
+
+  body {
+    @apply antialiased;
+  }
+
+  a {
+    @apply transition-colors;
+  }
+}

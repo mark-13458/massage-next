@@ -1,0 +1,30 @@
+{
+  "brand": "China TCM Massage",
+  "nav": {
+    "home": "Home",
+    "services": "Services",
+    "about": "About",
+    "gallery": "Gallery",
+    "contact": "Contact",
+    "booking": "Book now",
+    "admin": "Admin"
+  },
+  "hero": {
+    "eyebrow": "Traditional Chinese massage in Munich",
+    "title": "Warm, calm and deeply relaxing body care",
+    "subtitle": "A modern wellness atmosphere with traditional treatments and a fast, simple booking experience.",
+    "primaryCta": "Request an appointment",
+    "secondaryCta": "View services"
+  },
+  "sections": {
+    "featuredServices": "Featured treatments",
+    "whyUs": "Why guests choose us",
+    "testimonials": "Guest feedback",
+    "faq": "Frequently asked questions",
+    "contact": "Visit & contact"
+  },
+  "admin": {
+    "title": "中文后台",
+    "subtitle": "This area will manage appointments, services, content and media."
+  }
+}

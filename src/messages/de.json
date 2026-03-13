@@ -1,0 +1,30 @@
+{
+  "brand": "China TCM Massage",
+  "nav": {
+    "home": "Startseite",
+    "services": "Leistungen",
+    "about": "Über uns",
+    "gallery": "Galerie",
+    "contact": "Kontakt",
+    "booking": "Jetzt buchen",
+    "admin": "Verwaltung"
+  },
+  "hero": {
+    "eyebrow": "Traditionelle chinesische Massage in München",
+    "title": "Ruhe, Wärme und echte Entspannung für Körper und Geist",
+    "subtitle": "Moderne Wohlfühlatmosphäre, traditionelle Anwendungen und eine klare, einfache Buchungserfahrung.",
+    "primaryCta": "Termin anfragen",
+    "secondaryCta": "Leistungen ansehen"
+  },
+  "sections": {
+    "featuredServices": "Beliebte Anwendungen",
+    "whyUs": "Warum Kund:innen uns wählen",
+    "testimonials": "Stimmen unserer Gäste",
+    "faq": "Häufige Fragen",
+    "contact": "Besuch & Kontakt"
+  },
+  "admin": {
+    "title": "中文后台",
+    "subtitle": "后续将用于预约、服务、内容和图片管理。"
+  }
+}

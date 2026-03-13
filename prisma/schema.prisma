@@ -1,0 +1,190 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "mysql"
+  url      = env("DATABASE_URL")
+}
+
+enum UserRole {
+  ADMIN
+  STAFF
+}
+
+enum AppointmentStatus {
+  PENDING
+  CONFIRMED
+  COMPLETED
+  CANCELLED
+  NO_SHOW
+}
+
+enum AppointmentSource {
+  WEBSITE
+  PHONE
+  WHATSAPP
+  WALK_IN
+  SETMORE
+}
+
+enum FileKind {
+  IMAGE
+  DOCUMENT
+}
+
+model User {
+  id                     Int           @id @default(autoincrement())
+  email                  String        @unique
+  passwordHash           String
+  name                   String
+  role                   UserRole      @default(ADMIN)
+  isActive               Boolean       @default(true)
+  lastLoginAt            DateTime?
+  createdAt              DateTime      @default(now())
+  updatedAt              DateTime      @updatedAt
+  uploadedFiles          File[]
+  confirmedAppointments  Appointment[] @relation("AppointmentConfirmedBy")
+}
+
+model Service {
+  id               Int           @id @default(autoincrement())
+  uuid             String        @unique @default(uuid())
+  slug             String        @unique
+  nameDe           String
+  nameEn           String
+  summaryDe        String?
+  summaryEn        String?
+  descriptionDe    String?       @db.Text
+  descriptionEn    String?       @db.Text
+  durationMin      Int
+  price            Decimal       @db.Decimal(10, 2)
+  sortOrder        Int           @default(0)
+  isFeatured       Boolean       @default(false)
+  isActive         Boolean       @default(true)
+  coverImageId     Int?
+  createdAt        DateTime      @default(now())
+  updatedAt        DateTime      @updatedAt
+  appointments     Appointment[]
+}
+
+model Appointment {
+  id                Int                 @id @default(autoincrement())
+  uuid              String              @unique @default(uuid())
+  customerName      String
+  customerEmail     String?
+  customerPhone     String
+  locale            String              @default("de")
+  appointmentDate   DateTime
+  appointmentTime   String
+  durationMin       Int
+  priceSnapshot     Decimal             @db.Decimal(10, 2)
+  notes             String?             @db.Text
+  internalNote      String?             @db.Text
+  status            AppointmentStatus   @default(PENDING)
+  source            AppointmentSource   @default(WEBSITE)
+  confirmationToken String?
+  confirmationSent  Boolean             @default(false)
+  confirmedAt       DateTime?
+  cancelledAt       DateTime?
+  completedAt       DateTime?
+  serviceId         Int
+  service           Service             @relation(fields: [serviceId], references: [id])
+  confirmedById     Int?
+  confirmedBy       User?               @relation("AppointmentConfirmedBy", fields: [confirmedById], references: [id])
+  createdAt         DateTime            @default(now())
+  updatedAt         DateTime            @updatedAt
+}
+
+model File {
+  id               Int        @id @default(autoincrement())
+  uuid             String     @unique @default(uuid())
+  originalFilename String
+  storedFilename   String
+  filePath         String
+  fileSize         Int
+  mimeType         String
+  kind             FileKind   @default(IMAGE)
+  altText          String?
+  width            Int?
+  height           Int?
+  isPublic         Boolean    @default(false)
+  uploadedById     Int?
+  uploadedBy       User?      @relation(fields: [uploadedById], references: [id])
+  createdAt        DateTime   @default(now())
+  updatedAt        DateTime   @updatedAt
+  galleryImages    GalleryImage[]
+}
+
+model SiteSetting {
+  id         Int      @id @default(autoincrement())
+  key        String   @unique
+  value      Json
+  createdAt  DateTime @default(now())
+  updatedAt  DateTime @updatedAt
+}
+
+model BusinessHour {
+  id         Int      @id @default(autoincrement())
+  weekday    Int
+  dayLabelDe String
+  dayLabelEn String
+  openTime   String?
+  closeTime  String?
+  isClosed   Boolean  @default(false)
+  createdAt  DateTime @default(now())
+  updatedAt  DateTime @updatedAt
+
+  @@unique([weekday])
+}
+
+model FaqItem {
+  id         Int      @id @default(autoincrement())
+  questionDe String
+  questionEn String
+  answerDe   String   @db.Text
+  answerEn   String   @db.Text
+  sortOrder  Int      @default(0)
+  isActive   Boolean  @default(true)
+  createdAt  DateTime @default(now())
+  updatedAt  DateTime @updatedAt
+}
+
+model Testimonial {
+  id           Int      @id @default(autoincrement())
+  customerName String
+  locale       String   @default("de")
+  rating       Int      @default(5)
+  content      String   @db.Text
+  sortOrder    Int      @default(0)
+  isPublished  Boolean  @default(true)
+  createdAt    DateTime @default(now())
+  updatedAt    DateTime @updatedAt
+}
+
+model GalleryImage {
+  id         Int      @id @default(autoincrement())
+  titleDe    String?
+  titleEn    String?
+  altDe      String?
+  altEn      String?
+  sortOrder  Int      @default(0)
+  isCover    Boolean  @default(false)
+  isActive   Boolean  @default(true)
+  fileId     Int
+  file       File     @relation(fields: [fileId], references: [id])
+  createdAt  DateTime @default(now())
+  updatedAt  DateTime @updatedAt
+}
+
+model EmailLog {
+  id         Int      @id @default(autoincrement())
+  toEmail    String
+  subject    String
+  template   String?
+  status     String
+  error      String?  @db.Text
+  sentAt     DateTime?
+  createdAt  DateTime @default(now())
+  updatedAt  DateTime @updatedAt
+}

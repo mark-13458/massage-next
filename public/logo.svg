@@ -1,0 +1,6 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 240 60" width="240" height="60" fill="none">
+  <rect x="5" y="10" rx="8" ry="8" width="40" height="40" fill="#FFC107" stroke="#8D6E63" stroke-width="2"/>
+  <path d="M20 22c6 0 10 4 10 8s-4 8-10 8-10-4-10-8 4-8 10-8z" fill="#8D6E63" opacity=".25"/>
+  <path d="M18 30c2-3 4-3 6 0" stroke="#8D6E63" stroke-width="2" stroke-linecap="round"/>
+  <text x="60" y="38" font-family="'Noto Serif', serif" font-size="22" fill="#5D4037">China TCM Massage</text>
+</svg>

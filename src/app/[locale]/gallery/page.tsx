@@ -1,0 +1,93 @@
+import { notFound } from 'next/navigation'
+import { SiteHeader } from '../../../components/site/SiteHeader'
+import { SiteFooter } from '../../../components/site/SiteFooter'
+import { SectionShell } from '../../../components/site/SectionShell'
+import { isLocale, Locale } from '../../../lib/i18n'
+import { getMessages } from '../../../lib/copy'
+import { getActiveGallery } from '../../../server/services/site.service'
+
+const fallbackGallery = [
+  {
+    id: 1,
+    title: { de: 'Empfang & Ruhezone', en: 'Reception & calm lounge' },
+    image: 'https://images.pexels.com/photos/6621462/pexels-photo-6621462.jpeg?auto=compress&cs=tinysrgb&w=1200',
+  },
+  {
+    id: 2,
+    title: { de: 'Warme Behandlungsatmosphäre', en: 'Warm treatment atmosphere' },
+    image: 'https://images.pexels.com/photos/3738348/pexels-photo-3738348.jpeg?auto=compress&cs=tinysrgb&w=1200',
+  },
+  {
+    id: 3,
+    title: { de: 'Detail & Materialität', en: 'Details & materiality' },
+    image: 'https://images.pexels.com/photos/3757942/pexels-photo-3757942.jpeg?auto=compress&cs=tinysrgb&w=1200',
+  },
+  {
+    id: 4,
+    title: { de: 'Wellness mit natürlicher Wärme', en: 'Wellness with natural warmth' },
+    image: 'https://images.pexels.com/photos/3865557/pexels-photo-3865557.jpeg?auto=compress&cs=tinysrgb&w=1200',
+  },
+  {
+    id: 5,
+    title: { de: 'Ruhige Lichtstimmung', en: 'Calm lighting mood' },
+    image: 'https://images.pexels.com/photos/3997989/pexels-photo-3997989.jpeg?auto=compress&cs=tinysrgb&w=1200',
+  },
+  {
+    id: 6,
+    title: { de: 'Pflege & Entspannung', en: 'Care & relaxation' },
+    image: 'https://images.pexels.com/photos/5240677/pexels-photo-5240677.jpeg?auto=compress&cs=tinysrgb&w=1200',
+  },
+]
+
+export default async function GalleryPage({ params }: { params: Promise<{ locale: string }> }) {
+  const { locale } = await params
+
+  if (!isLocale(locale)) {
+    notFound()
+  }
+
+  const typedLocale = locale as Locale
+  const t = getMessages(typedLocale)
+  const gallery = await getActiveGallery(typedLocale).catch(() => [])
+  const items = gallery.length > 0
+    ? gallery.map((item) => ({ id: item.id, title: item.title || 'Gallery', image: item.imageUrl }))
+    : fallbackGallery.map((item) => ({ id: item.id, title: item.title[typedLocale], image: item.image }))
+
+  return (
+    <main>
+      <SiteHeader locale={typedLocale} />
+      <SectionShell
+        eyebrow={typedLocale === 'de' ? 'Studio Galerie' : 'Studio gallery'}
+        title={t.nav.gallery}
+        description={
+          typedLocale === 'de'
+            ? '图库页面现在已经支持优先读取后台管理的数据；没有真实图片时才回退到演示素材。'
+            : 'The gallery page now prioritizes data managed from the admin side and only falls back to demo imagery when no real media exists.'
+        }
+      >
+        <div className="grid gap-5 md:grid-cols-2 xl:grid-cols-3">
+          {items.map((item, index) => (
+            <article
+              key={item.id}
+              className={`group overflow-hidden rounded-[2rem] border border-stone-200 bg-white shadow-soft ${index % 3 === 0 ? 'xl:translate-y-6' : ''}`}
+            >
+              <div className="relative aspect-[4/5] overflow-hidden">
+                <img
+                  src={item.image}
+                  alt={item.title}
+                  className="h-full w-full object-cover transition duration-700 group-hover:scale-105"
+                />
+                <div className="absolute inset-0 bg-gradient-to-t from-stone-950/70 via-stone-950/10 to-transparent" />
+                <div className="absolute bottom-0 left-0 right-0 p-5 text-white">
+                  <p className="text-xs uppercase tracking-[0.26em] text-amber-200">China TCM Massage</p>
+                  <h2 className="mt-2 text-xl font-semibold leading-tight">{item.title}</h2>
+                </div>
+              </div>
+            </article>
+          ))}
+        </div>
+      </SectionShell>
+      <SiteFooter locale={typedLocale} />
+    </main>
+  )
+}
