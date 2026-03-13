@@ -27,12 +27,14 @@ export async function PATCH(request: NextRequest) {
     const hours = Array.isArray(json.hours) ? json.hours : []
     const faqs = Array.isArray(json.faqs) ? json.faqs : []
     const gallery = Array.isArray(json.gallery) ? json.gallery : []
+    const hasContactPayload = contact && typeof contact === 'object' && !Array.isArray(contact) && Object.keys(contact).length > 0
+    const hasHeroPayload = hero && typeof hero === 'object' && !Array.isArray(hero) && Object.keys(hero).length > 0
 
-    if (contact && typeof contact === 'object') {
+    if (hasContactPayload) {
       await prisma.siteSetting.upsert({ where: { key: 'contact' }, update: { value: contact }, create: { key: 'contact', value: contact } })
     }
 
-    if (hero && typeof hero === 'object') {
+    if (hasHeroPayload) {
       const existingHeroSetting = await prisma.siteSetting.findUnique({ where: { key: 'hero' } })
       const existingHeroValue = existingHeroSetting?.value && typeof existingHeroSetting.value === 'object' && !Array.isArray(existingHeroSetting.value)
         ? (existingHeroSetting.value as Record<string, unknown>)
@@ -65,13 +67,17 @@ export async function PATCH(request: NextRequest) {
       await prisma.faqItem.update({ where: { id: item.id }, data: { questionDe: item.questionDe || '', questionEn: item.questionEn || '', answerDe: item.answerDe || '', answerEn: item.answerEn || '', sortOrder: typeof item.sortOrder === 'number' ? item.sortOrder : 0, isActive: Boolean(item.isActive) } })
     }
 
-    const coverGalleryId = gallery.find((item) => !item._delete && Boolean(item.isCover) && typeof item.id === 'number')?.id ?? null
+    const hasGalleryPayload = gallery.length > 0
+    const coverGalleryId = hasGalleryPayload
+      ? gallery.find((item) => !item._delete && Boolean(item.isCover) && typeof item.id === 'number')?.id ?? null
+      : null
 
     for (const item of gallery) {
       if (item._delete && typeof item.id === 'number') {
         const existing = await prisma.galleryImage.findUnique({ where: { id: item.id }, include: { file: true } })
+        if (!existing) continue
         await prisma.galleryImage.delete({ where: { id: item.id } })
-        if (existing?.fileId) {
+        if (existing.fileId) {
           await cleanupLocalUpload(existing.file?.filePath)
           await prisma.file.delete({ where: { id: existing.fileId } }).catch(() => null)
         }

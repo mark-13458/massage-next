@@ -141,7 +141,7 @@ export function ContentEditor({
     const next = [...faqs]
     if (item._create) next.splice(index, 1)
     else next[index] = { ...item, _delete: true }
-    setFaqs(next.filter((faq) => !faq._delete))
+    setFaqs(next)
   }
 
   function addGalleryItem() {
@@ -160,7 +160,7 @@ export function ContentEditor({
     const next = [...gallery]
     if (item._create) next.splice(index, 1)
     else next[index] = { ...item, _delete: true }
-    setGallery(next.filter((entry) => !entry._delete))
+    setGallery(next)
   }
 
   function handleUpload(event: ChangeEvent<HTMLInputElement>) {
@@ -294,7 +294,7 @@ export function ContentEditor({
           <button type="button" onClick={addFaq} className="rounded-full border border-stone-300 bg-white px-4 py-2 text-sm font-medium text-stone-700 transition hover:border-stone-500">新增 FAQ</button>
         </div>
         <div className="mt-5 grid gap-4">
-          {faqs.map((item, index) => (
+          {faqs.filter((item) => !item._delete).map((item, index) => (
             <div key={item.id} className="rounded-2xl border border-stone-100 p-4">
               <div className="mb-4 flex justify-end"><button type="button" onClick={() => removeFaq(index)} className="rounded-full border border-rose-200 bg-rose-50 px-3 py-1 text-xs font-medium text-rose-700 transition hover:bg-rose-100">删除</button></div>
               <div className="grid gap-4 md:grid-cols-2">
@@ -325,9 +325,9 @@ export function ContentEditor({
         </div>
         {uploadMessage ? <p className={`mt-4 text-sm ${noticeClassName(uploadMessageTone)}`}>{uploadMessage}</p> : null}
         <div className="mt-5 grid gap-4">
-          {gallery.length === 0 ? (
+          {gallery.filter((item) => !item._delete).length === 0 ? (
             <div className="text-sm text-stone-500">当前还没有图库数据。现在已经支持直接上传图片，或继续新增 URL 型图片条目。</div>
-          ) : gallery.map((item, index) => (
+          ) : gallery.filter((item) => !item._delete).map((item, index) => (
             <div key={item.id} className="rounded-2xl border border-stone-100 p-4">
               <div className="mb-4 flex justify-end"><button type="button" onClick={() => removeGalleryItem(index)} className="rounded-full border border-rose-200 bg-rose-50 px-3 py-1 text-xs font-medium text-rose-700 transition hover:bg-rose-100">删除</button></div>
               <div className="grid gap-4 md:grid-cols-[140px_1fr]">

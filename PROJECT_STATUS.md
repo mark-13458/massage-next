@@ -141,6 +141,7 @@
 - `.dockerignore` 已补齐，构建上下文已大幅缩小
 - Docker Prisma 运行时兼容性已修复（bookworm -> bullseye）
 - Docker 登录 / seed / 预约 smoke test 已通过
+- 内容链清理闭环已修复并验证通过（Hero/ Gallery 空 payload、前端删除标记、文件清理）
 - Docker 上传目录持久化卷已补上
 - `DEVELOPMENT_LOG.md` 已建立
 - `HANDOFF.md` 已建立
