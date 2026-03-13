@@ -196,6 +196,12 @@ src/
   - `content.vm.ts`
   - `media.vm.ts`
 
+共享格式化与映射建议放在：
+- `view-models/admin/shared/formatters.ts`
+- `view-models/admin/shared/mappers.ts`
+
+这样可以减少不同模块各自重复实现价格、日期、时长、图片尺寸、双语回退等逻辑。
+
 ---
 
 ## 5. 当前推荐演进顺序

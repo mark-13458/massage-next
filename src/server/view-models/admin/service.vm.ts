@@ -1,3 +1,5 @@
+import { formatDurationMinutes, formatPriceEuro } from './shared/formatters'
+
 export type AdminServiceListItemViewModel = {
   id: number
   nameDe: string
@@ -28,8 +30,8 @@ export function toAdminServiceListItem(item: {
     nameDe: item.nameDe,
     nameEn: item.nameEn,
     summaryDe: item.summaryDe,
-    durationLabel: `${item.durationMin} min`,
-    priceLabel: `€ ${item.price.toString()}`,
+    durationLabel: formatDurationMinutes(item.durationMin),
+    priceLabel: formatPriceEuro(item.price),
     isActive: item.isActive,
     isFeatured: item.isFeatured,
     sortOrder: item.sortOrder,

@@ -1050,3 +1050,36 @@ Docker 部署当前已经不只是“页面能打开”，而是：
 1. 继续抽共享的 admin formatter / mapper，减少不同 view model 间的重复逻辑。
 2. 开始统一后台列表页和详情页的工作台结构，让模块间体验更一致。
 3. 再回头收口 admin API 层的返回结构，使页面 / service / API 更统一。
+
+#### 34) 抽共享 formatter，减少 view model 重复逻辑
+- 已新增共享格式化层：
+  - `src/server/view-models/admin/shared/formatters.ts`
+- 当前已统一收口的格式化逻辑包括：
+  - 德国日期格式
+  - 德国日期时间格式
+  - 时长展示
+  - 欧元价格展示
+  - 图片尺寸展示
+  - 双语文本回退
+  - 媒体来源识别（local / external）
+- 已把以下 view model 切到共享 formatter：
+  - `booking.vm.ts`
+  - `service.vm.ts`
+  - `media.vm.ts`
+- 已同步更新 `ADMIN_ARCHITECTURE.md`：
+  - 明确 `view-models/admin/shared/formatters.ts`
+  - 预留未来的 `shared/mappers.ts`
+
+### 本阶段验证追加
+- `npm run build` 已通过。
+
+### 本阶段结论
+这一轮没有扩展新业务，而是继续减少后台架构内部的重复劳动：
+- view model 层更统一
+- 后续扩展新后台模块时，不需要再重复写格式化逻辑
+- 架构正在从“有分层”进一步推进到“分层内部也有复用秩序”
+
+### 下一步建议
+1. 开始统一后台列表页 / 详情页的工作台布局模式。
+2. 继续抽共享的 admin mapper，减少不同 view model 之间字段映射重复。
+3. 再整理 admin API 返回结构，让客户端交互层也更稳定。

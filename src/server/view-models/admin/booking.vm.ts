@@ -1,4 +1,5 @@
 import { AppointmentStatus } from '@prisma/client'
+import { formatDateDe, formatDateTimeDe, formatDurationMinutes } from './shared/formatters'
 
 export type AdminBookingListItemViewModel = {
   id: number
@@ -35,13 +36,13 @@ export function toAdminBookingListItem(item: {
     customerName: item.customerName,
     notes: item.notes,
     serviceName: item.service.nameDe,
-    appointmentDateLabel: new Intl.DateTimeFormat('de-DE').format(item.appointmentDate),
-    appointmentTimeLabel: `${item.appointmentTime} · ${item.durationMin} min`,
+    appointmentDateLabel: formatDateDe(item.appointmentDate),
+    appointmentTimeLabel: `${item.appointmentTime} · ${formatDurationMinutes(item.durationMin)}`,
     status: item.status,
     source: item.source,
     customerPhone: item.customerPhone,
     customerEmail: item.customerEmail,
-    createdAtLabel: new Intl.DateTimeFormat('de-DE', { dateStyle: 'medium', timeStyle: 'short' }).format(item.createdAt),
+    createdAtLabel: formatDateTimeDe(item.createdAt),
     internalNote: item.internalNote,
   }
 }

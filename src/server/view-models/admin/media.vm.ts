@@ -1,3 +1,5 @@
+import { detectMediaSource, formatImageDimensions, pickBilingualText } from './shared/formatters'
+
 export type AdminGalleryCardViewModel = {
   id: number
   title: string
@@ -23,11 +25,11 @@ export function toAdminGalleryCard(item: {
 }): AdminGalleryCardViewModel {
   return {
     id: item.id,
-    title: item.titleDe || item.titleEn || '',
-    altText: item.altDe || item.altEn || '',
+    title: pickBilingualText(item.titleDe, item.titleEn),
+    altText: pickBilingualText(item.altDe, item.altEn),
     imageUrl: item.file.filePath,
-    dimensionText: item.file.width && item.file.height ? `${item.file.width}×${item.file.height}` : '—',
-    sourceLabel: item.file.filePath.startsWith('/uploads/') ? 'local' : 'external',
+    dimensionText: formatImageDimensions(item.file.width, item.file.height),
+    sourceLabel: detectMediaSource(item.file.filePath),
     isActive: item.isActive,
     isCover: item.isCover,
     sortOrder: item.sortOrder,
