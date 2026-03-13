@@ -1585,3 +1585,35 @@ Docker 部署当前已经不只是“页面能打开”，而是：
 1. 继续处理 `services/new`、`services/[id]`、`settings` 等页面的剩余固定文案。
 2. 单独开一轮专门修后台真正存在的乱码/编码污染文件。
 3. 如果继续做后台统一性，可把 `AdminSectionCard` / `AdminEmptyState` 的 eyebrow / label 进一步抽象成统一 copy 规范。
+
+#### 51) 后台 Settings / Service Form Page 文案收口（第四轮）
+- 本轮继续沿着上轮结论推进，重点不是加功能，而是继续清理后台页面“看起来已经国际化，其实中文位仍不干净”的表层 copy。
+- 实际检查后判断：
+  - `services/new` 与 `services/[id]` 两页的 page-level copy 已经相对干净；
+  - 真正值得优先处理的是 `settings/page.tsx`，因为该页虽然普遍使用了 `pick()`，但部分中文位仍然是英文词或历史遗留风格，不够统一。
+- 已完成：
+  - `settings/page.tsx`
+    - `System Preferences` → `pick(lang, '系统偏好', 'System preferences')`
+    - `Security` → `pick(lang, '安全设置', 'Security')`
+    - `Current Session` → `pick(lang, '当前会话', 'Current session')`
+    - `Runtime Snapshot` → `pick(lang, '运行快照', 'Runtime snapshot')`
+  - `services/new/page.tsx`
+    - 为顶部“返回服务列表”区域补了一个更完整的工作台式容器（圆角、边框、轻阴影、轻 blur），让新建页入口区域与后台其他工作台页面更一致。
+- 本轮没有继续动：
+  - `src/server/view-models/admin/shared/formatters.ts`（保留用户现有未提交改动不碰）
+  - `services/[id]` 的业务逻辑和表单结构
+
+### 本阶段验证追加
+- `npm run build` 已通过。
+
+### 本阶段结论
+这一轮属于“后台设置页真双语化 + Service 表单页表层统一”小收口：
+- 不改数据结构
+- 不改 API
+- 不扩功能
+- 只把后台表面的一致性继续往前推一格
+
+### 下一步建议
+1. 继续检查 `AdminSettingsForm` / `AdminPasswordForm` / `AdminInfoList` 等组件内是否还有表层术语不统一。
+2. 单独开一轮专修后台乱码/编码污染，尤其是历史中文文件。
+3. 如果继续做后台观感统一，可把 `services/[id]` 页的工具条也升级为和 `services/new` 更接近的工作台头部结构。

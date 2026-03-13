@@ -29,7 +29,7 @@ export default async function AdminSettingsPage() {
         ratio="content-heavy"
         main={
           <AdminSectionCard
-            eyebrow={pick(lang, 'System Preferences', 'System Preferences')}
+            eyebrow={pick(lang, '系统偏好', 'System preferences')}
             title={pick(lang, '基础系统配置', 'Core system configuration')}
             description={pick(lang, '把站点基础信息、预约文案和验证码设置拆成独立分区后，后台会更接近正式交付状态。', 'Splitting site basics, booking copy and captcha settings into clear zones makes the admin feel much closer to a production handoff.')}
           >
@@ -39,7 +39,7 @@ export default async function AdminSettingsPage() {
         aside={
           <>
           <AdminSectionCard
-            eyebrow={pick(lang, 'Security', 'Security')}
+            eyebrow={pick(lang, '安全设置', 'Security')}
             title={pick(lang, '管理员安全', 'Admin security')}
             description={pick(lang, '建议尽快把默认密码改掉，并为交接时的账号管理留出规范入口。', 'Change the default password early and keep a clean entry point for future account handoff and admin hygiene.')}
             tone="dark"
@@ -48,7 +48,7 @@ export default async function AdminSettingsPage() {
           </AdminSectionCard>
 
           <AdminSectionCard
-            eyebrow={pick(lang, 'Current Session', 'Current Session')}
+            eyebrow={pick(lang, '当前会话', 'Current session')}
             title={pick(lang, '当前登录信息', 'Current admin session')}
             description={pick(lang, '展示当前管理员的基础信息；后续还可以继续扩展为多管理员与角色体系。', 'This shows the active admin basics today and can later evolve into multi-admin roles and permissions.')}
           >
@@ -63,7 +63,7 @@ export default async function AdminSettingsPage() {
           </AdminSectionCard>
 
           <AdminSectionCard
-            eyebrow={pick(lang, 'Runtime Snapshot', 'Runtime Snapshot')}
+            eyebrow={pick(lang, '运行快照', 'Runtime snapshot')}
             title={pick(lang, '当前配置快照', 'Current configuration snapshot')}
             description={pick(lang, '用一个轻量面板快速确认前台默认语言、后台默认语言、货币和验证码开关当前是什么状态。', 'Use this lightweight panel to quickly confirm the current frontend locale, admin language, currency and captcha state.')}
           >

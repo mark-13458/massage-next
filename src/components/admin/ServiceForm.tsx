@@ -80,7 +80,7 @@ export function ServiceForm({ mode, service, lang = 'zh' }: ServiceFormProps) {
     <div className="rounded-3xl bg-white p-6 shadow-sm sm:p-8">
       <div className="grid gap-4 md:grid-cols-2">
         <label className="flex flex-col gap-2 text-sm text-stone-700">
-          <span>Slug</span>
+          <span>{t(lang, 'Slug 标识', 'Slug')}</span>
           <input value={form.slug} onChange={(e) => setForm({ ...form, slug: e.target.value })} className="rounded-2xl border border-stone-200 px-4 py-3 outline-none focus:border-amber-500" />
         </label>
         <label className="flex flex-col gap-2 text-sm text-stone-700">
