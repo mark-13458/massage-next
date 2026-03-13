@@ -7,11 +7,12 @@ import { AppointmentStatusControls } from '../../../../components/admin/Appointm
 import { AppointmentQuickActions } from '../../../../components/admin/AppointmentQuickActions'
 import { getCurrentAdmin } from '../../../../lib/auth'
 import { getAdminLang, pick } from '../../../../lib/admin-i18n'
+import { appointmentStatusLabel } from '../../../../lib/admin-status'
 
 export const dynamic = 'force-dynamic'
 export const revalidate = 0
 
-function getStatusBadge(status: AppointmentStatus) {
+function getStatusBadge(status: AppointmentStatus, lang: 'zh' | 'en') {
   const styles: Record<AppointmentStatus, string> = {
     PENDING: 'bg-amber-50 text-amber-700 border-amber-200',
     CONFIRMED: 'bg-sky-50 text-sky-700 border-sky-200',
@@ -22,7 +23,7 @@ function getStatusBadge(status: AppointmentStatus) {
 
   return (
     <span className={`inline-flex rounded-full border px-3 py-1 text-xs font-semibold ${styles[status]}`}>
-      {status}
+      {appointmentStatusLabel(status, lang)}
     </span>
   )
 }
@@ -69,7 +70,7 @@ export default async function AppointmentDetailPage({ params }: { params: { id: 
         <section className="rounded-3xl bg-white p-6 shadow-sm sm:p-8">
           <h2 className="text-lg font-semibold text-stone-900">{pick(lang, '客户与预约信息', 'Customer and booking information')}</h2>
           <div className="mt-6 flex flex-wrap items-center gap-3">
-            {getStatusBadge(appointment.status)}
+            {getStatusBadge(appointment.status, lang)}
             <span className="text-xs text-stone-500">{pick(lang, '当前预约状态', 'Current booking status')}</span>
           </div>
 
@@ -103,7 +104,7 @@ export default async function AppointmentDetailPage({ params }: { params: { id: 
           <div className="rounded-3xl bg-white p-6 shadow-sm">
             <div className="flex flex-wrap items-center justify-between gap-3">
               <h2 className="text-lg font-semibold text-stone-900">{pick(lang, '状态处理', 'Status handling')}</h2>
-              {getStatusBadge(appointment.status)}
+              {getStatusBadge(appointment.status, lang)}
             </div>
             <div className="mt-5">
               <AppointmentStatusControls id={appointment.id} currentStatus={appointment.status} internalNote={appointment.internalNote} lang={lang} />

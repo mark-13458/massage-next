@@ -2,8 +2,7 @@
 
 import { useRouter } from 'next/navigation'
 import { useState, useTransition } from 'react'
-
-const statuses = ['PENDING', 'CONFIRMED', 'COMPLETED', 'CANCELLED', 'NO_SHOW'] as const
+import { APPOINTMENT_STATUS_OPTIONS, appointmentStatusLabel } from '../../lib/admin-status'
 
 type NoticeTone = 'success' | 'error' | 'info'
 type AdminLang = 'zh' | 'en'
@@ -67,9 +66,9 @@ export function AppointmentStatusControls({ id, currentStatus, internalNote, lan
         onChange={(e) => setStatus(e.target.value)}
         className="w-full rounded-2xl border border-stone-200 px-3 py-2 text-sm outline-none focus:border-amber-500"
       >
-        {statuses.map((item) => (
+        {APPOINTMENT_STATUS_OPTIONS.map((item) => (
           <option key={item} value={item}>
-            {item}
+            {appointmentStatusLabel(item, lang)}
           </option>
         ))}
       </select>

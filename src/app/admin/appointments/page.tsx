@@ -6,11 +6,12 @@ import { AdminShell } from '../../../components/admin/AdminShell'
 import { AppointmentStatusControls } from '../../../components/admin/AppointmentStatusControls'
 import { getCurrentAdmin } from '../../../lib/auth'
 import { getAdminLang, pick } from '../../../lib/admin-i18n'
+import { appointmentStatusLabel } from '../../../lib/admin-status'
 
 export const dynamic = 'force-dynamic'
 export const revalidate = 0
 
-function getStatusBadge(status: AppointmentStatus) {
+function getStatusBadge(status: AppointmentStatus, lang: 'zh' | 'en') {
   const styles: Record<AppointmentStatus, string> = {
     PENDING: 'bg-amber-50 text-amber-700 border-amber-200',
     CONFIRMED: 'bg-sky-50 text-sky-700 border-sky-200',
@@ -21,7 +22,7 @@ function getStatusBadge(status: AppointmentStatus) {
 
   return (
     <span className={`inline-flex rounded-full border px-3 py-1 text-xs font-semibold ${styles[status]}`}>
-      {status}
+      {appointmentStatusLabel(status, lang)}
     </span>
   )
 }
@@ -77,7 +78,7 @@ export default async function AdminAppointmentsPage({
             href={status === 'ALL' ? '/admin/appointments' : `/admin/appointments?status=${status}`}
             className={`rounded-full px-4 py-2 text-sm font-medium transition ${selectedStatus === status ? 'bg-stone-900 text-white' : 'border border-stone-300 bg-white text-stone-700 hover:border-stone-500'}`}
           >
-            {status}
+            {appointmentStatusLabel(status, lang)}
           </Link>
         ))}
       </div>
@@ -116,7 +117,7 @@ export default async function AdminAppointmentsPage({
                     </td>
                     <td className="px-6 py-4">
                       <div className="space-y-3">
-                        <div>{getStatusBadge(item.status)}</div>
+                        <div>{getStatusBadge(item.status, lang)}</div>
                         <AppointmentStatusControls id={item.id} currentStatus={item.status} internalNote={item.internalNote} lang={lang} />
                       </div>
                     </td>
