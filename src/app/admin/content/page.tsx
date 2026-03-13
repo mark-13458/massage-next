@@ -104,6 +104,7 @@ export default async function AdminContentPage() {
             }
           >
             <ContentEditor
+              lang={lang}
               initialContact={data.contact}
               initialHero={data.hero}
               initialHours={data.hours}
