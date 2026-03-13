@@ -136,7 +136,12 @@ export async function getSystemSettings() {
     adminDefaultLanguage: record.adminDefaultLanguage === 'en' ? 'en' : 'zh',
     timezone: typeof record.timezone === 'string' ? record.timezone : 'Europe/Berlin',
     currency: typeof record.currency === 'string' ? record.currency : 'EUR',
-    bookingNoticeZh: typeof record.bookingNoticeZh === 'string' ? record.bookingNoticeZh : '',
+    bookingNoticeDe:
+      typeof record.bookingNoticeDe === 'string'
+        ? record.bookingNoticeDe
+        : typeof record.bookingNoticeZh === 'string'
+          ? record.bookingNoticeZh
+          : '',
     bookingNoticeEn: typeof record.bookingNoticeEn === 'string' ? record.bookingNoticeEn : '',
   }
 }

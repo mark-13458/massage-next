@@ -11,7 +11,7 @@ type Settings = {
   adminDefaultLanguage: AdminLang
   timezone: string
   currency: string
-  bookingNoticeZh: string
+  bookingNoticeDe: string
   bookingNoticeEn: string
 }
 
@@ -19,7 +19,7 @@ function t(lang: AdminLang, zh: string, en: string) {
   return lang === 'en' ? en : zh
 }
 
-export function AdminSettingsForm({ lang, initialSettings }: { lang: AdminLang; initialSettings: Partial<Settings> | null }) {
+export function AdminSettingsForm({ lang, initialSettings }: { lang: AdminLang; initialSettings: Partial<Settings & { bookingNoticeZh?: string }> | null }) {
   const [form, setForm] = useState<Settings>({
     siteName: initialSettings?.siteName || 'China TCM Massage',
     adminEmail: initialSettings?.adminEmail || '',
@@ -27,7 +27,7 @@ export function AdminSettingsForm({ lang, initialSettings }: { lang: AdminLang; 
     adminDefaultLanguage: initialSettings?.adminDefaultLanguage === 'en' ? 'en' : 'zh',
     timezone: initialSettings?.timezone || 'Europe/Berlin',
     currency: initialSettings?.currency || 'EUR',
-    bookingNoticeZh: initialSettings?.bookingNoticeZh || '',
+    bookingNoticeDe: initialSettings?.bookingNoticeDe || initialSettings?.bookingNoticeZh || '',
     bookingNoticeEn: initialSettings?.bookingNoticeEn || '',
   })
   const [message, setMessage] = useState('')
@@ -88,8 +88,8 @@ export function AdminSettingsForm({ lang, initialSettings }: { lang: AdminLang; 
 
       <div className="grid gap-4 md:grid-cols-2">
         <label className="flex flex-col gap-2 text-sm text-stone-700">
-          <span>{t(lang, '预约说明（中文）', 'Booking notice (Chinese)')}</span>
-          <textarea rows={5} value={form.bookingNoticeZh} onChange={(e) => setForm({ ...form, bookingNoticeZh: e.target.value })} className="rounded-2xl border border-stone-200 px-4 py-3 outline-none focus:border-amber-500" />
+          <span>{t(lang, '预约说明（德语）', 'Booking notice (German)')}</span>
+          <textarea rows={5} value={form.bookingNoticeDe} onChange={(e) => setForm({ ...form, bookingNoticeDe: e.target.value })} className="rounded-2xl border border-stone-200 px-4 py-3 outline-none focus:border-amber-500" />
         </label>
         <label className="flex flex-col gap-2 text-sm text-stone-700">
           <span>{t(lang, '预约说明（英文）', 'Booking notice (English)')}</span>

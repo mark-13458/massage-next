@@ -37,7 +37,12 @@ export async function PATCH(request: NextRequest) {
       adminDefaultLanguage: json.adminDefaultLanguage === 'en' ? 'en' : 'zh',
       timezone: typeof json.timezone === 'string' ? json.timezone : 'Europe/Berlin',
       currency: typeof json.currency === 'string' ? json.currency : 'EUR',
-      bookingNoticeZh: typeof json.bookingNoticeZh === 'string' ? json.bookingNoticeZh : '',
+      bookingNoticeDe:
+        typeof json.bookingNoticeDe === 'string'
+          ? json.bookingNoticeDe
+          : typeof json.bookingNoticeZh === 'string'
+            ? json.bookingNoticeZh
+            : '',
       bookingNoticeEn: typeof json.bookingNoticeEn === 'string' ? json.bookingNoticeEn : '',
     }
 

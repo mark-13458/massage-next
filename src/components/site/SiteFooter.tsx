@@ -1,11 +1,15 @@
 import { Locale } from '../../lib/i18n'
+import { getSystemSettings } from '../../server/services/site.service'
 
-export function SiteFooter({ locale }: { locale: Locale }) {
+export async function SiteFooter({ locale }: { locale: Locale }) {
+  const settings = await getSystemSettings().catch(() => null)
+  const siteName = settings?.siteName || 'China TCM Massage'
+
   return (
     <footer className="border-t border-stone-200 bg-stone-950 text-stone-200">
       <div className="mx-auto grid max-w-6xl gap-8 px-4 py-12 sm:px-6 lg:grid-cols-3 lg:px-8">
         <div>
-          <h3 className="text-lg font-semibold text-white">China TCM Massage</h3>
+          <h3 className="text-lg font-semibold text-white">{siteName}</h3>
           <p className="mt-3 text-sm leading-6 text-stone-300">
             {locale === 'de'
               ? 'Modernes Wohlfühlambiente mit traditionellen Anwendungen, klarer Kommunikation und einfacher Terminbuchung.'

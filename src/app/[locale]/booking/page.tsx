@@ -21,7 +21,7 @@ export default async function BookingPage({ params }: { params: Promise<{ locale
     getSystemSettings().catch(() => null),
   ])
 
-  const configuredNotice = typedLocale === 'en' ? settings?.bookingNoticeEn : ''
+  const configuredNotice = typedLocale === 'de' ? settings?.bookingNoticeDe : settings?.bookingNoticeEn
 
   return (
     <main>
