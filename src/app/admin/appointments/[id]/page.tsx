@@ -1,9 +1,26 @@
 import Link from 'next/link'
 import { notFound } from 'next/navigation'
+import { AppointmentStatus } from '@prisma/client'
 import { prisma } from '../../../../lib/prisma'
 import { AdminShell } from '../../../../components/admin/AdminShell'
 import { AppointmentStatusControls } from '../../../../components/admin/AppointmentStatusControls'
 import { AppointmentQuickActions } from '../../../../components/admin/AppointmentQuickActions'
+
+function getStatusBadge(status: AppointmentStatus) {
+  const styles: Record<AppointmentStatus, string> = {
+    PENDING: 'bg-amber-50 text-amber-700 border-amber-200',
+    CONFIRMED: 'bg-sky-50 text-sky-700 border-sky-200',
+    COMPLETED: 'bg-emerald-50 text-emerald-700 border-emerald-200',
+    CANCELLED: 'bg-rose-50 text-rose-700 border-rose-200',
+    NO_SHOW: 'bg-stone-100 text-stone-700 border-stone-200',
+  }
+
+  return (
+    <span className={`inline-flex rounded-full border px-3 py-1 text-xs font-semibold ${styles[status]}`}>
+      {status}
+    </span>
+  )
+}
 
 async function getAppointment(id: number) {
   if (!process.env.DATABASE_URL) {
@@ -38,6 +55,11 @@ export default async function AppointmentDetailPage({ params }: { params: { id: 
       <div className="grid gap-6 lg:grid-cols-[1.1fr_0.9fr]">
         <section className="rounded-3xl bg-white p-6 shadow-sm sm:p-8">
           <h2 className="text-lg font-semibold text-stone-900">客户与预约信息</h2>
+          <div className="mt-6 flex flex-wrap items-center gap-3">
+            {getStatusBadge(appointment.status)}
+            <span className="text-xs text-stone-500">当前预约状态</span>
+          </div>
+
           <div className="mt-6 grid gap-4 md:grid-cols-2 text-sm text-stone-700">
             <div><span className="font-semibold text-stone-900">客户姓名：</span>{appointment.customerName}</div>
             <div><span className="font-semibold text-stone-900">联系电话：</span>{appointment.customerPhone}</div>
@@ -66,7 +88,10 @@ export default async function AppointmentDetailPage({ params }: { params: { id: 
           </div>
 
           <div className="rounded-3xl bg-white p-6 shadow-sm">
-            <h2 className="text-lg font-semibold text-stone-900">状态处理</h2>
+            <div className="flex flex-wrap items-center justify-between gap-3">
+              <h2 className="text-lg font-semibold text-stone-900">状态处理</h2>
+              {getStatusBadge(appointment.status)}
+            </div>
             <div className="mt-5">
               <AppointmentStatusControls id={appointment.id} currentStatus={appointment.status} internalNote={appointment.internalNote} />
             </div>

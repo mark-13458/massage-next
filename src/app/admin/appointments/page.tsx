@@ -4,6 +4,22 @@ import { prisma } from '../../../lib/prisma'
 import { AdminShell } from '../../../components/admin/AdminShell'
 import { AppointmentStatusControls } from '../../../components/admin/AppointmentStatusControls'
 
+function getStatusBadge(status: AppointmentStatus) {
+  const styles: Record<AppointmentStatus, string> = {
+    PENDING: 'bg-amber-50 text-amber-700 border-amber-200',
+    CONFIRMED: 'bg-sky-50 text-sky-700 border-sky-200',
+    COMPLETED: 'bg-emerald-50 text-emerald-700 border-emerald-200',
+    CANCELLED: 'bg-rose-50 text-rose-700 border-rose-200',
+    NO_SHOW: 'bg-stone-100 text-stone-700 border-stone-200',
+  }
+
+  return (
+    <span className={`inline-flex rounded-full border px-3 py-1 text-xs font-semibold ${styles[status]}`}>
+      {status}
+    </span>
+  )
+}
+
 const allowedStatuses = ['ALL', 'PENDING', 'CONFIRMED', 'COMPLETED', 'CANCELLED', 'NO_SHOW'] as const
 
 type StatusFilter = (typeof allowedStatuses)[number]
@@ -65,7 +81,7 @@ export default async function AdminAppointmentsPage({
             <table className="min-w-full divide-y divide-stone-100 text-sm">
               <thead className="bg-stone-50">
                 <tr>
-                  {['客户', '服务', '预约时间', '状态操作', '来源', '联系方式', '详情', '提交时间'].map((label) => (
+                  {['客户', '服务', '预约时间', '当前状态 / 操作', '来源', '联系方式', '详情', '提交时间'].map((label) => (
                     <th key={label} className="px-6 py-4 text-left font-semibold text-stone-700">
                       {label}
                     </th>
@@ -85,7 +101,10 @@ export default async function AdminAppointmentsPage({
                       <div className="mt-1 text-xs text-stone-500">{item.appointmentTime} · {item.durationMin} min</div>
                     </td>
                     <td className="px-6 py-4">
-                      <AppointmentStatusControls id={item.id} currentStatus={item.status} internalNote={item.internalNote} />
+                      <div className="space-y-3">
+                        <div>{getStatusBadge(item.status)}</div>
+                        <AppointmentStatusControls id={item.id} currentStatus={item.status} internalNote={item.internalNote} />
+                      </div>
                     </td>
                     <td className="px-6 py-4 text-stone-700">{item.source}</td>
                     <td className="px-6 py-4 text-stone-700">
