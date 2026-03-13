@@ -171,3 +171,19 @@ docker compose up -d --build
 
 ## 说明
 本项目当前仍在快速迭代中，README 会随着后台、上传链、部署能力的增强继续更新。
+
+---
+
+## 🤝 交接与阶段记录
+
+从当前版本开始，项目会把开发阶段过程持续写入仓库内文档，方便其他人接手：
+
+- `DEVELOPMENT_LOG.md`：按阶段记录“做了什么 / 为什么 / 验证结果 / 遗留问题 / 下一步”
+- `HANDOFF.md`：给下一位开发者的快速接手说明
+
+建议接手顺序：
+1. `README_CN.md`
+2. `ARCHITECTURE.md`
+3. `ROADMAP.md`
+4. `DEVELOPMENT_LOG.md`
+5. `HANDOFF.md`
