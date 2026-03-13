@@ -1354,3 +1354,33 @@ Docker 部署当前已经不只是“页面能打开”，而是：
 1. 继续统一 section / summary / stat card 组合模式，让后台页面更像同一套系统。
 2. 开始检查后台命名、目录结构和文案是否还能进一步收口。
 3. 如果继续深入架构，可开始抽后台共享 list row / detail block 组件。
+
+#### 44) 开始抽共享 list frame / detail block 组件
+- 已新增共享页面块组件：
+  - `src/components/admin/AdminListFrame.tsx`
+  - `src/components/admin/AdminDetailBlock.tsx`
+- 当前作用：
+  - `AdminListFrame`：统一列表页的“标题 + 描述 + 内容容器”结构
+  - `AdminDetailBlock`：统一详情页侧栏信息块 / 操作块结构
+- 已开始接入：
+  - `/admin/appointments`
+  - `/admin/services`
+  - `/admin/appointments/[id]`
+- 当前效果：
+  - 预约列表、服务列表开始复用统一列表框架
+  - 预约详情页的快捷操作 / 状态处理 / 内部记录块开始复用统一详情块结构
+  - 后台页面骨架进一步从“共享布局”发展到“共享内容块”
+
+### 本阶段验证追加
+- `npm run build` 已通过。
+
+### 本阶段结论
+这一轮继续把后台往“同一套运营系统”方向推进：
+- 不只是整体布局统一
+- 页面内部的主要内容块也开始复用共同结构
+- 后续继续统一 detail 页和 list 页时，成本会更低
+
+### 下一步建议
+1. 继续检查后台命名、目录结构和文案是否还能进一步收口。
+2. 继续统一 section / summary / stat card 组合模式。
+3. 如果继续深入，可以开始整理后台模块级 README / 文档与命名规范。

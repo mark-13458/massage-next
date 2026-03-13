@@ -179,41 +179,41 @@ export default async function AdminGalleryPage({
         aside={
           <>
             <AdminSectionCard
-            eyebrow="Gallery Stats"
-            title={pick(lang, '图库状态面板', 'Gallery status panel')}
-            description={pick(
-              lang,
-              '先把高频巡检信息抽出来，减少每次都进长表单翻查资源状态。',
-              'Pull the high-frequency inspection signals up front so you do not need to scan a long editor every time.',
-            )}
-            tone="dark"
-          >
-            <AdminStatGrid
-              dark
-              items={[
-                { label: pick(lang, '全部图片', 'All images'), value: stats.total },
-                { label: pick(lang, '启用图片', 'Active images'), value: stats.active },
-                { label: pick(lang, '封面数量', 'Cover count'), value: stats.covers },
-                { label: pick(lang, '本地上传', 'Local uploads'), value: stats.localUploads },
-              ]}
-            />
-          </AdminSectionCard>
+              eyebrow="Gallery Stats"
+              title={pick(lang, '图库状态面板', 'Gallery status panel')}
+              description={pick(
+                lang,
+                '先把高频巡检信息抽出来，减少每次都进长表单翻查资源状态。',
+                'Pull the high-frequency inspection signals up front so you do not need to scan a long editor every time.',
+              )}
+              tone="dark"
+            >
+              <AdminStatGrid
+                dark
+                items={[
+                  { label: pick(lang, '全部图片', 'All images'), value: stats.total },
+                  { label: pick(lang, '启用图片', 'Active images'), value: stats.active },
+                  { label: pick(lang, '封面数量', 'Cover count'), value: stats.covers },
+                  { label: pick(lang, '本地上传', 'Local uploads'), value: stats.localUploads },
+                ]}
+              />
+            </AdminSectionCard>
 
-          <AdminSectionCard
-            eyebrow="Gallery Notes"
-            title={pick(lang, '建议的下一步', 'Suggested next steps')}
-            description={pick(
-              lang,
-              '把图库单独拉出来后，下一轮可以继续做更专业的资源运营能力。',
-              'Now that the gallery has its own surface, the next iteration can focus on more professional media operations.',
-            )}
-          >
-            <div className="space-y-3 text-sm leading-7 text-stone-600">
-              <p>1. {pick(lang, '补图片压缩与规范化导出，减少上传体积。', 'Add image compression and normalized exports to reduce upload weight.')}</p>
-              <p>2. {pick(lang, '继续做图片元数据与替换策略统一。', 'Continue unifying metadata handling and replacement strategy.')}</p>
-              <p>3. {pick(lang, '后续可扩展批量上传、筛选和 alt 文本质量检查。', 'Later this can grow into batch upload, filtering and alt-text quality checks.')}</p>
-            </div>
-          </AdminSectionCard>
+            <AdminSectionCard
+              eyebrow="Gallery Notes"
+              title={pick(lang, '建议的下一步', 'Suggested next steps')}
+              description={pick(
+                lang,
+                '把图库单独拉出来后，下一轮可以继续做更专业的资源运营能力。',
+                'Now that the gallery has its own surface, the next iteration can focus on more professional media operations.',
+              )}
+            >
+              <div className="space-y-3 text-sm leading-7 text-stone-600">
+                <p>1. {pick(lang, '补图片压缩与规范化导出，减少上传体积。', 'Add image compression and normalized exports to reduce upload weight.')}</p>
+                <p>2. {pick(lang, '继续做图片元数据与替换策略统一。', 'Continue unifying metadata handling and replacement strategy.')}</p>
+                <p>3. {pick(lang, '后续可扩展批量上传、筛选和 alt 文本质量检查。', 'Later this can grow into batch upload, filtering and alt-text quality checks.')}</p>
+              </div>
+            </AdminSectionCard>
           </>
         }
       />

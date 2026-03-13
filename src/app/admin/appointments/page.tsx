@@ -1,6 +1,7 @@
 import Link from 'next/link'
 import { redirect } from 'next/navigation'
 import { AppointmentStatus } from '@prisma/client'
+import { AdminListFrame } from '../../../components/admin/AdminListFrame'
 import { AdminShell } from '../../../components/admin/AdminShell'
 import { AppointmentStatusControls } from '../../../components/admin/AppointmentStatusControls'
 import { getCurrentAdmin } from '../../../lib/auth'
@@ -66,11 +67,10 @@ export default async function AdminAppointmentsPage({
         ))}
       </div>
 
-      <div className="overflow-hidden rounded-3xl bg-white shadow-sm">
-        <div className="border-b border-stone-100 px-6 py-5">
-          <h2 className="text-lg font-semibold text-stone-900">{pick(lang, '预约列表', 'Booking list')}</h2>
-          <p className="mt-2 text-sm text-stone-600">{pick(lang, '当前展示最近 50 条记录，可按状态筛选，并可直接修改状态、内部备注或进入详情页查看完整信息。', 'Showing the latest 50 records. Filter by status, update status and internal notes, or open the detail page for full context.')}</p>
-        </div>
+      <AdminListFrame
+        title={pick(lang, '预约列表', 'Booking list')}
+        description={pick(lang, '当前展示最近 50 条记录，可按状态筛选，并可直接修改状态、内部备注或进入详情页查看完整信息。', 'Showing the latest 50 records. Filter by status, update status and internal notes, or open the detail page for full context.')}
+      >
 
         {appointments.length === 0 ? (
           <div className="px-6 py-12 text-sm text-stone-500">{pick(lang, '当前没有符合条件的预约数据，或运行环境尚未连接数据库。', 'No matching bookings yet, or the current environment is not connected to the database.')}</div>
@@ -121,7 +121,7 @@ export default async function AdminAppointmentsPage({
             </table>
           </div>
         )}
-      </div>
+      </AdminListFrame>
     </AdminShell>
   )
 }

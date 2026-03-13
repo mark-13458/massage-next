@@ -1,6 +1,7 @@
 import Link from 'next/link'
 import { notFound, redirect } from 'next/navigation'
 import { AppointmentStatus } from '@prisma/client'
+import { AdminDetailBlock } from '../../../../components/admin/AdminDetailBlock'
 import { AdminPageToolbar } from '../../../../components/admin/AdminPageToolbar'
 import { AdminShell } from '../../../../components/admin/AdminShell'
 import { AppointmentStatusControls } from '../../../../components/admin/AppointmentStatusControls'
@@ -84,26 +85,21 @@ export default async function AppointmentDetailPage({ params }: { params: { id: 
         }
         aside={
           <>
-            <div className="rounded-3xl bg-white p-6 shadow-sm">
-              <h2 className="text-lg font-semibold text-stone-900">{pick(lang, '快捷操作', 'Quick actions')}</h2>
-              <div className="mt-5">
-                <AppointmentQuickActions id={appointment.id} lang={lang} />
-              </div>
-            </div>
+            <AdminDetailBlock title={pick(lang, '快捷操作', 'Quick actions')}>
+              <AppointmentQuickActions id={appointment.id} lang={lang} />
+            </AdminDetailBlock>
 
-            <div className="rounded-3xl bg-white p-6 shadow-sm">
+            <AdminDetailBlock title={pick(lang, '状态处理', 'Status handling')}>
               <div className="flex flex-wrap items-center justify-between gap-3">
-                <h2 className="text-lg font-semibold text-stone-900">{pick(lang, '状态处理', 'Status handling')}</h2>
                 {getStatusBadge(appointment.status, lang)}
               </div>
               <div className="mt-5">
                 <AppointmentStatusControls id={appointment.id} currentStatus={appointment.status} internalNote={appointment.internalNote} lang={lang} />
               </div>
-            </div>
+            </AdminDetailBlock>
 
-            <div className="rounded-3xl bg-white p-6 text-sm text-stone-700 shadow-sm">
-              <h2 className="text-lg font-semibold text-stone-900">{pick(lang, '内部记录', 'Internal record')}</h2>
-              <div className="mt-4 space-y-3 leading-7">
+            <AdminDetailBlock title={pick(lang, '内部记录', 'Internal record')}>
+              <div className="space-y-3 text-sm leading-7 text-stone-700">
                 <p><span className="font-semibold text-stone-900">{pick(lang, '内部备注：', 'Internal note: ')}</span>{appointment.internalNote || '—'}</p>
                 <p><span className="font-semibold text-stone-900">{pick(lang, '提交时间：', 'Created at: ')}</span>{new Intl.DateTimeFormat('de-DE', { dateStyle: 'medium', timeStyle: 'short' }).format(appointment.createdAt)}</p>
                 <p><span className="font-semibold text-stone-900">{pick(lang, '确认时间：', 'Confirmed at: ')}</span>{appointment.confirmedAt ? new Intl.DateTimeFormat('de-DE', { dateStyle: 'medium', timeStyle: 'short' }).format(appointment.confirmedAt) : '—'}</p>
@@ -111,7 +107,7 @@ export default async function AppointmentDetailPage({ params }: { params: { id: 
                 <p><span className="font-semibold text-stone-900">{pick(lang, '取消时间：', 'Cancelled at: ')}</span>{appointment.cancelledAt ? new Intl.DateTimeFormat('de-DE', { dateStyle: 'medium', timeStyle: 'short' }).format(appointment.cancelledAt) : '—'}</p>
                 <p><span className="font-semibold text-stone-900">{pick(lang, '处理人：', 'Handled by: ')}</span>{appointment.confirmedBy?.name || '—'}</p>
               </div>
-            </div>
+            </AdminDetailBlock>
           </>
         }
       />

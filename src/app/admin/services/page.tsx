@@ -1,5 +1,6 @@
 import Link from 'next/link'
 import { redirect } from 'next/navigation'
+import { AdminListFrame } from '../../../components/admin/AdminListFrame'
 import { AdminPageToolbar } from '../../../components/admin/AdminPageToolbar'
 import { AdminShell } from '../../../components/admin/AdminShell'
 import { AdminEmptyState } from '../../../components/admin/AdminEmptyState'
@@ -44,7 +45,7 @@ export default async function AdminServicesPage() {
           {services.length === 0 ? (
             <AdminEmptyState title="暂时还没有服务数据" description="可能是数据库还没接通，或者你还没有创建第一条服务。接通数据库后可以直接在这里新建并维护双语服务。" />
           ) : (
-            <div className="overflow-hidden rounded-[24px] border border-stone-200">
+            <AdminListFrame title="服务列表" description="当前支持完整内容维护、上架/下架、精选开关和排序调整。先维持现有业务逻辑，只升级后台视觉结构与管理节奏。">
               <div className="overflow-x-auto">
                 <table className="min-w-full divide-y divide-stone-100 text-sm">
                   <thead className="bg-stone-50">
@@ -87,7 +88,7 @@ export default async function AdminServicesPage() {
                   </tbody>
                 </table>
               </div>
-            </div>
+            </AdminListFrame>
           )}
         </AdminSectionCard>
 
