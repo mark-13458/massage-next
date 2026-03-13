@@ -131,6 +131,13 @@ export function ContentEditor({
     setGallery([...gallery, { id: `new-${Date.now()}`, titleDe: '', titleEn: '', altDe: '', altEn: '', imageUrl: '', sortOrder: gallery.length + 1, isActive: true, isCover: false, _create: true }])
   }
 
+  function setGalleryCover(index: number, checked: boolean) {
+    setGallery((current) => current.map((item, itemIndex) => ({
+      ...item,
+      isCover: checked ? itemIndex === index : itemIndex === index ? false : item.isCover,
+    })))
+  }
+
   function removeGalleryItem(index: number) {
     const item = gallery[index]
     const next = [...gallery]
@@ -309,7 +316,7 @@ export function ContentEditor({
                   <label className="flex items-center gap-2 text-sm text-stone-700"><span>排序</span><input value={String(item.sortOrder)} onChange={(e) => { const next = [...gallery]; next[index] = { ...item, sortOrder: Number(e.target.value) || 0 }; setGallery(next) }} className="w-20 rounded-xl border border-stone-200 px-3 py-2 outline-none focus:border-amber-500" /></label>
                   <div className="flex flex-wrap items-center gap-4 text-sm text-stone-700">
                     <label className="flex items-center gap-2"><input type="checkbox" checked={item.isActive} onChange={(e) => { const next = [...gallery]; next[index] = { ...item, isActive: e.target.checked }; setGallery(next) }} />启用</label>
-                    <label className="flex items-center gap-2"><input type="checkbox" checked={item.isCover} onChange={(e) => { const next = [...gallery]; next[index] = { ...item, isCover: e.target.checked }; setGallery(next) }} />封面</label>
+                    <label className="flex items-center gap-2"><input type="checkbox" checked={item.isCover} onChange={(e) => setGalleryCover(index, e.target.checked)} />封面（仅一张）</label>
                   </div>
                 </div>
               </div>

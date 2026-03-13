@@ -65,6 +65,8 @@ export async function PATCH(request: NextRequest) {
       await prisma.faqItem.update({ where: { id: item.id }, data: { questionDe: item.questionDe || '', questionEn: item.questionEn || '', answerDe: item.answerDe || '', answerEn: item.answerEn || '', sortOrder: typeof item.sortOrder === 'number' ? item.sortOrder : 0, isActive: Boolean(item.isActive) } })
     }
 
+    const coverGalleryId = gallery.find((item) => !item._delete && Boolean(item.isCover) && typeof item.id === 'number')?.id ?? null
+
     for (const item of gallery) {
       if (item._delete && typeof item.id === 'number') {
         const existing = await prisma.galleryImage.findUnique({ where: { id: item.id }, include: { file: true } })
@@ -98,7 +100,7 @@ export async function PATCH(request: NextRequest) {
             altEn: item.altEn || null,
             sortOrder: typeof item.sortOrder === 'number' ? item.sortOrder : 0,
             isActive: Boolean(item.isActive),
-            isCover: Boolean(item.isCover),
+            isCover: Boolean(item.isCover) && coverGalleryId === null,
             fileId: createdFile.id,
           },
         })
@@ -117,7 +119,7 @@ export async function PATCH(request: NextRequest) {
           altEn: item.altEn || null,
           sortOrder: typeof item.sortOrder === 'number' ? item.sortOrder : 0,
           isActive: Boolean(item.isActive),
-          isCover: Boolean(item.isCover),
+          isCover: item.id === coverGalleryId,
         },
       })
 

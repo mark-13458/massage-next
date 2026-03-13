@@ -202,6 +202,10 @@ export async function POST(request: NextRequest) {
       },
     })
 
+    if (usage === 'gallery' && isCover) {
+      await prisma.galleryImage.updateMany({ data: { isCover: false }, where: { isCover: true } })
+    }
+
     const gallery = await prisma.galleryImage.create({
       data: {
         titleDe: titleDe || null,
