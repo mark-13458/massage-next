@@ -1,12 +1,12 @@
 import Link from 'next/link'
 import { redirect } from 'next/navigation'
 import { AppointmentStatus } from '@prisma/client'
-import { prisma } from '../../../lib/prisma'
 import { AdminShell } from '../../../components/admin/AdminShell'
 import { AppointmentStatusControls } from '../../../components/admin/AppointmentStatusControls'
 import { getCurrentAdmin } from '../../../lib/auth'
 import { getAdminLang, pick } from '../../../lib/admin-i18n'
 import { appointmentStatusLabel } from '../../../lib/admin-status'
+import { getAdminAppointments } from '../../../server/services/admin-booking.service'
 
 export const dynamic = 'force-dynamic'
 export const revalidate = 0
@@ -31,23 +31,6 @@ const allowedStatuses = ['ALL', 'PENDING', 'CONFIRMED', 'COMPLETED', 'CANCELLED'
 
 type StatusFilter = (typeof allowedStatuses)[number]
 
-async function getAppointments(status: StatusFilter) {
-  if (!process.env.DATABASE_URL) {
-    return []
-  }
-
-  try {
-    return await prisma.appointment.findMany({
-      where: status === 'ALL' ? undefined : { status: status as AppointmentStatus },
-      include: { service: true },
-      orderBy: [{ createdAt: 'desc' }],
-      take: 50,
-    })
-  } catch {
-    return []
-  }
-}
-
 export default async function AdminAppointmentsPage({
   searchParams,
 }: {
@@ -60,7 +43,7 @@ export default async function AdminAppointmentsPage({
   const resolvedSearchParams = (await searchParams) ?? {}
   const rawStatus = String(resolvedSearchParams.status || 'ALL').toUpperCase()
   const selectedStatus = (allowedStatuses.includes(rawStatus as StatusFilter) ? rawStatus : 'ALL') as StatusFilter
-  const appointments = await getAppointments(selectedStatus)
+  const appointments = await getAdminAppointments(selectedStatus)
 
   return (
     <AdminShell

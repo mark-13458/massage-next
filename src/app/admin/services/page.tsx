@@ -1,36 +1,21 @@
 import Link from 'next/link'
 import { redirect } from 'next/navigation'
-import { prisma } from '../../../lib/prisma'
 import { AdminShell } from '../../../components/admin/AdminShell'
 import { AdminEmptyState } from '../../../components/admin/AdminEmptyState'
 import { AdminSectionCard } from '../../../components/admin/AdminSectionCard'
 import { ServiceControls } from '../../../components/admin/ServiceControls'
 import { getCurrentAdmin } from '../../../lib/auth'
 import { getAdminLang, pick } from '../../../lib/admin-i18n'
+import { getAdminServices } from '../../../server/services/admin-service.service'
 
 export const dynamic = 'force-dynamic'
 export const revalidate = 0
-
-async function getServices() {
-  if (!process.env.DATABASE_URL) {
-    return []
-  }
-
-  try {
-    return await prisma.service.findMany({
-      orderBy: [{ sortOrder: 'asc' }, { createdAt: 'asc' }],
-      take: 100,
-    })
-  } catch {
-    return []
-  }
-}
 
 export default async function AdminServicesPage() {
   const admin = await getCurrentAdmin()
   if (!admin) redirect('/admin/login')
 
-  const services = await getServices()
+  const services = await getAdminServices()
   const lang = await getAdminLang()
 
   return (

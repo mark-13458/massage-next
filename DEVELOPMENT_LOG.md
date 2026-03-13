@@ -956,3 +956,33 @@ Docker 部署当前已经不只是“页面能打开”，而是：
 1. 继续把 Bookings / Services / Settings 页面逐步迁移到同样的 service / repository 分层。
 2. 为后台模块补统一的 view model 组织方式，减少页面层重复数据整形。
 3. 再继续整理后台路由与组件体系，让每个模块更像稳定工作台而不是独立页面集合。
+
+#### 31) 后台分层继续推进到 Bookings / Services
+- 已新增后台 repository：
+  - `src/server/repositories/admin/booking.repository.ts`
+  - `src/server/repositories/admin/service.repository.ts`
+- 已新增后台 service：
+  - `src/server/services/admin-booking.service.ts`
+  - `src/server/services/admin-service.service.ts`
+- 已把以下页面切换到新的 service 层：
+  - `/admin/appointments`
+  - `/admin/appointments/[id]`
+  - `/admin/services`
+  - `/admin/services/[id]`
+- 当前效果：
+  - Dashboard / Content / Media / Bookings / Services 这些后台主线页面，已经开始统一采用“页面层 → service 层 → repository 层”的组织方式。
+  - 页面层里的 Prisma 直查明显减少，模块边界更清晰。
+
+### 本阶段验证追加
+- `npm run build` 已通过。
+
+### 本阶段结论
+这一轮没有继续扩展前台，也没有做大规模重写，而是继续按既定目标推进后台架构：
+- 后台六大模块中，核心页面层的分层已经基本建立骨架
+- 后续继续推进 Settings 与 view model 统一时，成本会更低
+- 单体模式仍然保留，但可维护性已经开始明显提升
+
+### 下一步建议
+1. 继续把 Settings 模块也迁到 repository / service 分层。
+2. 抽一层统一的 admin view model / mapper，减少页面内字段转换重复。
+3. 继续整理后台组件体系，让各模块卡片、列表、工作台结构更统一。

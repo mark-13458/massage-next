@@ -1,26 +1,14 @@
 import Link from 'next/link'
 import { notFound, redirect } from 'next/navigation'
-import { prisma } from '../../../../lib/prisma'
 import { AdminShell } from '../../../../components/admin/AdminShell'
 import { ServiceForm } from '../../../../components/admin/ServiceForm'
 import { DeleteServiceButton } from '../../../../components/admin/DeleteServiceButton'
 import { getCurrentAdmin } from '../../../../lib/auth'
 import { getAdminLang, pick } from '../../../../lib/admin-i18n'
+import { getAdminServiceDetail } from '../../../../server/services/admin-service.service'
 
 export const dynamic = 'force-dynamic'
 export const revalidate = 0
-
-async function getService(id: number) {
-  if (!process.env.DATABASE_URL) {
-    return null
-  }
-
-  try {
-    return await prisma.service.findUnique({ where: { id } })
-  } catch {
-    return null
-  }
-}
 
 export default async function EditServicePage({ params }: { params: { id: string } }) {
   const admin = await getCurrentAdmin()
@@ -30,7 +18,7 @@ export default async function EditServicePage({ params }: { params: { id: string
   const id = Number(params.id)
   if (!Number.isFinite(id)) notFound()
 
-  const service = await getService(id)
+  const service = await getAdminServiceDetail(id)
   if (!service) notFound()
 
   return (

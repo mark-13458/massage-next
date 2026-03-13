@@ -1,13 +1,13 @@
 import Link from 'next/link'
 import { notFound, redirect } from 'next/navigation'
 import { AppointmentStatus } from '@prisma/client'
-import { prisma } from '../../../../lib/prisma'
 import { AdminShell } from '../../../../components/admin/AdminShell'
 import { AppointmentStatusControls } from '../../../../components/admin/AppointmentStatusControls'
 import { AppointmentQuickActions } from '../../../../components/admin/AppointmentQuickActions'
 import { getCurrentAdmin } from '../../../../lib/auth'
 import { getAdminLang, pick } from '../../../../lib/admin-i18n'
 import { appointmentStatusLabel } from '../../../../lib/admin-status'
+import { getAdminAppointmentDetail } from '../../../../server/services/admin-booking.service'
 
 export const dynamic = 'force-dynamic'
 export const revalidate = 0
@@ -28,21 +28,6 @@ function getStatusBadge(status: AppointmentStatus, lang: 'zh' | 'en') {
   )
 }
 
-async function getAppointment(id: number) {
-  if (!process.env.DATABASE_URL) {
-    return null
-  }
-
-  try {
-    return await prisma.appointment.findUnique({
-      where: { id },
-      include: { service: true, confirmedBy: true },
-    })
-  } catch {
-    return null
-  }
-}
-
 export default async function AppointmentDetailPage({ params }: { params: { id: string } }) {
   const admin = await getCurrentAdmin()
   if (!admin) redirect('/admin/login')
@@ -51,7 +36,7 @@ export default async function AppointmentDetailPage({ params }: { params: { id: 
   const id = Number(params.id)
   if (!Number.isFinite(id)) notFound()
 
-  const appointment = await getAppointment(id)
+  const appointment = await getAdminAppointmentDetail(id)
   if (!appointment) notFound()
 
   return (
