@@ -1545,3 +1545,43 @@ Docker 部署当前已经不只是“页面能打开”，而是：
 1. 继续收口 `services/new`、`services/[id]`、`gallery` 等后台页面剩余硬编码文案。
 2. 单独开一轮修复真正存在乱码/编码污染的后台文件。
 3. 后续可以把后台常用按钮、空状态、统计卡标题进一步抽成统一 copy 层。
+
+#### 50) 后台 Gallery / Section Eyebrow 文案收口（第三轮）
+- 本轮继续严格沿着 DEVELOPMENT_LOG 里的下一步推进，没有切线做新功能。
+- 本轮聚焦的是后台页面里“还露在界面上的辅助文本层”：
+  - Services 页 section eyebrow
+  - Content 页 section eyebrow
+  - Gallery 页 section eyebrow
+  - Gallery 页残留乱码文案
+  - `AdminEmptyState` 的固定辅助标签
+- 已完成：
+  - `services/page.tsx`
+    - `Service Library` → 走 `pick()`
+    - `Management Notes` → 走 `pick()`
+  - `content/page.tsx`
+    - `Content Workspace` → 走 `pick()`
+    - `Content Stats` → 走 `pick()`
+    - `Hero Preview` → 走 `pick()`
+  - `gallery/page.tsx`
+    - `Gallery Library` / `Gallery Stats` / `Gallery Notes` → 全部改为走 `pick()`
+    - 修复一处真实存在的中文乱码：
+      - 从 `减少每次���进长表单翻查资源状态`
+      - 到 `减少每次都进长表单翻查资源状态`
+  - `AdminEmptyState.tsx`
+    - 把固定标签从 `Empty State` 收口为更中性的 `EMPTY`，减少后台中英混杂时的突兀感
+- 这一轮的目标不是“把所有后台都翻译完”，而是继续把最明显、最容易破坏一致性的可见文本层收口掉。
+
+### 本阶段验证追加
+- `npm run build` 已通过。
+
+### 本阶段结论
+这一轮继续属于后台交付观感打磨：
+- 没有扩展功能
+- 没有碰你已有未提交的 `formatters.ts`
+- 重点是把后台页面表面的视觉语言再统一一层
+- 同时顺手修掉一个真实乱码点，价值是明确的
+
+### 下一步建议
+1. 继续处理 `services/new`、`services/[id]`、`settings` 等页面的剩余固定文案。
+2. 单独开一轮专门修后台真正存在的乱码/编码污染文件。
+3. 如果继续做后台统一性，可把 `AdminSectionCard` / `AdminEmptyState` 的 eyebrow / label 进一步抽象成统一 copy 规范。

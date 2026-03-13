@@ -52,7 +52,7 @@ export default async function AdminGalleryPage({
       <AdminWorkspaceLayout
         main={
           <AdminSectionCard
-            eyebrow="Gallery Library"
+            eyebrow={pick(lang, '图库资源库', 'Gallery library')}
             title={pick(lang, '图库资源总览', 'Gallery library overview')}
             description={pick(
               lang,
@@ -179,7 +179,7 @@ export default async function AdminGalleryPage({
         aside={
           <>
             <AdminSectionCard
-              eyebrow="Gallery Stats"
+              eyebrow={pick(lang, '图库统计', 'Gallery stats')}
               title={pick(lang, '图库状态面板', 'Gallery status panel')}
               description={pick(
                 lang,
@@ -200,7 +200,7 @@ export default async function AdminGalleryPage({
             </AdminSectionCard>
 
             <AdminSectionCard
-              eyebrow="Gallery Notes"
+              eyebrow={pick(lang, '图库建议', 'Gallery notes')}
               title={pick(lang, '建议的下一步', 'Suggested next steps')}
               description={pick(
                 lang,

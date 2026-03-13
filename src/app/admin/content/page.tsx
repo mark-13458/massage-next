@@ -35,7 +35,7 @@ export default async function AdminContentPage() {
       <AdminWorkspaceLayout
         main={
           <AdminSectionCard
-            eyebrow="Content Workspace"
+            eyebrow={pick(lang, '内容工作台', 'Content workspace')}
             title={pick(lang, '内容管理工作台', 'Content workspace')}
             description={pick(lang, '这一页负责首页 Hero、联系方式、营业时间、FAQ 与图库。先保留已有功能逻辑，再把结构改造成更清晰的内容运营台。', 'This workspace manages the homepage hero, contact details, opening hours, FAQ and gallery. It keeps the current functionality while making the content workflow clearer.')}
           >
@@ -51,7 +51,7 @@ export default async function AdminContentPage() {
         }
         aside={
           <>
-          <AdminSectionCard eyebrow="Content Stats" title={pick(lang, '当前内容状态', 'Current content status')} description={pick(lang, '给运营人员一个更直观的内容面板，减少在长表单里来回切换。', 'Give operators a clearer content overview and reduce back-and-forth across long forms.')} tone="dark">
+          <AdminSectionCard eyebrow={pick(lang, '内容统计', 'Content stats')} title={pick(lang, '当前内容状态', 'Current content status')} description={pick(lang, '给运营人员一个更直观的内容面板，减少在长表单里来回切换。', 'Give operators a clearer content overview and reduce back-and-forth across long forms.')} tone="dark">
             <div className="grid gap-4 sm:grid-cols-2">
               {[
                 { label: pick(lang, 'FAQ 总数', 'Total FAQs'), value: data.stats.faqCount },
@@ -68,7 +68,7 @@ export default async function AdminContentPage() {
           </AdminSectionCard>
 
             {data.hero?.imageUrl ? (
-              <AdminSectionCard eyebrow="Hero Preview" title={pick(lang, '当前 Hero 图片', 'Current hero image')} description={pick(lang, '这里显示当前已绑定到首页的 Hero 图片路径，便于快速检查替换后的结果。', 'This shows the hero image currently bound to the homepage so you can quickly verify replacement results.')}>
+              <AdminSectionCard eyebrow={pick(lang, 'Hero 预览', 'Hero preview')} title={pick(lang, '当前 Hero 图片', 'Current hero image')} description={pick(lang, '这里显示当前已绑定到首页的 Hero 图片路径，便于快速检查替换后的结果。', 'This shows the hero image currently bound to the homepage so you can quickly verify replacement results.')}>
                 <div className="space-y-4">
                   <img src={data.hero.imageUrl} alt={data.hero.titleDe || 'Hero preview'} className="h-52 w-full rounded-[24px] border border-stone-200 object-cover" />
                   <div className="rounded-2xl border border-stone-200 bg-stone-50 px-4 py-3 text-xs leading-6 text-stone-500">{data.hero.imageUrl}</div>
