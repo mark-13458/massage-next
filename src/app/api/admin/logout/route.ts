@@ -1,10 +1,8 @@
-import { NextRequest, NextResponse } from 'next/server'
+import { NextRequest } from 'next/server'
+import { apiOk } from '../../../../../src/lib/api-response'
 import { clearAdminSession } from '../../../../../src/lib/auth'
-import { getSystemSettings } from '../../../../../src/server/services/site.service'
 
-export async function POST(request: NextRequest) {
+export async function POST(_: NextRequest) {
   await clearAdminSession()
-  const settings = await getSystemSettings().catch(() => null)
-  const locale = settings?.defaultFrontendLocale === 'en' ? 'en' : 'de'
-  return NextResponse.redirect(new URL(`/${locale}`, request.url))
+  return apiOk()
 }

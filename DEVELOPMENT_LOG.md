@@ -1185,3 +1185,33 @@ Docker 部署当前已经不只是“页面能打开”，而是：
 1. 抽共享 admin request helper，让客户端组件减少重复 fetch + error 处理。
 2. 继续统一 Dashboard / Settings / Gallery 的工作台布局模式。
 3. 抽共享 admin mapper，继续压缩 view model 层重复逻辑。
+
+#### 38) 修复后台退出登录跳转 + 开始统一客户端请求层
+- 已修复后台退出登录行为：
+  - 之前通过 `<form action="/api/admin/logout">` 提交，浏览器可能停在 `/api/admin/logout`
+  - 现在改为 `AdminLogoutButton` 客户端按钮：
+    - 先 `POST /api/admin/logout`
+    - 再 `router.push('/')`
+  - 当前效果：退出后台后会回到网站首页，而不是停在 API 地址
+- 已同步调整：
+  - `POST /api/admin/logout` 改为统一返回 JSON envelope，而不是服务端 redirect
+- 已新增共享客户端请求工具：
+  - `src/lib/admin-request.ts`
+- 当前已开始接入：
+  - `AdminLogoutButton`
+  - `AdminLoginForm`
+- 当前目标：
+  - 逐步减少后台客户端组件里重复的 `fetch + response.json + error` 模板代码
+
+### 本阶段验证追加
+- `npm run build` 已通过。
+
+### 本阶段结论
+这一轮同时解决了一个实际体验 bug 和一个架构问题：
+- 退出登录现在回网站首页，符合后台使用预期
+- 客户端请求层开始具备统一入口，后续更容易继续收口后台交互逻辑
+
+### 下一步建议
+1. 继续把 `GalleryQuickActions / ServiceForm / Appointment* / Settings` 等组件迁到 `adminRequest`。
+2. 继续统一 Dashboard / Settings / Gallery 的工作台布局模式。
+3. 抽共享 admin mapper，继续压缩 view model 层重复逻辑。

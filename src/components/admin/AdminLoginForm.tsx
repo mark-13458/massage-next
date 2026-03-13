@@ -2,6 +2,7 @@
 
 import { useState, useTransition } from 'react'
 import { useRouter } from 'next/navigation'
+import { adminRequest } from '../../lib/admin-request'
 
 function t(lang: 'zh' | 'en', zh: string, en: string) {
   return lang === 'en' ? en : zh
@@ -19,17 +20,11 @@ export function AdminLoginForm({ lang = 'zh' }: { lang?: 'zh' | 'en' }) {
 
     startTransition(async () => {
       try {
-        const response = await fetch('/api/admin/login', {
+        await adminRequest('/api/admin/login', {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify({ email, password }),
         })
-
-        const json = await response.json().catch(() => ({}))
-
-        if (!response.ok) {
-          throw new Error(json.error || 'Login failed')
-        }
 
         router.push('/admin')
         router.refresh()

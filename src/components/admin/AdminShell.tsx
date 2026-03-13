@@ -1,5 +1,6 @@
 import Link from 'next/link'
 import { AdminLanguageSwitcher } from './AdminLanguageSwitcher'
+import { AdminLogoutButton } from './AdminLogoutButton'
 import { AdminLang, pick } from '../../lib/admin-i18n'
 
 const navItems = [
@@ -70,14 +71,7 @@ export function AdminShell({ children, title, subtitle, lang = 'zh' }: { childre
                   <p className="text-[11px] font-semibold uppercase tracking-[0.24em] text-stone-400">{pick(lang, '状态', 'Status')}</p>
                   <p className="mt-1 text-sm font-medium text-stone-700">{pick(lang, '受保护的后台会话', 'Protected admin session')}</p>
                 </div>
-                <form action="/api/admin/logout" method="post">
-                  <button
-                    type="submit"
-                    className="rounded-full border border-stone-300 bg-white px-4 py-2 text-sm font-medium text-stone-700 shadow-sm transition hover:border-stone-500 hover:bg-stone-50"
-                  >
-                    {pick(lang, '退出登录', 'Sign out')}
-                  </button>
-                </form>
+                <AdminLogoutButton lang={lang} />
               </div>
             </div>
           </div>
