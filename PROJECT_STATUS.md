@@ -133,6 +133,7 @@
 - 服务端图片宽高读取已补上
 - Hero / Gallery 最低尺寸校验已补上
 - Gallery 封面唯一性约束已补上
+- 后台保存 / 上传反馈增强已补上
 - Docker 上传目录持久化卷已补上
 - `DEVELOPMENT_LOG.md` 已建立
 - `HANDOFF.md` 已建立

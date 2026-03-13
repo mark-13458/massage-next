@@ -66,11 +66,21 @@ type GalleryItem = {
   altDe: string
   altEn: string
   imageUrl: string
+  width?: number
+  height?: number
   sortOrder: number
   isActive: boolean
   isCover: boolean
   _create?: boolean
   _delete?: boolean
+}
+
+type NoticeTone = 'success' | 'error' | 'info'
+
+function noticeClassName(tone: NoticeTone) {
+  if (tone === 'success') return 'text-emerald-700'
+  if (tone === 'error') return 'text-rose-700'
+  return 'text-stone-500'
 }
 
 export function ContentEditor({
@@ -92,14 +102,18 @@ export function ContentEditor({
   const [faqs, setFaqs] = useState(initialFaqs)
   const [gallery, setGallery] = useState(initialGallery)
   const [message, setMessage] = useState('')
+  const [messageTone, setMessageTone] = useState<NoticeTone>('info')
   const [uploadMessage, setUploadMessage] = useState('')
+  const [uploadMessageTone, setUploadMessageTone] = useState<NoticeTone>('info')
   const [heroUploadMessage, setHeroUploadMessage] = useState('')
+  const [heroUploadMessageTone, setHeroUploadMessageTone] = useState<NoticeTone>('info')
   const [isPending, startTransition] = useTransition()
   const [isUploading, startUploadTransition] = useTransition()
   const [isHeroUploading, startHeroUploadTransition] = useTransition()
 
   async function save() {
-    setMessage('')
+    setMessage('正在保存内容…')
+    setMessageTone('info')
     startTransition(async () => {
       try {
         const response = await fetch('/api/admin/content', {
@@ -107,10 +121,13 @@ export function ContentEditor({
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify({ contact, hero, hours, faqs, gallery }),
         })
-        if (!response.ok) throw new Error('Save failed')
+        const json = await response.json().catch(() => ({}))
+        if (!response.ok) throw new Error(json.error || 'Save failed')
         setMessage('内容已保存')
-      } catch {
-        setMessage('保存失败')
+        setMessageTone('success')
+      } catch (error) {
+        setMessage(error instanceof Error ? error.message : '保存失败')
+        setMessageTone('error')
       }
     })
   }
@@ -153,11 +170,13 @@ export function ContentEditor({
     const validationMessage = validateImageFile(file, 'gallery')
     if (validationMessage === '仅支持 JPG、PNG、WEBP、GIF 图片' || validationMessage === '图片不能超过 10MB') {
       setUploadMessage(validationMessage)
+      setUploadMessageTone('error')
       event.target.value = ''
       return
     }
 
     setUploadMessage(validationMessage)
+    setUploadMessageTone('info')
     const formData = new FormData()
     formData.append('usage', 'gallery')
     formData.append('file', file)
@@ -173,9 +192,11 @@ export function ContentEditor({
         const json = await response.json().catch(() => ({}))
         if (!response.ok || !json.item) throw new Error(json.error || 'Upload failed')
         setGallery((current) => [...current, json.item])
-        setUploadMessage('上传成功，已加入图库列表')
+        setUploadMessage(`上传成功，已加入图库列表（${json.item.width || '?'}×${json.item.height || '?'}）`)
+        setUploadMessageTone('success')
       } catch (error) {
         setUploadMessage(error instanceof Error ? error.message : '上传失败')
+        setUploadMessageTone('error')
       } finally {
         event.target.value = ''
       }
@@ -189,11 +210,13 @@ export function ContentEditor({
     const validationMessage = validateImageFile(file, 'hero')
     if (validationMessage === '仅支持 JPG、PNG、WEBP、GIF 图片' || validationMessage === '图片不能超过 10MB') {
       setHeroUploadMessage(validationMessage)
+      setHeroUploadMessageTone('error')
       event.target.value = ''
       return
     }
 
     setHeroUploadMessage(validationMessage)
+    setHeroUploadMessageTone('info')
     const formData = new FormData()
     formData.append('usage', 'hero')
     formData.append('file', file)
@@ -204,9 +227,11 @@ export function ContentEditor({
         const json = await response.json().catch(() => ({}))
         if (!response.ok || !json.item?.imageUrl) throw new Error(json.error || 'Upload failed')
         setHero((current) => ({ ...current, imageUrl: json.item.imageUrl }))
-        setHeroUploadMessage('Hero 图片上传成功')
+        setHeroUploadMessage(`Hero 图片上传成功（${json.item.width || '?'}×${json.item.height || '?'}）`)
+        setHeroUploadMessageTone('success')
       } catch (error) {
         setHeroUploadMessage(error instanceof Error ? error.message : '上传失败')
+        setHeroUploadMessageTone('error')
       } finally {
         event.target.value = ''
       }
@@ -223,7 +248,7 @@ export function ContentEditor({
             <input type="file" accept="image/*" onChange={handleHeroUpload} className="hidden" disabled={isHeroUploading} />
           </label>
         </div>
-        {heroUploadMessage ? <p className="mt-4 text-sm text-stone-500">{heroUploadMessage}</p> : null}
+        {heroUploadMessage ? <p className={`mt-4 text-sm ${noticeClassName(heroUploadMessageTone)}`}>{heroUploadMessage}</p> : null}
         <div className="mt-5 grid gap-4 md:grid-cols-2">
           <input value={hero.eyebrowDe ?? ''} onChange={(e) => setHero({ ...hero, eyebrowDe: e.target.value })} placeholder="Eyebrow DE" className="rounded-2xl border border-stone-200 px-4 py-3 text-sm outline-none focus:border-amber-500" />
           <input value={hero.eyebrowEn ?? ''} onChange={(e) => setHero({ ...hero, eyebrowEn: e.target.value })} placeholder="Eyebrow EN" className="rounded-2xl border border-stone-200 px-4 py-3 text-sm outline-none focus:border-amber-500" />
@@ -298,7 +323,7 @@ export function ContentEditor({
             <button type="button" onClick={addGalleryItem} className="rounded-full border border-stone-300 bg-white px-4 py-2 text-sm font-medium text-stone-700 transition hover:border-stone-500">新增图片条目</button>
           </div>
         </div>
-        {uploadMessage ? <p className="mt-4 text-sm text-stone-500">{uploadMessage}</p> : null}
+        {uploadMessage ? <p className={`mt-4 text-sm ${noticeClassName(uploadMessageTone)}`}>{uploadMessage}</p> : null}
         <div className="mt-5 grid gap-4">
           {gallery.length === 0 ? (
             <div className="text-sm text-stone-500">当前还没有图库数据。现在已经支持直接上传图片，或继续新增 URL 型图片条目。</div>
@@ -329,7 +354,7 @@ export function ContentEditor({
         <button type="button" onClick={save} disabled={isPending} className="rounded-full bg-stone-900 px-5 py-3 text-sm font-semibold text-white transition hover:bg-stone-800 disabled:cursor-not-allowed disabled:opacity-70">
           {isPending ? '保存中…' : '保存内容'}
         </button>
-        {message ? <span className="text-sm text-stone-500">{message}</span> : null}
+        {message ? <span className={`text-sm ${noticeClassName(messageTone)}`}>{message}</span> : null}
       </div>
     </div>
   )
