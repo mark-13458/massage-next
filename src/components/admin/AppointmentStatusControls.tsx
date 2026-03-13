@@ -77,7 +77,7 @@ export function AppointmentStatusControls({ id, currentStatus, internalNote, lan
         className="w-full rounded-2xl border border-stone-200 px-3 py-2 text-sm outline-none focus:border-amber-500"
       />
 
-      <div className="flex items-center gap-3">
+      <div className="flex flex-wrap items-center gap-3">
         <button
           type="button"
           onClick={save}
@@ -86,7 +86,7 @@ export function AppointmentStatusControls({ id, currentStatus, internalNote, lan
         >
           {isPending ? t(lang, '保存中…', 'Saving...') : t(lang, '保存', 'Save')}
         </button>
-        {message ? <span className={`text-xs ${noticeClassName(messageTone)}`}>{message}</span> : null}
+        {message ? <span className={`inline-flex rounded-full px-3 py-1 text-xs ${noticeClassName(messageTone)} ${messageTone === 'success' ? 'bg-emerald-50' : messageTone === 'error' ? 'bg-rose-50' : 'bg-stone-100'}`}>{message}</span> : null}
       </div>
     </div>
   )

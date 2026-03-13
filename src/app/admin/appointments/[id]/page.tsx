@@ -6,6 +6,7 @@ import { AdminPageToolbar } from '../../../../components/admin/AdminPageToolbar'
 import { AdminShell } from '../../../../components/admin/AdminShell'
 import { AppointmentStatusControls } from '../../../../components/admin/AppointmentStatusControls'
 import { AppointmentQuickActions } from '../../../../components/admin/AppointmentQuickActions'
+import { AdminInfoList } from '../../../../components/admin/AdminInfoList'
 import { AdminWorkspaceLayout } from '../../../../components/admin/AdminWorkspaceLayout'
 import { getCurrentAdmin } from '../../../../lib/auth'
 import { getAdminLang, pick } from '../../../../lib/admin-i18n'
@@ -65,17 +66,21 @@ export default async function AppointmentDetailPage({ params }: { params: { id: 
               <span className="text-xs text-stone-500">{pick(lang, '当前预约状态', 'Current booking status')}</span>
             </div>
 
-            <div className="mt-6 grid gap-4 text-sm text-stone-700 md:grid-cols-2">
-              <div><span className="font-semibold text-stone-900">{pick(lang, '客户姓名：', 'Customer name: ')}</span>{appointment.customerName}</div>
-              <div><span className="font-semibold text-stone-900">{pick(lang, '联系电话：', 'Phone: ')}</span>{appointment.customerPhone}</div>
-              <div><span className="font-semibold text-stone-900">{pick(lang, '邮箱：', 'Email: ')}</span>{appointment.customerEmail || '—'}</div>
-              <div><span className="font-semibold text-stone-900">{pick(lang, '语言：', 'Locale: ')}</span>{localeLabel(appointment.locale, lang)}</div>
-              <div><span className="font-semibold text-stone-900">{pick(lang, '服务项目：', 'Service: ')}</span>{appointment.service.nameDe}</div>
-              <div><span className="font-semibold text-stone-900">{pick(lang, '来源：', 'Source: ')}</span>{bookingSourceLabel(appointment.source, lang)}</div>
-              <div><span className="font-semibold text-stone-900">{pick(lang, '预约日期：', 'Date: ')}</span>{new Intl.DateTimeFormat('de-DE').format(appointment.appointmentDate)}</div>
-              <div><span className="font-semibold text-stone-900">{pick(lang, '预约时间：', 'Time: ')}</span>{appointment.appointmentTime}</div>
-              <div><span className="font-semibold text-stone-900">{pick(lang, '时长：', 'Duration: ')}</span>{appointment.durationMin} min</div>
-              <div><span className="font-semibold text-stone-900">{pick(lang, '价格快照：', 'Price snapshot: ')}</span>€ {appointment.priceSnapshot.toString()}</div>
+            <div className="mt-6">
+              <AdminInfoList
+                items={[
+                  { label: pick(lang, '客户姓名', 'Customer name'), value: appointment.customerName },
+                  { label: pick(lang, '联系电话', 'Phone'), value: appointment.customerPhone },
+                  { label: pick(lang, '邮箱', 'Email'), value: appointment.customerEmail || '—' },
+                  { label: pick(lang, '语言', 'Locale'), value: localeLabel(appointment.locale, lang) },
+                  { label: pick(lang, '服务项目', 'Service'), value: appointment.service.nameDe },
+                  { label: pick(lang, '来源', 'Source'), value: bookingSourceLabel(appointment.source, lang) },
+                  { label: pick(lang, '预约日期', 'Date'), value: new Intl.DateTimeFormat('de-DE').format(appointment.appointmentDate) },
+                  { label: pick(lang, '预约时间', 'Time'), value: appointment.appointmentTime },
+                  { label: pick(lang, '时长', 'Duration'), value: `${appointment.durationMin} min` },
+                  { label: pick(lang, '价格快照', 'Price snapshot'), value: `€ ${appointment.priceSnapshot.toString()}` },
+                ]}
+              />
             </div>
 
             <div className="mt-6 rounded-2xl border border-stone-100 p-4 text-sm text-stone-700">
@@ -100,14 +105,16 @@ export default async function AppointmentDetailPage({ params }: { params: { id: 
             </AdminDetailBlock>
 
             <AdminDetailBlock title={pick(lang, '内部记录', 'Internal record')}>
-              <div className="space-y-3 text-sm leading-7 text-stone-700">
-                <p><span className="font-semibold text-stone-900">{pick(lang, '内部备注：', 'Internal note: ')}</span>{appointment.internalNote || '—'}</p>
-                <p><span className="font-semibold text-stone-900">{pick(lang, '提交时间：', 'Created at: ')}</span>{new Intl.DateTimeFormat('de-DE', { dateStyle: 'medium', timeStyle: 'short' }).format(appointment.createdAt)}</p>
-                <p><span className="font-semibold text-stone-900">{pick(lang, '确认时间：', 'Confirmed at: ')}</span>{appointment.confirmedAt ? new Intl.DateTimeFormat('de-DE', { dateStyle: 'medium', timeStyle: 'short' }).format(appointment.confirmedAt) : '—'}</p>
-                <p><span className="font-semibold text-stone-900">{pick(lang, '完成时间：', 'Completed at: ')}</span>{appointment.completedAt ? new Intl.DateTimeFormat('de-DE', { dateStyle: 'medium', timeStyle: 'short' }).format(appointment.completedAt) : '—'}</p>
-                <p><span className="font-semibold text-stone-900">{pick(lang, '取消时间：', 'Cancelled at: ')}</span>{appointment.cancelledAt ? new Intl.DateTimeFormat('de-DE', { dateStyle: 'medium', timeStyle: 'short' }).format(appointment.cancelledAt) : '—'}</p>
-                <p><span className="font-semibold text-stone-900">{pick(lang, '处理人：', 'Handled by: ')}</span>{appointment.confirmedBy?.name || '—'}</p>
-              </div>
+              <AdminInfoList
+                items={[
+                  { label: pick(lang, '内部备注', 'Internal note'), value: appointment.internalNote || '—' },
+                  { label: pick(lang, '提交时间', 'Created at'), value: new Intl.DateTimeFormat('de-DE', { dateStyle: 'medium', timeStyle: 'short' }).format(appointment.createdAt) },
+                  { label: pick(lang, '确认时间', 'Confirmed at'), value: appointment.confirmedAt ? new Intl.DateTimeFormat('de-DE', { dateStyle: 'medium', timeStyle: 'short' }).format(appointment.confirmedAt) : '—' },
+                  { label: pick(lang, '完成时间', 'Completed at'), value: appointment.completedAt ? new Intl.DateTimeFormat('de-DE', { dateStyle: 'medium', timeStyle: 'short' }).format(appointment.completedAt) : '—' },
+                  { label: pick(lang, '取消时间', 'Cancelled at'), value: appointment.cancelledAt ? new Intl.DateTimeFormat('de-DE', { dateStyle: 'medium', timeStyle: 'short' }).format(appointment.cancelledAt) : '—' },
+                  { label: pick(lang, '处理人', 'Handled by'), value: appointment.confirmedBy?.name || '—' },
+                ]}
+              />
             </AdminDetailBlock>
           </>
         }
