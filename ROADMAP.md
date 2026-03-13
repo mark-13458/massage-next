@@ -19,15 +19,15 @@
 目标：让项目具备可持续开发能力
 
 #### 任务
-- [ ] 重构目录结构（site / admin / api / lib / server）
-- [ ] 统一国际化目录与消息文件
+- [x] 重构目录结构（site / admin / api / lib / server）
+- [x] 统一国际化目录与消息文件
 - [ ] 建立设计 token（颜色、字体、阴影、圆角、间距）
-- [ ] 建立 Prisma 客户端封装
-- [ ] 建立 env 校验模块
-- [ ] 建立基础 auth/session 方案
-- [ ] 建立 Zod validation 基础层
-- [ ] 建立邮件服务封装
-- [ ] 更新 README_CN.md 与开发说明
+- [x] 建立 Prisma 客户端封装
+- [x] 建立 env 校验模块
+- [x] 建立基础 auth/session 方案
+- [x] 建立 Zod validation 基础层
+- [x] 建立邮件服务封装
+- [x] 更新 README_CN.md 与开发说明
 
 #### 输出物
 - 新目录结构
@@ -41,16 +41,16 @@
 目标：让数据层真正支撑官网 + 后台
 
 #### 任务
-- [ ] 重构 `prisma/schema.prisma`
-- [ ] ��充 `Service` 多语言字段与排序字段
-- [ ] 增强 `Appointment` 业务字段
-- [ ] 增加 `SiteSetting`
-- [ ] 增加 `BusinessHour`
-- [ ] 增加 `FaqItem`
-- [ ] 增加 `Testimonial`
-- [ ] 增加 `GalleryImage`
-- [ ] 增加 `EmailLog`
-- [ ] 编写 `seed.ts`
+- [x] 重构 `prisma/schema.prisma`
+- [x] 补充 `Service` 多语言字段与排序字段
+- [x] 增强 `Appointment` 业务字段
+- [x] 增加 `SiteSetting`
+- [x] 增加 `BusinessHour`
+- [x] 增加 `FaqItem`
+- [x] 增加 `Testimonial`
+- [x] 增加 `GalleryImage`
+- [x] 增加 `EmailLog`
+- [x] 编写 `seed.js`
 
 #### 输出物
 - 增强版 Prisma schema
@@ -63,30 +63,30 @@
 目标：先把品牌门面和转化路径做好
 
 #### 页面任务
-- [ ] 首页 `/[locale]`
-- [ ] 服务页 `/[locale]/services`
-- [ ] 关于页 `/[locale]/about`
-- [ ] 图库页 `/[locale]/gallery`
-- [ ] 联系页 `/[locale]/contact`
-- [ ] 预约页 `/[locale]/booking`
+- [x] 首页 `/[locale]`
+- [x] 服务页 `/[locale]/services`
+- [x] 关于页 `/[locale]/about`
+- [x] 图库页 `/[locale]/gallery`
+- [x] 联系页 `/[locale]/contact`
+- [x] 预约页 `/[locale]/booking`
 
 #### 组件任务
-- [ ] Header / Footer
-- [ ] Hero
-- [ ] 服务卡片
+- [x] Header / Footer
+- [x] Hero
+- [x] 服务卡片
 - [ ] CTA 区块
 - [ ] FAQ 区块
 - [ ] Testimonials 区块
 - [ ] Gallery Grid
 - [ ] 联系卡片
-- [ ] 预约表单
+- [x] 预约表单
 
 #### SEO 任务
 - [ ] metadata 模板
 - [ ] 页面 title / description
 - [ ] hreflang
-- [ ] sitemap
-- [ ] robots.txt
+- [x] sitemap
+- [x] robots.txt
 - [ ] LocalBusiness schema
 
 #### 输出物
@@ -98,14 +98,14 @@
 目标：打通真实业务流程
 
 #### 任务
-- [ ] 预约表单校验
-- [ ] `POST /api/booking`
-- [ ] 数据入库
+- [x] 预约表单校验
+- [x] `POST /api/booking`
+- [x] 数据入库
 - [ ] 商家通知邮件
 - [ ] 成功/失败反馈页
-- [ ] 后台预约列表读取
-- [ ] 预约状态更新
-- [ ] 内部备注
+- [x] 后台预约列表读取
+- [x] 预约状态更新
+- [x] 内部备注
 
 #### 输出物
 - 前台提交预约 → 后台看到预约 的完整链路
@@ -116,22 +116,22 @@
 目标：店主可以自己维护网站与预约
 
 #### 页面任务
-- [ ] `/admin/login`
-- [ ] `/admin`
-- [ ] `/admin/appointments`
-- [ ] `/admin/services`
-- [ ] `/admin/content`
+- [x] `/admin/login`
+- [x] `/admin`
+- [x] `/admin/appointments`
+- [x] `/admin/services`
+- [x] `/admin/content`
 - [ ] `/admin/gallery`
 - [ ] `/admin/settings`
 
 #### 功能任务
-- [ ] 登录/退出
-- [ ] 预约筛选与详情
-- [ ] 服务新增/编辑/上下架
-- [ ] 首页/关于/联系内容编辑
-- [ ] FAQ 管理
-- [ ] 图库图片上传/替换
-- [ ] 营业时间维护
+- [x] 登录/退出
+- [x] 预约筛选与详情
+- [x] 服务新增/编辑/上下架
+- [x] 首页/关于/联系内容编辑
+- [x] FAQ 管理
+- [x] 图库图片上传/替换
+- [x] 营业时间维护
 - [ ] 基础 SEO 信息编辑
 
 #### 输出物
@@ -195,19 +195,19 @@
 ## 当前优先级（立即执行）
 
 ### P0
-- [ ] 重构 Prisma schema
-- [ ] 设计新目录结构
-- [ ] 建立前台 layout / header / footer / section 基础
-- [ ] 规划后台中文骨架
+- [x] 重构 Prisma schema
+- [x] 设计新目录结构
+- [x] 建立前台 layout / header / footer / section 基础
+- [x] 规划后台中文骨架
 
 ### P1
-- [ ] 完成首页、服务页、联系页
-- [ ] 完成预约表单与 API
-- [ ] 完成登录与后台基础壳
+- [x] 完成首页、服务页、联系页
+- [x] 完成预约表单与 API
+- [x] 完成登录与后台基础壳
 
 ### P2
 - [ ] 图库、FAQ、营业时间、SEO 细化
-- [ ] 图片管理与内容管理
+- [x] 图片管理与内容管理
 - [ ] 部署优化
 
 ---
