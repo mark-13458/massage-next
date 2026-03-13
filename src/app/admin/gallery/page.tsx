@@ -6,7 +6,7 @@ import { AdminSectionCard } from '../../../components/admin/AdminSectionCard'
 import { AdminShell } from '../../../components/admin/AdminShell'
 import { getCurrentAdmin } from '../../../lib/auth'
 import { getAdminLang, pick } from '../../../lib/admin-i18n'
-import { prisma } from '../../../lib/prisma'
+import { getAdminGalleryOverview } from '../../../server/services/admin-media.service'
 
 export const dynamic = 'force-dynamic'
 export const revalidate = 0
@@ -14,39 +14,6 @@ export const revalidate = 0
 const allowedFilters = ['all', 'active', 'inactive', 'cover', 'local'] as const
 
 type GalleryFilter = (typeof allowedFilters)[number]
-
-async function getGalleryData(filter: GalleryFilter) {
-  if (!process.env.DATABASE_URL) {
-    return { items: [], stats: { total: 0, active: 0, covers: 0, localUploads: 0 } }
-  }
-
-  try {
-    const items = await prisma.galleryImage.findMany({
-      include: { file: true },
-      orderBy: [{ isCover: 'desc' }, { sortOrder: 'asc' }, { createdAt: 'desc' }],
-    })
-
-    const filteredItems = items.filter((item) => {
-      if (filter === 'active') return item.isActive
-      if (filter === 'inactive') return !item.isActive
-      if (filter === 'cover') return item.isCover
-      if (filter === 'local') return item.file.filePath.startsWith('/uploads/')
-      return true
-    })
-
-    return {
-      items: filteredItems,
-      stats: {
-        total: items.length,
-        active: items.filter((item) => item.isActive).length,
-        covers: items.filter((item) => item.isCover).length,
-        localUploads: items.filter((item) => item.file.filePath.startsWith('/uploads/')).length,
-      },
-    }
-  } catch {
-    return { items: [], stats: { total: 0, active: 0, covers: 0, localUploads: 0 } }
-  }
-}
 
 export default async function AdminGalleryPage({
   searchParams,
@@ -60,7 +27,7 @@ export default async function AdminGalleryPage({
   const resolvedSearchParams = (await searchParams) ?? {}
   const rawFilter = String(resolvedSearchParams.filter || 'all').toLowerCase()
   const selectedFilter = (allowedFilters.includes(rawFilter as GalleryFilter) ? rawFilter : 'all') as GalleryFilter
-  const { items, stats } = await getGalleryData(selectedFilter)
+  const { items, stats } = await getAdminGalleryOverview(selectedFilter)
 
   const filters = [
     { key: 'all', labelZh: '全部', labelEn: 'All' },

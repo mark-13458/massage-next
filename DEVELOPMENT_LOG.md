@@ -915,3 +915,44 @@ Docker 部署当前已经不只是“页面能打开”，而是：
 1. 继续补图库删除快捷入口，减少来回跳转到内容工作台。
 2. 补图片压缩 / 导出规范化，让上传链更接近生产质量。
 3. 继续统一 admin API 的鉴权/错误返回风格，减少后续维护成本。
+
+#### 30) 后台架构清晰化（不改前台、不推翻实现）
+- 已新增后台架构文档：`ADMIN_ARCHITECTURE.md`
+- 文档明确了后台继续沿用的单体模式边界：
+  - 仪表盘（Dashboard）
+  - 预约中心（Bookings）
+  - 服务管理（Services）
+  - 内容中心（Content）
+  - 媒体资源（Media / Gallery）
+  - 系统设置（Settings）
+- 已明确内容中心与媒体资源分离：
+  - 内容中心负责 Hero / FAQ / 联系方式 / 营业时间等站点内容
+  - 媒体资源负责图片资产巡检与运营管理
+- 已新增后台 repository 层：
+  - `src/server/repositories/admin/dashboard.repository.ts`
+  - `src/server/repositories/admin/content.repository.ts`
+  - `src/server/repositories/admin/media.repository.ts`
+- 已新增后台 service 层：
+  - `src/server/services/admin-dashboard.service.ts`
+  - `src/server/services/admin-content.service.ts`
+  - `src/server/services/admin-media.service.ts`
+- 已把现有后台页面逐步切换到 service 层：
+  - `/admin`
+  - `/admin/content`
+  - `/admin/gallery`
+- 当前策略不是重写，而是“小步替换页面中的 Prisma 直查”，让后台逐步从页面直连数据库，过渡到更稳定的 service / repository 分层。
+
+### 本阶段验证追加
+- `npm run build` 已通过。
+
+### 本阶段结论
+这一轮的重点不在于新增更多功能，而在于把后台往“更好维护、更适合持续开发”的方向收口：
+- 模块边界更清楚
+- 内容与媒体责任更清晰
+- 页面层、service 层、repository 层开始分开
+- 没有改前台，没有推翻现有实现，也没有引入额外复杂度
+
+### 下一步建议
+1. 继续把 Bookings / Services / Settings 页面逐步迁移到同样的 service / repository 分层。
+2. 为后台模块补统一的 view model 组织方式，减少页面层重复数据整形。
+3. 再继续整理后台路由与组件体系，让每个模块更像稳定工作台而不是独立页面集合。

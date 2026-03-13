@@ -1,38 +1,18 @@
 import { redirect } from 'next/navigation'
-import { prisma } from '../../lib/prisma'
 import { AdminShell } from '../../components/admin/AdminShell'
 import { AdminTopSummary } from '../../components/admin/AdminTopSummary'
 import { getCurrentAdmin } from '../../lib/auth'
 import { getAdminLang, pick } from '../../lib/admin-i18n'
+import { getAdminDashboardStats } from '../../server/services/admin-dashboard.service'
 
 export const dynamic = 'force-dynamic'
 export const revalidate = 0
-
-async function getDashboardStats() {
-  if (!process.env.DATABASE_URL) {
-    return {
-      appointmentsTotal: 0,
-      pendingAppointments: 0,
-      servicesTotal: 0,
-      testimonialsTotal: 0,
-    }
-  }
-
-  const [appointmentsTotal, pendingAppointments, servicesTotal, testimonialsTotal] = await Promise.all([
-    prisma.appointment.count().catch(() => 0),
-    prisma.appointment.count({ where: { status: 'PENDING' } }).catch(() => 0),
-    prisma.service.count().catch(() => 0),
-    prisma.testimonial.count({ where: { isPublished: true } }).catch(() => 0),
-  ])
-
-  return { appointmentsTotal, pendingAppointments, servicesTotal, testimonialsTotal }
-}
 
 export default async function AdminPage() {
   const admin = await getCurrentAdmin()
   if (!admin) redirect('/admin/login')
 
-  const stats = await getDashboardStats()
+  const stats = await getAdminDashboardStats()
   const lang = await getAdminLang()
 
   return (
