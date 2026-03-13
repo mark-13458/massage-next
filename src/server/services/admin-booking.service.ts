@@ -1,5 +1,6 @@
 import { AppointmentStatus } from '@prisma/client'
 import { findAdminAppointmentById, findAdminAppointments } from '../repositories/admin/booking.repository'
+import { toAdminBookingListItem } from '../view-models/admin/booking.vm'
 
 export async function getAdminAppointments(status: 'ALL' | AppointmentStatus = 'ALL') {
   if (!process.env.DATABASE_URL) {
@@ -7,7 +8,8 @@ export async function getAdminAppointments(status: 'ALL' | AppointmentStatus = '
   }
 
   try {
-    return await findAdminAppointments(status === 'ALL' ? undefined : status)
+    const items = await findAdminAppointments(status === 'ALL' ? undefined : status)
+    return items.map(toAdminBookingListItem)
   } catch {
     return []
   }

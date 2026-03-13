@@ -93,10 +93,10 @@ export default async function AdminAppointmentsPage({
                       <div className="font-semibold text-stone-900">{item.customerName}</div>
                       {item.notes ? <div className="mt-2 max-w-xs text-xs leading-6 text-stone-500">{pick(lang, '客户备注：', 'Customer note: ')}{item.notes}</div> : null}
                     </td>
-                    <td className="px-6 py-4 text-stone-700">{item.service.nameDe}</td>
+                    <td className="px-6 py-4 text-stone-700">{item.serviceName}</td>
                     <td className="px-6 py-4 text-stone-700">
-                      <div>{new Intl.DateTimeFormat('de-DE').format(item.appointmentDate)}</div>
-                      <div className="mt-1 text-xs text-stone-500">{item.appointmentTime} · {item.durationMin} min</div>
+                      <div>{item.appointmentDateLabel}</div>
+                      <div className="mt-1 text-xs text-stone-500">{item.appointmentTimeLabel}</div>
                     </td>
                     <td className="px-6 py-4">
                       <div className="space-y-3">
@@ -114,7 +114,7 @@ export default async function AdminAppointmentsPage({
                         {pick(lang, '查看详情', 'View details')}
                       </Link>
                     </td>
-                    <td className="px-6 py-4 text-stone-500">{new Intl.DateTimeFormat('de-DE', { dateStyle: 'medium', timeStyle: 'short' }).format(item.createdAt)}</td>
+                    <td className="px-6 py-4 text-stone-500">{item.createdAtLabel}</td>
                   </tr>
                 ))}
               </tbody>

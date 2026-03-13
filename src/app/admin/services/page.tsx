@@ -64,8 +64,8 @@ export default async function AdminServicesPage() {
                         </td>
                         <td className="px-6 py-5 text-stone-700">{item.nameEn}</td>
                         <td className="px-6 py-5 text-stone-700">
-                          <div>{item.durationMin} min</div>
-                          <div className="mt-1 text-xs text-stone-500">€ {item.price.toString()}</div>
+                          <div>{item.durationLabel}</div>
+                          <div className="mt-1 text-xs text-stone-500">{item.priceLabel}</div>
                         </td>
                         <td className="px-6 py-5">
                           <ServiceControls

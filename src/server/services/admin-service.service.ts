@@ -1,4 +1,5 @@
 import { findAdminServiceById, findAdminServices } from '../repositories/admin/service.repository'
+import { toAdminServiceListItem } from '../view-models/admin/service.vm'
 
 export async function getAdminServices() {
   if (!process.env.DATABASE_URL) {
@@ -6,7 +7,8 @@ export async function getAdminServices() {
   }
 
   try {
-    return await findAdminServices()
+    const items = await findAdminServices()
+    return items.map(toAdminServiceListItem)
   } catch {
     return []
   }

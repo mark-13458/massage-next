@@ -1,4 +1,5 @@
 import { getAdminGalleryItems } from '../repositories/admin/media.repository'
+import { toAdminGalleryCard } from '../view-models/admin/media.vm'
 
 export async function getAdminGalleryOverview(filter: 'all' | 'active' | 'inactive' | 'cover' | 'local' = 'all') {
   if (!process.env.DATABASE_URL) {
@@ -17,7 +18,7 @@ export async function getAdminGalleryOverview(filter: 'all' | 'active' | 'inacti
     })
 
     return {
-      items: filteredItems,
+      items: filteredItems.map(toAdminGalleryCard),
       stats: {
         total: items.length,
         active: items.filter((item) => item.isActive).length,

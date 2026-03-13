@@ -1017,3 +1017,36 @@ Docker 部署当前已经不只是“页面能打开”，而是：
 1. 为 Bookings / Services / Media 补 view model 层，进一步减少页面层格式化逻辑。
 2. 整理后台共享类型与 mapper，减少跨模块重复定义。
 3. 继续统一后台工作台页面的 section / summary / list 结构，让运营体验更一致。
+
+#### 33) Bookings / Services / Media 开始接入 view model 层
+- 已新增后台 view model：
+  - `src/server/view-models/admin/booking.vm.ts`
+  - `src/server/view-models/admin/service.vm.ts`
+  - `src/server/view-models/admin/media.vm.ts`
+- 已把以下 service 层接上 view model：
+  - `admin-booking.service.ts`
+  - `admin-service.service.ts`
+  - `admin-media.service.ts`
+- 已把以下页面改为消费 view model 输出，而不是在页面层自行格式化原始 Prisma 数据：
+  - `/admin/appointments`
+  - `/admin/services`
+  - `/admin/gallery`
+- 当前效果：
+  - 日期/时间/价格/尺寸/来源等显示字段开始从页面层迁出
+  - 页面层更聚焦于“布局与交互”，而不是数据整形
+  - 后台架构进一步从“service 层分层”推进到“service + view model 层分层”
+
+### 本阶段验证追加
+- `npm run build` 已通过。
+
+### 本阶段结论
+这一轮继续严格围绕后台可维护性推进：
+- 不碰前台
+- 不推翻现有实现
+- 不改数据库
+- 只是把后台模块的展示数据组织方式进一步正规化
+
+### 下一步建议
+1. 继续抽共享的 admin formatter / mapper，减少不同 view model 间的重复逻辑。
+2. 开始统一后台列表页和详情页的工作台结构，让模块间体验更一致。
+3. 再回头收口 admin API 层的返回结构，使页面 / service / API 更统一。

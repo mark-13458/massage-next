@@ -99,8 +99,7 @@ export default async function AdminGalleryPage({
             ) : (
               <div className="grid gap-4">
                 {items.map((item) => {
-                  const dimensionText = item.file.width && item.file.height ? `${item.file.width}×${item.file.height}` : '—'
-                  const sourceLabel = item.file.filePath.startsWith('/uploads/')
+                  const sourceLabel = item.sourceLabel === 'local'
                     ? pick(lang, '本地上传', 'Local upload')
                     : pick(lang, '外部链接/历史资源', 'External or legacy asset')
 
@@ -110,8 +109,8 @@ export default async function AdminGalleryPage({
                       className="grid gap-4 rounded-3xl border border-stone-100 bg-[linear-gradient(180deg,#fff_0%,#fcfbf9_100%)] p-5 md:grid-cols-[180px_1fr]"
                     >
                       <img
-                        src={item.file.filePath || 'https://placehold.co/640x480?text=Gallery'}
-                        alt={item.altDe || item.altEn || item.titleDe || item.titleEn || 'Gallery image'}
+                        src={item.imageUrl || 'https://placehold.co/640x480?text=Gallery'}
+                        alt={item.altText || item.title || 'Gallery image'}
                         className="h-36 w-full rounded-[24px] border border-stone-200 object-cover"
                       />
 
@@ -119,10 +118,10 @@ export default async function AdminGalleryPage({
                         <div className="flex flex-wrap items-start justify-between gap-3">
                           <div>
                             <h3 className="text-base font-semibold text-stone-900">
-                              {item.titleDe || item.titleEn || pick(lang, '未命名图片', 'Untitled image')}
+                              {item.title || pick(lang, '未命名图片', 'Untitled image')}
                             </h3>
                             <p className="mt-1 text-sm text-stone-500">
-                              {item.altDe || item.altEn || pick(lang, '暂无 alt 文本', 'No alt text yet')}
+                              {item.altText || pick(lang, '暂无 alt 文本', 'No alt text yet')}
                             </p>
                           </div>
 
@@ -145,7 +144,7 @@ export default async function AdminGalleryPage({
                           </div>
                           <div>
                             <dt className="text-xs uppercase tracking-[0.2em] text-stone-400">{pick(lang, '尺寸', 'Dimensions')}</dt>
-                            <dd className="mt-1 font-medium text-stone-800">{dimensionText}</dd>
+                            <dd className="mt-1 font-medium text-stone-800">{item.dimensionText}</dd>
                           </div>
                           <div>
                             <dt className="text-xs uppercase tracking-[0.2em] text-stone-400">{pick(lang, '排序', 'Sort')}</dt>
@@ -158,7 +157,7 @@ export default async function AdminGalleryPage({
                         </dl>
 
                         <div className="rounded-2xl border border-stone-200 bg-white px-4 py-3 text-xs leading-6 text-stone-500">
-                          {item.file.filePath}
+                          {item.imageUrl}
                         </div>
 
                         <GalleryQuickActions
