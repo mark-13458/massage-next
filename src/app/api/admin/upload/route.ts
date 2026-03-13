@@ -7,6 +7,114 @@ import { prisma } from '../../../../../src/lib/prisma'
 const MAX_FILE_SIZE = 10 * 1024 * 1024
 const ALLOWED_IMAGE_TYPES = new Set(['image/jpeg', 'image/png', 'image/webp', 'image/gif'])
 const ALLOWED_USAGES = new Set(['hero', 'gallery'])
+const MIN_DIMENSIONS = {
+  hero: { width: 1200, height: 600 },
+  gallery: { width: 600, height: 400 },
+} as const
+
+type ImageDimensions = {
+  width: number
+  height: number
+}
+
+function readPngDimensions(buffer: Buffer): ImageDimensions | null {
+  if (buffer.length < 24) return null
+  if (buffer.toString('ascii', 1, 4) !== 'PNG') return null
+  return {
+    width: buffer.readUInt32BE(16),
+    height: buffer.readUInt32BE(20),
+  }
+}
+
+function readGifDimensions(buffer: Buffer): ImageDimensions | null {
+  if (buffer.length < 10) return null
+  const signature = buffer.toString('ascii', 0, 6)
+  if (signature !== 'GIF87a' && signature !== 'GIF89a') return null
+  return {
+    width: buffer.readUInt16LE(6),
+    height: buffer.readUInt16LE(8),
+  }
+}
+
+function readJpegDimensions(buffer: Buffer): ImageDimensions | null {
+  if (buffer.length < 4 || buffer[0] !== 0xff || buffer[1] !== 0xd8) return null
+
+  let offset = 2
+  while (offset < buffer.length) {
+    if (buffer[offset] !== 0xff) {
+      offset += 1
+      continue
+    }
+
+    const marker = buffer[offset + 1]
+    if (!marker) break
+
+    const isStartOfFrame = (
+      marker >= 0xc0 &&
+      marker <= 0xcf &&
+      marker !== 0xc4 &&
+      marker !== 0xc8 &&
+      marker !== 0xcc
+    )
+
+    if (isStartOfFrame) {
+      if (offset + 8 >= buffer.length) return null
+      return {
+        height: buffer.readUInt16BE(offset + 5),
+        width: buffer.readUInt16BE(offset + 7),
+      }
+    }
+
+    if (offset + 3 >= buffer.length) return null
+    const segmentLength = buffer.readUInt16BE(offset + 2)
+    if (segmentLength < 2) return null
+    offset += 2 + segmentLength
+  }
+
+  return null
+}
+
+function readWebpDimensions(buffer: Buffer): ImageDimensions | null {
+  if (buffer.length < 16) return null
+  if (buffer.toString('ascii', 0, 4) !== 'RIFF' || buffer.toString('ascii', 8, 12) !== 'WEBP') return null
+
+  const chunkType = buffer.toString('ascii', 12, 16)
+
+  if (chunkType === 'VP8 ') {
+    if (buffer.length < 30) return null
+    return {
+      width: buffer.readUInt16LE(26) & 0x3fff,
+      height: buffer.readUInt16LE(28) & 0x3fff,
+    }
+  }
+
+  if (chunkType === 'VP8L') {
+    if (buffer.length < 25) return null
+    const value = buffer.readUInt32LE(21)
+    return {
+      width: (value & 0x3fff) + 1,
+      height: ((value >> 14) & 0x3fff) + 1,
+    }
+  }
+
+  if (chunkType === 'VP8X') {
+    if (buffer.length < 30) return null
+    return {
+      width: 1 + buffer.readUIntLE(24, 3),
+      height: 1 + buffer.readUIntLE(27, 3),
+    }
+  }
+
+  return null
+}
+
+function getImageDimensions(buffer: Buffer, mimeType: string): ImageDimensions | null {
+  if (mimeType === 'image/png') return readPngDimensions(buffer)
+  if (mimeType === 'image/gif') return readGifDimensions(buffer)
+  if (mimeType === 'image/jpeg') return readJpegDimensions(buffer)
+  if (mimeType === 'image/webp') return readWebpDimensions(buffer)
+  return null
+}
 
 export async function POST(request: NextRequest) {
   if (!process.env.DATABASE_URL) {
@@ -50,6 +158,22 @@ export async function POST(request: NextRequest) {
     const publicPath = `/uploads/${storedFilename}`
 
     const bytes = Buffer.from(await file.arrayBuffer())
+    const dimensions = getImageDimensions(bytes, file.type)
+    if (!dimensions) {
+      return NextResponse.json({ status: 'error', error: 'Unable to read image dimensions' }, { status: 400 })
+    }
+
+    const minDimensions = MIN_DIMENSIONS[usage as keyof typeof MIN_DIMENSIONS]
+    if (dimensions.width < minDimensions.width || dimensions.height < minDimensions.height) {
+      return NextResponse.json(
+        {
+          status: 'error',
+          error: `${usage === 'hero' ? 'Hero' : 'Gallery'} image must be at least ${minDimensions.width}x${minDimensions.height}`,
+        },
+        { status: 400 },
+      )
+    }
+
     await writeFile(outputPath, bytes)
 
     if (usage === 'hero') {
@@ -57,6 +181,8 @@ export async function POST(request: NextRequest) {
         status: 'ok',
         item: {
           imageUrl: publicPath,
+          width: dimensions.width,
+          height: dimensions.height,
         },
       })
     }
@@ -70,6 +196,8 @@ export async function POST(request: NextRequest) {
         mimeType: file.type,
         kind: 'IMAGE',
         altText: altDe || altEn || null,
+        width: dimensions.width,
+        height: dimensions.height,
         isPublic: true,
       },
     })
@@ -97,6 +225,8 @@ export async function POST(request: NextRequest) {
         altDe: gallery.altDe || '',
         altEn: gallery.altEn || '',
         imageUrl: gallery.file.filePath,
+        width: dimensions.width,
+        height: dimensions.height,
         sortOrder: gallery.sortOrder,
         isActive: gallery.isActive,
         isCover: gallery.isCover,

@@ -5,7 +5,7 @@ import { ChangeEvent, useState, useTransition } from 'react'
 const MAX_UPLOAD_SIZE = 10 * 1024 * 1024
 const ALLOWED_UPLOAD_TYPES = new Set(['image/jpeg', 'image/png', 'image/webp', 'image/gif'])
 
-function validateImageFile(file: File) {
+function validateImageFile(file: File, usage: 'hero' | 'gallery') {
   if (!ALLOWED_UPLOAD_TYPES.has(file.type)) {
     return '仅支持 JPG、PNG、WEBP、GIF 图片'
   }
@@ -14,7 +14,11 @@ function validateImageFile(file: File) {
     return '图片不能超过 10MB'
   }
 
-  return null
+  if (usage === 'hero') {
+    return '将继续由服务端校验 Hero 最低尺寸：1200×600'
+  }
+
+  return '将继续由服务端校验 Gallery 最低尺寸：600×400'
 }
 
 type Contact = {
@@ -139,14 +143,14 @@ export function ContentEditor({
     const file = event.target.files?.[0]
     if (!file) return
 
-    const validationError = validateImageFile(file)
-    if (validationError) {
-      setUploadMessage(validationError)
+    const validationMessage = validateImageFile(file, 'gallery')
+    if (validationMessage === '仅支持 JPG、PNG、WEBP、GIF 图片' || validationMessage === '图片不能超过 10MB') {
+      setUploadMessage(validationMessage)
       event.target.value = ''
       return
     }
 
-    setUploadMessage('')
+    setUploadMessage(validationMessage)
     const formData = new FormData()
     formData.append('usage', 'gallery')
     formData.append('file', file)
@@ -175,14 +179,14 @@ export function ContentEditor({
     const file = event.target.files?.[0]
     if (!file) return
 
-    const validationError = validateImageFile(file)
-    if (validationError) {
-      setHeroUploadMessage(validationError)
+    const validationMessage = validateImageFile(file, 'hero')
+    if (validationMessage === '仅支持 JPG、PNG、WEBP、GIF 图片' || validationMessage === '图片不能超过 10MB') {
+      setHeroUploadMessage(validationMessage)
       event.target.value = ''
       return
     }
 
-    setHeroUploadMessage('')
+    setHeroUploadMessage(validationMessage)
     const formData = new FormData()
     formData.append('usage', 'hero')
     formData.append('file', file)
