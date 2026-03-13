@@ -12,9 +12,22 @@ type BookingFormProps = {
     durationMin: number
     price: string
   }>
+  contact?: {
+    address?: string | null
+    phone?: string | null
+    email?: string | null
+  } | null
+  hours?: Array<{
+    weekday: number
+    label: string
+    openTime?: string | null
+    closeTime?: string | null
+    isClosed: boolean
+  }>
+  currency?: string
 }
 
-export function BookingForm({ locale, services }: BookingFormProps) {
+export function BookingForm({ locale, services, contact, hours = [], currency = 'EUR' }: BookingFormProps) {
   const [status, setStatus] = useState<'idle' | 'submitting' | 'success' | 'error'>('idle')
   const [message, setMessage] = useState('')
 
@@ -34,6 +47,10 @@ export function BookingForm({ locale, services }: BookingFormProps) {
           loading: 'Wird gesendet…',
           success: 'Ihre Anfrage wurde erfolgreich gesendet. Das Studio meldet sich zur Bestätigung.',
           error: 'Die Anfrage konnte gerade nicht gesendet werden. Bitte versuchen Sie es erneut.',
+          address: 'Adresse',
+          contact: 'Kontakt',
+          openingHours: 'Öffnungszeiten',
+          closed: 'Geschlossen',
         }
       : {
           title: 'Request an appointment',
@@ -49,8 +66,14 @@ export function BookingForm({ locale, services }: BookingFormProps) {
           loading: 'Sending…',
           success: 'Your request was sent successfully. The studio will confirm the appointment shortly.',
           error: 'The request could not be sent right now. Please try again.',
+          address: 'Address',
+          contact: 'Contact',
+          openingHours: 'Opening hours',
+          closed: 'Closed',
         }
   }, [locale])
+
+  const currencySymbol = currency === 'EUR' ? '€' : currency
 
   async function onSubmit(formData: FormData) {
     setStatus('submitting')
@@ -80,7 +103,7 @@ export function BookingForm({ locale, services }: BookingFormProps) {
 
       setStatus('success')
       setMessage(labels.success)
-    } catch (error) {
+    } catch {
       setStatus('error')
       setMessage(labels.error)
     }
@@ -111,7 +134,7 @@ export function BookingForm({ locale, services }: BookingFormProps) {
               <option value="">—</option>
               {services.map((service) => (
                 <option key={service.id} value={service.id}>
-                  {service.name} · {service.durationMin} min · € {service.price}
+                  {service.name} · {service.durationMin} min · {currencySymbol} {service.price}
                 </option>
               ))}
             </select>
@@ -151,18 +174,26 @@ export function BookingForm({ locale, services }: BookingFormProps) {
 
         <div className="mt-8 space-y-4 text-sm text-stone-300">
           <div className="rounded-2xl border border-stone-800 bg-stone-900 p-4">
-            <p className="font-semibold text-white">{locale === 'de' ? 'Adresse' : 'Address'}</p>
-            <p className="mt-2">Arnulfstraße 104, 80636 München</p>
+            <p className="font-semibold text-white">{labels.address}</p>
+            <p className="mt-2">{contact?.address || 'Arnulfstraße 104, 80636 München'}</p>
           </div>
           <div className="rounded-2xl border border-stone-800 bg-stone-900 p-4">
-            <p className="font-semibold text-white">{locale === 'de' ? 'Kontakt' : 'Contact'}</p>
-            <p className="mt-2">015563 188800</p>
-            <p>chinesischemassage8@gmail.com</p>
+            <p className="font-semibold text-white">{labels.contact}</p>
+            <p className="mt-2">{contact?.phone || '015563 188800'}</p>
+            <p>{contact?.email || 'chinesischemassage8@gmail.com'}</p>
           </div>
           <div className="rounded-2xl border border-stone-800 bg-stone-900 p-4">
-            <p className="font-semibold text-white">{locale === 'de' ? 'Öffnungszeiten' : 'Opening hours'}</p>
-            <p className="mt-2">Mon–Sat 09:30–20:00</p>
-            <p>{locale === 'de' ? 'Sonntag nach Vereinbarung' : 'Sunday by arrangement'}</p>
+            <p className="font-semibold text-white">{labels.openingHours}</p>
+            <div className="mt-2 space-y-1">
+              {hours.length > 0 ? hours.slice(0, 3).map((item) => (
+                <p key={item.weekday}>{item.label}: {item.isClosed ? labels.closed : `${item.openTime} – ${item.closeTime}`}</p>
+              )) : (
+                <>
+                  <p>Mon–Sat 09:30–20:00</p>
+                  <p>{locale === 'de' ? 'Sonntag nach Vereinbarung' : 'Sunday by arrangement'}</p>
+                </>
+              )}
+            </div>
           </div>
         </div>
       </aside>

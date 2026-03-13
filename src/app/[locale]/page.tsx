@@ -13,6 +13,7 @@ import {
   getBusinessHours,
   getContactSettings,
   getPublishedTestimonials,
+  getSystemSettings,
 } from '../../server/services/site.service'
 
 const homeGallery = [
@@ -30,12 +31,13 @@ export default async function LocaleHome({ params }: { params: Promise<{ locale:
 
   const typedLocale = locale as Locale
   const t = getMessages(typedLocale)
-  const [services, testimonials, faqs, hours, contact] = await Promise.all([
+  const [services, testimonials, faqs, hours, contact, settings] = await Promise.all([
     getActiveServices(typedLocale).catch(() => []),
     getPublishedTestimonials(typedLocale).catch(() => []),
     getActiveFaqs(typedLocale).catch(() => []),
     getBusinessHours(typedLocale).catch(() => []),
     getContactSettings().catch(() => null),
+    getSystemSettings().catch(() => null),
   ])
 
   return (
@@ -61,6 +63,8 @@ export default async function LocaleHome({ params }: { params: Promise<{ locale:
               durationMin={service.durationMin}
               price={service.price.toString()}
               featured={service.isFeatured}
+              currency={settings?.currency || 'EUR'}
+              locale={typedLocale}
             />
           ))}
         </div>
@@ -139,6 +143,7 @@ export default async function LocaleHome({ params }: { params: Promise<{ locale:
               <p><span className="font-semibold text-white">{typedLocale === 'de' ? 'Adresse' : 'Address'}:</span> {contact?.address ?? 'Arnulfstraße 104, 80636 München'}</p>
               <p><span className="font-semibold text-white">{typedLocale === 'de' ? 'Telefon' : 'Phone'}:</span> {contact?.phone ?? '015563 188800'}</p>
               <p><span className="font-semibold text-white">E-Mail:</span> {contact?.email ?? 'chinesischemassage8@gmail.com'}</p>
+              <p><span className="font-semibold text-white">{typedLocale === 'de' ? 'Währung' : 'Currency'}:</span> {settings?.currency || 'EUR'}</p>
             </div>
             <div className="mt-6">
               <Link

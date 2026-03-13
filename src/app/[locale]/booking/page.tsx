@@ -5,7 +5,7 @@ import { SectionShell } from '../../../components/site/SectionShell'
 import { BookingForm } from '../../../components/site/BookingForm'
 import { getMessages } from '../../../lib/copy'
 import { isLocale, Locale } from '../../../lib/i18n'
-import { getActiveServices, getSystemSettings } from '../../../server/services/site.service'
+import { getActiveServices, getBusinessHours, getContactSettings, getSystemSettings } from '../../../server/services/site.service'
 
 export default async function BookingPage({ params }: { params: Promise<{ locale: string }> }) {
   const { locale } = await params
@@ -16,9 +16,11 @@ export default async function BookingPage({ params }: { params: Promise<{ locale
 
   const typedLocale = locale as Locale
   const t = getMessages(typedLocale)
-  const [services, settings] = await Promise.all([
+  const [services, settings, contact, hours] = await Promise.all([
     getActiveServices(typedLocale).catch(() => []),
     getSystemSettings().catch(() => null),
+    getContactSettings().catch(() => null),
+    getBusinessHours(typedLocale).catch(() => []),
   ])
 
   const configuredNotice = typedLocale === 'de' ? settings?.bookingNoticeDe : settings?.bookingNoticeEn
@@ -36,7 +38,13 @@ export default async function BookingPage({ params }: { params: Promise<{ locale
             : 'This page establishes the customer-facing booking flow first; business-hour validation, email notifications and admin processing will be connected next.')
         }
       >
-        <BookingForm locale={typedLocale} services={services.map((service) => ({ ...service, price: service.price.toString() }))} />
+        <BookingForm
+          locale={typedLocale}
+          services={services.map((service) => ({ ...service, price: service.price.toString() }))}
+          contact={contact}
+          hours={hours}
+          currency={settings?.currency || 'EUR'}
+        />
       </SectionShell>
       <SiteFooter locale={typedLocale} />
     </main>

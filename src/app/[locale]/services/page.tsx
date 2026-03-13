@@ -5,7 +5,7 @@ import { SectionShell } from '../../../components/site/SectionShell'
 import { ServiceCard } from '../../../components/site/ServiceCard'
 import { getMessages } from '../../../lib/copy'
 import { isLocale, Locale } from '../../../lib/i18n'
-import { getActiveServices } from '../../../server/services/site.service'
+import { getActiveServices, getSystemSettings } from '../../../server/services/site.service'
 
 export default async function ServicesPage({ params }: { params: Promise<{ locale: string }> }) {
   const { locale } = await params
@@ -16,7 +16,10 @@ export default async function ServicesPage({ params }: { params: Promise<{ local
 
   const typedLocale = locale as Locale
   const t = getMessages(typedLocale)
-  const services = await getActiveServices(typedLocale).catch(() => [])
+  const [services, settings] = await Promise.all([
+    getActiveServices(typedLocale).catch(() => []),
+    getSystemSettings().catch(() => null),
+  ])
 
   return (
     <main>
@@ -26,7 +29,7 @@ export default async function ServicesPage({ params }: { params: Promise<{ local
         title={t.nav.services}
         description={
           typedLocale === 'de'
-            ? 'Klar strukturierte Leistungen mit transparenter Dauer und Preislogik. Die Inhalte werden später vollständig aus dem后台维护。'
+            ? 'Klar strukturierte Leistungen mit transparenter Dauer und Preislogik. Die Inhalte werden später vollständig aus dem Admin gepflegt.'
             : 'Clearly structured treatments with transparent duration and pricing. This content will later be fully managed from the admin side.'
         }
       >
@@ -39,6 +42,8 @@ export default async function ServicesPage({ params }: { params: Promise<{ local
               durationMin={service.durationMin}
               price={service.price.toString()}
               featured={service.isFeatured}
+              currency={settings?.currency || 'EUR'}
+              locale={typedLocale}
             />
           ))}
         </div>
