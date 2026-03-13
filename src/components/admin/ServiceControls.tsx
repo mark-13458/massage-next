@@ -1,6 +1,7 @@
 'use client'
 
 import { useState, useTransition } from 'react'
+import { adminRequest } from '../../lib/admin-request'
 
 type NoticeTone = 'success' | 'error' | 'info'
 
@@ -31,7 +32,7 @@ export function ServiceControls({ id, initialActive, initialFeatured, initialSor
 
     startTransition(async () => {
       try {
-        const response = await fetch(`/api/admin/services/${id}`, {
+        await adminRequest(`/api/admin/services/${id}`, {
           method: 'PATCH',
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify({
@@ -40,11 +41,6 @@ export function ServiceControls({ id, initialActive, initialFeatured, initialSor
             sortOrder: Number(sortOrder) || 0,
           }),
         })
-        const json = await response.json().catch(() => ({}))
-
-        if (!response.ok) {
-          throw new Error(json.error || 'Update failed')
-        }
 
         setMessage('服务配置已保存')
         setMessageTone('success')

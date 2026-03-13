@@ -1,6 +1,7 @@
 'use client'
 
 import { ChangeEvent, useState, useTransition } from 'react'
+import { adminRequest } from '../../lib/admin-request'
 
 type AdminLang = 'zh' | 'en'
 
@@ -124,13 +125,11 @@ export function ContentEditor({
     setMessageTone('info')
     startTransition(async () => {
       try {
-        const response = await fetch('/api/admin/content', {
+        await adminRequest('/api/admin/content', {
           method: 'PATCH',
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify({ contact, hero, hours, faqs, gallery }),
         })
-        const json = await response.json().catch(() => ({}))
-        if (!response.ok) throw new Error(json.error || t(lang, '保存失败', 'Save failed'))
         setMessage(t(lang, '内容已保存', 'Content saved'))
         setMessageTone('success')
       } catch (error) {
@@ -196,10 +195,9 @@ export function ContentEditor({
 
     startUploadTransition(async () => {
       try {
-        const response = await fetch('/api/admin/upload', { method: 'POST', body: formData })
-        const json = await response.json().catch(() => ({}))
-        const item = json.data?.item
-        if (!response.ok || !item) throw new Error(json.error || t(lang, '上传失败', 'Upload failed'))
+        const data = await adminRequest<{ item?: { width?: number; height?: number } & Record<string, unknown> }>('/api/admin/upload', { method: 'POST', body: formData })
+        const item = data?.item
+        if (!item) throw new Error(t(lang, '上传失败', 'Upload failed'))
         setGallery((current) => [...current, item])
         setUploadMessage(t(lang, `上传成功，已加入图库列表（${item.width || '?'}×${item.height || '?'}）`, `Upload succeeded and was added to the gallery list (${item.width || '?'}×${item.height || '?'})`))
         setUploadMessageTone('success')
@@ -232,10 +230,9 @@ export function ContentEditor({
 
     startHeroUploadTransition(async () => {
       try {
-        const response = await fetch('/api/admin/upload', { method: 'POST', body: formData })
-        const json = await response.json().catch(() => ({}))
-        const item = json.data?.item
-        if (!response.ok || !item?.imageUrl) throw new Error(json.error || t(lang, '上传失败', 'Upload failed'))
+        const data = await adminRequest<{ item?: { imageUrl?: string; width?: number; height?: number } }>('/api/admin/upload', { method: 'POST', body: formData })
+        const item = data?.item
+        if (!item?.imageUrl) throw new Error(t(lang, '上传失败', 'Upload failed'))
         setHero((current) => ({ ...current, imageUrl: item.imageUrl }))
         setHeroUploadMessage(t(lang, `Hero 图片上传成功（${item.width || '?'}×${item.height || '?'}）`, `Hero image uploaded successfully (${item.width || '?'}×${item.height || '?'})`))
         setHeroUploadMessageTone('success')

@@ -1241,3 +1241,28 @@ Docker 部署当前已经不只是“页面能打开”，而是：
 1. 继续把 `ContentEditor / DeleteServiceButton / ServiceControls / AdminPasswordForm` 也迁到 `adminRequest`。
 2. 统一 Dashboard / Settings / Gallery 的工作台布局模式。
 3. 抽共享 admin mapper，继续压缩 view model 层重复逻辑。
+
+#### 40) 基本收口后台客户端请求层
+- 已继续把剩余高频后台组件迁到 `adminRequest`：
+  - `DeleteServiceButton`
+  - `ServiceControls`
+  - `AdminPasswordForm`
+  - `ContentEditor`
+- 当前效果：
+  - 后台主要交互组件大多已不再手写 `fetch + json + error` 模板
+  - 上传、保存、删除、状态更新、设置修改、密码修改等核心后台操作，开始共享统一请求入口
+  - 客户端交互层的维护成本进一步下降
+
+### 本阶段验证追加
+- `npm run build` 已通过。
+
+### 本阶段结论
+这一轮不是扩业务，而是把后台客户端请求层基本整理成可复用结构：
+- API envelope 有统一规范
+- 客户端请求有统一入口
+- 后续再扩后台功能时，交互层不需要重复搭脚手架
+
+### 下一步建议
+1. 继续统一 Dashboard / Settings / Gallery 的工作台布局模式。
+2. 抽共享 admin mapper，继续压缩 view model 层重复逻辑。
+3. 开始整理后台共享 section / summary / stat card 组件，让六大模块视觉和结构更一致。

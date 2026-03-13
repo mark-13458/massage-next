@@ -1,6 +1,7 @@
 'use client'
 
 import { useState, useTransition } from 'react'
+import { adminRequest } from '../../lib/admin-request'
 
 type Props = {
   lang: 'zh' | 'en'
@@ -21,13 +22,11 @@ export function AdminPasswordForm({ lang }: Props) {
     setMessage('')
     startTransition(async () => {
       try {
-        const response = await fetch('/api/admin/password', {
+        await adminRequest('/api/admin/password', {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify({ currentPassword, newPassword, confirmPassword }),
         })
-        const json = await response.json().catch(() => ({}))
-        if (!response.ok) throw new Error(json.error || t(lang, '修改密码失败', 'Failed to update password'))
         setCurrentPassword('')
         setNewPassword('')
         setConfirmPassword('')

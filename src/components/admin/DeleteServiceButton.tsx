@@ -2,6 +2,7 @@
 
 import { useRouter } from 'next/navigation'
 import { useState, useTransition } from 'react'
+import { adminRequest } from '../../lib/admin-request'
 
 type AdminLang = 'zh' | 'en'
 
@@ -21,15 +22,9 @@ export function DeleteServiceButton({ id, lang = 'zh' }: { id: number; lang?: Ad
     setMessage('')
     startTransition(async () => {
       try {
-        const response = await fetch(`/api/admin/services/${id}`, {
+        await adminRequest(`/api/admin/services/${id}`, {
           method: 'DELETE',
         })
-
-        const json = await response.json().catch(() => ({}))
-
-        if (!response.ok) {
-          throw new Error(json.error || t(lang, '删除失败', 'Delete failed'))
-        }
 
         setMessage(t(lang, '已删除', 'Deleted'))
         router.push('/admin/services')
