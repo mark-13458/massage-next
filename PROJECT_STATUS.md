@@ -143,6 +143,8 @@
 - Docker 登录 / seed / 预约 smoke test 已通过
 - 内容链清理闭环已修复并验证通过（Hero/ Gallery 空 payload、前端删除标记、文件清理）
 - Docker 上传目录持久化卷已补上
+- robots/sitemap 已改为走 `APP_URL` 动态生成，并避免构建期误依赖 `DATABASE_URL`
+- 方案 A 继续验证已完成（内容 CRUD / SEO / 浏览器目检）
 - `DEVELOPMENT_LOG.md` 已建立
 - `HANDOFF.md` 已建立
 - `PROJECT_STATUS.md`（本文件）已建立

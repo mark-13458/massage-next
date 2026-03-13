@@ -1,6 +1,6 @@
 import type { MetadataRoute } from 'next'
 
-const baseUrl = 'https://example.com'
+const baseUrl = (process.env.APP_URL ?? 'http://localhost:3000').replace(/\/$/, '')
 const locales = ['de', 'en']
 const routes = ['', '/services', '/booking', '/about', '/contact', '/gallery']
 

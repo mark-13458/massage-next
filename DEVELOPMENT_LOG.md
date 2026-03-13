@@ -519,6 +519,17 @@ Docker 部署当前已经不只是“页面能打开”，而是：
   - 对应 `public/uploads/...` 文件已删除。
   - Hero 替换后，旧 Hero 图片文件已被清理，仅保留最新图片。
 - 同时已建立 `TEST_ARTIFACTS.md`，用于标注当前根目录中的 smoke test 临时文件，并通过 `.gitignore` 将其排除出版本库。
+- 在继续执行方案 A（上线前质量收口）时，又收口了一项明确问题：
+  - `robots.txt` 与 `sitemap.xml` 中原本写死了 `https://example.com`
+  - 现已改为从 `APP_URL` 动态生成，避免上线后忘记替换占位域名
+- 同时也修正了一个构建边界问题：
+  - SEO 路由不能依赖会强制要求 `DATABASE_URL` 的 `env.ts`
+  - 现已改为直接读取 `process.env.APP_URL`，避免在构建 `sitemap.xml` 时误触发数据库环境变量校验
+- 已完成方案 A 的继续验证：
+  - FAQ / 营业时间内容更新成功
+  - `robots.txt` / `sitemap.xml` 返回正常
+  - 浏览器实际打开前台首页、图库页、后台页面，未见明显渲染异常
+  - SEO 占位域名已从 `example.com` 收口到 `APP_URL`
 
 ---
 
