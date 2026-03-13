@@ -2,6 +2,7 @@ import { mkdir, writeFile } from 'fs/promises'
 import path from 'path'
 import { randomUUID } from 'crypto'
 import { NextRequest, NextResponse } from 'next/server'
+import { getCurrentAdmin } from '../../../../../src/lib/auth'
 import { prisma } from '../../../../../src/lib/prisma'
 
 const MAX_FILE_SIZE = 10 * 1024 * 1024
@@ -15,6 +16,13 @@ const MIN_DIMENSIONS = {
 type ImageDimensions = {
   width: number
   height: number
+}
+
+const EXTENSION_BY_MIME_TYPE: Record<string, string> = {
+  'image/jpeg': '.jpg',
+  'image/png': '.png',
+  'image/webp': '.webp',
+  'image/gif': '.gif',
 }
 
 function readPngDimensions(buffer: Buffer): ImageDimensions | null {
@@ -121,6 +129,11 @@ export async function POST(request: NextRequest) {
     return NextResponse.json({ status: 'error', error: 'DATABASE_URL is not configured' }, { status: 500 })
   }
 
+  const admin = await getCurrentAdmin()
+  if (!admin) {
+    return NextResponse.json({ status: 'error', error: 'Unauthorized' }, { status: 401 })
+  }
+
   try {
     const formData = await request.formData()
     const file = formData.get('file')
@@ -152,7 +165,11 @@ export async function POST(request: NextRequest) {
     const uploadDir = path.join(process.cwd(), 'public', 'uploads')
     await mkdir(uploadDir, { recursive: true })
 
-    const extension = path.extname(file.name) || '.bin'
+    const extension = EXTENSION_BY_MIME_TYPE[file.type]
+    if (!extension) {
+      return NextResponse.json({ status: 'error', error: 'Unsupported image type' }, { status: 400 })
+    }
+
     const storedFilename = `${randomUUID()}${extension}`
     const outputPath = path.join(uploadDir, storedFilename)
     const publicPath = `/uploads/${storedFilename}`
@@ -199,6 +216,7 @@ export async function POST(request: NextRequest) {
         width: dimensions.width,
         height: dimensions.height,
         isPublic: true,
+        uploadedById: admin.id,
       },
     })
 

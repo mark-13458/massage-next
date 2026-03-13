@@ -1,6 +1,7 @@
 import { unlink } from 'fs/promises'
 import path from 'path'
 import { NextRequest, NextResponse } from 'next/server'
+import { getCurrentAdmin } from '../../../../lib/auth'
 import { prisma } from '../../../../lib/prisma'
 
 function publicPathToDiskPath(filePath: string) {
@@ -18,6 +19,11 @@ async function cleanupLocalUpload(filePath?: string | null) {
 export async function PATCH(request: NextRequest) {
   if (!process.env.DATABASE_URL) {
     return NextResponse.json({ status: 'error', error: 'DATABASE_URL is not configured' }, { status: 500 })
+  }
+
+  const admin = await getCurrentAdmin()
+  if (!admin) {
+    return NextResponse.json({ status: 'error', error: 'Unauthorized' }, { status: 401 })
   }
 
   try {
