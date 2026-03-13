@@ -1,10 +1,14 @@
 import Link from 'next/link'
-import { notFound } from 'next/navigation'
+import { notFound, redirect } from 'next/navigation'
 import { AppointmentStatus } from '@prisma/client'
 import { prisma } from '../../../../lib/prisma'
 import { AdminShell } from '../../../../components/admin/AdminShell'
 import { AppointmentStatusControls } from '../../../../components/admin/AppointmentStatusControls'
 import { AppointmentQuickActions } from '../../../../components/admin/AppointmentQuickActions'
+import { getCurrentAdmin } from '../../../../lib/auth'
+
+export const dynamic = 'force-dynamic'
+export const revalidate = 0
 
 function getStatusBadge(status: AppointmentStatus) {
   const styles: Record<AppointmentStatus, string> = {
@@ -38,6 +42,9 @@ async function getAppointment(id: number) {
 }
 
 export default async function AppointmentDetailPage({ params }: { params: { id: string } }) {
+  const admin = await getCurrentAdmin()
+  if (!admin) redirect('/admin/login')
+
   const id = Number(params.id)
   if (!Number.isFinite(id)) notFound()
 

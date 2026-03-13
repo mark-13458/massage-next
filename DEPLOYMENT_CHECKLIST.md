@@ -321,8 +321,8 @@
   - `prisma db push` 成功
   - `npm run db:seed` 成功
   - Docker 下后台登录成功
-  - Docker 下预约提交成功
   - 数据库内已验证 `Appointment` 记录创建成功
+  - 无 cookie 访问 `/admin*` 已正确重定向到 `/admin/login`
 - 失败项：
   - 非 Docker 本地生产模式测试时，数据库依赖曾未接通
   - 初版 Docker 运行镜像因 Prisma/libssl 兼容问题导致业务 API 500（现已修复）

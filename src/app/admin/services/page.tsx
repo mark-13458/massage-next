@@ -1,7 +1,12 @@
 import Link from 'next/link'
+import { redirect } from 'next/navigation'
 import { prisma } from '../../../lib/prisma'
 import { AdminShell } from '../../../components/admin/AdminShell'
 import { ServiceControls } from '../../../components/admin/ServiceControls'
+import { getCurrentAdmin } from '../../../lib/auth'
+
+export const dynamic = 'force-dynamic'
+export const revalidate = 0
 
 async function getServices() {
   if (!process.env.DATABASE_URL) {
@@ -19,6 +24,9 @@ async function getServices() {
 }
 
 export default async function AdminServicesPage() {
+  const admin = await getCurrentAdmin()
+  if (!admin) redirect('/admin/login')
+
   const services = await getServices()
 
   return (

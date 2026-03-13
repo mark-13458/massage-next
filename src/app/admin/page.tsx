@@ -1,6 +1,11 @@
+import { redirect } from 'next/navigation'
 import { prisma } from '../../lib/prisma'
 import { AdminShell } from '../../components/admin/AdminShell'
 import { AdminTopSummary } from '../../components/admin/AdminTopSummary'
+import { getCurrentAdmin } from '../../lib/auth'
+
+export const dynamic = 'force-dynamic'
+export const revalidate = 0
 
 async function getDashboardStats() {
   if (!process.env.DATABASE_URL) {
@@ -23,6 +28,9 @@ async function getDashboardStats() {
 }
 
 export default async function AdminPage() {
+  const admin = await getCurrentAdmin()
+  if (!admin) redirect('/admin/login')
+
   const stats = await getDashboardStats()
 
   return (

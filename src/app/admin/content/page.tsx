@@ -1,8 +1,13 @@
 import Link from 'next/link'
+import { redirect } from 'next/navigation'
 import { prisma } from '../../../lib/prisma'
 import { AdminShell } from '../../../components/admin/AdminShell'
 import { ContentEditor } from '../../../components/admin/ContentEditor'
+import { getCurrentAdmin } from '../../../lib/auth'
 import { getBusinessHours, getContactSettings } from '../../../server/services/site.service'
+
+export const dynamic = 'force-dynamic'
+export const revalidate = 0
 
 async function getContentData() {
   if (!process.env.DATABASE_URL) {
@@ -65,6 +70,9 @@ async function getContentData() {
 }
 
 export default async function AdminContentPage() {
+  const admin = await getCurrentAdmin()
+  if (!admin) redirect('/admin/login')
+
   const data = await getContentData()
 
   return (

@@ -1,9 +1,13 @@
 import Link from 'next/link'
-import { notFound } from 'next/navigation'
+import { notFound, redirect } from 'next/navigation'
 import { prisma } from '../../../../lib/prisma'
 import { AdminShell } from '../../../../components/admin/AdminShell'
 import { ServiceForm } from '../../../../components/admin/ServiceForm'
 import { DeleteServiceButton } from '../../../../components/admin/DeleteServiceButton'
+import { getCurrentAdmin } from '../../../../lib/auth'
+
+export const dynamic = 'force-dynamic'
+export const revalidate = 0
 
 async function getService(id: number) {
   if (!process.env.DATABASE_URL) {
@@ -18,6 +22,9 @@ async function getService(id: number) {
 }
 
 export default async function EditServicePage({ params }: { params: { id: string } }) {
+  const admin = await getCurrentAdmin()
+  if (!admin) redirect('/admin/login')
+
   const id = Number(params.id)
   if (!Number.isFinite(id)) notFound()
 

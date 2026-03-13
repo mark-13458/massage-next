@@ -117,6 +117,7 @@
 ### 后台认证
 - `/admin/login`
 - 对应登录/退出 API + middleware 保护
+- 后台页面本身也已增加 server-side auth gate（未登录直接重定向到 `/admin/login`）
 
 ---
 

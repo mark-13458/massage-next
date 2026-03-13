@@ -531,6 +531,23 @@ Docker 部署当前已经不只是“页面能打开”，而是：
   - 浏览器实际打开前台首页、图库页、后台页面，未见明显渲染异常
   - SEO 占位域名已从 `example.com` 收口到 `APP_URL`
 
+#### 17) 后台访问控制 P0 修复
+- 已重新严谨验证后台访问控制：
+  - 使用无 cookie 的 `curl` 请求确认，之前 `/admin`、`/admin/content`、`/admin/appointments` 确实会直接返回 `200`。
+- 根因不是 middleware 文件缺失，而是：
+  - 后台页面被静态优化 / 缓存后，页面本身没有服务端二次鉴权兜底。
+- 已修复策略：
+  - 在所有后台页面中接入 `getCurrentAdmin()` 服务端检查。
+  - 未登录时直接 `redirect('/admin/login')`。
+  - 后台页面显式设置：
+    - `export const dynamic = 'force-dynamic'`
+    - `export const revalidate = 0`
+- 已完成回归验证：
+  - 无 cookie 请求 `/admin` → `307 /admin/login`
+  - 无 cookie 请求 `/admin/content` → `307 /admin/login`
+  - 无 cookie 请求 `/admin/appointments` → `307 /admin/login`
+- 说明后台页面级访问控制现在已经真正生效。
+
 ---
 
 ## 当前整体状态（截至 2026-03-13）

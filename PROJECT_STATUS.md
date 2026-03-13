@@ -145,6 +145,7 @@
 - Docker 上传目录持久化卷已补上
 - robots/sitemap 已改为走 `APP_URL` 动态生成，并避免构建期误依赖 `DATABASE_URL`
 - 方案 A 继续验证已完成（内容 CRUD / SEO / 浏览器目检）
+- 后台页面访问控制已修复并验证通过（未登录重定向到 `/admin/login`）
 - `DEVELOPMENT_LOG.md` 已建立
 - `HANDOFF.md` 已建立
 - `PROJECT_STATUS.md`（本文件）已建立

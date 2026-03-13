@@ -1,8 +1,13 @@
 import Link from 'next/link'
+import { redirect } from 'next/navigation'
 import { AppointmentStatus } from '@prisma/client'
 import { prisma } from '../../../lib/prisma'
 import { AdminShell } from '../../../components/admin/AdminShell'
 import { AppointmentStatusControls } from '../../../components/admin/AppointmentStatusControls'
+import { getCurrentAdmin } from '../../../lib/auth'
+
+export const dynamic = 'force-dynamic'
+export const revalidate = 0
 
 function getStatusBadge(status: AppointmentStatus) {
   const styles: Record<AppointmentStatus, string> = {
@@ -46,6 +51,9 @@ export default async function AdminAppointmentsPage({
 }: {
   searchParams?: Promise<{ status?: string }>
 }) {
+  const admin = await getCurrentAdmin()
+  if (!admin) redirect('/admin/login')
+
   const resolvedSearchParams = (await searchParams) ?? {}
   const rawStatus = String(resolvedSearchParams.status || 'ALL').toUpperCase()
   const selectedStatus = (allowedStatuses.includes(rawStatus as StatusFilter) ? rawStatus : 'ALL') as StatusFilter
