@@ -1,10 +1,30 @@
+import type { Metadata } from 'next'
 import { notFound } from 'next/navigation'
 import { SiteHeader } from '../../../components/site/SiteHeader'
 import { SiteFooter } from '../../../components/site/SiteFooter'
 import { SectionShell } from '../../../components/site/SectionShell'
 import { isLocale, Locale } from '../../../lib/i18n'
 import { getMessages } from '../../../lib/copy'
+import { createPageMetadata } from '../../../lib/seo'
 import { getBusinessHours, getContactSettings } from '../../../server/services/site.service'
+
+export async function generateMetadata({ params }: { params: Promise<{ locale: string }> }): Promise<Metadata> {
+  const { locale } = await params
+
+  if (!isLocale(locale)) {
+    return {}
+  }
+
+  return createPageMetadata({
+    locale,
+    pathname: '/contact',
+    title: locale === 'de' ? 'Kontakt & Öffnungszeiten' : 'Contact & Opening Hours',
+    description:
+      locale === 'de'
+        ? 'Finden Sie Adresse, Telefonnummer, E-Mail und Öffnungszeiten von China TCM Massage in München auf einen Blick.'
+        : 'Find the address, phone number, email and opening hours of China TCM Massage in Munich at a glance.',
+  })
+}
 
 export default async function ContactPage({ params }: { params: Promise<{ locale: string }> }) {
   const { locale } = await params
@@ -28,8 +48,8 @@ export default async function ContactPage({ params }: { params: Promise<{ locale
         title={t.sections.contact}
         description={
           typedLocale === 'de'
-            ? '这页先把联系信息、营业时间和到店信息打通，后面再补地图、路线说明和更细的本地 SEO。'
-            : 'This page now connects contact details, opening hours and visit information; maps, directions and deeper local SEO will follow next.'
+            ? 'Alle wichtigen Kontaktinformationen, Öffnungszeiten und Hinweise für Ihren Besuch kompakt an einem Ort.'
+            : 'All essential contact details, opening hours and visit notes gathered in one clear place.'
         }
       >
         <div className="grid gap-8 lg:grid-cols-[0.9fr_1.1fr]">

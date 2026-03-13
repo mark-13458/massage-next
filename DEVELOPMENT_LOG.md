@@ -1414,3 +1414,38 @@ Docker 部署当前已经不只是“页面能打开”，而是：
 1. 继续统一后台 section / summary / stat card 的组合模式。
 2. 继续检查命名、目录和文案是否还能进一步收口。
 3. 如果继续深入，可以整理一份后台开发约定文档（命名、布局、请求、view model、API 规范）。
+
+#### 46) 前台 SEO metadata 收口 + 首页文案去开发痕迹
+- 已新增：`src/lib/seo.ts`
+  - 统一封装前台页面 metadata 生成逻辑
+  - 提供 `metadataBase`、canonical、`hreflang` alternates、Open Graph、Twitter card
+- 已将根布局 `src/app/layout.tsx` 改为复用统一站点 metadata，而不是继续写死基础标题/描述。
+- 已为以下前台页面补齐 `generateMetadata`：
+  - `/[locale]`
+  - `/[locale]/services`
+  - `/[locale]/about`
+  - `/[locale]/contact`
+  - `/[locale]/gallery`
+  - `/[locale]/booking`
+- 当前效果：
+  - 前台每个核心落地页都具备独立 title / description
+  - 已补 canonical 与 `de/en` 多语言 alternates
+  - 社交分享预览信息开始具备统一基础
+- 同时顺手收口了一批前台首页/关于/联系/图库/预约页中的“开发阶段说明式文案”：
+  - 移除了多处混入德语页面中的中文开发描述
+  - 首页关键 section 的德语 eyebrow / 标题 / 描述已改为面向真实访客的表达
+  - About / Contact / Gallery / Booking 页面文案更接近上线站点，而不是内部交接说明
+
+### 本阶段验证追加
+- `npm run build` 已通过。
+
+### 本阶段结论
+这一轮属于典型的“上线质量收口”，不是扩功能：
+- SEO 从基础 `robots/sitemap` 继续推进到页面级 metadata
+- 多语言站点开始具备更完整的 canonical / hreflang 基础
+- 前台首屏和关键页面的文案观感明显更适合真实用户访问
+
+### 下一步建议
+1. 继续补 `LocalBusiness` / `HealthAndBeautyBusiness` 结构化数据。
+2. 继续检查前台是否还残留开发说明式文案，尤其是德语页面。
+3. 如继续做 SEO，可把 metadata 与系统设置里的 `siteName` / 联系方式进一步联动。

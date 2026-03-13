@@ -1,10 +1,30 @@
+import type { Metadata } from 'next'
 import { notFound } from 'next/navigation'
 import { SiteHeader } from '../../../components/site/SiteHeader'
 import { SiteFooter } from '../../../components/site/SiteFooter'
 import { SectionShell } from '../../../components/site/SectionShell'
 import { isLocale, Locale } from '../../../lib/i18n'
 import { getMessages } from '../../../lib/copy'
+import { createPageMetadata } from '../../../lib/seo'
 import { getActiveFaqs, getPublishedTestimonials } from '../../../server/services/site.service'
+
+export async function generateMetadata({ params }: { params: Promise<{ locale: string }> }): Promise<Metadata> {
+  const { locale } = await params
+
+  if (!isLocale(locale)) {
+    return {}
+  }
+
+  return createPageMetadata({
+    locale,
+    pathname: '/about',
+    title: locale === 'de' ? 'Über unser Studio' : 'About Our Studio',
+    description:
+      locale === 'de'
+        ? 'Erfahren Sie mehr über die Haltung, Atmosphäre und Behandlungsphilosophie von China TCM Massage in München.'
+        : 'Learn more about the approach, atmosphere and treatment philosophy behind China TCM Massage in Munich.',
+  })
+}
 
 export default async function AboutPage({ params }: { params: Promise<{ locale: string }> }) {
   const { locale } = await params
@@ -71,8 +91,8 @@ export default async function AboutPage({ params }: { params: Promise<{ locale: 
         title={t.sections.faq}
         description={
           typedLocale === 'de'
-            ? 'FAQ 已经开始从数据库读取；后面会接入后台维护。'
-            : 'The FAQ section is already reading from the database and will later be maintained from the admin area.'
+            ? 'Antworten auf häufige Fragen rund um Behandlungen, Terminwünsche und den Ablauf vor Ort.'
+            : 'Answers to common questions about treatments, appointment requests and what to expect on site.'
         }
       >
         <div className="grid gap-4 lg:grid-cols-2">
@@ -90,8 +110,8 @@ export default async function AboutPage({ params }: { params: Promise<{ locale: 
         title={t.sections.testimonials}
         description={
           typedLocale === 'de'
-            ? '评价内容同样已经可以从数据层读取。'
-            : 'Testimonials are now also available from the data layer.'
+            ? 'Vertrauen entsteht durch konsistente Qualität, ruhige Abläufe und positive Rückmeldungen von Gästen.'
+            : 'Trust grows through consistent quality, calm processes and positive guest feedback.'
         }
       >
         <div className="grid gap-6 lg:grid-cols-3">

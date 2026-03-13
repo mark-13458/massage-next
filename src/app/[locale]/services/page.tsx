@@ -1,3 +1,4 @@
+import type { Metadata } from 'next'
 import { notFound } from 'next/navigation'
 import { SiteHeader } from '../../../components/site/SiteHeader'
 import { SiteFooter } from '../../../components/site/SiteFooter'
@@ -5,7 +6,26 @@ import { SectionShell } from '../../../components/site/SectionShell'
 import { ServiceCard } from '../../../components/site/ServiceCard'
 import { getMessages } from '../../../lib/copy'
 import { isLocale, Locale } from '../../../lib/i18n'
+import { createPageMetadata } from '../../../lib/seo'
 import { getActiveServices, getSystemSettings } from '../../../server/services/site.service'
+
+export async function generateMetadata({ params }: { params: Promise<{ locale: string }> }): Promise<Metadata> {
+  const { locale } = await params
+
+  if (!isLocale(locale)) {
+    return {}
+  }
+
+  return createPageMetadata({
+    locale,
+    pathname: '/services',
+    title: locale === 'de' ? 'Massagen & Behandlungen' : 'Massages & Treatments',
+    description:
+      locale === 'de'
+        ? 'Entdecken Sie Massagen und Behandlungen mit klarer Dauer, transparenten Preisen und einer ruhigen Studioatmosphäre in München.'
+        : 'Explore massages and treatments with clear durations, transparent pricing and a calm studio atmosphere in Munich.',
+  })
+}
 
 export default async function ServicesPage({ params }: { params: Promise<{ locale: string }> }) {
   const { locale } = await params

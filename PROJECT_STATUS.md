@@ -152,12 +152,16 @@
 - `PROJECT_STATUS.md`（本文件）已建立
 - `DEPLOYMENT_CHECKLIST.md` 已纳入正式交接体系
 - `TEST_ARTIFACTS.md` 已建立，用于说明测试临时文件
+- 前台页面级 SEO metadata 已补齐（首页 / services / about / contact / gallery / booking）
+- 前台已补 canonical / `hreflang` alternates / Open Graph / Twitter card 基础能力
+- 前台一批开发阶段说明式文案已收口，更接近真实上线站点表达
 
 ### 当前还没做完
 - 图片尺寸校验
 - 图片大小限制提示更细化
 - Hero / Gallery 更统一的资源替换策略
 - 更正式的图片元数据处理（width / height / compression）
+- `LocalBusiness` / `HealthAndBeautyBusiness` 结构化数据
 
 ---
 

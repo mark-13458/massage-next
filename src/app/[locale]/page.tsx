@@ -1,3 +1,4 @@
+import type { Metadata } from 'next'
 import Link from 'next/link'
 import { notFound } from 'next/navigation'
 import { HeroSection } from '../../components/site/HeroSection'
@@ -7,6 +8,7 @@ import { SiteFooter } from '../../components/site/SiteFooter'
 import { SiteHeader } from '../../components/site/SiteHeader'
 import { getMessages } from '../../lib/copy'
 import { isLocale, Locale } from '../../lib/i18n'
+import { createPageMetadata } from '../../lib/seo'
 import {
   getActiveFaqs,
   getActiveServices,
@@ -21,6 +23,27 @@ const homeGallery = [
   'https://images.pexels.com/photos/3738348/pexels-photo-3738348.jpeg?auto=compress&cs=tinysrgb&w=1200',
   'https://images.pexels.com/photos/3997989/pexels-photo-3997989.jpeg?auto=compress&cs=tinysrgb&w=1200',
 ]
+
+export async function generateMetadata({ params }: { params: Promise<{ locale: string }> }): Promise<Metadata> {
+  const { locale } = await params
+
+  if (!isLocale(locale)) {
+    return {}
+  }
+
+  return createPageMetadata({
+    locale,
+    pathname: '',
+    title:
+      locale === 'de'
+        ? 'Traditionelle Chinesische Massage in München'
+        : 'Traditional Chinese Massage in Munich',
+    description:
+      locale === 'de'
+        ? 'Entdecken Sie traditionelle chinesische Massage in München mit moderner, ruhiger Studioatmosphäre, transparenten Behandlungen und einfacher Terminanfrage.'
+        : 'Discover traditional Chinese massage in Munich with a calm modern studio atmosphere, transparent treatments and a simple appointment request flow.',
+  })
+}
 
 export default async function LocaleHome({ params }: { params: Promise<{ locale: string }> }) {
   const { locale } = await params
@@ -46,12 +69,12 @@ export default async function LocaleHome({ params }: { params: Promise<{ locale:
       <HeroSection locale={typedLocale} />
 
       <SectionShell
-        eyebrow={typedLocale === 'de' ? '精选项目' : 'Selected services'}
+        eyebrow={typedLocale === 'de' ? 'Ausgewählte Behandlungen' : 'Selected services'}
         title={t.sections.featuredServices}
         description={
           typedLocale === 'de'
-            ? '现在首页的服务内容已经优先从数据库读取，后面只需要把后台管理接上，就能形成完整内容闭环。'
-            : 'The homepage now prioritizes live service data from the database, which means the remaining step is to connect the admin side for a full content workflow.'
+            ? 'Ausgewählte Behandlungen mit klarer Dauer, transparenter Preisstruktur und einem ruhigen Wellness-Gefühl auf einen Blick.'
+            : 'Selected treatments presented with clear durations, transparent pricing and a calm wellness atmosphere at a glance.'
         }
       >
         <div className="grid gap-6 md:grid-cols-2 xl:grid-cols-3">
@@ -71,12 +94,12 @@ export default async function LocaleHome({ params }: { params: Promise<{ locale:
       </SectionShell>
 
       <SectionShell
-        eyebrow={typedLocale === 'de' ? '空间氛围' : 'Studio atmosphere'}
-        title={typedLocale === 'de' ? '从空间质感建立第一印象' : 'Build the first impression through atmosphere'}
+        eyebrow={typedLocale === 'de' ? 'Studio & Atmosphäre' : 'Studio atmosphere'}
+        title={typedLocale === 'de' ? 'Der erste Eindruck beginnt mit dem Raumgefühl' : 'The first impression begins with the atmosphere'}
         description={
           typedLocale === 'de'
-            ? '官网不只是展示功能，还要传达这个品牌的温度、秩序感和可信度。'
-            : 'The website should not only explain services but also communicate warmth, order and trust.'
+            ? 'Das Studio soll Wärme, Ruhe und Vertrauen ausstrahlen – nicht nur Leistungen auflisten.'
+            : 'The studio should communicate warmth, calm and trust, not just list treatments.'
         }
       >
         <div className="grid gap-5 md:grid-cols-3">
@@ -97,12 +120,12 @@ export default async function LocaleHome({ params }: { params: Promise<{ locale:
       </SectionShell>
 
       <SectionShell
-        eyebrow={typedLocale === 'de' ? '体验反馈' : 'Guest feedback'}
+        eyebrow={typedLocale === 'de' ? 'Gästestimmen' : 'Guest feedback'}
         title={t.sections.testimonials}
         description={
           typedLocale === 'de'
-            ? '这一块已经从数据层读取，可以直接成为后续后台内容管理的一部分。'
-            : 'This section is already backed by the data layer and can later become part of the admin-managed content flow.'
+            ? 'Echte Stimmen und Eindrücke helfen neuen Gästen, schneller Vertrauen aufzubauen.'
+            : 'Real voices and impressions help new guests build trust more quickly.'
         }
       >
         <div className="grid gap-6 lg:grid-cols-3">
@@ -116,8 +139,8 @@ export default async function LocaleHome({ params }: { params: Promise<{ locale:
       </SectionShell>
 
       <SectionShell
-        eyebrow={typedLocale === 'de' ? '时间与联系' : 'Hours & contact'}
-        title={typedLocale === 'de' ? '更清晰的到店与预约信息' : 'Clearer visit and booking information'}
+        eyebrow={typedLocale === 'de' ? 'Öffnungszeiten & Kontakt' : 'Hours & contact'}
+        title={typedLocale === 'de' ? 'Alle wichtigen Infos für Ihren Besuch' : 'Clear visit and booking information'}
         description={
           typedLocale === 'de'
             ? '首页直接展示营业时间和联系方式，可以明显减少用户的决策成本。'
@@ -158,12 +181,12 @@ export default async function LocaleHome({ params }: { params: Promise<{ locale:
       </SectionShell>
 
       <SectionShell
-        eyebrow={typedLocale === 'de' ? '常见问题' : 'Common questions'}
+        eyebrow={typedLocale === 'de' ? 'Häufige Fragen' : 'Common questions'}
         title={t.sections.faq}
         description={
           typedLocale === 'de'
-            ? 'FAQ 也已经开始从数据库读取，后面可以直接转成后台可维护内容。'
-            : 'The FAQ section is already sourced from the database and can later be managed directly from the admin side.'
+            ? 'Antworten auf typische Fragen zu Ablauf, Vorbereitung und Ihrem Besuch im Studio.'
+            : 'Answers to common questions about your visit, preparation and the booking process.'
         }
       >
         <div className="grid gap-4 lg:grid-cols-2">

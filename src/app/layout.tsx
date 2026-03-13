@@ -1,9 +1,7 @@
 import './globals.css'
+import { defaultSiteMetadata } from '../lib/seo'
 
-export const metadata = {
-  title: 'China TCM Massage',
-  description: 'Modern wellness website for a traditional Chinese massage studio.',
-}
+export const metadata = defaultSiteMetadata
 
 export default function RootLayout({ children }: { children: React.ReactNode }) {
   return (

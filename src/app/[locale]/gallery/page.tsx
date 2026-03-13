@@ -1,9 +1,11 @@
+import type { Metadata } from 'next'
 import { notFound } from 'next/navigation'
 import { SiteHeader } from '../../../components/site/SiteHeader'
 import { SiteFooter } from '../../../components/site/SiteFooter'
 import { SectionShell } from '../../../components/site/SectionShell'
 import { isLocale, Locale } from '../../../lib/i18n'
 import { getMessages } from '../../../lib/copy'
+import { createPageMetadata } from '../../../lib/seo'
 import { getActiveGallery } from '../../../server/services/site.service'
 
 const fallbackGallery = [
@@ -39,6 +41,24 @@ const fallbackGallery = [
   },
 ]
 
+export async function generateMetadata({ params }: { params: Promise<{ locale: string }> }): Promise<Metadata> {
+  const { locale } = await params
+
+  if (!isLocale(locale)) {
+    return {}
+  }
+
+  return createPageMetadata({
+    locale,
+    pathname: '/gallery',
+    title: locale === 'de' ? 'Galerie & Studio-Eindrücke' : 'Gallery & Studio Impressions',
+    description:
+      locale === 'de'
+        ? 'Sehen Sie Eindrücke aus dem Studio, der Atmosphäre und dem Wellness-Umfeld von China TCM Massage in München.'
+        : 'View impressions of the studio, atmosphere and wellness environment of China TCM Massage in Munich.',
+  })
+}
+
 export default async function GalleryPage({ params }: { params: Promise<{ locale: string }> }) {
   const { locale } = await params
 
@@ -61,8 +81,8 @@ export default async function GalleryPage({ params }: { params: Promise<{ locale
         title={t.nav.gallery}
         description={
           typedLocale === 'de'
-            ? '图库页面现在已经支持优先读取后台管理的数据；没有真实图片时才回退到演示素材。'
-            : 'The gallery page now prioritizes data managed from the admin side and only falls back to demo imagery when no real media exists.'
+            ? 'Einblicke in Studio, Atmosphäre und Details, die den ruhigen Charakter des Ortes sichtbar machen.'
+            : 'A closer look at the studio, its atmosphere and the details that shape a calm wellness experience.'
         }
       >
         <div className="grid gap-5 md:grid-cols-2 xl:grid-cols-3">
