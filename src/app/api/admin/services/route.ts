@@ -1,9 +1,15 @@
 import { NextRequest, NextResponse } from 'next/server'
+import { getCurrentAdmin } from '../../../../lib/auth'
 import { prisma } from '../../../../lib/prisma'
 
 export async function POST(request: NextRequest) {
   if (!process.env.DATABASE_URL) {
     return NextResponse.json({ status: 'error', error: 'DATABASE_URL is not configured' }, { status: 500 })
+  }
+
+  const admin = await getCurrentAdmin()
+  if (!admin) {
+    return NextResponse.json({ status: 'error', error: 'Unauthorized' }, { status: 401 })
   }
 
   try {

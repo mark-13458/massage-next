@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { AppointmentStatus } from '@prisma/client'
+import { getCurrentAdmin } from '../../../../../lib/auth'
 import { prisma } from '../../../../../lib/prisma'
 
 const allowedStatuses = new Set([
@@ -13,6 +14,11 @@ const allowedStatuses = new Set([
 export async function PATCH(request: NextRequest, { params }: { params: { id: string } }) {
   if (!process.env.DATABASE_URL) {
     return NextResponse.json({ status: 'error', error: 'DATABASE_URL is not configured' }, { status: 500 })
+  }
+
+  const admin = await getCurrentAdmin()
+  if (!admin) {
+    return NextResponse.json({ status: 'error', error: 'Unauthorized' }, { status: 401 })
   }
 
   try {

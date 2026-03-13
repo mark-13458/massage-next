@@ -10,7 +10,11 @@ import { prisma } from '../../../lib/prisma'
 export const dynamic = 'force-dynamic'
 export const revalidate = 0
 
-async function getGalleryData() {
+const allowedFilters = ['all', 'active', 'inactive', 'cover', 'local'] as const
+
+type GalleryFilter = (typeof allowedFilters)[number]
+
+async function getGalleryData(filter: GalleryFilter) {
   if (!process.env.DATABASE_URL) {
     return { items: [], stats: { total: 0, active: 0, covers: 0, localUploads: 0 } }
   }
@@ -21,8 +25,16 @@ async function getGalleryData() {
       orderBy: [{ isCover: 'desc' }, { sortOrder: 'asc' }, { createdAt: 'desc' }],
     })
 
+    const filteredItems = items.filter((item) => {
+      if (filter === 'active') return item.isActive
+      if (filter === 'inactive') return !item.isActive
+      if (filter === 'cover') return item.isCover
+      if (filter === 'local') return item.file.filePath.startsWith('/uploads/')
+      return true
+    })
+
     return {
-      items,
+      items: filteredItems,
       stats: {
         total: items.length,
         active: items.filter((item) => item.isActive).length,
@@ -35,12 +47,27 @@ async function getGalleryData() {
   }
 }
 
-export default async function AdminGalleryPage() {
+export default async function AdminGalleryPage({
+  searchParams,
+}: {
+  searchParams?: Promise<{ filter?: string }>
+}) {
   const admin = await getCurrentAdmin()
   if (!admin) redirect('/admin/login')
 
   const lang = await getAdminLang()
-  const { items, stats } = await getGalleryData()
+  const resolvedSearchParams = (await searchParams) ?? {}
+  const rawFilter = String(resolvedSearchParams.filter || 'all').toLowerCase()
+  const selectedFilter = (allowedFilters.includes(rawFilter as GalleryFilter) ? rawFilter : 'all') as GalleryFilter
+  const { items, stats } = await getGalleryData(selectedFilter)
+
+  const filters = [
+    { key: 'all', labelZh: '全部', labelEn: 'All' },
+    { key: 'active', labelZh: '启用中', labelEn: 'Active' },
+    { key: 'inactive', labelZh: '已停用', labelEn: 'Inactive' },
+    { key: 'cover', labelZh: '封面', labelEn: 'Cover' },
+    { key: 'local', labelZh: '本地上传', labelEn: 'Local uploads' },
+  ] as const
 
   return (
     <AdminShell
@@ -63,21 +90,42 @@ export default async function AdminGalleryPage() {
               'This page solves the fast overview problem first; creation, upload and replacement continue to reuse the existing content workspace.',
             )}
             actions={
-              <Link
-                href="/admin/content"
-                className="rounded-full border border-stone-300 bg-white px-4 py-2 text-sm font-medium text-stone-700 transition hover:border-stone-500"
-              >
-                {pick(lang, '前往内容工作台', 'Open content workspace')}
-              </Link>
+              <div className="flex flex-wrap items-center gap-3">
+                <Link
+                  href="/admin/content"
+                  className="rounded-full border border-stone-300 bg-white px-4 py-2 text-sm font-medium text-stone-700 transition hover:border-stone-500"
+                >
+                  {pick(lang, '前往内容工作台', 'Open content workspace')}
+                </Link>
+              </div>
             }
           >
+            <div className="mb-5 flex flex-wrap items-center gap-3">
+              {filters.map((filter) => {
+                const href = filter.key === 'all' ? '/admin/gallery' : `/admin/gallery?filter=${filter.key}`
+                const active = selectedFilter === filter.key
+
+                return (
+                  <Link
+                    key={filter.key}
+                    href={href}
+                    className={`rounded-full px-4 py-2 text-sm font-medium transition ${
+                      active ? 'bg-stone-900 text-white' : 'border border-stone-300 bg-white text-stone-700 hover:border-stone-500'
+                    }`}
+                  >
+                    {pick(lang, filter.labelZh, filter.labelEn)}
+                  </Link>
+                )
+              })}
+            </div>
+
             {items.length === 0 ? (
               <AdminEmptyState
-                title={pick(lang, '当前还没有图库图片', 'There are no gallery images yet')}
+                title={pick(lang, '当前筛选下没有图库图片', 'No gallery images match the current filter')}
                 description={pick(
                   lang,
-                  '你可以先去内容工作台上传第一张图库图片，之后这里会成为日常巡检与资源确认入口。',
-                  'Go to the content workspace to upload the first gallery image; after that, this page becomes the daily inspection and media review entry.',
+                  '你可以切换筛选条件，或者去内容工作台上传第一张图库图片。',
+                  'Try a different filter, or go to the content workspace to upload the first gallery image.',
                 )}
               />
             ) : (
