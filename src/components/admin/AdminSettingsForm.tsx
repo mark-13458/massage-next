@@ -125,11 +125,11 @@ export function AdminSettingsForm({ lang, initialSettings }: { lang: AdminLang; 
             {t(lang, '启用 Turnstile 验证', 'Enable Turnstile verification')}
           </label>
           <label className="flex flex-col gap-2 text-sm text-stone-700">
-            <span>{t(lang, 'Site Key', 'Site key')}</span>
+            <span>{t(lang, '站点 Key', 'Site key')}</span>
             <input value={form.cfTurnstileSiteKey} onChange={(e) => setForm({ ...form, cfTurnstileSiteKey: e.target.value })} className="rounded-2xl border border-stone-200 px-4 py-3 outline-none focus:border-amber-500" placeholder="0x4AAAA..." />
           </label>
           <label className="flex flex-col gap-2 text-sm text-stone-700">
-            <span>{t(lang, 'Secret Key', 'Secret key')}</span>
+            <span>{t(lang, '密钥 Secret', 'Secret key')}</span>
             <input value={form.cfTurnstileSecretKey} onChange={(e) => setForm({ ...form, cfTurnstileSecretKey: e.target.value })} className="rounded-2xl border border-stone-200 px-4 py-3 outline-none focus:border-amber-500" placeholder="0x4AAAA..." />
           </label>
         </div>

@@ -53,11 +53,11 @@ export function AdminPasswordForm({ lang }: Props) {
           <input type="password" value={confirmPassword} onChange={(e) => setConfirmPassword(e.target.value)} className="rounded-2xl border border-stone-200 px-4 py-3 outline-none focus:border-amber-500" />
         </label>
       </div>
-      <div className="flex items-center gap-4">
+      <div className="flex flex-wrap items-center gap-4">
         <button type="button" onClick={submit} disabled={isPending} className="rounded-full bg-stone-900 px-5 py-3 text-sm font-semibold text-white transition hover:bg-stone-800 disabled:cursor-not-allowed disabled:opacity-70">
           {isPending ? t(lang, '提交中…', 'Submitting...') : t(lang, '修改密码', 'Update password')}
         </button>
-        {message ? <span className="text-sm text-stone-500">{message}</span> : null}
+        {message ? <span className="rounded-full bg-stone-100 px-3 py-1 text-sm text-stone-600">{message}</span> : null}
       </div>
     </div>
   )
