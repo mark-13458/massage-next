@@ -1,4 +1,5 @@
 import { formatDurationMinutes, formatPriceEuro } from './shared/formatters'
+import { asRecord, readBoolean, readNullableString, readString } from './shared/mappers'
 
 export type AdminServiceListItemViewModel = {
   id: number
@@ -13,28 +14,33 @@ export type AdminServiceListItemViewModel = {
   slug: string
 }
 
-export function toAdminServiceListItem(item: {
-  id: number
-  nameDe: string
-  nameEn: string
-  summaryDe: string | null
-  durationMin: number
-  price: { toString(): string }
-  isActive: boolean
-  isFeatured: boolean
-  sortOrder: number
-  slug: string
-}): AdminServiceListItemViewModel {
+export function toAdminServiceListItem(item: unknown): AdminServiceListItemViewModel {
+  const record = asRecord(item)
+  if (!record) {
+    return {
+      id: 0,
+      nameDe: '',
+      nameEn: '',
+      summaryDe: null,
+      durationLabel: formatDurationMinutes(0),
+      priceLabel: formatPriceEuro(0),
+      isActive: false,
+      isFeatured: false,
+      sortOrder: 0,
+      slug: '',
+    }
+  }
+
   return {
-    id: item.id,
-    nameDe: item.nameDe,
-    nameEn: item.nameEn,
-    summaryDe: item.summaryDe,
-    durationLabel: formatDurationMinutes(item.durationMin),
-    priceLabel: formatPriceEuro(item.price),
-    isActive: item.isActive,
-    isFeatured: item.isFeatured,
-    sortOrder: item.sortOrder,
-    slug: item.slug,
+    id: typeof record.id === 'number' ? record.id : 0,
+    nameDe: readString(record, 'nameDe'),
+    nameEn: readString(record, 'nameEn'),
+    summaryDe: readNullableString(record, 'summaryDe'),
+    durationLabel: formatDurationMinutes(typeof record.durationMin === 'number' ? record.durationMin : 0),
+    priceLabel: formatPriceEuro(typeof record.price === 'object' && record.price && 'toString' in record.price ? (record.price as { toString(): string }) : 0),
+    isActive: readBoolean(record, 'isActive'),
+    isFeatured: readBoolean(record, 'isFeatured'),
+    sortOrder: typeof record.sortOrder === 'number' ? record.sortOrder : 0,
+    slug: readString(record, 'slug'),
   }
 }

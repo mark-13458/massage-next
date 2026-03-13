@@ -1,4 +1,5 @@
-import { detectMediaSource, formatImageDimensions, pickBilingualText } from './shared/formatters'
+import { detectMediaSource, formatImageDimensions } from './shared/formatters'
+import { asRecord, mapFileAsset, pickLocalizedText, readBoolean, readNullableString, readString } from './shared/mappers'
 
 export type AdminGalleryCardViewModel = {
   id: number
@@ -12,26 +13,33 @@ export type AdminGalleryCardViewModel = {
   sortOrder: number
 }
 
-export function toAdminGalleryCard(item: {
-  id: number
-  titleDe: string | null
-  titleEn: string | null
-  altDe: string | null
-  altEn: string | null
-  sortOrder: number
-  isActive: boolean
-  isCover: boolean
-  file: { filePath: string; width: number | null; height: number | null }
-}): AdminGalleryCardViewModel {
+export function toAdminGalleryCard(item: unknown): AdminGalleryCardViewModel {
+  const record = asRecord(item)
+  if (!record) {
+    return {
+      id: 0,
+      title: '',
+      altText: '',
+      imageUrl: '',
+      dimensionText: '—',
+      sourceLabel: 'external',
+      isActive: false,
+      isCover: false,
+      sortOrder: 0,
+    }
+  }
+
+  const fileAsset = mapFileAsset(record)
+
   return {
-    id: item.id,
-    title: pickBilingualText(item.titleDe, item.titleEn),
-    altText: pickBilingualText(item.altDe, item.altEn),
-    imageUrl: item.file.filePath,
-    dimensionText: formatImageDimensions(item.file.width, item.file.height),
-    sourceLabel: detectMediaSource(item.file.filePath),
-    isActive: item.isActive,
-    isCover: item.isCover,
-    sortOrder: item.sortOrder,
+    id: typeof record.id === 'number' ? record.id : 0,
+    title: pickLocalizedText(record, 'titleDe', 'titleEn'),
+    altText: pickLocalizedText(record, 'altDe', 'altEn'),
+    imageUrl: fileAsset.imageUrl,
+    dimensionText: formatImageDimensions(fileAsset.width, fileAsset.height),
+    sourceLabel: detectMediaSource(fileAsset.imageUrl),
+    isActive: readBoolean(record, 'isActive'),
+    isCover: readBoolean(record, 'isCover'),
+    sortOrder: typeof record.sortOrder === 'number' ? record.sortOrder : 0,
   }
 }

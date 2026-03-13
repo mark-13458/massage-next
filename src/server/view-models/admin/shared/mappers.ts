@@ -19,3 +19,20 @@ export function readEnum<T extends string>(record: Record<string, unknown>, key:
   const value = record[key]
   return typeof value === 'string' && allowed.includes(value as T) ? (value as T) : fallback
 }
+
+export function readNestedRecord(record: Record<string, unknown>, key: string) {
+  return asRecord(record[key])
+}
+
+export function pickLocalizedText(record: Record<string, unknown>, primaryKey: string, secondaryKey: string, fallback = '') {
+  return readString(record, primaryKey, readString(record, secondaryKey, fallback))
+}
+
+export function mapFileAsset(record: Record<string, unknown>) {
+  const file = readNestedRecord(record, 'file')
+  return {
+    imageUrl: file ? readString(file, 'filePath') : '',
+    width: file && typeof file.width === 'number' ? file.width : null,
+    height: file && typeof file.height === 'number' ? file.height : null,
+  }
+}

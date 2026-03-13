@@ -1326,3 +1326,31 @@ Docker 部署当前已经不只是“页面能打开”，而是：
 1. 继续把 booking / service / media 的字段读取和对象映射也逐步迁到 shared mapper。
 2. 继续统一 section / summary / stat card 组合模式，让后台页面更像同一套系统。
 3. 开始检查后台命名、目录结构和文案是否还能进一步收口。
+
+#### 43) 继续把 booking / service / media 映射收口到 shared mapper
+- 已扩展 `src/server/view-models/admin/shared/mappers.ts`，新增：
+  - `readNestedRecord()`
+  - `pickLocalizedText()`
+  - `mapFileAsset()`
+- 已进一步改造以下 view model：
+  - `booking.vm.ts`
+  - `service.vm.ts`
+  - `media.vm.ts`
+- 当前效果：
+  - booking / service / media 不再只共享 formatter，也开始共享更底层的字段读取和对象映射规则
+  - 媒体对象里的 `file` 解析、双语文案选择、基础字段读取逻辑开始集中化
+  - view model 层继续减少散落的 if/typeof/默认值处理
+
+### 本阶段验证追加
+- `npm run build` 已通过。
+
+### 本阶段结论
+这一轮继续推进后台 view model 内部的系统化：
+- shared mapper 不再只服务 Settings
+- 已开始进入核心后台模块
+- 后续继续扩展更多后台模块时，数据映射层会更稳定、更低重复
+
+### 下一步建议
+1. 继续统一 section / summary / stat card 组合模式，让后台页面更像同一套系统。
+2. 开始检查后台命名、目录结构和文案是否还能进一步收口。
+3. 如果继续深入架构，可开始抽后台共享 list row / detail block 组件。
