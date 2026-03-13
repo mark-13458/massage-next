@@ -200,7 +200,7 @@ src/
 - `view-models/admin/shared/formatters.ts`
 - `view-models/admin/shared/mappers.ts`
 
-这样可以减少不同模块各自重复实现价格、日期、时长、图片尺寸、双语回退等逻辑。
+这样可以减少不同模块各自重复实现价格、日期、时长、图片尺寸、双语回退，以及 record 读值、默认值、布尔值/枚举解析等逻辑。
 
 ---
 

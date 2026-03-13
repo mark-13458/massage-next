@@ -1297,3 +1297,32 @@ Docker 部署当前已经不只是“页面能打开”，而是：
 1. 抽共享 admin mapper，继续减少 view model 层重复字段映射。
 2. 继续统一 section / summary / stat card 组合模式，让六大模块页面更像同一套后台系统。
 3. 开始检查后台文案、组件命名与模块目录是否还能进一步整理。
+
+#### 42) 开始建立 shared admin mapper 层
+- 已新增共享 mapper：
+  - `src/server/view-models/admin/shared/mappers.ts`
+- 当前已收口的重复逻辑包括：
+  - `asRecord()`
+  - `readString()`
+  - `readNullableString()`
+  - `readBoolean()`
+  - `readEnum()`
+- 已先接入 `settings.vm.ts`：
+  - 设置 view model 不再自己手写一整套 record 解析与默认值逻辑
+  - 默认值、布尔值和枚举解析开始复用共享 mapper
+- 已同步更新 `ADMIN_ARCHITECTURE.md`：
+  - 明确 shared mappers 不仅负责字段映射，还负责 record 读值、默认值、枚举解析等公共逻辑
+
+### 本阶段验证追加
+- `npm run build` 已通过。
+
+### 本阶段结论
+这一轮继续在 view model 层内部做减法：
+- 架构不只是“有 view model”
+- 而是开始让 view model 本身也更可维护、更少重复
+- 后续可以继续把 booking / service / media 的映射规则也逐步往 shared mapper 迁移
+
+### 下一步建议
+1. 继续把 booking / service / media 的字段读取和对象映射也逐步迁到 shared mapper。
+2. 继续统一 section / summary / stat card 组合模式，让后台页面更像同一套系统。
+3. 开始检查后台命名、目录结构和文案是否还能进一步收口。
