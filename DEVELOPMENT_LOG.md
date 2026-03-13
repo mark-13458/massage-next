@@ -694,9 +694,26 @@ Docker 部署当前已经不只是“页面能打开”，而是：
   - 这样可以先把后台配置链和服务端校验链打通，后续再接真正的 Turnstile 前端小组件
 
 ### 当前遗留更新
-1. Turnstile 已完成后台配置 + 服务端校验链路，但前台还只是 token 输入位，下一步应接入真正的 Cloudflare Turnstile widget。
+1. Turnstile 已完成后台配置 + 服务端校验 + 前端 widget 接入，但仍建议后续补充更细的错误提示、过期提示和暗色主题适配。
 2. contact 页面仍可进一步统一到系统设置驱动的完整展示范式。
 3. 后台还有继续精修空间：状态枚举本地化、内容编辑器细节、更多系统级配置模块。
+
+#### 24) Turnstile 前端 widget 完整接入
+- 已将预约表单中的临时 token 输入位替换为真实的 Cloudflare Turnstile widget。
+- 技术实现：
+  - `BookingForm` 使用 `next/script` 动态加载 `https://challenges.cloudflare.com/turnstile/v0/api.js?render=explicit`
+  - 前端在 widget 回调中接收 token
+  - 提交预约时自动将 token 发给 `/api/booking`
+- 当前链路已完整：
+  - 后台系统设置中可配置启用开关、site key、secret key
+  - 前台 booking 页可显示 Turnstile widget
+  - 服务端预约 API 会校验 Turnstile token
+- 默认行为仍保持安全且平滑：
+  - 未开启 Turnstile → 完全不影响预约提交
+  - 开启 Turnstile 但未正确配置 → 服务端会明确拒绝并返回错误
+
+### 本阶段验证追加
+- `npm run build` 已通过。
 
 ---
 

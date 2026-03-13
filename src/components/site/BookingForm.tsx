@@ -1,7 +1,18 @@
 'use client'
 
-import { useMemo, useState } from 'react'
+import Script from 'next/script'
+import { useEffect, useMemo, useState } from 'react'
 import { Locale } from '../../lib/i18n'
+
+declare global {
+  interface Window {
+    turnstile?: {
+      render: (container: string | HTMLElement, options: Record<string, unknown>) => string
+      reset: (widgetId?: string) => void
+      remove: (widgetId?: string) => void
+    }
+  }
+}
 
 type BookingFormProps = {
   locale: Locale
@@ -35,6 +46,8 @@ export function BookingForm({ locale, services, contact, hours = [], currency = 
   const [status, setStatus] = useState<'idle' | 'submitting' | 'success' | 'error'>('idle')
   const [message, setMessage] = useState('')
   const [turnstileToken, setTurnstileToken] = useState('')
+  const [widgetReady, setWidgetReady] = useState(false)
+  const [widgetId, setWidgetId] = useState<string | null>(null)
 
   const labels = useMemo(() => {
     return locale === 'de'
@@ -56,8 +69,9 @@ export function BookingForm({ locale, services, contact, hours = [], currency = 
           contact: 'Kontakt',
           openingHours: 'Öffnungszeiten',
           closed: 'Geschlossen',
-          captcha: 'Captcha / Turnstile Token',
-          captchaHint: 'Turnstile 已启用。当前先预留 token 字段，后续可接入前端组件。',
+          captcha: 'Sicherheitsprüfung',
+          captchaHint: 'Bitte bestätigen Sie, dass Sie kein Bot sind.',
+          captchaLoading: 'Captcha wird geladen…',
         }
       : {
           title: 'Request an appointment',
@@ -77,12 +91,38 @@ export function BookingForm({ locale, services, contact, hours = [], currency = 
           contact: 'Contact',
           openingHours: 'Opening hours',
           closed: 'Closed',
-          captcha: 'Captcha / Turnstile token',
-          captchaHint: 'Turnstile is enabled. A token field is provided for now and can later be replaced with the frontend widget.',
+          captcha: 'Security check',
+          captchaHint: 'Please confirm that you are not a bot.',
+          captchaLoading: 'Loading captcha…',
         }
   }, [locale])
 
   const currencySymbol = currency === 'EUR' ? '€' : currency
+
+  useEffect(() => {
+    if (!turnstile?.enabled || !turnstile.siteKey || !widgetReady || !window.turnstile) return
+    if (widgetId) return
+
+    const container = document.getElementById('turnstile-widget')
+    if (!container) return
+    container.innerHTML = ''
+
+    const id = window.turnstile.render(container, {
+      sitekey: turnstile.siteKey,
+      callback: (token: string) => setTurnstileToken(token),
+      'expired-callback': () => setTurnstileToken(''),
+      'error-callback': () => setTurnstileToken(''),
+      theme: 'light',
+    })
+
+    setWidgetId(id)
+
+    return () => {
+      try {
+        if (id && window.turnstile) window.turnstile.remove(id)
+      } catch {}
+    }
+  }, [turnstile?.enabled, turnstile?.siteKey, widgetReady, widgetId])
 
   async function onSubmit(formData: FormData) {
     setStatus('submitting')
@@ -96,7 +136,7 @@ export function BookingForm({ locale, services, contact, hours = [], currency = 
       appointmentDate: String(formData.get('appointmentDate') || ''),
       appointmentTime: String(formData.get('appointmentTime') || ''),
       notes: String(formData.get('notes') || ''),
-      turnstileToken: String(formData.get('turnstileToken') || ''),
+      turnstileToken,
       locale,
     }
 
@@ -114,6 +154,11 @@ export function BookingForm({ locale, services, contact, hours = [], currency = 
       setStatus('success')
       setMessage(labels.success)
       setTurnstileToken('')
+      if (widgetId && window.turnstile) {
+        try {
+          window.turnstile.reset(widgetId)
+        } catch {}
+      }
     } catch {
       setStatus('error')
       setMessage(labels.error)
@@ -121,101 +166,112 @@ export function BookingForm({ locale, services, contact, hours = [], currency = 
   }
 
   return (
-    <div className="grid gap-8 lg:grid-cols-[1.15fr_0.85fr]">
-      <form action={onSubmit} className="rounded-3xl border border-stone-200 bg-white p-6 shadow-sm sm:p-8">
-        <div className="grid gap-5 sm:grid-cols-2">
-          <label className="flex flex-col gap-2 sm:col-span-2">
-            <span className="text-sm font-medium text-brown-800">{labels.name}</span>
-            <input name="customerName" required className="rounded-2xl border border-stone-200 px-4 py-3 outline-none ring-0 focus:border-brown-400" />
-          </label>
+    <>
+      {turnstile?.enabled && turnstile.siteKey ? (
+        <Script
+          src="https://challenges.cloudflare.com/turnstile/v0/api.js?render=explicit"
+          strategy="afterInteractive"
+          onLoad={() => setWidgetReady(true)}
+        />
+      ) : null}
 
-          <label className="flex flex-col gap-2">
-            <span className="text-sm font-medium text-brown-800">{labels.phone}</span>
-            <input name="customerPhone" required className="rounded-2xl border border-stone-200 px-4 py-3 outline-none ring-0 focus:border-brown-400" />
-          </label>
-
-          <label className="flex flex-col gap-2">
-            <span className="text-sm font-medium text-brown-800">{labels.email}</span>
-            <input type="email" name="customerEmail" className="rounded-2xl border border-stone-200 px-4 py-3 outline-none ring-0 focus:border-brown-400" />
-          </label>
-
-          <label className="flex flex-col gap-2 sm:col-span-2">
-            <span className="text-sm font-medium text-brown-800">{labels.service}</span>
-            <select name="serviceId" required className="rounded-2xl border border-stone-200 px-4 py-3 outline-none ring-0 focus:border-brown-400">
-              <option value="">—</option>
-              {services.map((service) => (
-                <option key={service.id} value={service.id}>
-                  {service.name} · {service.durationMin} min · {currencySymbol} {service.price}
-                </option>
-              ))}
-            </select>
-          </label>
-
-          <label className="flex flex-col gap-2">
-            <span className="text-sm font-medium text-brown-800">{labels.date}</span>
-            <input type="date" name="appointmentDate" required className="rounded-2xl border border-stone-200 px-4 py-3 outline-none ring-0 focus:border-brown-400" />
-          </label>
-
-          <label className="flex flex-col gap-2">
-            <span className="text-sm font-medium text-brown-800">{labels.time}</span>
-            <input type="time" name="appointmentTime" required className="rounded-2xl border border-stone-200 px-4 py-3 outline-none ring-0 focus:border-brown-400" />
-          </label>
-
-          <label className="flex flex-col gap-2 sm:col-span-2">
-            <span className="text-sm font-medium text-brown-800">{labels.notes}</span>
-            <textarea name="notes" rows={5} className="rounded-2xl border border-stone-200 px-4 py-3 outline-none ring-0 focus:border-brown-400" />
-          </label>
-
-          {turnstile?.enabled ? (
+      <div className="grid gap-8 lg:grid-cols-[1.15fr_0.85fr]">
+        <form action={onSubmit} className="rounded-3xl border border-stone-200 bg-white p-6 shadow-sm sm:p-8">
+          <div className="grid gap-5 sm:grid-cols-2">
             <label className="flex flex-col gap-2 sm:col-span-2">
-              <span className="text-sm font-medium text-brown-800">{labels.captcha}</span>
-              <input name="turnstileToken" value={turnstileToken} onChange={(e) => setTurnstileToken(e.target.value)} className="rounded-2xl border border-stone-200 px-4 py-3 outline-none ring-0 focus:border-brown-400" placeholder={turnstile.siteKey || 'cf-turnstile-token'} />
-              <span className="text-xs text-stone-500">{labels.captchaHint}</span>
+              <span className="text-sm font-medium text-brown-800">{labels.name}</span>
+              <input name="customerName" required className="rounded-2xl border border-stone-200 px-4 py-3 outline-none ring-0 focus:border-brown-400" />
             </label>
-          ) : null}
-        </div>
 
-        <div className="mt-6 flex items-center justify-between gap-4">
-          <button
-            type="submit"
-            disabled={status === 'submitting'}
-            className="rounded-full bg-brown-800 px-5 py-3 text-sm font-semibold text-white transition hover:bg-brown-700 disabled:cursor-not-allowed disabled:opacity-70"
-          >
-            {status === 'submitting' ? labels.loading : labels.submit}
-          </button>
-          {message ? <p className={`text-sm ${status === 'success' ? 'text-emerald-700' : 'text-rose-700'}`}>{message}</p> : null}
-        </div>
-      </form>
+            <label className="flex flex-col gap-2">
+              <span className="text-sm font-medium text-brown-800">{labels.phone}</span>
+              <input name="customerPhone" required className="rounded-2xl border border-stone-200 px-4 py-3 outline-none ring-0 focus:border-brown-400" />
+            </label>
 
-      <aside className="rounded-3xl border border-stone-200 bg-stone-950 p-6 text-stone-100 shadow-sm sm:p-8">
-        <h3 className="text-2xl font-semibold text-white">{labels.title}</h3>
-        <p className="mt-4 text-sm leading-7 text-stone-300">{labels.subtitle}</p>
+            <label className="flex flex-col gap-2">
+              <span className="text-sm font-medium text-brown-800">{labels.email}</span>
+              <input type="email" name="customerEmail" className="rounded-2xl border border-stone-200 px-4 py-3 outline-none ring-0 focus:border-brown-400" />
+            </label>
 
-        <div className="mt-8 space-y-4 text-sm text-stone-300">
-          <div className="rounded-2xl border border-stone-800 bg-stone-900 p-4">
-            <p className="font-semibold text-white">{labels.address}</p>
-            <p className="mt-2">{contact?.address || 'Arnulfstraße 104, 80636 München'}</p>
+            <label className="flex flex-col gap-2 sm:col-span-2">
+              <span className="text-sm font-medium text-brown-800">{labels.service}</span>
+              <select name="serviceId" required className="rounded-2xl border border-stone-200 px-4 py-3 outline-none ring-0 focus:border-brown-400">
+                <option value="">—</option>
+                {services.map((service) => (
+                  <option key={service.id} value={service.id}>
+                    {service.name} · {service.durationMin} min · {currencySymbol} {service.price}
+                  </option>
+                ))}
+              </select>
+            </label>
+
+            <label className="flex flex-col gap-2">
+              <span className="text-sm font-medium text-brown-800">{labels.date}</span>
+              <input type="date" name="appointmentDate" required className="rounded-2xl border border-stone-200 px-4 py-3 outline-none ring-0 focus:border-brown-400" />
+            </label>
+
+            <label className="flex flex-col gap-2">
+              <span className="text-sm font-medium text-brown-800">{labels.time}</span>
+              <input type="time" name="appointmentTime" required className="rounded-2xl border border-stone-200 px-4 py-3 outline-none ring-0 focus:border-brown-400" />
+            </label>
+
+            <label className="flex flex-col gap-2 sm:col-span-2">
+              <span className="text-sm font-medium text-brown-800">{labels.notes}</span>
+              <textarea name="notes" rows={5} className="rounded-2xl border border-stone-200 px-4 py-3 outline-none ring-0 focus:border-brown-400" />
+            </label>
+
+            {turnstile?.enabled ? (
+              <div className="sm:col-span-2 rounded-2xl border border-stone-200 bg-stone-50 px-4 py-4">
+                <p className="text-sm font-medium text-brown-800">{labels.captcha}</p>
+                <p className="mt-1 text-xs text-stone-500">{labels.captchaHint}</p>
+                <div id="turnstile-widget" className="mt-3 min-h-[65px]" />
+                {!widgetReady ? <p className="mt-2 text-xs text-stone-500">{labels.captchaLoading}</p> : null}
+              </div>
+            ) : null}
           </div>
-          <div className="rounded-2xl border border-stone-800 bg-stone-900 p-4">
-            <p className="font-semibold text-white">{labels.contact}</p>
-            <p className="mt-2">{contact?.phone || '015563 188800'}</p>
-            <p>{contact?.email || 'chinesischemassage8@gmail.com'}</p>
+
+          <div className="mt-6 flex items-center justify-between gap-4">
+            <button
+              type="submit"
+              disabled={status === 'submitting'}
+              className="rounded-full bg-brown-800 px-5 py-3 text-sm font-semibold text-white transition hover:bg-brown-700 disabled:cursor-not-allowed disabled:opacity-70"
+            >
+              {status === 'submitting' ? labels.loading : labels.submit}
+            </button>
+            {message ? <p className={`text-sm ${status === 'success' ? 'text-emerald-700' : 'text-rose-700'}`}>{message}</p> : null}
           </div>
-          <div className="rounded-2xl border border-stone-800 bg-stone-900 p-4">
-            <p className="font-semibold text-white">{labels.openingHours}</p>
-            <div className="mt-2 space-y-1">
-              {hours.length > 0 ? hours.slice(0, 3).map((item) => (
-                <p key={item.weekday}>{item.label}: {item.isClosed ? labels.closed : `${item.openTime} – ${item.closeTime}`}</p>
-              )) : (
-                <>
-                  <p>Mon–Sat 09:30–20:00</p>
-                  <p>{locale === 'de' ? 'Sonntag nach Vereinbarung' : 'Sunday by arrangement'}</p>
-                </>
-              )}
+        </form>
+
+        <aside className="rounded-3xl border border-stone-200 bg-stone-950 p-6 text-stone-100 shadow-sm sm:p-8">
+          <h3 className="text-2xl font-semibold text-white">{labels.title}</h3>
+          <p className="mt-4 text-sm leading-7 text-stone-300">{labels.subtitle}</p>
+
+          <div className="mt-8 space-y-4 text-sm text-stone-300">
+            <div className="rounded-2xl border border-stone-800 bg-stone-900 p-4">
+              <p className="font-semibold text-white">{labels.address}</p>
+              <p className="mt-2">{contact?.address || 'Arnulfstraße 104, 80636 München'}</p>
+            </div>
+            <div className="rounded-2xl border border-stone-800 bg-stone-900 p-4">
+              <p className="font-semibold text-white">{labels.contact}</p>
+              <p className="mt-2">{contact?.phone || '015563 188800'}</p>
+              <p>{contact?.email || 'chinesischemassage8@gmail.com'}</p>
+            </div>
+            <div className="rounded-2xl border border-stone-800 bg-stone-900 p-4">
+              <p className="font-semibold text-white">{labels.openingHours}</p>
+              <div className="mt-2 space-y-1">
+                {hours.length > 0 ? hours.slice(0, 3).map((item) => (
+                  <p key={item.weekday}>{item.label}: {item.isClosed ? labels.closed : `${item.openTime} – ${item.closeTime}`}</p>
+                )) : (
+                  <>
+                    <p>Mon–Sat 09:30–20:00</p>
+                    <p>{locale === 'de' ? 'Sonntag nach Vereinbarung' : 'Sunday by arrangement'}</p>
+                  </>
+                )}
+              </div>
             </div>
           </div>
-        </div>
-      </aside>
-    </div>
+        </aside>
+      </div>
+    </>
   )
 }
