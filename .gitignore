@@ -20,3 +20,6 @@ replace-hero.json
 smoke-cookies.txt
 tmp-smoke.png
 tmp-hero-smoke.png
+
+# Local AI runtime context
+AI_CONTEXT.md
