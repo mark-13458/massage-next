@@ -23,15 +23,15 @@ export default async function AdminSettingsPage() {
     <AdminShell
       lang={lang}
       title={pick(lang, '系统设置', 'System settings')}
-      subtitle={pick(lang, '这里集中放后台偏好、系统参数、管理员密码与后续可扩展的运营配置。', 'A central place for admin preferences, system parameters, password management and future operational settings.')}
+      subtitle={pick(lang, '这里集中放后台偏好、系统参数、管理员密码与后续可扩展的运营配置项。', 'A central place for admin preferences, system parameters, password management and future operational settings.')}
     >
       <AdminWorkspaceLayout
         ratio="content-heavy"
         main={
           <AdminSectionCard
             eyebrow={pick(lang, '系统偏好', 'System preferences')}
-            title={pick(lang, '基础系统配置', 'Core system configuration')}
-            description={pick(lang, '把站点基础信息、预约文案和验证码设置拆成独立分区后，后台会更接近正式交付状态。', 'Splitting site basics, booking copy and captcha settings into clear zones makes the admin feel much closer to a production handoff.')}
+            title={pick(lang, '基础系统设置', 'Core system configuration')}
+            description={pick(lang, '把站点基本信息、预约文案和验证码设置拆成独立分区后，后台会更接近正式交付状态。', 'Splitting site basics, booking copy and captcha settings into clear zones makes the admin feel much closer to a production handoff.')}
           >
             <AdminSettingsForm lang={lang} initialSettings={settings} />
           </AdminSectionCard>

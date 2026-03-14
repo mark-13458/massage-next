@@ -22,7 +22,7 @@ export default async function AdminPage() {
     <AdminShell
       lang={lang}
       title={pick(lang, '中文后台', 'Admin workspace')}
-      subtitle={pick(lang, '现在已经从纯占位页推进到 dashboard MVP：先看关键数据，再逐步接预约、服务、内容和图片管理。', 'The admin is now beyond a placeholder: start with core metrics, then move into bookings, services, content and media management.')}
+      subtitle={pick(lang, '现在已经从纯占位页推进到后台首页雏形：先看关键数据，再逐步接预约、服务、内容和图片管理。', 'The admin is now beyond a placeholder: start with core metrics, then move into bookings, services, content and media management.')}
     >
       <AdminTopSummary
         title={pick(lang, '运营概览', 'Operations overview')}
@@ -38,7 +38,7 @@ export default async function AdminPage() {
       <div className="mt-8">
         <AdminWorkspaceLayout
           main={
-            <AdminSectionCard eyebrow="Workspace" title={pick(lang, '快速开始', 'Quick start')} description={pick(lang, '选择一个模块开始管理你的站点。', 'Select a module to manage your site.')}>
+            <AdminSectionCard eyebrow={pick(lang, '工作台', 'Workspace')} title={pick(lang, '快速开始', 'Quick start')} description={pick(lang, '选择一个模块开始管理你的站点。', 'Select a module to manage your site.')}>
               <div className="grid gap-4 sm:grid-cols-2">
                 {[
                   {
@@ -55,13 +55,13 @@ export default async function AdminPage() {
                   },
                   {
                     title: pick(lang, '网站内容', 'Content'),
-                    desc: pick(lang, '首页文案、联系信息、FAQ、SEO', 'Maintain hero copy, contact info, FAQ and site-facing content.'),
+                    desc: pick(lang, '首页主视觉、联系信息、常见问题与站点文案', 'Maintain hero copy, contact info, FAQ and site-facing content.'),
                     href: '/admin/content',
                     icon: '📝'
                   },
                   {
                     title: pick(lang, '图片管理', 'Media'),
-                    desc: pick(lang, '图库上传、替换、alt 文本、排序', 'Handle gallery uploads, replacement, alt text and media ordering.'),
+                    desc: pick(lang, '图片资料上传、替换、替代文本与排序', 'Handle gallery uploads, replacement, alt text and media ordering.'),
                     href: '/admin/gallery',
                     icon: '🖼️'
                   },
@@ -79,7 +79,7 @@ export default async function AdminPage() {
             </AdminSectionCard>
           }
           aside={
-            <AdminSectionCard eyebrow="Positioning" title="当前后台定位" description="当前重点是把后台持续收口成更稳定的运营系统。" tone="dark">
+            <AdminSectionCard eyebrow={pick(lang, '当前定位', 'Positioning')} title={pick(lang, '当前后台定位', 'Current admin position')} description={pick(lang, '当前重点是把后台持续收口成更稳定的运营系统。', 'The current focus is to keep shaping the admin into a more stable operations system.')} tone="dark">
               <div className="space-y-4 text-sm leading-7 text-stone-300">
                 <p>这一步的目标不是一次性做完后台，而是先把“能连接真实数据的运营入口”搭起来。</p>
                 <p>现在 dashboard 已经读取数据库计数，说明后台页面和数据层已经打通。</p>
