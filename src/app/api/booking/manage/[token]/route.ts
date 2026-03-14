@@ -3,11 +3,17 @@ import { apiError, apiOk } from '../../../../../lib/api-response'
 import { bookingManageSchema } from '../../../../../lib/validations/booking'
 import { prisma } from '../../../../../lib/prisma'
 import { getAppointmentByToken } from '../../../../../server/services/admin-booking.service'
+import { getSystemSettings } from '../../../../../server/services/site.service'
 
 export const dynamic = 'force-dynamic'
 export const revalidate = 0
 
 export async function GET(_: Request, { params }: { params: { token: string } }) {
+  const settings = await getSystemSettings().catch(() => null)
+  if (settings?.featureEnableBookingManage === false) {
+    return apiError('Booking self-service is disabled', 403)
+  }
+
   const token = params.token
   if (!token) {
     return apiError('Missing token', 400)
@@ -35,6 +41,11 @@ export async function GET(_: Request, { params }: { params: { token: string } })
 }
 
 export async function PATCH(request: Request, { params }: { params: { token: string } }) {
+  const settings = await getSystemSettings().catch(() => null)
+  if (settings?.featureEnableBookingManage === false) {
+    return apiError('Booking self-service is disabled', 403)
+  }
+
   const token = params.token
   if (!token) {
     return apiError('Missing token', 400)

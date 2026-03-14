@@ -7,6 +7,7 @@ import { BookingManagePanel } from '../../../../../components/site/BookingManage
 import { isLocale, Locale } from '../../../../../lib/i18n'
 import { createPageMetadata } from '../../../../../lib/seo'
 import { getAppointmentByToken } from '../../../../../server/services/admin-booking.service'
+import { getSystemSettings } from '../../../../../server/services/site.service'
 
 export async function generateMetadata({ params }: { params: Promise<{ locale: string; token: string }> }): Promise<Metadata> {
   const { locale } = await params
@@ -34,6 +35,11 @@ export default async function BookingManagePage({ params }: { params: Promise<{ 
   }
 
   const typedLocale = locale as Locale
+  const settings = await getSystemSettings().catch(() => null)
+  if (settings?.featureEnableBookingManage === false) {
+    notFound()
+  }
+
   const appointment = await getAppointmentByToken(token)
   if (!appointment) {
     notFound()

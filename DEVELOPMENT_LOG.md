@@ -3417,3 +3417,39 @@ Docker 部署当前已经不只是“页面能打开”，而是：
 1. 继续把 `featureEnableBookingManage` 真正接到客户自助改约 / 取消入口与 API 逻辑。
 2. 再把 SEO 模板配置逐步接入 metadata 生成逻辑。
 3. 后续继续把隐私删除请求和数据保留策略推进为真实后台能力。
+
+#### 96) `featureEnableBookingManage` 正式接入客户自助改约 / 取消链
+- 本轮继续沿“治理配置驱动业务”的方向推进，把系统设置里的 `featureEnableBookingManage` 真正接入客户自助改约 / 取消链。
+- 本轮覆盖：
+  - `src/app/api/booking/manage/[token]/route.ts`
+  - `src/app/[locale]/booking/manage/[token]/page.tsx`
+  - `src/components/site/BookingManagePanel.tsx`
+- 已完成：
+  - token API 受功能开关控制：
+    - `GET /api/booking/manage/[token]` 现在会检查 `featureEnableBookingManage`；
+    - `PATCH /api/booking/manage/[token]` 现在也会检查该开关；
+    - 若后台关闭客户自助改约 / 取消，则接口直接返回 403。
+  - 客户侧页面入口受功能开关控制：
+    - `/{locale}/booking/manage/[token]` 页面加载时会读取系统设置；
+    - 若后台关闭该能力，则页面直接不可访问（`notFound()`）。
+  - 前端交互反馈增强：
+    - `BookingManagePanel` 已新增“当前在线管理已禁用”类提示文案；
+    - 当接口因功能开关关闭而返回 403 时，前端会反馈更明确的禁用状态，而不是只显示泛化错误。
+- 本轮价值：
+  - 功能开关第一次真正驱动客户自助改约 / 取消业务链；
+  - 设置页中的治理配置已不再只是说明，而是开始真正控制前台入口与服务端接口；
+  - 这进一步验证了“设置页 → 前台流程 → API 约束”的统一实现模式。
+
+### 本阶段验证追加
+- `npm run build` 已通过。
+
+### 本阶段结论
+这一轮属于功能开关真实接入阶段：
+- 不改数据库结构；
+- 不新增复杂权限系统；
+- 但让 `featureEnableBookingManage` 成为真正可生效的预约治理开关。
+
+### 下一步建议
+1. 继续把 SEO 模板配置接入 metadata 生成逻辑。
+2. 继续把邮件提醒开关接进通知链。
+3. 后续再把删除请求与数据保留策略推进成真实流程能力。

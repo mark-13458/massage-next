@@ -39,6 +39,7 @@ export function BookingManagePanel({ locale, token, booking }: BookingManagePane
         cancelSuccess: 'Der Termin wurde storniert.',
         rescheduleSuccess: 'Der Termin wurde erfolgreich geändert und wartet erneut auf Bestätigung.',
         locked: 'Dieser Termin kann nicht mehr online geändert werden.',
+        disabled: 'Die Online-Verwaltung dieses Termins ist derzeit deaktiviert.',
         error: 'Die Aktion konnte nicht durchgeführt werden. Bitte versuchen Sie es später erneut.',
       }
     : {
@@ -55,6 +56,7 @@ export function BookingManagePanel({ locale, token, booking }: BookingManagePane
         cancelSuccess: 'The booking was cancelled successfully.',
         rescheduleSuccess: 'The booking was rescheduled and is pending confirmation again.',
         locked: 'This booking can no longer be changed online.',
+        disabled: 'Online management for this booking is currently disabled.',
         error: 'The action could not be completed. Please try again later.',
       }
 
@@ -71,6 +73,9 @@ export function BookingManagePanel({ locale, token, booking }: BookingManagePane
         })
 
         if (!response.ok) {
+          if (response.status === 403) {
+            throw new Error(t.disabled)
+          }
           throw new Error('Booking action failed')
         }
 
