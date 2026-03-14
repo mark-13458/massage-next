@@ -240,6 +240,10 @@ export default async function AdminGalleryPage({
                   <span>{pick(lang, '查看本地上传图片', 'Review local uploads')}</span>
                   <span className="font-semibold text-stone-900">{stats.localUploads}</span>
                 </Link>
+                <Link href="/admin/gallery?filter=active" className="flex items-center justify-between rounded-2xl border border-stone-200 bg-white px-4 py-3 text-stone-700 transition hover:border-stone-400">
+                  <span>{pick(lang, '巡检启用中图片', 'Inspect active images')}</span>
+                  <span className="font-semibold text-stone-900">{stats.active}</span>
+                </Link>
                 <Link href="/admin/content" className="flex items-center justify-between rounded-2xl border border-stone-200 bg-white px-4 py-3 text-stone-700 transition hover:border-stone-400">
                   <span>{pick(lang, '前往内容页继续编辑', 'Continue editing in content workspace')}</span>
                   <span className="text-stone-500">→</span>

@@ -183,6 +183,10 @@ export default async function AdminServicesPage({
                 <span>{pick(lang, '查看推荐服务', 'Review featured services')}</span>
                 <span className="font-semibold text-stone-900">{services.filter((item) => item.isFeatured).length}</span>
               </Link>
+              <Link href="/admin/services?filter=active" className="flex items-center justify-between rounded-2xl border border-stone-200 bg-white px-4 py-3 text-stone-700 transition hover:border-stone-400">
+                <span>{pick(lang, '巡检已上架服务', 'Inspect published services')}</span>
+                <span className="font-semibold text-stone-900">{services.filter((item) => item.isActive).length}</span>
+              </Link>
               <Link href="/admin/services/new" className="flex items-center justify-between rounded-2xl border border-stone-200 bg-white px-4 py-3 text-stone-700 transition hover:border-stone-400">
                 <span>{pick(lang, '新增服务条目', 'Create a new service')}</span>
                 <span className="text-stone-500">→</span>

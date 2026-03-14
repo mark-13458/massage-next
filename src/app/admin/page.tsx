@@ -81,6 +81,12 @@ export default async function AdminPage() {
           aside={
             <div className="space-y-6">
               <AdminSectionCard eyebrow={pick(lang, '运营优先级', 'Operations priorities')} title={pick(lang, '今日优先处理', 'Today’s priorities')} description={pick(lang, '把最常见的运营动作收成一组快捷入口，减少在后台里来回寻找。', 'Group the most common operational actions into one shortcut surface so the admin feels easier to run day to day.')} tone="dark">
+                <div className="mb-3 flex flex-wrap gap-2 text-xs font-medium text-stone-300">
+                  <span className="rounded-full border border-white/10 bg-white/5 px-3 py-1">{pick(lang, '预约', 'Bookings')}</span>
+                  <span className="rounded-full border border-white/10 bg-white/5 px-3 py-1">{pick(lang, '服务', 'Services')}</span>
+                  <span className="rounded-full border border-white/10 bg-white/5 px-3 py-1">{pick(lang, '内容', 'Content')}</span>
+                  <span className="rounded-full border border-white/10 bg-white/5 px-3 py-1">{pick(lang, '图片', 'Media')}</span>
+                </div>
                 <div className="space-y-3">
                   <Link href="/admin/appointments?status=PENDING" className="flex items-center justify-between rounded-2xl border border-white/10 bg-white/5 px-4 py-3 text-sm text-stone-200 transition hover:bg-white/10">
                     <span>{pick(lang, '处理待确认预约', 'Handle pending bookings')}</span>
