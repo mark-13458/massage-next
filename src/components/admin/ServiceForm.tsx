@@ -2,8 +2,11 @@
 
 import { useMemo, useState, useTransition } from 'react'
 import { adminRequest } from '../../lib/admin-request'
+import { NoticePill } from './NoticePill'
 
 type AdminLang = 'zh' | 'en'
+
+type NoticeTone = 'success' | 'error'
 
 type ServiceFormProps = {
   mode: 'create' | 'edit'
@@ -45,6 +48,7 @@ export function ServiceForm({ mode, service, lang = 'zh' }: ServiceFormProps) {
     isActive: service?.isActive ?? true,
   })
   const [message, setMessage] = useState('')
+  const [messageTone, setMessageTone] = useState<NoticeTone>('success')
   const [isPending, startTransition] = useTransition()
 
   const endpoint = useMemo(() => {
@@ -70,8 +74,10 @@ export function ServiceForm({ mode, service, lang = 'zh' }: ServiceFormProps) {
         })
 
         setMessage(mode === 'create' ? t(lang, '服务已创建', 'Service created') : t(lang, '服务已保存', 'Service saved'))
+        setMessageTone('success')
       } catch {
         setMessage(t(lang, '保存失败', 'Save failed'))
+        setMessageTone('error')
       }
     })
   }
@@ -80,12 +86,12 @@ export function ServiceForm({ mode, service, lang = 'zh' }: ServiceFormProps) {
     <div className="rounded-3xl bg-white p-6 shadow-sm sm:p-8">
       <div className="grid gap-4 md:grid-cols-2">
         <label className="flex flex-col gap-2 text-sm text-stone-700">
-          <span>{t(lang, 'Slug 标识', 'Slug')}</span>
-          <input value={form.slug} onChange={(e) => setForm({ ...form, slug: e.target.value })} className="rounded-2xl border border-stone-200 px-4 py-3 outline-none focus:border-amber-500" />
+          <span>{t(lang, '链接标识', 'Slug')}</span>
+          <input value={form.slug} onChange={(e) => setForm({ ...form, slug: e.target.value })} placeholder={t(lang, '用于生成页面链接，建议只用小写字母、数字和连字符', 'Used for page URLs. Prefer lowercase letters, numbers and hyphens')} className="rounded-2xl border border-stone-200 px-4 py-3 outline-none focus:border-amber-500" />
         </label>
         <label className="flex flex-col gap-2 text-sm text-stone-700">
-          <span>{t(lang, '排序', 'Sort order')}</span>
-          <input value={form.sortOrder} onChange={(e) => setForm({ ...form, sortOrder: e.target.value })} className="rounded-2xl border border-stone-200 px-4 py-3 outline-none focus:border-amber-500" />
+          <span>{t(lang, '显示顺序', 'Sort order')}</span>
+          <input value={form.sortOrder} onChange={(e) => setForm({ ...form, sortOrder: e.target.value })} placeholder={t(lang, '数字越小越靠前', 'Smaller numbers appear earlier')} className="rounded-2xl border border-stone-200 px-4 py-3 outline-none focus:border-amber-500" />
         </label>
 
         <label className="flex flex-col gap-2 text-sm text-stone-700">
@@ -98,45 +104,45 @@ export function ServiceForm({ mode, service, lang = 'zh' }: ServiceFormProps) {
         </label>
 
         <label className="flex flex-col gap-2 text-sm text-stone-700">
-          <span>{t(lang, '摘要（德语）', 'Summary (DE)')}</span>
-          <textarea rows={3} value={form.summaryDe} onChange={(e) => setForm({ ...form, summaryDe: e.target.value })} className="rounded-2xl border border-stone-200 px-4 py-3 outline-none focus:border-amber-500" />
+          <span>{t(lang, '简短介绍（德语）', 'Summary (DE)')}</span>
+          <textarea rows={3} value={form.summaryDe} onChange={(e) => setForm({ ...form, summaryDe: e.target.value })} placeholder={t(lang, '用于列表页和卡片上的简短说明', 'Short summary used in cards and list views')} className="rounded-2xl border border-stone-200 px-4 py-3 outline-none focus:border-amber-500" />
         </label>
         <label className="flex flex-col gap-2 text-sm text-stone-700">
-          <span>{t(lang, '摘要（英语）', 'Summary (EN)')}</span>
-          <textarea rows={3} value={form.summaryEn} onChange={(e) => setForm({ ...form, summaryEn: e.target.value })} className="rounded-2xl border border-stone-200 px-4 py-3 outline-none focus:border-amber-500" />
-        </label>
-
-        <label className="flex flex-col gap-2 text-sm text-stone-700">
-          <span>{t(lang, '描述（德语）', 'Description (DE)')}</span>
-          <textarea rows={5} value={form.descriptionDe} onChange={(e) => setForm({ ...form, descriptionDe: e.target.value })} className="rounded-2xl border border-stone-200 px-4 py-3 outline-none focus:border-amber-500" />
-        </label>
-        <label className="flex flex-col gap-2 text-sm text-stone-700">
-          <span>{t(lang, '描述（英语）', 'Description (EN)')}</span>
-          <textarea rows={5} value={form.descriptionEn} onChange={(e) => setForm({ ...form, descriptionEn: e.target.value })} className="rounded-2xl border border-stone-200 px-4 py-3 outline-none focus:border-amber-500" />
+          <span>{t(lang, '简短介绍（英语）', 'Summary (EN)')}</span>
+          <textarea rows={3} value={form.summaryEn} onChange={(e) => setForm({ ...form, summaryEn: e.target.value })} placeholder={t(lang, '用于列表页和卡片上的简短说明', 'Short summary used in cards and list views')} className="rounded-2xl border border-stone-200 px-4 py-3 outline-none focus:border-amber-500" />
         </label>
 
         <label className="flex flex-col gap-2 text-sm text-stone-700">
-          <span>{t(lang, '时长（分钟）', 'Duration (minutes)')}</span>
-          <input value={form.durationMin} onChange={(e) => setForm({ ...form, durationMin: e.target.value })} className="rounded-2xl border border-stone-200 px-4 py-3 outline-none focus:border-amber-500" />
+          <span>{t(lang, '详细介绍（德语）', 'Description (DE)')}</span>
+          <textarea rows={5} value={form.descriptionDe} onChange={(e) => setForm({ ...form, descriptionDe: e.target.value })} placeholder={t(lang, '填写服务流程、特点、适合人群等更完整说明', 'Describe the service flow, highlights and suitable audience in more detail')} className="rounded-2xl border border-stone-200 px-4 py-3 outline-none focus:border-amber-500" />
         </label>
         <label className="flex flex-col gap-2 text-sm text-stone-700">
-          <span>{t(lang, '价格 (€)', 'Price (€)')}</span>
-          <input value={form.price} onChange={(e) => setForm({ ...form, price: e.target.value })} className="rounded-2xl border border-stone-200 px-4 py-3 outline-none focus:border-amber-500" />
+          <span>{t(lang, '详细介绍（英语）', 'Description (EN)')}</span>
+          <textarea rows={5} value={form.descriptionEn} onChange={(e) => setForm({ ...form, descriptionEn: e.target.value })} placeholder={t(lang, '填写服务流程、特点、适合人群等更完整说明', 'Describe the service flow, highlights and suitable audience in more detail')} className="rounded-2xl border border-stone-200 px-4 py-3 outline-none focus:border-amber-500" />
+        </label>
+
+        <label className="flex flex-col gap-2 text-sm text-stone-700">
+          <span>{t(lang, '服务时长（分钟）', 'Duration (minutes)')}</span>
+          <input value={form.durationMin} onChange={(e) => setForm({ ...form, durationMin: e.target.value })} placeholder={t(lang, '例如 60、90、120', 'For example: 60, 90 or 120')} className="rounded-2xl border border-stone-200 px-4 py-3 outline-none focus:border-amber-500" />
+        </label>
+        <label className="flex flex-col gap-2 text-sm text-stone-700">
+          <span>{t(lang, '服务价格 (€)', 'Price (€)')}</span>
+          <input value={form.price} onChange={(e) => setForm({ ...form, price: e.target.value })} placeholder={t(lang, '例如 59、79、99', 'For example: 59, 79 or 99')} className="rounded-2xl border border-stone-200 px-4 py-3 outline-none focus:border-amber-500" />
         </label>
 
         <label className="flex items-center gap-2 text-sm text-stone-700">
-          <input type="checkbox" checked={form.isFeatured} onChange={(e) => setForm({ ...form, isFeatured: e.target.checked })} />{t(lang, '精选', 'Featured')}
+          <input type="checkbox" checked={form.isFeatured} onChange={(e) => setForm({ ...form, isFeatured: e.target.checked })} />{t(lang, '设为推荐服务', 'Featured')}
         </label>
         <label className="flex items-center gap-2 text-sm text-stone-700">
-          <input type="checkbox" checked={form.isActive} onChange={(e) => setForm({ ...form, isActive: e.target.checked })} />{t(lang, '上架', 'Published')}
+          <input type="checkbox" checked={form.isActive} onChange={(e) => setForm({ ...form, isActive: e.target.checked })} />{t(lang, '上架显示', 'Published')}
         </label>
       </div>
 
-      <div className="mt-6 flex items-center gap-4">
+      <div className="mt-6 flex flex-wrap items-center gap-4">
         <button type="button" onClick={submit} disabled={isPending} className="rounded-full bg-stone-900 px-5 py-3 text-sm font-semibold text-white transition hover:bg-stone-800 disabled:cursor-not-allowed disabled:opacity-70">
           {isPending ? t(lang, '保存中…', 'Saving...') : mode === 'create' ? t(lang, '创建服务', 'Create service') : t(lang, '保存修改', 'Save changes')}
         </button>
-        {message ? <span className="text-sm text-stone-500">{message}</span> : null}
+        {message ? <NoticePill message={message} tone={messageTone} /> : null}
       </div>
     </div>
   )
