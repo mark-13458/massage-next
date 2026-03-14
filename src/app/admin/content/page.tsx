@@ -44,6 +44,9 @@ export default async function AdminContentPage() {
                 {pick(lang, data.hero?.imageUrl ? '主视觉图片已配置' : '主视觉图片待补充', data.hero?.imageUrl ? 'Hero image ready' : 'Hero image missing')}
               </span>
               <span className="rounded-full border border-stone-300 bg-white px-4 py-2 text-sm font-medium text-stone-700">
+                {pick(lang, `FAQ 总数 ${data.stats.faqCount} 条`, `Total FAQs: ${data.stats.faqCount}`)}
+              </span>
+              <span className="rounded-full border border-stone-300 bg-white px-4 py-2 text-sm font-medium text-stone-700">
                 {pick(lang, `启用 FAQ ${data.stats.activeFaqCount} 条`, `Active FAQs: ${data.stats.activeFaqCount}`)}
               </span>
               <span className="rounded-full border border-stone-300 bg-white px-4 py-2 text-sm font-medium text-stone-700">

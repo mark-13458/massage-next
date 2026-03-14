@@ -82,6 +82,9 @@ export default async function AdminGalleryPage({
                   {pick(lang, `封面图片 ${stats.covers} 张`, `Cover images: ${stats.covers}`)}
                 </span>
                 <span className="rounded-full border border-stone-300 bg-white px-4 py-2 text-sm font-medium text-stone-700">
+                  {pick(lang, `启用图片 ${stats.active} 张`, `Active images: ${stats.active}`)}
+                </span>
+                <span className="rounded-full border border-stone-300 bg-white px-4 py-2 text-sm font-medium text-stone-700">
                   {pick(lang, `本地上传 ${stats.localUploads} 张`, `Local uploads: ${stats.localUploads}`)}
                 </span>
               </div>
