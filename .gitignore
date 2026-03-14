@@ -16,6 +16,10 @@ hero-patch.json
 hero1.json
 hero2.json
 login.json
+login-smoke.json
+settings-smoke.json
+service-smoke.json
+booking-smoke.json
 replace-hero.json
 smoke-cookies.txt
 tmp-smoke.png
