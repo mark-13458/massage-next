@@ -39,6 +39,17 @@ export default async function AdminContentPage() {
             title={pick(lang, '内容管理工作区', 'Content workspace')}
             description={pick(lang, '这一页负责首页主视觉、联系方式、营业时间、常见问题与图库。先保留已有功能逻辑，再把结构改造成更清晰的内容运营台。', 'This workspace manages the homepage hero, contact details, opening hours, FAQ and gallery. It keeps the current functionality while making the content workflow clearer.')}
           >
+            <div className="mb-5 flex flex-wrap items-center gap-3">
+              <span className="rounded-full bg-stone-100 px-4 py-2 text-sm font-medium text-stone-700">
+                {pick(lang, data.hero?.imageUrl ? '主视觉图片已配置' : '主视觉图片待补充', data.hero?.imageUrl ? 'Hero image ready' : 'Hero image missing')}
+              </span>
+              <span className="rounded-full border border-stone-300 bg-white px-4 py-2 text-sm font-medium text-stone-700">
+                {pick(lang, `启用 FAQ ${data.stats.activeFaqCount} 条`, `Active FAQs: ${data.stats.activeFaqCount}`)}
+              </span>
+              <span className="rounded-full border border-stone-300 bg-white px-4 py-2 text-sm font-medium text-stone-700">
+                {pick(lang, `图库图片 ${data.stats.galleryCount} 张`, `Gallery images: ${data.stats.galleryCount}`)}
+              </span>
+            </div>
             <ContentEditor
               lang={lang}
               initialContact={data.contact}

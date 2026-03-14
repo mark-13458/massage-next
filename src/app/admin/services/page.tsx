@@ -60,7 +60,16 @@ export default async function AdminServicesPage({
         </Link>
       </AdminPageToolbar>
 
-      <div className="mb-6 flex flex-wrap items-center gap-3">
+      <div className="mb-6 space-y-3">
+        <div className="flex flex-wrap items-center gap-3">
+          <span className="rounded-full bg-stone-100 px-4 py-2 text-sm font-medium text-stone-700">
+            {pick(lang, `当前筛选结果 ${filteredServices.length} 项`, `Filtered result: ${filteredServices.length}`)}
+          </span>
+          <span className="rounded-full border border-stone-300 bg-white px-4 py-2 text-sm font-medium text-stone-700">
+            {pick(lang, `全部服务 ${services.length} 项`, `Total services: ${services.length}`)}
+          </span>
+        </div>
+        <div className="flex flex-wrap items-center gap-3">
         {filters.map((filter) => {
           const href = filter.key === 'all' ? '/admin/services' : `/admin/services?filter=${filter.key}`
           const active = selectedFilter === filter.key
@@ -75,6 +84,7 @@ export default async function AdminServicesPage({
             </Link>
           )
         })}
+        </div>
       </div>
 
       <div className="grid gap-6 xl:grid-cols-[1.15fr_0.85fr]">

@@ -78,6 +78,12 @@ export default async function AdminGalleryPage({
                 <span className="rounded-full border border-stone-300 bg-white px-4 py-2 text-sm font-medium text-stone-700">
                   {pick(lang, `全部图片 ${stats.total} 张`, `Total images: ${stats.total}`)}
                 </span>
+                <span className="rounded-full border border-stone-300 bg-white px-4 py-2 text-sm font-medium text-stone-700">
+                  {pick(lang, `封面图片 ${stats.covers} 张`, `Cover images: ${stats.covers}`)}
+                </span>
+                <span className="rounded-full border border-stone-300 bg-white px-4 py-2 text-sm font-medium text-stone-700">
+                  {pick(lang, `本地上传 ${stats.localUploads} 张`, `Local uploads: ${stats.localUploads}`)}
+                </span>
               </div>
               <div className="flex flex-wrap items-center gap-3">
               {filters.map((filter) => {
