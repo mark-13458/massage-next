@@ -101,6 +101,25 @@ export default async function AdminContentPage() {
               </div>
             </AdminSectionCard>
 
+            <AdminSectionCard eyebrow={pick(lang, '内容待办', 'Content priorities')} title={pick(lang, '当前建议先处理', 'Suggested next content tasks')} description={pick(lang, '把内容运营里最常见的待处理项提到侧栏，减少每次从头阅读整页。', 'Pull the most common content follow-ups into the sidebar so operators do not need to reread the whole workspace every time.') }>
+              <div className="space-y-3 text-sm">
+                <div className="flex items-center justify-between rounded-2xl border border-stone-200 bg-white px-4 py-3 text-stone-700">
+                  <span>{pick(lang, '主视觉图片状态', 'Hero image status')}</span>
+                  <span className={`rounded-full px-3 py-1 text-xs font-semibold ${data.hero?.imageUrl ? 'bg-emerald-50 text-emerald-700' : 'bg-amber-100 text-amber-800'}`}>
+                    {pick(lang, data.hero?.imageUrl ? '已配置' : '待补充', data.hero?.imageUrl ? 'Ready' : 'Missing')}
+                  </span>
+                </div>
+                <div className="flex items-center justify-between rounded-2xl border border-stone-200 bg-white px-4 py-3 text-stone-700">
+                  <span>{pick(lang, 'FAQ 启用情况', 'FAQ active status')}</span>
+                  <span className="font-semibold text-stone-900">{data.stats.activeFaqCount} / {data.stats.faqCount}</span>
+                </div>
+                <div className="flex items-center justify-between rounded-2xl border border-stone-200 bg-white px-4 py-3 text-stone-700">
+                  <span>{pick(lang, '图库封面情况', 'Gallery cover status')}</span>
+                  <span className="font-semibold text-stone-900">{data.stats.coverCount}</span>
+                </div>
+              </div>
+            </AdminSectionCard>
+
             {data.hero?.imageUrl ? (
               <AdminSectionCard eyebrow={pick(lang, '主视觉预览', 'Hero preview')} title={pick(lang, '当前主视觉图片', 'Current hero image')} description={pick(lang, '这里显示当前已绑定到首页的主视觉图片路径，便于快速检查替换后的结果。', 'This shows the hero image currently bound to the homepage so you can quickly verify replacement results.') }>
                 <div className="space-y-4">

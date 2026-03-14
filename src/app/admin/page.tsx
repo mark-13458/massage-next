@@ -38,7 +38,8 @@ export default async function AdminPage() {
       <div className="mt-8">
         <AdminWorkspaceLayout
           main={
-            <AdminSectionCard eyebrow={pick(lang, '工作台', 'Workspace')} title={pick(lang, '快速开始', 'Quick start')} description={pick(lang, '选择一个模块开始管理你的站点。', 'Select a module to manage your site.')}>
+            <div className="space-y-6">
+              <AdminSectionCard eyebrow={pick(lang, '工作台', 'Workspace')} title={pick(lang, '快速开始', 'Quick start')} description={pick(lang, '选择一个模块开始管理你的站点。', 'Select a module to manage your site.')}>
               <div className="grid gap-4 sm:grid-cols-2">
                 {[
                   {
@@ -77,6 +78,23 @@ export default async function AdminPage() {
                 ))}
               </div>
             </AdminSectionCard>
+
+            <AdminSectionCard eyebrow={pick(lang, '运营流程', 'Operations flow')} title={pick(lang, '建议处理顺序', 'Suggested workflow')} description={pick(lang, '把后台高频运营动作整理成一个更像正式系统的处理顺序。', 'Arrange the most common operational actions into a workflow that feels closer to a formal operations system.') }>
+              <div className="grid gap-3 md:grid-cols-2 xl:grid-cols-4">
+                {[
+                  { title: pick(lang, '先处理预约', 'Start with bookings'), desc: pick(lang, '优先检查待确认和已确认预约。', 'Check pending and confirmed bookings first.'), href: '/admin/appointments?status=PENDING' },
+                  { title: pick(lang, '再检查服务', 'Then review services'), desc: pick(lang, '确认服务是否已上架、推荐是否完整。', 'Confirm publish status and featured services.'), href: '/admin/services?filter=inactive' },
+                  { title: pick(lang, '继续维护内容', 'Continue content work'), desc: pick(lang, '检查主视觉、FAQ、营业时间与联系信息。', 'Review hero content, FAQ, business hours and contact info.'), href: '/admin/content' },
+                  { title: pick(lang, '最后巡检图片', 'Finish with media checks'), desc: pick(lang, '查看封面图、本地上传和启用中图片。', 'Inspect cover images, local uploads and active media.'), href: '/admin/gallery?filter=cover' },
+                ].map((item) => (
+                  <Link key={item.title} href={item.href} className="rounded-3xl border border-stone-200 bg-white px-5 py-4 transition hover:border-stone-400 hover:shadow-sm">
+                    <h3 className="font-semibold text-stone-900">{item.title}</h3>
+                    <p className="mt-2 text-sm leading-6 text-stone-500">{item.desc}</p>
+                  </Link>
+                ))}
+              </div>
+            </AdminSectionCard>
+            </div>
           }
           aside={
             <div className="space-y-6">
