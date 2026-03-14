@@ -82,12 +82,12 @@
 - [x] 预约表单
 
 #### SEO 任务
-- [ ] metadata 模板
-- [ ] 页面 title / description
-- [ ] hreflang
+- [x] metadata 模板
+- [x] 页面 title / description
+- [x] hreflang
 - [x] sitemap
 - [x] robots.txt
-- [ ] LocalBusiness schema
+- [x] LocalBusiness schema
 
 #### 输出物
 - 可展示、可访问、可 SEO 的前台站点
@@ -121,8 +121,8 @@
 - [x] `/admin/appointments`
 - [x] `/admin/services`
 - [x] `/admin/content`
-- [ ] `/admin/gallery`
-- [ ] `/admin/settings`
+- [x] `/admin/gallery`
+- [x] `/admin/settings`
 
 #### 功能任务
 - [x] 登录/退出
