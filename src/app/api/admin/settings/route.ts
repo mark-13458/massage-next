@@ -3,6 +3,9 @@ import { apiError, apiOk } from '../../../../lib/api-response'
 import { getCurrentAdmin } from '../../../../lib/auth'
 import { prisma } from '../../../../lib/prisma'
 
+export const dynamic = 'force-dynamic'
+export const revalidate = 0
+
 const SETTINGS_KEY = 'adminSystemSettings'
 
 export async function GET() {

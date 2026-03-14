@@ -58,11 +58,28 @@ export async function PATCH(request: NextRequest) {
 
     for (const item of hours) {
       if (typeof item.weekday !== 'number') continue
-      await prisma.businessHour.update({ where: { weekday: item.weekday }, data: { openTime: item.openTime || null, closeTime: item.closeTime || null, isClosed: Boolean(item.isClosed) } })
+      await prisma.businessHour.upsert({
+        where: { weekday: item.weekday },
+        update: {
+          openTime: item.openTime || null,
+          closeTime: item.closeTime || null,
+          isClosed: Boolean(item.isClosed),
+        },
+        create: {
+          weekday: item.weekday,
+          dayLabelDe: item.dayLabelDe || `Tag ${item.weekday}`,
+          dayLabelEn: item.dayLabelEn || `Day ${item.weekday}`,
+          openTime: item.openTime || null,
+          closeTime: item.closeTime || null,
+          isClosed: Boolean(item.isClosed),
+        },
+      })
     }
 
     for (const item of faqs) {
       if (item._delete && typeof item.id === 'number') {
+        const existingFaq = await prisma.faqItem.findUnique({ where: { id: item.id } })
+        if (!existingFaq) continue
         await prisma.faqItem.delete({ where: { id: item.id } })
         continue
       }
@@ -71,6 +88,8 @@ export async function PATCH(request: NextRequest) {
         continue
       }
       if (typeof item.id !== 'number') continue
+      const existingFaq = await prisma.faqItem.findUnique({ where: { id: item.id } })
+      if (!existingFaq) continue
       await prisma.faqItem.update({ where: { id: item.id }, data: { questionDe: item.questionDe || '', questionEn: item.questionEn || '', answerDe: item.answerDe || '', answerEn: item.answerEn || '', sortOrder: typeof item.sortOrder === 'number' ? item.sortOrder : 0, isActive: Boolean(item.isActive) } })
     }
 
