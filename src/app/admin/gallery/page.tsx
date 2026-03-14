@@ -223,6 +223,31 @@ export default async function AdminGalleryPage({
             </AdminSectionCard>
 
             <AdminSectionCard
+              eyebrow={pick(lang, '快捷处理', 'Quick actions')}
+              title={pick(lang, '图库快捷入口', 'Gallery quick actions')}
+              description={pick(
+                lang,
+                '把高频图片巡检动作收成直接入口，减少在图库里反复切换。',
+                'Collect common media-inspection actions into direct shortcuts to reduce repeated switching across the gallery.',
+              )}
+            >
+              <div className="space-y-3 text-sm">
+                <Link href="/admin/gallery?filter=cover" className="flex items-center justify-between rounded-2xl border border-stone-200 bg-white px-4 py-3 text-stone-700 transition hover:border-stone-400">
+                  <span>{pick(lang, '查看封面图片', 'Review cover images')}</span>
+                  <span className="font-semibold text-stone-900">{stats.covers}</span>
+                </Link>
+                <Link href="/admin/gallery?filter=local" className="flex items-center justify-between rounded-2xl border border-stone-200 bg-white px-4 py-3 text-stone-700 transition hover:border-stone-400">
+                  <span>{pick(lang, '查看本地上传图片', 'Review local uploads')}</span>
+                  <span className="font-semibold text-stone-900">{stats.localUploads}</span>
+                </Link>
+                <Link href="/admin/content" className="flex items-center justify-between rounded-2xl border border-stone-200 bg-white px-4 py-3 text-stone-700 transition hover:border-stone-400">
+                  <span>{pick(lang, '前往内容页继续编辑', 'Continue editing in content workspace')}</span>
+                  <span className="text-stone-500">→</span>
+                </Link>
+              </div>
+            </AdminSectionCard>
+
+            <AdminSectionCard
               eyebrow={pick(lang, '图片建议', 'Gallery notes')}
               title={pick(lang, '建议的下一步', 'Suggested next steps')}
               description={pick(

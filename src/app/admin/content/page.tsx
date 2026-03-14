@@ -84,8 +84,25 @@ export default async function AdminContentPage() {
             </div>
           </AdminSectionCard>
 
+            <AdminSectionCard eyebrow={pick(lang, '快捷处理', 'Quick actions')} title={pick(lang, '内容管理快捷入口', 'Content quick actions')} description={pick(lang, '把高频内容维护动作收成直接入口，减少在长表单和不同页面之间跳转。', 'Collect common content-maintenance actions into direct shortcuts so the admin feels easier to operate day to day.') }>
+              <div className="space-y-3 text-sm">
+                <Link href="/admin/content" className="flex items-center justify-between rounded-2xl border border-stone-200 bg-white px-4 py-3 text-stone-700 transition hover:border-stone-400">
+                  <span>{pick(lang, '继续维护首页主视觉', 'Continue hero maintenance')}</span>
+                  <span className="text-stone-500">→</span>
+                </Link>
+                <Link href="/admin/content" className="flex items-center justify-between rounded-2xl border border-stone-200 bg-white px-4 py-3 text-stone-700 transition hover:border-stone-400">
+                  <span>{pick(lang, '继续维护 FAQ 与营业时间', 'Continue FAQ and hours maintenance')}</span>
+                  <span className="font-semibold text-stone-900">{data.stats.activeFaqCount}</span>
+                </Link>
+                <Link href="/admin/gallery" className="flex items-center justify-between rounded-2xl border border-stone-200 bg-white px-4 py-3 text-stone-700 transition hover:border-stone-400">
+                  <span>{pick(lang, '前往图库页巡检图片', 'Inspect media in gallery page')}</span>
+                  <span className="font-semibold text-stone-900">{data.stats.galleryCount}</span>
+                </Link>
+              </div>
+            </AdminSectionCard>
+
             {data.hero?.imageUrl ? (
-              <AdminSectionCard eyebrow={pick(lang, '主视觉预览', 'Hero preview')} title={pick(lang, '当前主视觉图片', 'Current hero image')} description={pick(lang, '这里显示当前已绑定到首页的主视觉图片路径，便于快速检查替换后的结果。', 'This shows the hero image currently bound to the homepage so you can quickly verify replacement results.')}>
+              <AdminSectionCard eyebrow={pick(lang, '主视觉预览', 'Hero preview')} title={pick(lang, '当前主视觉图片', 'Current hero image')} description={pick(lang, '这里显示当前已绑定到首页的主视觉图片路径，便于快速检查替换后的结果。', 'This shows the hero image currently bound to the homepage so you can quickly verify replacement results.') }>
                 <div className="space-y-4">
                   <img src={data.hero.imageUrl} alt={data.hero.titleDe || 'Hero preview'} className="h-52 w-full rounded-[24px] border border-stone-200 object-cover" />
                   <div className="rounded-2xl border border-stone-200 bg-stone-50 px-4 py-3 text-xs leading-6 text-stone-500">{data.hero.imageUrl}</div>

@@ -79,13 +79,36 @@ export default async function AdminPage() {
             </AdminSectionCard>
           }
           aside={
-            <AdminSectionCard eyebrow={pick(lang, '当前定位', 'Positioning')} title={pick(lang, '当前后台定位', 'Current admin position')} description={pick(lang, '当前重点是把后台持续收口成更稳定的运营系统。', 'The current focus is to keep shaping the admin into a more stable operations system.')} tone="dark">
-              <div className="space-y-4 text-sm leading-7 text-stone-300">
-                <p>这一步的目标不是一次性做完后台，而是先把“能连接真实数据的运营入口”搭起来。</p>
-                <p>现在 dashboard 已经读取数据库计数，说明后台页面和数据层已经打通。</p>
-                <p>当前已经具备：登录保护、预约管理、服务管理、内容管理、图库上传。</p>
-              </div>
-            </AdminSectionCard>
+            <div className="space-y-6">
+              <AdminSectionCard eyebrow={pick(lang, '运营优先级', 'Operations priorities')} title={pick(lang, '今日优先处理', 'Today’s priorities')} description={pick(lang, '把最常见的运营动作收成一组快捷入口，减少在后台里来回寻找。', 'Group the most common operational actions into one shortcut surface so the admin feels easier to run day to day.')} tone="dark">
+                <div className="space-y-3">
+                  <Link href="/admin/appointments?status=PENDING" className="flex items-center justify-between rounded-2xl border border-white/10 bg-white/5 px-4 py-3 text-sm text-stone-200 transition hover:bg-white/10">
+                    <span>{pick(lang, '处理待确认预约', 'Handle pending bookings')}</span>
+                    <span className="font-semibold text-white">{stats.pendingAppointments}</span>
+                  </Link>
+                  <Link href="/admin/services?filter=inactive" className="flex items-center justify-between rounded-2xl border border-white/10 bg-white/5 px-4 py-3 text-sm text-stone-200 transition hover:bg-white/10">
+                    <span>{pick(lang, '检查未上架服务', 'Review unpublished services')}</span>
+                    <span className="text-white">→</span>
+                  </Link>
+                  <Link href="/admin/content" className="flex items-center justify-between rounded-2xl border border-white/10 bg-white/5 px-4 py-3 text-sm text-stone-200 transition hover:bg-white/10">
+                    <span>{pick(lang, '继续维护网站内容', 'Continue content operations')}</span>
+                    <span className="text-white">→</span>
+                  </Link>
+                  <Link href="/admin/gallery?filter=cover" className="flex items-center justify-between rounded-2xl border border-white/10 bg-white/5 px-4 py-3 text-sm text-stone-200 transition hover:bg-white/10">
+                    <span>{pick(lang, '巡检封面图片', 'Inspect cover images')}</span>
+                    <span className="text-white">→</span>
+                  </Link>
+                </div>
+              </AdminSectionCard>
+
+              <AdminSectionCard eyebrow={pick(lang, '当前定位', 'Positioning')} title={pick(lang, '当前后台定位', 'Current admin position')} description={pick(lang, '当前重点是把后台持续收口成更稳定的运营系统。', 'The current focus is to keep shaping the admin into a more stable operations system.')} tone="dark">
+                <div className="space-y-4 text-sm leading-7 text-stone-300">
+                  <p>这一步的目标不是一次性做完后台，而是先把“能连接真实数据的运营入口”搭起来。</p>
+                  <p>现在 dashboard 已经读取数据库计数，说明后台页面和数据层已经打通。</p>
+                  <p>当前已经具备：登录保护、预约管理、服务管理、内容管理、图库上传。</p>
+                </div>
+              </AdminSectionCard>
+            </div>
           }
         />
       </div>

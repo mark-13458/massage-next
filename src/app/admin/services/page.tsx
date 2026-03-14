@@ -168,18 +168,41 @@ export default async function AdminServicesPage({
           )}
         </AdminSectionCard>
 
-        <AdminSectionCard
-          eyebrow={pick(lang, '管理建议', 'Management notes')}
-          title={pick(lang, '服务管理建议', 'Service management notes')}
-          description={pick(lang, '先把服务条目整理干净，再继续补更细的封面、批量操作和内容模板能力。', 'Keep the service catalog clean first, then layer richer media, batch actions and templated editing on top.')}
-          tone="dark"
-        >
-          <div className="space-y-4 text-sm leading-7 text-stone-300">
-            <p>每个服务至少保持：双语名称、双语摘要、时长、价格、排序和上下架状态完整。</p>
-            <p>如果后续要继续升级后台模板，服务表格会是最适合加入状态标签、筛选器和批量操作的页面之一。</p>
-            <p>当前这页先保持“稳定可运营”，后面再继续上更复杂的模板化交互。</p>
-          </div>
-        </AdminSectionCard>
+        <div className="space-y-6">
+          <AdminSectionCard
+            eyebrow={pick(lang, '快捷处理', 'Quick actions')}
+            title={pick(lang, '服务管理快捷入口', 'Service quick actions')}
+            description={pick(lang, '把高频服务管理动作收成入口，减少在列表中反复切筛选。', 'Collect the most common service-management actions into direct shortcuts to reduce repeated filter switching.')}
+          >
+            <div className="space-y-3 text-sm">
+              <Link href="/admin/services?filter=inactive" className="flex items-center justify-between rounded-2xl border border-stone-200 bg-white px-4 py-3 text-stone-700 transition hover:border-stone-400">
+                <span>{pick(lang, '查看未上架服务', 'Review unpublished services')}</span>
+                <span className="font-semibold text-stone-900">{services.filter((item) => !item.isActive).length}</span>
+              </Link>
+              <Link href="/admin/services?filter=featured" className="flex items-center justify-between rounded-2xl border border-stone-200 bg-white px-4 py-3 text-stone-700 transition hover:border-stone-400">
+                <span>{pick(lang, '查看推荐服务', 'Review featured services')}</span>
+                <span className="font-semibold text-stone-900">{services.filter((item) => item.isFeatured).length}</span>
+              </Link>
+              <Link href="/admin/services/new" className="flex items-center justify-between rounded-2xl border border-stone-200 bg-white px-4 py-3 text-stone-700 transition hover:border-stone-400">
+                <span>{pick(lang, '新增服务条目', 'Create a new service')}</span>
+                <span className="text-stone-500">→</span>
+              </Link>
+            </div>
+          </AdminSectionCard>
+
+          <AdminSectionCard
+            eyebrow={pick(lang, '管理建议', 'Management notes')}
+            title={pick(lang, '服务管理建议', 'Service management notes')}
+            description={pick(lang, '先把服务条目整理干净，再继续补更细的封面、批量操作和内容模板能力。', 'Keep the service catalog clean first, then layer richer media, batch actions and templated editing on top.')}
+            tone="dark"
+          >
+            <div className="space-y-4 text-sm leading-7 text-stone-300">
+              <p>每个服务至少保持：双语名称、双语摘要、时长、价格、排序和上下架状态完整。</p>
+              <p>如果后续要继续升级后台模板，服务表格会是最适合加入状态标签、筛选器和批量操作的页面之一。</p>
+              <p>当前这页先保持“稳定可运营”，后面再继续上更复杂的模板化交互。</p>
+            </div>
+          </AdminSectionCard>
+        </div>
       </div>
     </AdminShell>
   )
