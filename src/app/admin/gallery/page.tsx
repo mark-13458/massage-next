@@ -56,7 +56,7 @@ export default async function AdminGalleryPage({
             title={pick(lang, '图片资料总览', 'Gallery library overview')}
             description={pick(
               lang,
-              '这一页先解决“快速看全图库状态”的问题；具体新增、上传、替换仍然复用现有内容管理页。',
+              '这一页先解决“快速看全图库状态”的问题；现在也可以直接按启用状态、封面和来源快速切换巡检视图。',
               'This page solves the fast overview problem first; creation, upload and replacement continue to reuse the existing content workspace.',
             )}
             actions={
@@ -70,7 +70,16 @@ export default async function AdminGalleryPage({
               </div>
             }
           >
-            <div className="mb-5 flex flex-wrap items-center gap-3">
+            <div className="mb-5 space-y-3">
+              <div className="flex flex-wrap items-center gap-3">
+                <span className="rounded-full bg-stone-100 px-4 py-2 text-sm font-medium text-stone-700">
+                  {pick(lang, `当前筛选结果 ${items.length} 张`, `Filtered result: ${items.length}`)}
+                </span>
+                <span className="rounded-full border border-stone-300 bg-white px-4 py-2 text-sm font-medium text-stone-700">
+                  {pick(lang, `全部图片 ${stats.total} 张`, `Total images: ${stats.total}`)}
+                </span>
+              </div>
+              <div className="flex flex-wrap items-center gap-3">
               {filters.map((filter) => {
                 const href = filter.key === 'all' ? '/admin/gallery' : `/admin/gallery?filter=${filter.key}`
                 const active = selectedFilter === filter.key
@@ -87,6 +96,7 @@ export default async function AdminGalleryPage({
                   </Link>
                 )
               })}
+              </div>
             </div>
 
             {items.length === 0 ? (
@@ -94,8 +104,12 @@ export default async function AdminGalleryPage({
                 title={pick(lang, '当前筛选下没有图库图片', 'No gallery images match the current filter')}
                 description={pick(
                   lang,
-                  '你可以切换筛选条件，或者去内容管理页上传第一张图库图片。',
-                  'Try a different filter, or go to the content workspace to upload the first gallery image.',
+                  selectedFilter === 'all'
+                    ? '你可以前往内容管理页上传第一张图库图片。'
+                    : '你可以切换筛选条件，或者去内容管理页上传第一张图库图片。',
+                  selectedFilter === 'all'
+                    ? 'Go to the content workspace to upload the first gallery image.'
+                    : 'Try a different filter, or go to the content workspace to upload the first gallery image.',
                 )}
               />
             ) : (
