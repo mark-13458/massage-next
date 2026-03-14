@@ -122,6 +122,20 @@ export default async function AdminAppointmentsPage({
               <span className="font-semibold text-stone-900">{allAppointments.filter((entry) => entry.status === 'COMPLETED').length}</span>
             </Link>
           </div>
+
+          <div className="border-t border-stone-100 pt-4">
+            <p className="text-[11px] font-semibold uppercase tracking-[0.24em] text-stone-400">{pick(lang, '防滥用视角', 'Abuse protection view')}</p>
+            <div className="mt-3 space-y-3 text-sm">
+              <Link href="/admin/settings" className="flex items-center justify-between rounded-2xl border border-stone-200 bg-white px-4 py-3 text-stone-700 transition hover:border-stone-400">
+                <span>{pick(lang, '检查验证码与预约防护', 'Review captcha and booking protection')}</span>
+                <span className="text-stone-500">→</span>
+              </Link>
+              <div className="flex items-center justify-between rounded-2xl border border-stone-200 bg-stone-50 px-4 py-3 text-stone-700">
+                <span>{pick(lang, '当前高风险待确认预约', 'Potentially risky pending bookings')}</span>
+                <span className="font-semibold text-stone-900">{allAppointments.filter((entry) => entry.status === 'PENDING').length}</span>
+              </div>
+            </div>
+          </div>
         </div>
       </div>
 

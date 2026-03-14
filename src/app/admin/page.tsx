@@ -86,6 +86,11 @@ export default async function AdminPage() {
             </AdminSectionCard>
 
             <AdminSectionCard eyebrow={pick(lang, '运营流程', 'Operations flow')} title={pick(lang, '建议处理顺序', 'Suggested workflow')} description={pick(lang, '把后台高频运营动作整理成一个更像正式系统的处理顺序。', 'Arrange the most common operational actions into a workflow that feels closer to a formal operations system.') }>
+              <div className="mb-4 flex flex-wrap gap-2 text-xs font-medium text-stone-500">
+                <span className="rounded-full border border-stone-200 bg-white px-3 py-1">{pick(lang, '先业务处理', 'Business first')}</span>
+                <span className="rounded-full border border-stone-200 bg-white px-3 py-1">{pick(lang, '再内容维护', 'Then content')}</span>
+                <span className="rounded-full border border-stone-200 bg-white px-3 py-1">{pick(lang, '最后安全巡检', 'Finish with security')}</span>
+              </div>
               <div className="grid gap-3 md:grid-cols-2 xl:grid-cols-4">
                 {[
                   { title: pick(lang, '先处理预约', 'Start with bookings'), desc: pick(lang, '优先检查待确认和已确认预约。', 'Check pending and confirmed bookings first.'), href: '/admin/appointments?status=PENDING' },

@@ -91,6 +91,20 @@ export default async function AdminSettingsPage() {
           </AdminSectionCard>
 
           <AdminSectionCard
+            eyebrow={pick(lang, '预约防护', 'Booking protection')}
+            title={pick(lang, '预约安全待办', 'Booking security checklist')}
+            description={pick(lang, '把预约防刷、防恶意预约和数据安全相关事项先明确挂到后台治理面板里。', 'Surface anti-abuse, booking protection and data-safety follow-ups in the admin governance layer before implementing heavier backend logic.')}
+          >
+            <AdminInfoList
+              items={[
+                { label: pick(lang, '防刷策略：', 'Anti-abuse policy: '), value: pick(lang, '验证码、IP 频率限制、手机号/邮箱频率限制应作为下一批优先能力', 'Captcha, IP throttling and phone/email rate limits should be prioritized next') },
+                { label: pick(lang, '改约/取消：', 'Reschedule / cancel: '), value: pick(lang, '建议补安全 token 链接与异常预约识别机制', 'Secure token links and abnormal-booking detection should be added') },
+                { label: pick(lang, '数据最少化：', 'Data minimization: '), value: pick(lang, '当前仅围绕姓名、电话、邮箱继续设计存储与删除策略', 'Continue designing storage and deletion policy around name, phone and email only') },
+              ]}
+            />
+          </AdminSectionCard>
+
+          <AdminSectionCard
             eyebrow={pick(lang, 'SEO 与合规', 'SEO & compliance')}
             title={pick(lang, 'SEO / 隐私待办', 'SEO / privacy checklist')}
             description={pick(lang, '把不会立刻破坏当前系统、但必须逐步补齐的 SEO 与合规项集中展示。', 'Surface the SEO and compliance follow-ups that should be added progressively without overloading the MVP.')}
