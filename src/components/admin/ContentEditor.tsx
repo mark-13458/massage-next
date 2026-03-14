@@ -252,6 +252,7 @@ export function ContentEditor({
 
   return (
     <div className="space-y-6">
+      <div id="hero-section">
       <AdminSectionCard
         eyebrow={t(lang, '首页主视觉', 'Homepage hero')}
         title={t(lang, '首页主视觉', 'Homepage hero')}
@@ -279,7 +280,9 @@ export function ContentEditor({
           </label>
         </div>
       </AdminSectionCard>
+      </div>
 
+      <div id="contact-section">
       <AdminSectionCard
         eyebrow={t(lang, '联系信息', 'Contact')}
         title={t(lang, '联系信息', 'Contact information')}
@@ -291,7 +294,9 @@ export function ContentEditor({
           <label className="flex flex-col gap-2 text-sm text-stone-700"><span>Email</span><input value={contact.email ?? ''} onChange={(e) => setContact({ ...contact, email: e.target.value })} placeholder={t(lang, '填写用于接收通知或客户联系的邮箱', 'Use the email address for notifications and customer contact')} className="rounded-2xl border border-stone-200 px-4 py-3 outline-none focus:border-amber-500" /></label>
         </div>
       </AdminSectionCard>
+      </div>
 
+      <div id="hours-section">
       <AdminSectionCard
         eyebrow={t(lang, '营业时间', 'Hours')}
         title={t(lang, '营业时间', 'Business hours')}
@@ -308,7 +313,9 @@ export function ContentEditor({
           ))}
         </div>
       </AdminSectionCard>
+      </div>
 
+      <div id="faq-section">
       <AdminSectionCard
         eyebrow="FAQ"
         title={t(lang, '常见问题', 'FAQ')}
@@ -333,7 +340,9 @@ export function ContentEditor({
           ))}
         </div>
       </AdminSectionCard>
+      </div>
 
+      <div id="gallery-section">
       <AdminSectionCard
         eyebrow={t(lang, '图片资料', 'Gallery')}
         title={t(lang, '图库管理', 'Gallery management')}
@@ -374,6 +383,7 @@ export function ContentEditor({
           ))}
         </div>
       </AdminSectionCard>
+      </div>
 
       <div className="sticky bottom-4 z-10 flex flex-wrap items-center gap-4 rounded-full border border-stone-200 bg-white/95 px-4 py-3 shadow-[0_18px_40px_rgba(28,25,23,0.12)] backdrop-blur">
         <button type="button" onClick={save} disabled={isPending} className="rounded-full bg-stone-900 px-5 py-3 text-sm font-semibold text-white transition hover:bg-stone-800 disabled:cursor-not-allowed disabled:opacity-70">

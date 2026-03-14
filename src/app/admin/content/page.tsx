@@ -55,6 +55,15 @@ export default async function AdminContentPage() {
               <span className="rounded-full border border-stone-300 bg-white px-4 py-2 text-sm font-medium text-stone-700">
                 {pick(lang, `封面图片 ${data.stats.coverCount} 张`, `Cover images: ${data.stats.coverCount}`)}
               </span>
+              <span className={`rounded-full px-4 py-2 text-sm font-medium ${data.stats.contactReady ? 'bg-emerald-50 text-emerald-700' : 'bg-amber-100 text-amber-800'}`}>
+                {pick(lang, data.stats.contactReady ? '联系信息已就绪' : '联系信息待补充', data.stats.contactReady ? 'Contact ready' : 'Contact incomplete')}
+              </span>
+              <span className={`rounded-full px-4 py-2 text-sm font-medium ${data.stats.heroCopyReady ? 'bg-emerald-50 text-emerald-700' : 'bg-amber-100 text-amber-800'}`}>
+                {pick(lang, data.stats.heroCopyReady ? '主视觉文案已就绪' : '主视觉文案待完善', data.stats.heroCopyReady ? 'Hero copy ready' : 'Hero copy incomplete')}
+              </span>
+              <span className="rounded-full border border-stone-300 bg-white px-4 py-2 text-sm font-medium text-stone-700">
+                {pick(lang, `营业日 ${data.stats.openDayCount} 天`, `Open days: ${data.stats.openDayCount}`)}
+              </span>
             </div>
             <ContentEditor
               lang={lang}
@@ -75,6 +84,8 @@ export default async function AdminContentPage() {
                 { label: pick(lang, '启用 FAQ', 'Active FAQs'), value: data.stats.activeFaqCount },
                 { label: pick(lang, '图库图片', 'Gallery images'), value: data.stats.galleryCount },
                 { label: pick(lang, '封面数量', 'Cover images'), value: data.stats.coverCount },
+                { label: pick(lang, '营业日', 'Open days'), value: data.stats.openDayCount },
+                { label: pick(lang, '联系信息', 'Contact'), value: data.stats.contactReady ? pick(lang, '已就绪', 'Ready') : pick(lang, '待补充', 'Missing') },
               ].map((item) => (
                 <div key={item.label} className="rounded-3xl border border-white/10 bg-white/5 p-4">
                   <p className="text-[11px] font-semibold uppercase tracking-[0.24em] text-stone-400">{item.label}</p>
@@ -86,13 +97,17 @@ export default async function AdminContentPage() {
 
             <AdminSectionCard eyebrow={pick(lang, '快捷处理', 'Quick actions')} title={pick(lang, '内容管理快捷入口', 'Content quick actions')} description={pick(lang, '把高频内容维护动作收成直接入口，减少在长表单和不同页面之间跳转。', 'Collect common content-maintenance actions into direct shortcuts so the admin feels easier to operate day to day.') }>
               <div className="space-y-3 text-sm">
-                <Link href="/admin/content" className="flex items-center justify-between rounded-2xl border border-stone-200 bg-white px-4 py-3 text-stone-700 transition hover:border-stone-400">
+                <Link href="/admin/content#hero-section" className="flex items-center justify-between rounded-2xl border border-stone-200 bg-white px-4 py-3 text-stone-700 transition hover:border-stone-400">
                   <span>{pick(lang, '继续维护首页主视觉', 'Continue hero maintenance')}</span>
-                  <span className="text-stone-500">→</span>
+                  <span className={`rounded-full px-3 py-1 text-xs font-semibold ${data.stats.heroCopyReady ? 'bg-emerald-50 text-emerald-700' : 'bg-amber-100 text-amber-800'}`}>{pick(lang, data.stats.heroCopyReady ? '已就绪' : '待完善', data.stats.heroCopyReady ? 'Ready' : 'Needs work')}</span>
                 </Link>
-                <Link href="/admin/content" className="flex items-center justify-between rounded-2xl border border-stone-200 bg-white px-4 py-3 text-stone-700 transition hover:border-stone-400">
+                <Link href="/admin/content#faq-section" className="flex items-center justify-between rounded-2xl border border-stone-200 bg-white px-4 py-3 text-stone-700 transition hover:border-stone-400">
                   <span>{pick(lang, '继续维护 FAQ 与营业时间', 'Continue FAQ and hours maintenance')}</span>
                   <span className="font-semibold text-stone-900">{data.stats.activeFaqCount}</span>
+                </Link>
+                <Link href="/admin/content#contact-section" className="flex items-center justify-between rounded-2xl border border-stone-200 bg-white px-4 py-3 text-stone-700 transition hover:border-stone-400">
+                  <span>{pick(lang, '补齐联系信息', 'Complete contact details')}</span>
+                  <span className={`rounded-full px-3 py-1 text-xs font-semibold ${data.stats.contactReady ? 'bg-emerald-50 text-emerald-700' : 'bg-amber-100 text-amber-800'}`}>{pick(lang, data.stats.contactReady ? '已就绪' : '待补充', data.stats.contactReady ? 'Ready' : 'Missing')}</span>
                 </Link>
                 <Link href="/admin/gallery" className="flex items-center justify-between rounded-2xl border border-stone-200 bg-white px-4 py-3 text-stone-700 transition hover:border-stone-400">
                   <span>{pick(lang, '前往图库页巡检图片', 'Inspect media in gallery page')}</span>
@@ -116,6 +131,16 @@ export default async function AdminContentPage() {
                 <div className="flex items-center justify-between rounded-2xl border border-stone-200 bg-white px-4 py-3 text-stone-700">
                   <span>{pick(lang, '图库封面情况', 'Gallery cover status')}</span>
                   <span className="font-semibold text-stone-900">{data.stats.coverCount}</span>
+                </div>
+                <div className="flex items-center justify-between rounded-2xl border border-stone-200 bg-white px-4 py-3 text-stone-700">
+                  <span>{pick(lang, '联系信息完整度', 'Contact completeness')}</span>
+                  <span className={`rounded-full px-3 py-1 text-xs font-semibold ${data.stats.contactReady ? 'bg-emerald-50 text-emerald-700' : 'bg-amber-100 text-amber-800'}`}>
+                    {pick(lang, data.stats.contactReady ? '已就绪' : '待补充', data.stats.contactReady ? 'Ready' : 'Missing')}
+                  </span>
+                </div>
+                <div className="flex items-center justify-between rounded-2xl border border-stone-200 bg-white px-4 py-3 text-stone-700">
+                  <span>{pick(lang, '营业时间覆盖', 'Business hours coverage')}</span>
+                  <span className="font-semibold text-stone-900">{data.stats.openDayCount} / 7</span>
                 </div>
               </div>
             </AdminSectionCard>

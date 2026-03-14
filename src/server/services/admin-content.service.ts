@@ -4,7 +4,22 @@ import { getAdminGalleryItems } from '../repositories/admin/media.repository'
 
 export async function getAdminContentWorkspace() {
   if (!process.env.DATABASE_URL) {
-    return { contact: null, hero: null, hours: [], faqs: [], gallery: [], stats: { faqCount: 0, activeFaqCount: 0, galleryCount: 0, coverCount: 0 } }
+    return {
+      contact: null,
+      hero: null,
+      hours: [],
+      faqs: [],
+      gallery: [],
+      stats: {
+        faqCount: 0,
+        activeFaqCount: 0,
+        galleryCount: 0,
+        coverCount: 0,
+        contactReady: false,
+        openDayCount: 0,
+        heroCopyReady: false,
+      },
+    }
   }
 
   try {
@@ -41,6 +56,9 @@ export async function getAdminContentWorkspace() {
         activeFaqCount: faqs.filter((item) => item.isActive).length,
         galleryCount: gallery.length,
         coverCount: gallery.filter((item) => item.isCover).length,
+        contactReady: Boolean(contact?.phone && contact?.address),
+        openDayCount: hours.filter((item) => !item.isClosed).length,
+        heroCopyReady: Boolean(heroValue?.titleDe && heroValue?.titleEn && heroValue?.subtitleDe && heroValue?.subtitleEn),
       },
       faqs: faqs.map((item) => ({
         id: item.id,
@@ -64,6 +82,21 @@ export async function getAdminContentWorkspace() {
       })),
     }
   } catch {
-    return { contact: null, hero: null, hours: [], faqs: [], gallery: [], stats: { faqCount: 0, activeFaqCount: 0, galleryCount: 0, coverCount: 0 } }
+    return {
+      contact: null,
+      hero: null,
+      hours: [],
+      faqs: [],
+      gallery: [],
+      stats: {
+        faqCount: 0,
+        activeFaqCount: 0,
+        galleryCount: 0,
+        coverCount: 0,
+        contactReady: false,
+        openDayCount: 0,
+        heroCopyReady: false,
+      },
+    }
   }
 }
