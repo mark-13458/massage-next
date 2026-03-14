@@ -2226,6 +2226,56 @@ Docker 部署当前已经不只是“页面能打开”，而是：
 2. 继续把 `ContentEditor` 里剩余能中文化的 `Hero / Gallery` 表达继续收掉。
 3. 继续把 `ContentEditor` 中剩余区块逐步收进统一区块卡片模式。
 
+#### 68) 后台中文化与内容工作区统一（第二批批量修正）
+- 本轮继续按“阶段”推进，不再拆成零碎点修补。
+- 目标：
+  - 继续收口预约页、图库页、设置页的侧栏与说明区块；
+  - 继续把 `ContentEditor` 剩余的主视觉 / 图库表达和结构统一推进一层。
+- 本轮覆盖：
+  - `src/app/admin/appointments/page.tsx`
+  - `src/app/admin/appointments/[id]/page.tsx`
+  - `src/app/admin/gallery/page.tsx`
+  - `src/app/admin/settings/page.tsx`
+  - `src/components/admin/ContentEditor.tsx`
+- 已完成：
+  - 预约列表页
+    - `返回 Dashboard` → `返回后台首页`
+  - 预约详情页
+    - `快捷操作` → `快捷处理`
+    - `状态处理` → `状态操作`
+  - 图库页
+    - 中文说明中的 `内容工作台` → `内容管理页`
+    - `翻查资源状态` → `翻查图片状态`
+  - 设置页侧栏
+    - `运行快照` → `当前配置`
+    - `当前配置快照` → `当前配置概览`
+  - `ContentEditor`
+    - 把首页主视觉区块正式收进 `AdminSectionCard`
+    - 把图库区块正式收进 `AdminSectionCard`
+    - 清掉 Hero 区块因重构遗留的重复头部结构
+- 本轮额外价值：
+  - 这轮不只是改词，还顺手修复了一个真实回归：
+    - 在把 `ContentEditor` 改造到共享卡片结构时，主视觉区块一度出现了重复头部；
+    - 已修正并重新通过构建验证。
+- 本轮价值总结：
+  - 中文化继续从“单词替换”升级到“页面结构 + 表达统一”并行推进；
+  - 内容工作区的核心区块（主视觉 / 联系信息 / 营业时间 / 常见问题 / 图库）正在逐步进入同一套结构体系；
+  - 后台越来越像一套完整的运营系统，而不是历史增量页面的集合。
+
+### 本阶段验证追加
+- `npm run build` 已通过。
+
+### 本阶段结论
+这一轮是第二批明确阶段性推进：
+- 不改接口；
+- 不改业务逻辑；
+- 同时推进后台中文化与内容工作区结构统一。
+
+### 下一步建议
+1. 继续做第三批批量收口，优先 services / settings / gallery 的侧栏说明与建议卡片。
+2. 继续把 `ContentEditor` 里的中英混杂提示（如英文 placeholder / URL 表达）往更自然的中文后台语境收口。
+3. 继续检查后台全局是否还残留 `Dashboard / Workspace / Hero / Gallery` 这类可替换的高频英文术语。
+
 #### 57) NoticePill 抽象 + ContentEditor 输入提示继续收口
 - 本轮继续严格沿着上一轮 DEVELOPMENT_LOG 的下一步推进，没有改 API、数据结构或上传链核心逻辑。
 - 已新增共享组件：

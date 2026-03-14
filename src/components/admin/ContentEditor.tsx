@@ -252,17 +252,17 @@ export function ContentEditor({
 
   return (
     <div className="space-y-6">
-      <section className="rounded-[28px] border border-stone-200 bg-[#fcfbf8] p-6 shadow-[0_10px_30px_rgba(28,25,23,0.05)]">
-        <div className="flex items-center justify-between gap-4">
-          <div>
-            <h2 className="text-lg font-semibold text-stone-900">{t(lang, '首页主视觉', 'Homepage hero')}</h2>
-            <p className="mt-1 text-sm text-stone-500">{t(lang, '用于首页首屏展示的主文案与主视觉图片。支持上传图片，也可以手动填写图片地址。', 'Primary copy and hero media for the homepage first screen. You can upload an image or enter the image URL manually.')}</p>
-          </div>
+      <AdminSectionCard
+        eyebrow={t(lang, '首页主视觉', 'Homepage hero')}
+        title={t(lang, '首页主视觉', 'Homepage hero')}
+        description={t(lang, '用于首页首屏展示的主文案与主视觉图片。支持上传图片，也可以手动填写图片地址。', 'Primary copy and hero media for the homepage first screen. You can upload an image or enter the image URL manually.')}
+        actions={
           <label className="cursor-pointer rounded-full border border-stone-300 bg-white px-4 py-2 text-sm font-medium text-stone-700 transition hover:border-stone-500">
             {isHeroUploading ? t(lang, '上传中…', 'Uploading...') : t(lang, '上传主视觉图片', 'Upload hero image')}
             <input type="file" accept="image/*" onChange={handleHeroUpload} className="hidden" disabled={isHeroUploading} />
           </label>
-        </div>
+        }
+      >
         {heroUploadMessage ? <div className="mt-4"><NoticePill message={heroUploadMessage} tone={heroUploadMessageTone} /></div> : null}
         <div className="mt-5 grid gap-4 md:grid-cols-2">
           <input value={hero.eyebrowDe ?? ''} onChange={(e) => setHero({ ...hero, eyebrowDe: e.target.value })} placeholder={localizedFieldPlaceholder(lang, '主视觉上方短标签', 'Hero eyebrow', 'de')} className="rounded-2xl border border-stone-200 px-4 py-3 text-sm outline-none focus:border-amber-500" />
@@ -278,7 +278,7 @@ export function ContentEditor({
             <input value={hero.imageUrl ?? ''} onChange={(e) => setHero({ ...hero, imageUrl: e.target.value })} placeholder={t(lang, '可填写上传后的本地路径，或手动输入外部图片地址', 'Use the uploaded local path or enter an external image URL manually')} className="rounded-2xl border border-stone-200 px-4 py-3 outline-none focus:border-amber-500" />
           </label>
         </div>
-      </section>
+      </AdminSectionCard>
 
       <AdminSectionCard
         eyebrow={t(lang, '联系信息', 'Contact')}
@@ -334,13 +334,11 @@ export function ContentEditor({
         </div>
       </AdminSectionCard>
 
-      <section className="rounded-[28px] border border-stone-200 bg-white p-6 shadow-[0_10px_30px_rgba(28,25,23,0.05)]">
-        <div className="flex items-center justify-between gap-4">
-          <div>
-            <p className="text-[11px] font-semibold uppercase tracking-[0.24em] text-stone-400">{t(lang, '图片资料', 'Gallery')}</p>
-            <h2 className="mt-2 text-lg font-semibold text-stone-900">{t(lang, '图库管理', 'Gallery management')}</h2>
-            <p className="mt-1 text-sm text-stone-500">{t(lang, '这里维护前台图片资料、环境展示图和封面图。可使用本地上传路径，也可保留外部图片地址。', 'Manage gallery assets, environment photos and the cover image here. You can keep local uploaded paths or external image URLs.')}</p>
-          </div>
+      <AdminSectionCard
+        eyebrow={t(lang, '图片资料', 'Gallery')}
+        title={t(lang, '图库管理', 'Gallery management')}
+        description={t(lang, '这里维护前台图片资料、环境展示图和封面图。可使用本地上传路径，也可保留外部图片地址。', 'Manage gallery assets, environment photos and the cover image here. You can keep local uploaded paths or external image URLs.')}
+        actions={
           <div className="flex flex-wrap items-center gap-3">
             <label className="cursor-pointer rounded-full border border-stone-300 bg-white px-4 py-2 text-sm font-medium text-stone-700 transition hover:border-stone-500">
               {isUploading ? t(lang, '上传中…', 'Uploading...') : t(lang, '上传图片', 'Upload image')}
@@ -348,7 +346,8 @@ export function ContentEditor({
             </label>
             <button type="button" onClick={addGalleryItem} className="rounded-full border border-stone-300 bg-white px-4 py-2 text-sm font-medium text-stone-700 transition hover:border-stone-500">{t(lang, '新增图片资料', 'Add image item')}</button>
           </div>
-        </div>
+        }
+      >
         {uploadMessage ? <div className="mt-4"><NoticePill message={uploadMessage} tone={uploadMessageTone} /></div> : null}
         <div className="mt-5 grid gap-4">
           {gallery.filter((item) => !item._delete).length === 0 ? (
@@ -374,7 +373,7 @@ export function ContentEditor({
             </div>
           ))}
         </div>
-      </section>
+      </AdminSectionCard>
 
       <div className="sticky bottom-4 z-10 flex flex-wrap items-center gap-4 rounded-full border border-stone-200 bg-white/95 px-4 py-3 shadow-[0_18px_40px_rgba(28,25,23,0.12)] backdrop-blur">
         <button type="button" onClick={save} disabled={isPending} className="rounded-full bg-stone-900 px-5 py-3 text-sm font-semibold text-white transition hover:bg-stone-800 disabled:cursor-not-allowed disabled:opacity-70">

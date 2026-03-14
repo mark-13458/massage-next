@@ -56,7 +56,7 @@ export default async function AdminGalleryPage({
             title={pick(lang, '图片资料总览', 'Gallery library overview')}
             description={pick(
               lang,
-              '这一页先解决“快速看全图库状态”的问题；具体新增、上传、替换仍然复用现有内容工作台。',
+              '这一页先解决“快速看全图库状态”的问题；具体新增、上传、替换仍然复用现有内容管理页。',
               'This page solves the fast overview problem first; creation, upload and replacement continue to reuse the existing content workspace.',
             )}
             actions={
@@ -94,7 +94,7 @@ export default async function AdminGalleryPage({
                 title={pick(lang, '当前筛选下没有图库图片', 'No gallery images match the current filter')}
                 description={pick(
                   lang,
-                  '你可以切换筛选条件，或者去内容工作台上传第一张图库图片。',
+                  '你可以切换筛选条件，或者去内容管理页上传第一张图库图片。',
                   'Try a different filter, or go to the content workspace to upload the first gallery image.',
                 )}
               />
@@ -183,7 +183,7 @@ export default async function AdminGalleryPage({
               title={pick(lang, '图片状态看板', 'Gallery status panel')}
               description={pick(
                 lang,
-                '先把高频巡检信息抽出来，减少每次都进长表单翻查资源状态。',
+                '先把高频巡检信息抽出来，减少每次都进长表单翻查图片状态。',
                 'Pull the high-frequency inspection signals up front so you do not need to scan a long editor every time.',
               )}
               tone="dark"

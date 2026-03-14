@@ -63,8 +63,8 @@ export default async function AdminSettingsPage() {
           </AdminSectionCard>
 
           <AdminSectionCard
-            eyebrow={pick(lang, '运行快照', 'Runtime snapshot')}
-            title={pick(lang, '当前配置快照', 'Current configuration snapshot')}
+            eyebrow={pick(lang, '当前配置', 'Runtime snapshot')}
+            title={pick(lang, '当前配置概览', 'Current configuration snapshot')}
             description={pick(lang, '用一个轻量面板快速确认前台默认语言、后台默认语言、货币和验证码开关当前是什么状态。', 'Use this lightweight panel to quickly confirm the current frontend locale, admin language, currency and captcha state.')}
           >
             <AdminInfoList

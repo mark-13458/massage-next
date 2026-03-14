@@ -55,7 +55,7 @@ export default async function AdminAppointmentsPage({
     >
       <div className="mb-6 flex flex-wrap items-center gap-3">
         <Link href="/admin" className="rounded-full border border-stone-300 bg-white px-4 py-2 text-sm font-medium text-stone-700 transition hover:border-stone-500">
-          {pick(lang, '返回 Dashboard', 'Back to dashboard')}
+          {pick(lang, '返回后台首页', 'Back to dashboard')}
         </Link>
         {allowedStatuses.map((status) => (
           <Link

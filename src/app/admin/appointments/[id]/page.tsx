@@ -91,11 +91,11 @@ export default async function AppointmentDetailPage({ params }: { params: { id: 
         }
         aside={
           <>
-            <AdminDetailBlock title={pick(lang, '快捷操作', 'Quick actions')}>
+            <AdminDetailBlock title={pick(lang, '快捷处理', 'Quick actions')}>
               <AppointmentQuickActions id={appointment.id} lang={lang} />
             </AdminDetailBlock>
 
-            <AdminDetailBlock title={pick(lang, '状态处理', 'Status handling')}>
+            <AdminDetailBlock title={pick(lang, '状态操作', 'Status handling')}>
               <div className="flex flex-wrap items-center justify-between gap-3">
                 {getStatusBadge(appointment.status, lang)}
               </div>
