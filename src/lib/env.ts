@@ -22,5 +22,5 @@ export const env = {
     password: process.env.ADMIN_PASSWORD,
     name: process.env.ADMIN_NAME,
   },
-  uploadDir: process.env.UPLOAD_DIR ?? '/app/uploads',
+  uploadDir: process.env.UPLOAD_DIR ?? '/app/public/uploads',
 }

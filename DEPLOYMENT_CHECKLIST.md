@@ -53,9 +53,11 @@
 - [ ] `ADMIN_PASSWORD`
 - [ ] `ADMIN_NAME`
 - [ ] `SESSION_SECRET`（或当前 auth/session 所需密钥）
-- [ ] `NEXT_PUBLIC_SITE_URL` / 站点基址（如果代码中有用）
+- [ ] `APP_URL`（当前项目实际使用，不是 `NEXT_PUBLIC_SITE_URL`）
 - [ ] SMTP 相关变量（如启用邮件）
 - [ ] MySQL root / app 用户密码
+- [ ] `UPLOAD_DIR`
+- [ ] `APP_PORT` / `NGINX_PORT` / `MYSQL_PORT`（如需改默认端口）
 
 ### 2.2 文档与模板
 - [ ] `.env.example` 已包含全部必需变量

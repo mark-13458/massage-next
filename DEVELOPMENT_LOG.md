@@ -1,5 +1,12 @@
 # DEVELOPMENT_LOG.md
 
+## 2026-03-14 - 阶段继续推进：部署基线收口（环境变量 + Compose 健康检查）
+- 统一 `UPLOAD_DIR` 默认值：将 `src/lib/env.ts` 从 `/app/uploads` 收口为 `/app/public/uploads`，与 `.env.example`、Docker volume 挂载路径保持一致，避免部署后文件落盘路径不一致。
+- 重构 `docker-compose.yml`：由硬编码默认密码/端口改为优先读取 `.env` 变量，并保留合理默认值，便于本地开发与测试环境部署复用同一份编排文件。
+- 为 `web` 服务补上基于 `/api/healthz` 的容器级 healthcheck，并让 `nginx` 依赖 `web` healthy 后再启动，缩小“容器起来但应用还没准备好”的空窗期。
+- 同步更新 `.env.example`、`README_CN.md`、`DEPLOYMENT_CHECKLIST.md`，让部署文档与实际代码行为一致。
+- 本阶段目标：把项目从“能 docker 跑起来”继续推进到“更像真实可交付部署基线”。
+
 ## 2026-03-14 - 阶段继续推进：后台 view-model 格式化层收口
 - 清理 `src/server/view-models/admin/shared/formatters.ts` 中混入但未被实际使用的 mapper / Prisma 类型导入，避免共享格式化层继续膨胀。
 - 保留并整理日期、时长、金额、图片尺寸、本地/外部资源来源等真正仍在使用的共享格式化能力。

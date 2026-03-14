@@ -4,14 +4,14 @@ services:
     container_name: massage-mysql
     restart: unless-stopped
     environment:
-      MYSQL_DATABASE: massage_app
-      MYSQL_USER: appuser
-      MYSQL_PASSWORD: apppassword
-      MYSQL_ROOT_PASSWORD: rootpassword
+      MYSQL_DATABASE: ${MYSQL_DATABASE:-massage_app}
+      MYSQL_USER: ${MYSQL_USER:-appuser}
+      MYSQL_PASSWORD: ${MYSQL_PASSWORD:-apppassword}
+      MYSQL_ROOT_PASSWORD: ${MYSQL_ROOT_PASSWORD:-rootpassword}
     ports:
-      - "3307:3306"
+      - "${MYSQL_PORT:-3307}:3306"
     healthcheck:
-      test: ["CMD", "mysqladmin", "ping", "-h", "localhost"]
+      test: ["CMD", "mysqladmin", "ping", "-h", "localhost", "-u", "root", "-p${MYSQL_ROOT_PASSWORD:-rootpassword}"]
       interval: 5s
       timeout: 3s
       retries: 20
@@ -26,31 +26,41 @@ services:
       mysql:
         condition: service_healthy
     environment:
-      NODE_ENV: production
-      APP_URL: http://localhost
-      DEFAULT_LOCALE: de
-      DATABASE_URL: mysql://appuser:apppassword@mysql:3306/massage_app
-      SESSION_SECRET: change_me_to_a_long_random_secret
-      SMTP_HOST: smtp.example.com
-      SMTP_PORT: 587
-      SMTP_SECURE: "false"
-      SMTP_USERNAME: user@example.com
-      SMTP_PASSWORD: password
-      SMTP_FROM: no-reply@example.com
-      UPLOAD_DIR: /app/public/uploads
+      NODE_ENV: ${NODE_ENV:-production}
+      APP_URL: ${APP_URL:-http://localhost}
+      DEFAULT_LOCALE: ${DEFAULT_LOCALE:-de}
+      DATABASE_URL: ${DATABASE_URL:-mysql://appuser:apppassword@mysql:3306/massage_app}
+      ADMIN_EMAIL: ${ADMIN_EMAIL:-admin@example.com}
+      ADMIN_PASSWORD: ${ADMIN_PASSWORD:-ChangeMe123!}
+      ADMIN_NAME: ${ADMIN_NAME:-Admin}
+      SESSION_SECRET: ${SESSION_SECRET:-change_me_to_a_long_random_secret}
+      SMTP_HOST: ${SMTP_HOST:-smtp.example.com}
+      SMTP_PORT: ${SMTP_PORT:-587}
+      SMTP_SECURE: ${SMTP_SECURE:-false}
+      SMTP_USERNAME: ${SMTP_USERNAME:-user@example.com}
+      SMTP_PASSWORD: ${SMTP_PASSWORD:-password}
+      SMTP_FROM: ${SMTP_FROM:-no-reply@example.com}
+      UPLOAD_DIR: ${UPLOAD_DIR:-/app/public/uploads}
     ports:
-      - "3002:3000"
+      - "${APP_PORT:-3002}:3000"
     volumes:
       - uploads_data:/app/public/uploads
+    healthcheck:
+      test: ["CMD", "node", "-e", "fetch('http://127.0.0.1:3000/api/healthz').then(r=>process.exit(r.ok?0:1)).catch(()=>process.exit(1))"]
+      interval: 10s
+      timeout: 5s
+      retries: 10
+      start_period: 20s
 
   nginx:
     image: nginx:alpine
     container_name: massage-nginx
     restart: unless-stopped
     depends_on:
-      - web
+      web:
+        condition: service_healthy
     ports:
-      - "80:80"
+      - "${NGINX_PORT:-80}:80"
     volumes:
       - ./nginx/nginx.conf:/etc/nginx/nginx.conf:ro
 

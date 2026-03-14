@@ -130,13 +130,28 @@ Seed 当前会初始化：
 ## 🐳 Docker
 
 ```bash
+cp .env.example .env
 docker compose up -d --build
 ```
+
+当前 Compose 已改为优先从 `.env` 读取变量，避免把端口、数据库口令、管理员初始化信息硬编码在 `docker-compose.yml` 中。
 
 当前目标架构：
 - `web`：Next.js 应用
 - `mysql`：MySQL 数据库
 - `nginx`：反向代理
+
+当前推荐至少确认这些变量：
+- `APP_URL`
+- `DATABASE_URL`
+- `ADMIN_EMAIL` / `ADMIN_PASSWORD` / `ADMIN_NAME`
+- `SESSION_SECRET`
+- `MYSQL_DATABASE` / `MYSQL_USER` / `MYSQL_PASSWORD` / `MYSQL_ROOT_PASSWORD`
+- `UPLOAD_DIR`
+
+健康检查：
+- 应用：`/api/healthz`
+- `web` 容器已在 Compose 中增加基于 `/api/healthz` 的 healthcheck
 
 ---
 
