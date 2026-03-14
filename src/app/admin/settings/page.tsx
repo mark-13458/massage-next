@@ -76,6 +76,33 @@ export default async function AdminSettingsPage() {
               ]}
             />
           </AdminSectionCard>
+
+          <AdminSectionCard
+            eyebrow={pick(lang, '功能开关', 'Feature flags')}
+            title={pick(lang, '默认功能策略', 'Default feature policy')}
+            description={pick(lang, '结合当前项目定位，把 MVP 应默认开启与默认关闭的能力先清晰展示出来。', 'Make the MVP feature policy explicit so the admin reflects which capabilities should be on now and which stay reserved for later.')}
+          >
+            <AdminInfoList
+              items={[
+                { label: pick(lang, '默认开启：', 'Enabled by default: '), value: pick(lang, '官网展示 / 在线预约 / 邮件提醒预留 / 改约取消 / 基础 SEO / 基础验证码能力', 'Website / online booking / email reminder readiness / reschedule & cancel / baseline SEO / baseline captcha capability') },
+                { label: pick(lang, '默认关闭：', 'Disabled by default: '), value: pick(lang, '在线支付 / 优惠券 / 会员系统 / WhatsApp 自动提醒 / 营销活动 / 强制 2FA', 'Online payments / coupons / membership / WhatsApp auto-reminders / campaigns / enforced 2FA') },
+              ]}
+            />
+          </AdminSectionCard>
+
+          <AdminSectionCard
+            eyebrow={pick(lang, 'SEO 与合规', 'SEO & compliance')}
+            title={pick(lang, 'SEO / 隐私待办', 'SEO / privacy checklist')}
+            description={pick(lang, '把不会立刻破坏当前系统、但必须逐步补齐的 SEO 与合规项集中展示。', 'Surface the SEO and compliance follow-ups that should be added progressively without overloading the MVP.')}
+          >
+            <AdminInfoList
+              items={[
+                { label: pick(lang, 'SEO 页面：', 'SEO pages: '), value: pick(lang, 'Impressum / Datenschutzerklärung 仍需继续收口与运营化', 'Impressum / Datenschutz pages still need further productization and operations polish') },
+                { label: pick(lang, '预约合规：', 'Booking compliance: '), value: pick(lang, '隐私同意、数据保留、删除机制建议纳入下一批后台能力', 'Privacy consent, retention and deletion workflow should be added in upcoming admin phases') },
+                { label: pick(lang, '安全平衡：', 'Security balance: '), value: pick(lang, '公开页面保持可索引，后台与敏感接口保持不可索引', 'Public pages remain indexable while admin and sensitive endpoints stay non-indexable') },
+              ]}
+            />
+          </AdminSectionCard>
           </>
         }
       />

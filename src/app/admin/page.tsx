@@ -66,6 +66,12 @@ export default async function AdminPage() {
                     href: '/admin/gallery',
                     icon: '🖼️'
                   },
+                  {
+                    title: pick(lang, '系统与安全', 'System & security'),
+                    desc: pick(lang, '集中查看系统设置、验证码、防护与管理员安全入口', 'Review system settings, captcha protection and admin-security entry points in one place.'),
+                    href: '/admin/settings',
+                    icon: '🔐'
+                  },
                 ].map((item) => (
                   <Link key={item.title} href={item.href} className="group relative flex flex-col gap-2 rounded-3xl border border-stone-100 bg-[linear-gradient(180deg,#fff_0%,#fcfbf9_100%)] p-5 transition hover:border-stone-300 hover:shadow-sm">
                     <div className="flex items-center justify-between">
@@ -104,6 +110,7 @@ export default async function AdminPage() {
                   <span className="rounded-full border border-white/10 bg-white/5 px-3 py-1">{pick(lang, '服务', 'Services')}</span>
                   <span className="rounded-full border border-white/10 bg-white/5 px-3 py-1">{pick(lang, '内容', 'Content')}</span>
                   <span className="rounded-full border border-white/10 bg-white/5 px-3 py-1">{pick(lang, '图片', 'Media')}</span>
+                  <span className="rounded-full border border-white/10 bg-white/5 px-3 py-1">{pick(lang, '安全', 'Security')}</span>
                 </div>
                 <div className="space-y-3">
                   <Link href="/admin/appointments?status=PENDING" className="flex items-center justify-between rounded-2xl border border-white/10 bg-white/5 px-4 py-3 text-sm text-stone-200 transition hover:bg-white/10">
@@ -124,6 +131,10 @@ export default async function AdminPage() {
                   </Link>
                   <Link href="/admin/gallery?filter=cover" className="flex items-center justify-between rounded-2xl border border-white/10 bg-white/5 px-4 py-3 text-sm text-stone-200 transition hover:bg-white/10">
                     <span>{pick(lang, '巡检封面图片', 'Inspect cover images')}</span>
+                    <span className="text-white">→</span>
+                  </Link>
+                  <Link href="/admin/settings" className="flex items-center justify-between rounded-2xl border border-white/10 bg-white/5 px-4 py-3 text-sm text-stone-200 transition hover:bg-white/10">
+                    <span>{pick(lang, '检查系统与安全设置', 'Review system and security settings')}</span>
                     <span className="text-white">→</span>
                   </Link>
                 </div>
