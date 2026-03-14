@@ -108,7 +108,8 @@ export default async function AppointmentDetailPage({ params }: { params: { id: 
               <AdminInfoList
                 items={[
                   { label: pick(lang, '管理 token', 'Manage token'), value: appointment.confirmationToken || '—' },
-                  { label: pick(lang, '安全链接', 'Secure link'), value: appointment.confirmationToken ? `/api/booking/manage/${appointment.confirmationToken}` : '—' },
+                  { label: pick(lang, '安全链接 API', 'Secure link API'), value: appointment.confirmationToken ? `/api/booking/manage/${appointment.confirmationToken}` : '—' },
+                  { label: pick(lang, '客户页面链接', 'Customer page link'), value: appointment.confirmationToken ? `/${appointment.locale || 'de'}/booking/manage/${appointment.confirmationToken}` : '—' },
                 ]}
               />
             </AdminDetailBlock>

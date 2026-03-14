@@ -59,12 +59,16 @@ export async function PATCH(request: Request, { params }: { params: { token: str
   const { action, appointmentDate, appointmentTime, notes } = parsed.data
 
   if (action === 'cancel') {
+    const auditNote = `Customer self-service cancel via secure link at ${new Date().toISOString()}`
     const item = await prisma.appointment.update({
       where: { id: appointment.id },
       data: {
         status: AppointmentStatus.CANCELLED,
         cancelledAt: new Date(),
         notes: typeof notes === 'string' ? notes : appointment.notes,
+        internalNote: appointment.internalNote
+          ? `${appointment.internalNote}\n${auditNote}`
+          : auditNote,
       },
     })
 
@@ -75,6 +79,7 @@ export async function PATCH(request: Request, { params }: { params: { token: str
     return apiError('appointmentDate and appointmentTime are required for reschedule', 400)
   }
 
+  const auditNote = `Customer self-service reschedule via secure link at ${new Date().toISOString()}`
   const item = await prisma.appointment.update({
     where: { id: appointment.id },
     data: {
@@ -86,6 +91,9 @@ export async function PATCH(request: Request, { params }: { params: { token: str
       confirmedById: null,
       cancelledAt: null,
       completedAt: null,
+      internalNote: appointment.internalNote
+        ? `${appointment.internalNote}\n${auditNote}`
+        : auditNote,
     },
   })
 

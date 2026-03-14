@@ -3180,3 +3180,40 @@ Docker 部署当前已经不只是“页面能打开”，而是：
 1. 继续把 `AppointmentQuickActions`、`AppointmentStatusControls`、`AdminPasswordForm` 等组件的 pill 提示也完全收口到 `NoticePill`。
 2. 再做一轮后台可见文案扫描，优先修真正影响运营理解的残留技术文案与编码污染点。
 3. 如果继续统一后台体验，可把常用按钮 / 空状态 / 统计卡的 copy 也进一步抽到共享 copy 层。
+
+#### 91) 预约 token 流程继续收口：后台可追踪性增强
+- 本轮继续沿预约 token 安全闭环推进，重点补“操作痕迹可追踪”和“后台可直接看到客户页面入口”。
+- 本轮覆盖：
+  - `src/app/api/booking/manage/[token]/route.ts`
+  - `src/app/admin/appointments/[id]/page.tsx`
+- 已完成：
+  - token 操作写入内部记录：
+    - 客户通过安全链接执行 `cancel`
+      - 会自动写入内部备注：`Customer self-service cancel via secure link ...`
+    - 客户通过安全链接执行 `reschedule`
+      - 会自动写入内部备注：`Customer self-service reschedule via secure link ...`
+    - 让后台第一次能够直接看到“客户通过安全链接做过什么”。
+  - 后台详情页增强：
+    - 原有“安全链接”区块继续保留；
+    - 现在同时展示：
+      - `Secure link API`
+      - `Customer page link`
+    - 让后台人员既能看到接口地址，也能直接知道客户侧真实访问页面。
+- 本轮价值：
+  - token 流程已经不再只是可操作，还开始具备最基础的可追踪性；
+  - 后台详情页与客户自助管理页之间的关系更明确，运营闭环更完整；
+  - 这一步让预约安全链继续靠近正式运营系统，而不是停留在“单纯 API 能做事”。
+
+### 本阶段验证追加
+- `npm run build` 已通过。
+
+### 本阶段结论
+这一轮属于预约安全闭环增强阶段：
+- 不新增复杂日志表；
+- 先用低风险方式把操作痕迹写入现有内部记录；
+- 让后台更容易跟踪客户侧通过安全链接进行的操作。
+
+### 下一步建议
+1. 继续为 token 操作补更正式的日志 / 通知能力。
+2. 继续优化客户侧页面文案与状态提示，减少理解成本。
+3. 让后台预约详情页逐步形成更完整的“安全链管理视图”。
