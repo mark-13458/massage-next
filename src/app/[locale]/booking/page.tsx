@@ -17,14 +17,18 @@ export async function generateMetadata({ params }: { params: Promise<{ locale: s
     return {}
   }
 
+  const settings = await getSystemSettings().catch(() => null)
+
   return createPageMetadata({
     locale,
     pathname: '/booking',
     title: locale === 'de' ? 'Termin anfragen' : 'Request an Appointment',
     description:
       locale === 'de'
-        ? 'Fragen Sie Ihren Termin bei China TCM Massage in München online an – einfach, klar und mobilfreundlich.'
-        : 'Request your appointment at China TCM Massage in Munich online with a simple, clear and mobile-friendly booking flow.',
+        ? settings?.seoMetaDescriptionDe || 'Fragen Sie Ihren Termin bei China TCM Massage in München online an – einfach, klar und mobilfreundlich.'
+        : settings?.seoMetaDescriptionEn || 'Request your appointment at China TCM Massage in Munich online with a simple, clear and mobile-friendly booking flow.',
+    titleTemplate: locale === 'de' ? settings?.seoTitleTemplateDe : settings?.seoTitleTemplateEn,
+    siteNameOverride: settings?.siteName,
   })
 }
 

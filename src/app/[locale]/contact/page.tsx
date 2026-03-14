@@ -16,14 +16,18 @@ export async function generateMetadata({ params }: { params: Promise<{ locale: s
     return {}
   }
 
+  const settings = await getSystemSettings().catch(() => null)
+
   return createPageMetadata({
     locale,
     pathname: '/contact',
     title: locale === 'de' ? 'Kontakt & Öffnungszeiten' : 'Contact & Opening Hours',
     description:
       locale === 'de'
-        ? 'Finden Sie Adresse, Telefonnummer, E-Mail und Öffnungszeiten von China TCM Massage in München auf einen Blick.'
-        : 'Find the address, phone number, email and opening hours of China TCM Massage in Munich at a glance.',
+        ? settings?.seoMetaDescriptionDe || 'Finden Sie Adresse, Telefonnummer, E-Mail und Öffnungszeiten von China TCM Massage in München auf einen Blick.'
+        : settings?.seoMetaDescriptionEn || 'Find the address, phone number, email and opening hours of China TCM Massage in Munich at a glance.',
+    titleTemplate: locale === 'de' ? settings?.seoTitleTemplateDe : settings?.seoTitleTemplateEn,
+    siteNameOverride: settings?.siteName,
   })
 }
 

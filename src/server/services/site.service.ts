@@ -161,5 +161,11 @@ export async function getSystemSettings() {
         : 180,
     allowDeletionRequests: Boolean(record.allowDeletionRequests),
     featureEnableBookingManage: record.featureEnableBookingManage !== false,
+    featureEnableEmailReminders: record.featureEnableEmailReminders !== false,
+    featureEnableWhatsappReminders: Boolean(record.featureEnableWhatsappReminders),
+    seoTitleTemplateDe: typeof record.seoTitleTemplateDe === 'string' ? record.seoTitleTemplateDe : '',
+    seoTitleTemplateEn: typeof record.seoTitleTemplateEn === 'string' ? record.seoTitleTemplateEn : '',
+    seoMetaDescriptionDe: typeof record.seoMetaDescriptionDe === 'string' ? record.seoMetaDescriptionDe : '',
+    seoMetaDescriptionEn: typeof record.seoMetaDescriptionEn === 'string' ? record.seoMetaDescriptionEn : '',
   }
 }

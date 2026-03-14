@@ -32,6 +32,8 @@ export async function generateMetadata({ params }: { params: Promise<{ locale: s
     return {}
   }
 
+  const settings = await getSystemSettings().catch(() => null)
+
   return createPageMetadata({
     locale,
     pathname: '',
@@ -41,8 +43,10 @@ export async function generateMetadata({ params }: { params: Promise<{ locale: s
         : 'Traditional Chinese Massage in Munich',
     description:
       locale === 'de'
-        ? 'Entdecken Sie traditionelle chinesische Massage in München mit moderner, ruhiger Studioatmosphäre, transparenten Behandlungen und einfacher Terminanfrage.'
-        : 'Discover traditional Chinese massage in Munich with a calm modern studio atmosphere, transparent treatments and a simple appointment request flow.',
+        ? settings?.seoMetaDescriptionDe || 'Entdecken Sie traditionelle chinesische Massage in München mit moderner, ruhiger Studioatmosphäre, transparenten Behandlungen und einfacher Terminanfrage.'
+        : settings?.seoMetaDescriptionEn || 'Discover traditional Chinese massage in Munich with a calm modern studio atmosphere, transparent treatments and a simple appointment request flow.',
+    titleTemplate: locale === 'de' ? settings?.seoTitleTemplateDe : settings?.seoTitleTemplateEn,
+    siteNameOverride: settings?.siteName,
   })
 }
 

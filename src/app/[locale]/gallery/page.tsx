@@ -6,7 +6,7 @@ import { SectionShell } from '../../../components/site/SectionShell'
 import { isLocale, Locale } from '../../../lib/i18n'
 import { getMessages } from '../../../lib/copy'
 import { createPageMetadata } from '../../../lib/seo'
-import { getActiveGallery } from '../../../server/services/site.service'
+import { getActiveGallery, getSystemSettings } from '../../../server/services/site.service'
 
 const fallbackGallery = [
   {
@@ -48,14 +48,18 @@ export async function generateMetadata({ params }: { params: Promise<{ locale: s
     return {}
   }
 
+  const settings = await getSystemSettings().catch(() => null)
+
   return createPageMetadata({
     locale,
     pathname: '/gallery',
     title: locale === 'de' ? 'Galerie & Studio-Eindrücke' : 'Gallery & Studio Impressions',
     description:
       locale === 'de'
-        ? 'Sehen Sie Eindrücke aus dem Studio, der Atmosphäre und dem Wellness-Umfeld von China TCM Massage in München.'
-        : 'View impressions of the studio, atmosphere and wellness environment of China TCM Massage in Munich.',
+        ? settings?.seoMetaDescriptionDe || 'Sehen Sie Eindrücke aus dem Studio, der Atmosphäre und dem Wellness-Umfeld von China TCM Massage in München.'
+        : settings?.seoMetaDescriptionEn || 'View impressions of the studio, atmosphere and wellness environment of China TCM Massage in Munich.',
+    titleTemplate: locale === 'de' ? settings?.seoTitleTemplateDe : settings?.seoTitleTemplateEn,
+    siteNameOverride: settings?.siteName,
   })
 }
 

@@ -3453,3 +3453,63 @@ Docker 部署当前已经不只是“页面能打开”，而是：
 1. 继续把 SEO 模板配置接入 metadata 生成逻辑。
 2. 继续把邮件提醒开关接进通知链。
 3. 后续再把删除请求与数据保留策略推进成真实流程能力。
+
+#### 97) 批量推进：SEO 设置接入前台 metadata + 后台首页补治理状态联动
+- 本轮按“多处理一点、尽快完善后台”的要求，批量推进了前台 SEO 配置接入和后台总控联动，而不是只做单点修补。
+- 本轮覆盖：
+  - `src/lib/seo.ts`
+  - `src/server/services/site.service.ts`
+  - `src/app/[locale]/page.tsx`
+  - `src/app/[locale]/services/page.tsx`
+  - `src/app/[locale]/about/page.tsx`
+  - `src/app/[locale]/contact/page.tsx`
+  - `src/app/[locale]/gallery/page.tsx`
+  - `src/app/[locale]/booking/page.tsx`
+  - `src/app/admin/page.tsx`
+- 已完成：
+  - SEO 设置正式接入前台 metadata：
+    - `createPageMetadata` 现在支持：
+      - `titleTemplate`
+      - `siteNameOverride`
+    - 首页 / 服务页 / 关于页 / 联系页 / 图库页 / 预约页 的 `generateMetadata` 现在都会读取系统设置；
+    - 已支持从后台设置中读取：
+      - `seoTitleTemplateDe`
+      - `seoTitleTemplateEn`
+      - `seoMetaDescriptionDe`
+      - `seoMetaDescriptionEn`
+      - `siteName`
+    - 这意味着后台 SEO 设置第一次开始真实影响公开页面输出。
+  - 前台站点设置读取增强：
+    - `getSystemSettings()` 已继续补齐：
+      - `featureEnableEmailReminders`
+      - `featureEnableWhatsappReminders`
+      - SEO 模板与默认描述字段
+    - 为后续继续把邮件提醒、WhatsApp 预留、SEO 深化接入真实逻辑打基础。
+  - 后台首页总控增强：
+    - 后台首页现在会并行读取 `getAdminSystemSettings()`；
+    - 侧栏新增“当前治理配置”卡片；
+    - 直接展示当前关键状态：
+      - 客户自助改约 / 取消
+      - 邮件提醒
+      - 隐私同意
+      - 验证码防护
+      - 数据保留期
+    - 让运营首页不只看业务量，也开始看治理状态。
+- 本轮价值：
+  - SEO 设置不再只是后台表单，已经开始真实驱动公开页面 metadata；
+  - 后台首页进一步从业务总览页升级为运营 + 治理总控页；
+  - 这轮同时推进前台 SEO 和后台治理，符合“尽快完善后台、不要每次只做一点”的要求。
+
+### 本阶段验证追加
+- `npm run build` 已通过。
+
+### 本阶段结论
+这一轮属于跨前后台联动增强阶段：
+- 同时推进了 SEO 设置、生效链路和后台治理总控；
+- 没有引入重型架构改造；
+- 但显著提升了后台作为“可运营系统”的完成度。
+
+### 下一步建议
+1. 继续把邮件提醒开关接进通知链。
+2. 补 `Impressum` / `Datenschutzerklärung` 页面与后台治理的联动。
+3. 继续强化后台首页，把内容工作台待办、预约安全状态、SEO 状态再收成统一总控入口。

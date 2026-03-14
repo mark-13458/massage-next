@@ -7,6 +7,7 @@ import { AdminWorkspaceLayout } from '../../components/admin/AdminWorkspaceLayou
 import { getCurrentAdmin } from '../../lib/auth'
 import { getAdminLang, pick } from '../../lib/admin-i18n'
 import { getAdminDashboardStats } from '../../server/services/admin-dashboard.service'
+import { getAdminSystemSettings } from '../../server/services/admin-settings.service'
 
 export const dynamic = 'force-dynamic'
 export const revalidate = 0
@@ -15,7 +16,10 @@ export default async function AdminPage() {
   const admin = await getCurrentAdmin()
   if (!admin) redirect('/admin/login')
 
-  const stats = await getAdminDashboardStats()
+  const [stats, settings] = await Promise.all([
+    getAdminDashboardStats(),
+    getAdminSystemSettings(),
+  ])
   const lang = await getAdminLang()
 
   return (
@@ -149,11 +153,28 @@ export default async function AdminPage() {
                 </div>
               </AdminSectionCard>
 
-              <AdminSectionCard eyebrow={pick(lang, '当前定位', 'Positioning')} title={pick(lang, '当前后台定位', 'Current admin position')} description={pick(lang, '当前重点是把后台持续收口成更稳定的运营系统。', 'The current focus is to keep shaping the admin into a more stable operations system.')} tone="dark">
-                <div className="space-y-4 text-sm leading-7 text-stone-300">
-                  <p>这一步的目标不是一次性做完后台，而是先把“能连接真实数据的运营入口”搭起来。</p>
-                  <p>现在 dashboard 已经读取数据库计数，说明后台页面和数据层已经打通。</p>
-                  <p>当前已经具备：登录保护、预约管理、服务管理、内容管理、图库上传。</p>
+              <AdminSectionCard eyebrow={pick(lang, '治理状态', 'Governance status')} title={pick(lang, '当前治理配置', 'Current governance status')} description={pick(lang, '把系统设置里的关键开关和治理项直接拉到后台首页，减少在总控页和设置页之间来回跳转。', 'Pull key governance switches and policy states onto the dashboard so operators can review them without bouncing between pages.')} tone="dark">
+                <div className="space-y-3 text-sm text-stone-300">
+                  <div className="flex items-center justify-between rounded-2xl border border-white/10 bg-white/5 px-4 py-3">
+                    <span>{pick(lang, '客户自助改约 / 取消', 'Booking self-service')}</span>
+                    <span className="font-semibold text-white">{settings?.featureEnableBookingManage === false ? pick(lang, '关闭', 'Disabled') : pick(lang, '开启', 'Enabled')}</span>
+                  </div>
+                  <div className="flex items-center justify-between rounded-2xl border border-white/10 bg-white/5 px-4 py-3">
+                    <span>{pick(lang, '邮件提醒', 'Email reminders')}</span>
+                    <span className="font-semibold text-white">{settings?.featureEnableEmailReminders === false ? pick(lang, '关闭', 'Disabled') : pick(lang, '开启', 'Enabled')}</span>
+                  </div>
+                  <div className="flex items-center justify-between rounded-2xl border border-white/10 bg-white/5 px-4 py-3">
+                    <span>{pick(lang, '隐私同意', 'Privacy consent')}</span>
+                    <span className="font-semibold text-white">{settings?.privacyConsentRequired === false ? pick(lang, '未强制', 'Optional') : pick(lang, '已要求', 'Required')}</span>
+                  </div>
+                  <div className="flex items-center justify-between rounded-2xl border border-white/10 bg-white/5 px-4 py-3">
+                    <span>{pick(lang, '验证码防护', 'Captcha protection')}</span>
+                    <span className="font-semibold text-white">{settings?.cfTurnstileEnabled ? pick(lang, '开启', 'Enabled') : pick(lang, '关闭', 'Disabled')}</span>
+                  </div>
+                  <div className="flex items-center justify-between rounded-2xl border border-white/10 bg-white/5 px-4 py-3">
+                    <span>{pick(lang, '数据保留期', 'Retention')}</span>
+                    <span className="font-semibold text-white">{pick(lang, `${settings?.bookingRetentionDays || 180} 天`, `${settings?.bookingRetentionDays || 180} days`)}</span>
+                  </div>
                 </div>
               </AdminSectionCard>
             </div>

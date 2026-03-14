@@ -16,14 +16,18 @@ export async function generateMetadata({ params }: { params: Promise<{ locale: s
     return {}
   }
 
+  const settings = await getSystemSettings().catch(() => null)
+
   return createPageMetadata({
     locale,
     pathname: '/services',
     title: locale === 'de' ? 'Massagen & Behandlungen' : 'Massages & Treatments',
     description:
       locale === 'de'
-        ? 'Entdecken Sie Massagen und Behandlungen mit klarer Dauer, transparenten Preisen und einer ruhigen Studioatmosphäre in München.'
-        : 'Explore massages and treatments with clear durations, transparent pricing and a calm studio atmosphere in Munich.',
+        ? settings?.seoMetaDescriptionDe || 'Entdecken Sie Massagen und Behandlungen mit klarer Dauer, transparenten Preisen und einer ruhigen Studioatmosphäre in München.'
+        : settings?.seoMetaDescriptionEn || 'Explore massages and treatments with clear durations, transparent pricing and a calm studio atmosphere in Munich.',
+    titleTemplate: locale === 'de' ? settings?.seoTitleTemplateDe : settings?.seoTitleTemplateEn,
+    siteNameOverride: settings?.siteName,
   })
 }
 

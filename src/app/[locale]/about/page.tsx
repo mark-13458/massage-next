@@ -6,7 +6,7 @@ import { SectionShell } from '../../../components/site/SectionShell'
 import { isLocale, Locale } from '../../../lib/i18n'
 import { getMessages } from '../../../lib/copy'
 import { createPageMetadata } from '../../../lib/seo'
-import { getActiveFaqs, getPublishedTestimonials } from '../../../server/services/site.service'
+import { getActiveFaqs, getPublishedTestimonials, getSystemSettings } from '../../../server/services/site.service'
 
 export async function generateMetadata({ params }: { params: Promise<{ locale: string }> }): Promise<Metadata> {
   const { locale } = await params
@@ -15,14 +15,18 @@ export async function generateMetadata({ params }: { params: Promise<{ locale: s
     return {}
   }
 
+  const settings = await getSystemSettings().catch(() => null)
+
   return createPageMetadata({
     locale,
     pathname: '/about',
     title: locale === 'de' ? 'Über unser Studio' : 'About Our Studio',
     description:
       locale === 'de'
-        ? 'Erfahren Sie mehr über die Haltung, Atmosphäre und Behandlungsphilosophie von China TCM Massage in München.'
-        : 'Learn more about the approach, atmosphere and treatment philosophy behind China TCM Massage in Munich.',
+        ? settings?.seoMetaDescriptionDe || 'Erfahren Sie mehr über die Haltung, Atmosphäre und Behandlungsphilosophie von China TCM Massage in München.'
+        : settings?.seoMetaDescriptionEn || 'Learn more about the approach, atmosphere and treatment philosophy behind China TCM Massage in Munich.',
+    titleTemplate: locale === 'de' ? settings?.seoTitleTemplateDe : settings?.seoTitleTemplateEn,
+    siteNameOverride: settings?.siteName,
   })
 }
 

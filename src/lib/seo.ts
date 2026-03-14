@@ -41,30 +41,38 @@ export function createPageMetadata({
   pathname,
   title,
   description,
+  titleTemplate,
+  siteNameOverride,
 }: {
   locale: Locale
   pathname: string
   title?: string
   description?: string
+  titleTemplate?: string
+  siteNameOverride?: string
 }): Metadata {
   const pageTitle = title ?? defaultTitle[locale]
   const pageDescription = description ?? defaultDescription[locale]
+  const resolvedSiteName = siteNameOverride || siteName
+  const resolvedTitle = titleTemplate && titleTemplate.includes('{page}')
+    ? titleTemplate.replace('{page}', pageTitle)
+    : `${pageTitle} | ${resolvedSiteName}`
 
   return {
-    title: `${pageTitle} | ${siteName}`,
+    title: resolvedTitle,
     description: pageDescription,
     alternates: getLocaleAlternates(pathname),
     openGraph: {
-      title: `${pageTitle} | ${siteName}`,
+      title: resolvedTitle,
       description: pageDescription,
       url: `/${locale}${normalizePathname(pathname)}`,
-      siteName,
+      siteName: resolvedSiteName,
       locale: locale === 'de' ? 'de_DE' : 'en_US',
       type: 'website',
     },
     twitter: {
       card: 'summary_large_image',
-      title: `${pageTitle} | ${siteName}`,
+      title: resolvedTitle,
       description: pageDescription,
     },
   }
