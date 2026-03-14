@@ -2318,6 +2318,47 @@ Docker 部署当前已经不只是“页面能打开”，而是：
 2. 继续收口 `ContentEditor` 中剩余英文 placeholder（如 Image note / Image URL / Alt text / Sort / Active 等）在中文后台的表达。
 3. 继续检查后台全局是否还残留 `Dashboard / Workspace / Hero / Gallery / Content` 这类可替换的高频英文术语。
 
+#### 70) 后台中文化与表单字段语义收口（第四批批量修正）
+- 本轮继续按阶段推进，重点从“页面标题/说明”进一步下沉到“表单字段语义”。
+- 本轮覆盖：
+  - `src/components/admin/ContentEditor.tsx`
+  - 并同步检查高频页面的中文工作区表达
+- 已完成：
+  - `ContentEditor`
+    - 主视觉区块：
+      - `Image note` 方向的 placeholder 继续收口为更自然的 `图片补充说明`
+      - `主视觉图片地址` → `主视觉图片链接`
+      - `Hero eyebrow / title / subtitle` 系列英文术语进一步改成更通用的人类可读表达：
+        - `Top label`
+        - `Main title`
+        - `Subtitle`
+    - 常见问题区块：
+      - `排序` → `显示顺序`
+      - `启用` → `启用显示`
+    - 图库区块：
+      - `Alt text` 方向的 placeholder 收口为 `图片替代说明`
+      - `图片 URL` → `图片链接`
+      - `排序` → `显示顺序`
+      - `启用` → `启用显示`
+- 本轮价值：
+  - 这一步不是继续改“页面外壳”，而是直接提升后台表单本身的可读性；
+  - 运营人员在填写字段时，更容易一眼理解“这个输入框到底是干什么的”；
+  - 中文后台正在从“菜单和标题中文化”，继续走向“字段层也说人话”。
+
+### 本阶段验证追加
+- `npm run build` 已通过。
+
+### 本阶段结论
+这一轮属于第四批批量修正：
+- 不改接口；
+- 不改业务逻辑；
+- 重点推进后台表单字段语义的自然中文化。
+
+### 下一步建议
+1. 继续扫 `ContentEditor` 与 `ServiceForm` 中剩余的英文 placeholder / 字段标签。
+2. 继续清后台全局仍偏英文思维的说明句式，优先 dashboard / gallery / content 侧栏卡片。
+3. 继续检查后台全局是否还残留 `Dashboard / Workspace / Hero / Gallery / Content` 这类高频英文术语可进一步替换。
+
 #### 57) NoticePill 抽象 + ContentEditor 输入提示继续收口
 - 本轮继续严格沿着上一轮 DEVELOPMENT_LOG 的下一步推进，没有改 API、数据结构或上传链核心逻辑。
 - 已新增共享组件：
