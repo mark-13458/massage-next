@@ -2942,6 +2942,49 @@ Docker 部署当前已经不只是“页面能打开”，而是：
 2. 继续增强预约异常 / 风险视角，让后台更接近真实门店运营场景。
 3. 后台首页继续承接更多跨模块治理入口，向统一总控台收口。
 
+#### 86) P1 安全项开始落地：预约验证码开关联动 + 基础频率限制
+- 本轮开始把安全执行清单中的 P1 项从“后台表达层”推进到“真实代码能力层”。
+- 本轮覆盖：
+  - `src/components/admin/AdminSettingsForm.tsx`
+  - `src/server/view-models/admin/settings.vm.ts`
+  - `src/app/api/admin/settings/route.ts`
+  - `src/server/services/site.service.ts`
+  - `src/app/api/booking/route.ts`
+  - `src/server/view-models/admin/shared/mappers.ts`
+- 已完成：
+  - 系统设置：
+    - 新增可保存的预约频率限制参数：
+      - `bookingRateLimitWindowMin`
+      - `bookingRateLimitMaxRequests`
+    - 后台现在可以正式配置频率限制窗口与窗口内最大预约次数。
+  - 设置数据链：
+    - Admin settings view model / API / site settings 读取逻辑已同步支持上述两个字段。
+  - 预约 API：
+    - 现在会读取后台系统设置中的频率限制参数；
+    - 基于 `IP + phone + email` 组合键做基础内存限流；
+    - 超过窗口内最大尝试次数时，返回 `429 Too many booking attempts`；
+    - Turnstile 验证仍保留，并继续通过系统设置决定是否启用。
+  - 代码清理：
+    - 补上 `readNumber` mapper，确保这一轮能力没有留下 build warning。
+- 本轮价值：
+  - 这是第一次把“后台安全执行清单”真正推进成后端行为；
+  - 验证码和基础频率限制已经不再只是设置页文案，而开始成为可配置、可执行的预约防护能力；
+  - 项目正式进入“安全能力逐步落地”阶段，而不是只做后台治理展示。
+
+### 本阶段验证追加
+- `npm run build` 已重新通过，且已清掉本轮新增 warning。
+
+### 本阶段结论
+这一轮属于后台安全能力落地阶段：
+- 已开始改真实代码路径；
+- 已开始把后台配置映射到预约 API 行为；
+- 为后续 token 取消/改约、隐私同意、日志增强打下了可持续扩展的基础。
+
+### 下一步建议
+1. 继续把 P1 安全项做完整，例如将限流从内存方案演进为更稳的持久化/缓存方案。
+2. 继续推进 P2：改约 / 取消安全 token 链接。
+3. 继续让后台首页、预约页、设置页保持同步，把安全能力与运营视角一起收口。
+
 #### 57) NoticePill 抽象 + ContentEditor 输入提示继续收口
 - 本轮继续严格沿着上一轮 DEVELOPMENT_LOG 的下一步推进，没有改 API、数据结构或上传链核心逻辑。
 - 已新增共享组件：

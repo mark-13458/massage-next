@@ -18,6 +18,8 @@ type Settings = {
   cfTurnstileEnabled: boolean
   cfTurnstileSiteKey: string
   cfTurnstileSecretKey: string
+  bookingRateLimitWindowMin: number
+  bookingRateLimitMaxRequests: number
 }
 
 type NoticeTone = 'success' | 'error'
@@ -39,6 +41,8 @@ export function AdminSettingsForm({ lang, initialSettings }: { lang: AdminLang; 
     cfTurnstileEnabled: Boolean(initialSettings?.cfTurnstileEnabled),
     cfTurnstileSiteKey: initialSettings?.cfTurnstileSiteKey || '',
     cfTurnstileSecretKey: initialSettings?.cfTurnstileSecretKey || '',
+    bookingRateLimitWindowMin: Number(initialSettings?.bookingRateLimitWindowMin) || 15,
+    bookingRateLimitMaxRequests: Number(initialSettings?.bookingRateLimitMaxRequests) || 3,
   })
   const [message, setMessage] = useState('')
   const [messageTone, setMessageTone] = useState<NoticeTone>('success')
@@ -137,6 +141,14 @@ export function AdminSettingsForm({ lang, initialSettings }: { lang: AdminLang; 
           <label className="flex flex-col gap-2 text-sm text-stone-700">
             <span>{t(lang, '私密密钥', 'Secret key')}</span>
             <input value={form.cfTurnstileSecretKey} onChange={(e) => setForm({ ...form, cfTurnstileSecretKey: e.target.value })} className="rounded-2xl border border-stone-200 px-4 py-3 outline-none focus:border-amber-500" placeholder="0x4AAAA..." />
+          </label>
+          <label className="flex flex-col gap-2 text-sm text-stone-700">
+            <span>{t(lang, '频率限制窗口（分钟）', 'Rate-limit window (minutes)')}</span>
+            <input type="number" min="1" max="1440" value={form.bookingRateLimitWindowMin} onChange={(e) => setForm({ ...form, bookingRateLimitWindowMin: Number(e.target.value) || 15 })} className="rounded-2xl border border-stone-200 px-4 py-3 outline-none focus:border-amber-500" />
+          </label>
+          <label className="flex flex-col gap-2 text-sm text-stone-700">
+            <span>{t(lang, '窗口内最大预约次数', 'Max bookings per window')}</span>
+            <input type="number" min="1" max="20" value={form.bookingRateLimitMaxRequests} onChange={(e) => setForm({ ...form, bookingRateLimitMaxRequests: Number(e.target.value) || 3 })} className="rounded-2xl border border-stone-200 px-4 py-3 outline-none focus:border-amber-500" />
           </label>
         </div>
       </section>

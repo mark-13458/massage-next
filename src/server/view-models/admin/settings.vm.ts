@@ -1,4 +1,4 @@
-import { asRecord, readBoolean, readEnum, readString } from './shared/mappers'
+import { asRecord, readBoolean, readEnum, readNumber, readString } from './shared/mappers'
 
 export type AdminSettingsViewModel = {
   siteName: string
@@ -12,6 +12,8 @@ export type AdminSettingsViewModel = {
   cfTurnstileEnabled: boolean
   cfTurnstileSiteKey: string
   cfTurnstileSecretKey: string
+  bookingRateLimitWindowMin: number
+  bookingRateLimitMaxRequests: number
 }
 
 export function toAdminSettingsViewModel(value: unknown): AdminSettingsViewModel | null {
@@ -30,5 +32,7 @@ export function toAdminSettingsViewModel(value: unknown): AdminSettingsViewModel
     cfTurnstileEnabled: readBoolean(record, 'cfTurnstileEnabled'),
     cfTurnstileSiteKey: readString(record, 'cfTurnstileSiteKey'),
     cfTurnstileSecretKey: readString(record, 'cfTurnstileSecretKey'),
+    bookingRateLimitWindowMin: readNumber(record, 'bookingRateLimitWindowMin', 15),
+    bookingRateLimitMaxRequests: readNumber(record, 'bookingRateLimitMaxRequests', 3),
   }
 }

@@ -2,9 +2,13 @@ import { NextRequest, NextResponse } from 'next/server'
 import { bookingSchema } from '../../../lib/validations/booking'
 import { verifyTurnstileToken } from '../../../lib/turnstile'
 import { createBooking } from '../../../server/services/booking.service'
+import { getSystemSettings } from '../../../server/services/site.service'
+
+const bookingRequestLog = new Map<string, number[]>()
 
 export async function POST(request: NextRequest) {
   try {
+    const systemSettings = await getSystemSettings().catch(() => null)
     const json = await request.json()
     const parsed = bookingSchema.safeParse({
       ...json,
@@ -20,6 +24,28 @@ export async function POST(request: NextRequest) {
 
     const forwardedFor = request.headers.get('x-forwarded-for')
     const remoteip = forwardedFor ? forwardedFor.split(',')[0]?.trim() : null
+
+    const rateLimitWindowMin = systemSettings?.bookingRateLimitWindowMin || 15
+    const rateLimitMaxRequests = systemSettings?.bookingRateLimitMaxRequests || 3
+    const rateLimitWindowMs = rateLimitWindowMin * 60 * 1000
+    const bookingIdentifier = `${remoteip || 'unknown'}:${parsed.data.customerPhone}:${parsed.data.customerEmail || '-'}`
+    const now = Date.now()
+    const previousAttempts = bookingRequestLog.get(bookingIdentifier) || []
+    const recentAttempts = previousAttempts.filter((timestamp) => now - timestamp < rateLimitWindowMs)
+
+    if (recentAttempts.length >= rateLimitMaxRequests) {
+      return NextResponse.json(
+        {
+          status: 'error',
+          error: `Too many booking attempts. Please try again later.`,
+        },
+        { status: 429 },
+      )
+    }
+
+    recentAttempts.push(now)
+    bookingRequestLog.set(bookingIdentifier, recentAttempts)
+
     const captcha = await verifyTurnstileToken(parsed.data.turnstileToken, remoteip)
 
     if (!captcha.ok) {

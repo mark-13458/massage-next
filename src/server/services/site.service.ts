@@ -146,5 +146,13 @@ export async function getSystemSettings() {
     cfTurnstileEnabled: Boolean(record.cfTurnstileEnabled),
     cfTurnstileSiteKey: typeof record.cfTurnstileSiteKey === 'string' ? record.cfTurnstileSiteKey : '',
     cfTurnstileSecretKey: typeof record.cfTurnstileSecretKey === 'string' ? record.cfTurnstileSecretKey : '',
+    bookingRateLimitWindowMin:
+      typeof record.bookingRateLimitWindowMin === 'number' && Number.isFinite(record.bookingRateLimitWindowMin)
+        ? record.bookingRateLimitWindowMin
+        : 15,
+    bookingRateLimitMaxRequests:
+      typeof record.bookingRateLimitMaxRequests === 'number' && Number.isFinite(record.bookingRateLimitMaxRequests)
+        ? record.bookingRateLimitMaxRequests
+        : 3,
   }
 }

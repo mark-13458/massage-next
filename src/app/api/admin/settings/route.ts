@@ -51,6 +51,14 @@ export async function PATCH(request: NextRequest) {
       cfTurnstileEnabled: Boolean(json.cfTurnstileEnabled),
       cfTurnstileSiteKey: typeof json.cfTurnstileSiteKey === 'string' ? json.cfTurnstileSiteKey : '',
       cfTurnstileSecretKey: typeof json.cfTurnstileSecretKey === 'string' ? json.cfTurnstileSecretKey : '',
+      bookingRateLimitWindowMin:
+        typeof json.bookingRateLimitWindowMin === 'number' && Number.isFinite(json.bookingRateLimitWindowMin)
+          ? Math.max(1, Math.min(1440, Math.floor(json.bookingRateLimitWindowMin)))
+          : 15,
+      bookingRateLimitMaxRequests:
+        typeof json.bookingRateLimitMaxRequests === 'number' && Number.isFinite(json.bookingRateLimitMaxRequests)
+          ? Math.max(1, Math.min(20, Math.floor(json.bookingRateLimitMaxRequests)))
+          : 3,
     }
 
     await prisma.siteSetting.upsert({

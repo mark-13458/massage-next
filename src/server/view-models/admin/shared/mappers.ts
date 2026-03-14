@@ -15,6 +15,10 @@ export function readBoolean(record: Record<string, unknown>, key: string, fallba
   return typeof record[key] === 'boolean' ? (record[key] as boolean) : fallback
 }
 
+export function readNumber(record: Record<string, unknown>, key: string, fallback = 0) {
+  return typeof record[key] === 'number' && Number.isFinite(record[key] as number) ? (record[key] as number) : fallback
+}
+
 export function readEnum<T extends string>(record: Record<string, unknown>, key: string, allowed: readonly T[], fallback: T) {
   const value = record[key]
   return typeof value === 'string' && allowed.includes(value as T) ? (value as T) : fallback
