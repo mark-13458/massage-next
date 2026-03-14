@@ -204,10 +204,26 @@ docker compose up -d --build
 
 建议接手顺序：
 1. `README_CN.md`
-2. `ARCHITECTURE.md`
-3. `ROADMAP.md`
-4. `DEVELOPMENT_LOG.md`
-5. `PROJECT_STATUS.md`
-6. `HANDOFF.md`
-7. `DEPLOYMENT_CHECKLIST.md`
-6. `DEPLOYMENT_CHECKLIST.md`
+2. `SEO_SECURITY_MVP_PLAN.md`
+3. `ARCHITECTURE.md`
+4. `ROADMAP.md`
+5. `DEVELOPMENT_LOG.md`
+6. `PROJECT_STATUS.md`
+7. `HANDOFF.md`
+8. `DEPLOYMENT_CHECKLIST.md`
+
+## 🔐 SEO + 安全执行基线
+
+为避免后续开发继续依赖聊天上下文，项目已新增：
+
+- `SEO_SECURITY_MVP_PLAN.md`
+
+该文件把“德国单店按摩店：SEO + 安全设计增强版方案”正式沉淀为仓库内执行基线。后续凡是继续开发：
+- 预约流程
+- 中文后台
+- SEO 设置
+- 安全设置
+- 隐私合规
+- 功能开关
+
+都应优先参照该文件，而不是只看临时聊天记录。
