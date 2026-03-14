@@ -13,12 +13,37 @@ import { getAdminServices } from '../../../server/services/admin-service.service
 export const dynamic = 'force-dynamic'
 export const revalidate = 0
 
-export default async function AdminServicesPage() {
+const allowedFilters = ['all', 'active', 'inactive', 'featured'] as const
+
+type ServiceFilter = (typeof allowedFilters)[number]
+
+export default async function AdminServicesPage({
+  searchParams,
+}: {
+  searchParams?: Promise<{ filter?: string }>
+}) {
   const admin = await getCurrentAdmin()
   if (!admin) redirect('/admin/login')
 
   const services = await getAdminServices()
   const lang = await getAdminLang()
+  const resolvedSearchParams = (await searchParams) ?? {}
+  const rawFilter = String(resolvedSearchParams.filter || 'all').toLowerCase()
+  const selectedFilter = (allowedFilters.includes(rawFilter as ServiceFilter) ? rawFilter : 'all') as ServiceFilter
+
+  const filters = [
+    { key: 'all', labelZh: '全部', labelEn: 'All' },
+    { key: 'active', labelZh: '已上架', labelEn: 'Published' },
+    { key: 'inactive', labelZh: '未上架', labelEn: 'Unpublished' },
+    { key: 'featured', labelZh: '推荐服务', labelEn: 'Featured' },
+  ] as const
+
+  const filteredServices = services.filter((item) => {
+    if (selectedFilter === 'active') return item.isActive
+    if (selectedFilter === 'inactive') return !item.isActive
+    if (selectedFilter === 'featured') return item.isFeatured
+    return true
+  })
 
   return (
     <AdminShell
@@ -35,6 +60,23 @@ export default async function AdminServicesPage() {
         </Link>
       </AdminPageToolbar>
 
+      <div className="mb-6 flex flex-wrap items-center gap-3">
+        {filters.map((filter) => {
+          const href = filter.key === 'all' ? '/admin/services' : `/admin/services?filter=${filter.key}`
+          const active = selectedFilter === filter.key
+
+          return (
+            <Link
+              key={filter.key}
+              href={href}
+              className={`rounded-full px-4 py-2 text-sm font-medium transition ${active ? 'bg-stone-900 text-white' : 'border border-stone-300 bg-white text-stone-700 hover:border-stone-500'}`}
+            >
+              {pick(lang, filter.labelZh, filter.labelEn)}
+            </Link>
+          )
+        })}
+      </div>
+
       <div className="grid gap-6 xl:grid-cols-[1.15fr_0.85fr]">
         <AdminSectionCard
           eyebrow={pick(lang, '服务资料库', 'Service library')}
@@ -42,15 +84,15 @@ export default async function AdminServicesPage() {
           description={pick(lang, '当前支持完整内容维护、上架/下架、精选开关和排序调整。先维持现有业务逻辑，只升级后台视觉结构与管理体验。', 'Support full content maintenance, publishing controls, featured toggles and sorting in one stable service workspace.')}
           actions={undefined}
         >
-          {services.length === 0 ? (
+          {filteredServices.length === 0 ? (
             <AdminEmptyState
-              title={pick(lang, '暂时还没有服务数据', 'No services yet')}
-              description={pick(lang, '可能是数据库还没接通，或者你还没有创建第一条服务。接通数据库后可以直接在这里新建并维护双语服务。', 'The database may not be connected yet, or no service has been created. Once connected, you can create and manage bilingual services here.')}
+              title={pick(lang, '当前筛选下没有服务数据', 'No services match the current filter')}
+              description={pick(lang, '你可以切换筛选条件，或者新建第一条服务。接通数据库后也可以直接在这里维护双语服务。', 'Try a different filter or create the first service. Once the database is connected, you can manage bilingual services here directly.')}
             />
           ) : (
             <AdminListFrame
               title={pick(lang, '服务列表', 'Service list')}
-              description={pick(lang, '当前支持完整内容维护、上架/下架、精选开关和排序调整。先维持现有业务逻辑，只升级后台视觉结构与管理体验。', 'Support full content maintenance, publishing controls, featured toggles and sorting in one stable service workspace.')}
+              description={pick(lang, '当前支持完整内容维护、上架/下架、推荐服务切换和排序调整。现在也可以按状态快速筛选，减少来回翻找。', 'Support full content maintenance, publishing controls, featured toggles and sorting in one stable service workspace.')}
             >
               <div className="overflow-x-auto">
                 <table className="min-w-full divide-y divide-stone-100 text-sm">
@@ -71,7 +113,7 @@ export default async function AdminServicesPage() {
                     </tr>
                   </thead>
                   <tbody className="divide-y divide-stone-100 bg-white">
-                    {services.map((item) => (
+                    {filteredServices.map((item) => (
                       <tr key={item.id} className="align-top">
                         <td className="px-6 py-5">
                           <div className="font-semibold text-stone-900">{item.nameDe}</div>
