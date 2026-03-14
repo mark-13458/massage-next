@@ -3,6 +3,7 @@
 import { useRouter } from 'next/navigation'
 import { useState, useTransition } from 'react'
 import { adminRequest } from '../../lib/admin-request'
+import { NoticePill } from './NoticePill'
 
 type AdminLang = 'zh' | 'en'
 
@@ -11,10 +12,6 @@ function t(lang: AdminLang, zh: string, en: string) {
 }
 
 type NoticeTone = 'success' | 'error'
-
-function noticeClassName(tone: NoticeTone) {
-  return tone === 'success' ? 'bg-emerald-50 text-emerald-700' : 'bg-rose-50 text-rose-700'
-}
 
 export function DeleteServiceButton({ id, lang = 'zh' }: { id: number; lang?: AdminLang }) {
   const router = useRouter()
@@ -54,7 +51,7 @@ export function DeleteServiceButton({ id, lang = 'zh' }: { id: number; lang?: Ad
       >
         {isPending ? t(lang, '删除中…', 'Deleting...') : t(lang, '删除服务', 'Delete service')}
       </button>
-      {message ? <span className={`inline-flex rounded-full px-3 py-1 text-xs ${noticeClassName(messageTone)}`}>{message}</span> : null}
+      {message ? <NoticePill message={message} tone={messageTone} className="text-xs" /> : null}
     </div>
   )
 }

@@ -1886,3 +1886,39 @@ Docker 部署当前已经不只是“页面能打开”，而是：
 1. 继续补 `ContentEditor` 中联系信息 / 营业时间 / 图片 URL 等输入的辅助说明，让整个内容页的输入语言完全统一。
 2. 抽一个真正复用的后台 `NoticePill` 小组件，收掉当前多处重复的提示样式拼接。
 3. 再做一轮后台可见文案扫描，优先修真正影响运营理解的残留技术文案与编码污染点。
+
+#### 57) NoticePill 抽象 + ContentEditor 输入提示继续收口
+- 本轮继续严格沿着上一轮 DEVELOPMENT_LOG 的下一步推进，没有改 API、数据结构或上传链核心逻辑。
+- 已新增共享组件：
+  - `src/components/admin/NoticePill.tsx`
+- 当前作用：
+  - 统一后台 success / error / info 三种反馈的 pill 样式；
+  - 避免各组件继续手写 `bg-emerald-50 text-emerald-700` 这类重复拼接。
+- 已接入：
+  - `DeleteServiceButton`
+  - `ServiceControls`
+  - `GalleryQuickActions`
+  - `ContentEditor`
+- 同时继续收口 `ContentEditor.tsx`：
+  - Hero 图片 URL 输入框新增更人类可读的提示；
+  - 联系信息中的地址 / 电话 / Email 输入新增明确用途说明；
+  - 营业时间开始 / 结束时间新增示例式 placeholder；
+  - Gallery 图片 URL 输入新增对本地 `/uploads/` 路径与外部 URL 的说明；
+  - Hero 上传反馈 / Gallery 上传反馈 / 保存反馈统一切到 `NoticePill`。
+- 本轮价值：
+  - 后台反馈样式开始真正进入可复用阶段，而不是继续在各组件里复制黏贴；
+  - 内容工作台的输入语言继续从“技术字段编辑页”往“运营人员可理解的后台”推进。
+
+### 本阶段验证追加
+- 本轮修改后应执行 `npm run build` 进行回归验证。
+
+### 本阶段结论
+这一轮仍然是低风险高收益的后台收口：
+- 不改后端链路；
+- 不引入新业务复杂度；
+- 但把后台提示样式与内容工作台输入说明继续推向统一、可交付的状态。
+
+### 下一步建议
+1. 继续把 `AppointmentQuickActions`、`AppointmentStatusControls`、`AdminPasswordForm` 等组件的 pill 提示也完全收口到 `NoticePill`。
+2. 再做一轮后台可见文案扫描，优先修真正影响运营理解的残留技术文案与编码污染点。
+3. 如果继续统一后台体验，可把常用按钮 / 空状态 / 统计卡的 copy 也进一步抽到共享 copy 层。

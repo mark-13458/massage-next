@@ -2,6 +2,7 @@
 
 import { ChangeEvent, useState, useTransition } from 'react'
 import { adminRequest } from '../../lib/admin-request'
+import { NoticePill } from './NoticePill'
 
 type AdminLang = 'zh' | 'en'
 
@@ -83,12 +84,6 @@ type GalleryItem = {
 }
 
 type NoticeTone = 'success' | 'error' | 'info'
-
-function noticeClassName(tone: NoticeTone) {
-  if (tone === 'success') return 'text-emerald-700'
-  if (tone === 'error') return 'text-rose-700'
-  return 'text-stone-500'
-}
 
 function localizedFieldPlaceholder(lang: AdminLang, fieldZh: string, fieldEn: string, locale: 'de' | 'en') {
   const localeLabel = locale.toUpperCase()
@@ -264,7 +259,7 @@ export function ContentEditor({
             <input type="file" accept="image/*" onChange={handleHeroUpload} className="hidden" disabled={isHeroUploading} />
           </label>
         </div>
-        {heroUploadMessage ? <p className={`mt-4 text-sm ${noticeClassName(heroUploadMessageTone)}`}>{heroUploadMessage}</p> : null}
+        {heroUploadMessage ? <div className="mt-4"><NoticePill message={heroUploadMessage} tone={heroUploadMessageTone} /></div> : null}
         <div className="mt-5 grid gap-4 md:grid-cols-2">
           <input value={hero.eyebrowDe ?? ''} onChange={(e) => setHero({ ...hero, eyebrowDe: e.target.value })} placeholder={localizedFieldPlaceholder(lang, 'Hero 上方短标签', 'Hero eyebrow', 'de')} className="rounded-2xl border border-stone-200 px-4 py-3 text-sm outline-none focus:border-amber-500" />
           <input value={hero.eyebrowEn ?? ''} onChange={(e) => setHero({ ...hero, eyebrowEn: e.target.value })} placeholder={localizedFieldPlaceholder(lang, 'Hero 上方短标签', 'Hero eyebrow', 'en')} className="rounded-2xl border border-stone-200 px-4 py-3 text-sm outline-none focus:border-amber-500" />
@@ -276,7 +271,7 @@ export function ContentEditor({
           <textarea value={hero.noteEn ?? ''} onChange={(e) => setHero({ ...hero, noteEn: e.target.value })} rows={3} placeholder={localizedFieldPlaceholder(lang, '图片说明', 'Image note', 'en')} className="rounded-2xl border border-stone-200 px-4 py-3 text-sm outline-none focus:border-amber-500" />
           <label className="flex flex-col gap-2 text-sm text-stone-700 md:col-span-2">
             <span>{t(lang, 'Hero 图片 URL', 'Hero image URL')}</span>
-            <input value={hero.imageUrl ?? ''} onChange={(e) => setHero({ ...hero, imageUrl: e.target.value })} className="rounded-2xl border border-stone-200 px-4 py-3 outline-none focus:border-amber-500" />
+            <input value={hero.imageUrl ?? ''} onChange={(e) => setHero({ ...hero, imageUrl: e.target.value })} placeholder={t(lang, '可填写上传后的本地路径，或手动输入外部图片地址', 'Use the uploaded local path or enter an external image URL manually')} className="rounded-2xl border border-stone-200 px-4 py-3 outline-none focus:border-amber-500" />
           </label>
         </div>
       </section>
@@ -287,9 +282,9 @@ export function ContentEditor({
           <h2 className="mt-2 text-lg font-semibold text-stone-900">{t(lang, '联系信息', 'Contact information')}</h2>
         </div>
         <div className="mt-5 grid gap-4 md:grid-cols-2">
-          <label className="flex flex-col gap-2 text-sm text-stone-700 md:col-span-2"><span>{t(lang, '地址', 'Address')}</span><input value={contact.address ?? ''} onChange={(e) => setContact({ ...contact, address: e.target.value })} className="rounded-2xl border border-stone-200 px-4 py-3 outline-none focus:border-amber-500" /></label>
-          <label className="flex flex-col gap-2 text-sm text-stone-700"><span>{t(lang, '电话', 'Phone')}</span><input value={contact.phone ?? ''} onChange={(e) => setContact({ ...contact, phone: e.target.value })} className="rounded-2xl border border-stone-200 px-4 py-3 outline-none focus:border-amber-500" /></label>
-          <label className="flex flex-col gap-2 text-sm text-stone-700"><span>Email</span><input value={contact.email ?? ''} onChange={(e) => setContact({ ...contact, email: e.target.value })} className="rounded-2xl border border-stone-200 px-4 py-3 outline-none focus:border-amber-500" /></label>
+          <label className="flex flex-col gap-2 text-sm text-stone-700 md:col-span-2"><span>{t(lang, '地址', 'Address')}</span><input value={contact.address ?? ''} onChange={(e) => setContact({ ...contact, address: e.target.value })} placeholder={t(lang, '填写门店完整地址，前台联系页与页脚会优先读取这里', 'Enter the full business address used on the contact page and footer')} className="rounded-2xl border border-stone-200 px-4 py-3 outline-none focus:border-amber-500" /></label>
+          <label className="flex flex-col gap-2 text-sm text-stone-700"><span>{t(lang, '电话', 'Phone')}</span><input value={contact.phone ?? ''} onChange={(e) => setContact({ ...contact, phone: e.target.value })} placeholder={t(lang, '建议填写可直接接听预约咨询的号码', 'Use the phone number that should receive booking enquiries')} className="rounded-2xl border border-stone-200 px-4 py-3 outline-none focus:border-amber-500" /></label>
+          <label className="flex flex-col gap-2 text-sm text-stone-700"><span>Email</span><input value={contact.email ?? ''} onChange={(e) => setContact({ ...contact, email: e.target.value })} placeholder={t(lang, '填写用于接收通知或客户联系的邮箱', 'Use the email address for notifications and customer contact')} className="rounded-2xl border border-stone-200 px-4 py-3 outline-none focus:border-amber-500" /></label>
         </div>
       </section>
 
@@ -302,8 +297,8 @@ export function ContentEditor({
           {hours.map((item, index) => (
             <div key={item.weekday} className="grid gap-3 rounded-2xl border border-stone-100 p-4 md:grid-cols-[1.1fr_1fr_1fr_auto] md:items-center">
               <div className="text-sm font-medium text-stone-900">{item.label}</div>
-              <input value={item.openTime ?? ''} onChange={(e) => { const next = [...hours]; next[index] = { ...item, openTime: e.target.value }; setHours(next) }} className="rounded-2xl border border-stone-200 px-4 py-3 text-sm outline-none focus:border-amber-500" />
-              <input value={item.closeTime ?? ''} onChange={(e) => { const next = [...hours]; next[index] = { ...item, closeTime: e.target.value }; setHours(next) }} className="rounded-2xl border border-stone-200 px-4 py-3 text-sm outline-none focus:border-amber-500" />
+              <input value={item.openTime ?? ''} onChange={(e) => { const next = [...hours]; next[index] = { ...item, openTime: e.target.value }; setHours(next) }} placeholder={t(lang, '开始时间，如 10:00', 'Opening time, e.g. 10:00')} className="rounded-2xl border border-stone-200 px-4 py-3 text-sm outline-none focus:border-amber-500" />
+              <input value={item.closeTime ?? ''} onChange={(e) => { const next = [...hours]; next[index] = { ...item, closeTime: e.target.value }; setHours(next) }} placeholder={t(lang, '结束时间，如 19:00', 'Closing time, e.g. 19:00')} className="rounded-2xl border border-stone-200 px-4 py-3 text-sm outline-none focus:border-amber-500" />
               <label className="flex items-center gap-2 text-sm text-stone-700"><input type="checkbox" checked={item.isClosed} onChange={(e) => { const next = [...hours]; next[index] = { ...item, isClosed: e.target.checked }; setHours(next) }} />{t(lang, '关闭', 'Closed')}</label>
             </div>
           ))}
@@ -351,7 +346,7 @@ export function ContentEditor({
             <button type="button" onClick={addGalleryItem} className="rounded-full border border-stone-300 bg-white px-4 py-2 text-sm font-medium text-stone-700 transition hover:border-stone-500">{t(lang, '新增图片条目', 'Add image item')}</button>
           </div>
         </div>
-        {uploadMessage ? <p className={`mt-4 inline-flex rounded-full px-3 py-1 text-sm ${noticeClassName(uploadMessageTone)} ${uploadMessageTone === 'success' ? 'bg-emerald-50' : uploadMessageTone === 'error' ? 'bg-rose-50' : 'bg-stone-100'}`}>{uploadMessage}</p> : null}
+        {uploadMessage ? <div className="mt-4"><NoticePill message={uploadMessage} tone={uploadMessageTone} /></div> : null}
         <div className="mt-5 grid gap-4">
           {gallery.filter((item) => !item._delete).length === 0 ? (
             <div className="text-sm text-stone-500">{t(lang, '当前还没有图库数据。现在已经支持直接上传图片，或继续新增 URL 型图片条目。', 'There is no gallery data yet. You can upload images directly now or continue adding URL-based gallery items.')}</div>
@@ -365,7 +360,7 @@ export function ContentEditor({
                   <input value={item.titleEn} onChange={(e) => { const next = [...gallery]; next[index] = { ...item, titleEn: e.target.value }; setGallery(next) }} placeholder={localizedFieldPlaceholder(lang, '图片标题', 'Image title', 'en')} className="rounded-2xl border border-stone-200 px-4 py-3 text-sm outline-none focus:border-amber-500" />
                   <input value={item.altDe} onChange={(e) => { const next = [...gallery]; next[index] = { ...item, altDe: e.target.value }; setGallery(next) }} placeholder={localizedFieldPlaceholder(lang, '替代文本', 'Alt text', 'de')} className="rounded-2xl border border-stone-200 px-4 py-3 text-sm outline-none focus:border-amber-500" />
                   <input value={item.altEn} onChange={(e) => { const next = [...gallery]; next[index] = { ...item, altEn: e.target.value }; setGallery(next) }} placeholder={localizedFieldPlaceholder(lang, '替代文本', 'Alt text', 'en')} className="rounded-2xl border border-stone-200 px-4 py-3 text-sm outline-none focus:border-amber-500" />
-                  <label className="flex flex-col gap-2 text-sm text-stone-700 md:col-span-2"><span>{t(lang, '图片 URL', 'Image URL')}</span><input value={item.imageUrl} onChange={(e) => { const next = [...gallery]; next[index] = { ...item, imageUrl: e.target.value }; setGallery(next) }} className="rounded-2xl border border-stone-200 px-4 py-3 outline-none focus:border-amber-500" /></label>
+                  <label className="flex flex-col gap-2 text-sm text-stone-700 md:col-span-2"><span>{t(lang, '图片 URL', 'Image URL')}</span><input value={item.imageUrl} onChange={(e) => { const next = [...gallery]; next[index] = { ...item, imageUrl: e.target.value }; setGallery(next) }} placeholder={t(lang, '可保留上传后的 /uploads/ 路径，或填写外部图片地址', 'Keep the uploaded /uploads/ path or enter an external image URL')} className="rounded-2xl border border-stone-200 px-4 py-3 outline-none focus:border-amber-500" /></label>
                   <label className="flex items-center gap-2 text-sm text-stone-700"><span>{t(lang, '排序', 'Sort')}</span><input value={String(item.sortOrder)} onChange={(e) => { const next = [...gallery]; next[index] = { ...item, sortOrder: Number(e.target.value) || 0 }; setGallery(next) }} className="w-20 rounded-xl border border-stone-200 px-3 py-2 outline-none focus:border-amber-500" /></label>
                   <div className="flex flex-wrap items-center gap-4 text-sm text-stone-700">
                     <label className="flex items-center gap-2"><input type="checkbox" checked={item.isActive} onChange={(e) => { const next = [...gallery]; next[index] = { ...item, isActive: e.target.checked }; setGallery(next) }} />{t(lang, '启用', 'Active')}</label>
@@ -382,7 +377,7 @@ export function ContentEditor({
         <button type="button" onClick={save} disabled={isPending} className="rounded-full bg-stone-900 px-5 py-3 text-sm font-semibold text-white transition hover:bg-stone-800 disabled:cursor-not-allowed disabled:opacity-70">
           {isPending ? t(lang, '保存中…', 'Saving...') : t(lang, '保存内容', 'Save content')}
         </button>
-        {message ? <span className={`inline-flex rounded-full px-3 py-1 text-sm ${noticeClassName(messageTone)} ${messageTone === 'success' ? 'bg-emerald-50' : messageTone === 'error' ? 'bg-rose-50' : 'bg-stone-100'}`}>{message}</span> : null}
+        {message ? <NoticePill message={message} tone={messageTone} /> : null}
       </div>
     </div>
   )
