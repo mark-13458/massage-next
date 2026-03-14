@@ -2,6 +2,7 @@
 
 import { useState, useTransition } from 'react'
 import { adminRequest } from '../../lib/admin-request'
+import { NoticePill } from './NoticePill'
 
 type AdminLang = 'zh' | 'en'
 
@@ -18,6 +19,8 @@ type Settings = {
   cfTurnstileSiteKey: string
   cfTurnstileSecretKey: string
 }
+
+type NoticeTone = 'success' | 'error'
 
 function t(lang: AdminLang, zh: string, en: string) {
   return lang === 'en' ? en : zh
@@ -38,6 +41,7 @@ export function AdminSettingsForm({ lang, initialSettings }: { lang: AdminLang; 
     cfTurnstileSecretKey: initialSettings?.cfTurnstileSecretKey || '',
   })
   const [message, setMessage] = useState('')
+  const [messageTone, setMessageTone] = useState<NoticeTone>('success')
   const [isPending, startTransition] = useTransition()
 
   function save() {
@@ -50,8 +54,10 @@ export function AdminSettingsForm({ lang, initialSettings }: { lang: AdminLang; 
           body: JSON.stringify(form),
         })
         setMessage(t(lang, '系统设置已保存', 'Settings saved'))
+        setMessageTone('success')
       } catch (error) {
         setMessage(error instanceof Error ? error.message : t(lang, '保存设置失败', 'Failed to save settings'))
+        setMessageTone('error')
       }
     })
   }
@@ -135,11 +141,11 @@ export function AdminSettingsForm({ lang, initialSettings }: { lang: AdminLang; 
         </div>
       </section>
 
-      <div className="flex items-center gap-4">
+      <div className="flex flex-wrap items-center gap-4">
         <button type="button" onClick={save} disabled={isPending} className="rounded-full bg-stone-900 px-5 py-3 text-sm font-semibold text-white transition hover:bg-stone-800 disabled:cursor-not-allowed disabled:opacity-70">
           {isPending ? t(lang, '保存中…', 'Saving...') : t(lang, '保存系统设置', 'Save settings')}
         </button>
-        {message ? <span className="text-sm text-stone-500">{message}</span> : null}
+        {message ? <NoticePill message={message} tone={messageTone} /> : null}
       </div>
     </div>
   )
