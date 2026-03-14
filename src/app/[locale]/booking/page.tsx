@@ -67,6 +67,11 @@ export default async function BookingPage({ params }: { params: Promise<{ locale
           hours={hours}
           currency={settings?.currency || 'EUR'}
           turnstile={turnstile}
+          privacy={{
+            consentRequired: settings?.privacyConsentRequired !== false,
+            retentionDays: settings?.bookingRetentionDays || 180,
+            allowDeletionRequests: Boolean(settings?.allowDeletionRequests),
+          }}
         />
       </SectionShell>
       <SiteFooter locale={typedLocale} />

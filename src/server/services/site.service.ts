@@ -154,5 +154,12 @@ export async function getSystemSettings() {
       typeof record.bookingRateLimitMaxRequests === 'number' && Number.isFinite(record.bookingRateLimitMaxRequests)
         ? record.bookingRateLimitMaxRequests
         : 3,
+    privacyConsentRequired: record.privacyConsentRequired !== false,
+    bookingRetentionDays:
+      typeof record.bookingRetentionDays === 'number' && Number.isFinite(record.bookingRetentionDays)
+        ? record.bookingRetentionDays
+        : 180,
+    allowDeletionRequests: Boolean(record.allowDeletionRequests),
+    featureEnableBookingManage: record.featureEnableBookingManage !== false,
   }
 }

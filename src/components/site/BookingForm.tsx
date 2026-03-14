@@ -40,12 +40,18 @@ type BookingFormProps = {
     enabled: boolean
     siteKey?: string
   }
+  privacy?: {
+    consentRequired: boolean
+    retentionDays?: number
+    allowDeletionRequests?: boolean
+  }
 }
 
-export function BookingForm({ locale, services, contact, hours = [], currency = 'EUR', turnstile }: BookingFormProps) {
+export function BookingForm({ locale, services, contact, hours = [], currency = 'EUR', turnstile, privacy }: BookingFormProps) {
   const [status, setStatus] = useState<'idle' | 'submitting' | 'success' | 'error'>('idle')
   const [message, setMessage] = useState('')
   const [turnstileToken, setTurnstileToken] = useState('')
+  const [privacyConsent, setPrivacyConsent] = useState(false)
   const [widgetReady, setWidgetReady] = useState(false)
   const [widgetId, setWidgetId] = useState<string | null>(null)
 
@@ -72,6 +78,9 @@ export function BookingForm({ locale, services, contact, hours = [], currency = 
           captcha: 'Sicherheitsprüfung',
           captchaHint: 'Bitte bestätigen Sie, dass Sie kein Bot sind.',
           captchaLoading: 'Captcha wird geladen…',
+          privacyConsent: 'Ich stimme der Verarbeitung meiner Angaben zur Terminbearbeitung zu.',
+          privacyHint: 'Es werden nur die für die Terminbearbeitung notwendigen Daten gespeichert.',
+          privacyRequired: 'Bitte bestätigen Sie zuerst die Datenschutzeinwilligung.',
         }
       : {
           title: 'Request an appointment',
@@ -94,6 +103,9 @@ export function BookingForm({ locale, services, contact, hours = [], currency = 
           captcha: 'Security check',
           captchaHint: 'Please confirm that you are not a bot.',
           captchaLoading: 'Loading captcha…',
+          privacyConsent: 'I agree that my details may be processed for handling this booking request.',
+          privacyHint: 'Only the data necessary to process your booking will be stored.',
+          privacyRequired: 'Please confirm the privacy consent first.',
         }
   }, [locale])
 
@@ -128,6 +140,12 @@ export function BookingForm({ locale, services, contact, hours = [], currency = 
     setStatus('submitting')
     setMessage('')
 
+    if (privacy?.consentRequired && !privacyConsent) {
+      setStatus('error')
+      setMessage(labels.privacyRequired)
+      return
+    }
+
     const payload = {
       customerName: String(formData.get('customerName') || ''),
       customerPhone: String(formData.get('customerPhone') || ''),
@@ -136,6 +154,7 @@ export function BookingForm({ locale, services, contact, hours = [], currency = 
       appointmentDate: String(formData.get('appointmentDate') || ''),
       appointmentTime: String(formData.get('appointmentTime') || ''),
       notes: String(formData.get('notes') || ''),
+      privacyConsent,
       turnstileToken,
       locale,
     }
@@ -219,6 +238,19 @@ export function BookingForm({ locale, services, contact, hours = [], currency = 
               <span className="text-sm font-medium text-brown-800">{labels.notes}</span>
               <textarea name="notes" rows={5} className="rounded-2xl border border-stone-200 px-4 py-3 outline-none ring-0 focus:border-brown-400" />
             </label>
+
+            {privacy?.consentRequired ? (
+              <div className="sm:col-span-2 rounded-2xl border border-stone-200 bg-stone-50 px-4 py-4">
+                <label className="flex items-start gap-3 text-sm text-stone-700">
+                  <input type="checkbox" checked={privacyConsent} onChange={(e) => setPrivacyConsent(e.target.checked)} className="mt-1" />
+                  <span>
+                    <span className="font-medium text-brown-800">{labels.privacyConsent}</span>
+                    <span className="mt-1 block text-xs text-stone-500">{labels.privacyHint}</span>
+                    {privacy?.retentionDays ? <span className="mt-1 block text-xs text-stone-500">{locale === 'de' ? `Die Daten werden standardmäßig bis zu ${privacy.retentionDays} Tage aufbewahrt.` : `Data is retained for up to ${privacy.retentionDays} days by default.`}</span> : null}
+                  </span>
+                </label>
+              </div>
+            ) : null}
 
             {turnstile?.enabled ? (
               <div className="sm:col-span-2 rounded-2xl border border-stone-200 bg-stone-50 px-4 py-4">

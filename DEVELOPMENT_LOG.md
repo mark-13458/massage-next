@@ -3370,3 +3370,50 @@ Docker 部署当前已经不只是“页面能打开”，而是：
 1. 继续把设置页中的功能开关真正接到前台或预约流程逻辑。
 2. 优先把 `privacyConsentRequired` 接进预约页与预约 API。
 3. 再把 SEO 配置逐步接到前台 metadata 生成逻辑中。
+
+#### 95) 隐私同意配置正式接入预约真实业务链
+- 本轮将上一个阶段新增的 `privacyConsentRequired` 配置，从系统设置页真正接入到前台预约页与预约 API，形成第一条“治理配置 → 前台流程 → 服务端校验”的真实闭环。
+- 本轮覆盖：
+  - `src/lib/validations/booking.ts`
+  - `src/server/services/site.service.ts`
+  - `src/app/api/booking/route.ts`
+  - `src/components/site/BookingForm.tsx`
+  - `src/app/[locale]/booking/page.tsx`
+- 已完成：
+  - 预约数据结构增强：
+    - `bookingSchema` 新增 `privacyConsent` 字段。
+  - 系统设置读取增强：
+    - 前台站点设置读取已包含：
+      - `privacyConsentRequired`
+      - `bookingRetentionDays`
+      - `allowDeletionRequests`
+      - `featureEnableBookingManage`
+  - 前台预约页接入：
+    - 预约页会根据系统设置，向 `BookingForm` 传入隐私配置；
+    - 当后台要求隐私同意时，前台表单会显示隐私同意勾选区；
+    - 同时显示基础说明与数据保留天数提示。
+  - 前台预约交互增强：
+    - 若要求隐私同意但用户未勾选，前端会直接拦截提交并提示；
+    - 让用户在提交前就完成基础合规动作，而不是完全依赖服务端报错。
+  - 服务端校验接入：
+    - 预约 API 现在会根据后台配置检查 `privacyConsent`；
+    - 若系统要求隐私同意但未提供，则直接返回错误；
+    - 从而保证该能力不仅停留在前端展示，而是真正具备后端约束。
+- 本轮价值：
+  - 设置页里的隐私同意配置第一次真正生效；
+  - 项目开始具备最基础的“隐私同意可配置 + 前台展示 + API 强校验”闭环；
+  - 这是把合规设计从表达层推进到真实业务链的关键一步。
+
+### 本阶段验证追加
+- `npm run build` 已通过。
+
+### 本阶段结论
+这一轮属于治理配置接入业务链阶段：
+- 不新增复杂合规模块；
+- 但优先把最关键的隐私同意能力接进真实预约链；
+- 为后续继续接数据保留、删除请求、SEO 配置等能力打下模式基础。
+
+### 下一步建议
+1. 继续把 `featureEnableBookingManage` 真正接到客户自助改约 / 取消入口与 API 逻辑。
+2. 再把 SEO 模板配置逐步接入 metadata 生成逻辑。
+3. 后续继续把隐私删除请求和数据保留策略推进为真实后台能力。

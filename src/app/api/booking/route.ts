@@ -13,6 +13,7 @@ export async function POST(request: NextRequest) {
     const parsed = bookingSchema.safeParse({
       ...json,
       serviceId: Number(json.serviceId),
+      privacyConsent: Boolean(json.privacyConsent),
     })
 
     if (!parsed.success) {
@@ -24,6 +25,13 @@ export async function POST(request: NextRequest) {
 
     const forwardedFor = request.headers.get('x-forwarded-for')
     const remoteip = forwardedFor ? forwardedFor.split(',')[0]?.trim() : null
+
+    if (systemSettings?.privacyConsentRequired !== false && !parsed.data.privacyConsent) {
+      return NextResponse.json(
+        { status: 'error', error: 'Privacy consent is required' },
+        { status: 400 },
+      )
+    }
 
     const rateLimitWindowMin = systemSettings?.bookingRateLimitWindowMin || 15
     const rateLimitMaxRequests = systemSettings?.bookingRateLimitMaxRequests || 3
