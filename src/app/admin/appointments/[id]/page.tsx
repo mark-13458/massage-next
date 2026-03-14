@@ -104,6 +104,15 @@ export default async function AppointmentDetailPage({ params }: { params: { id: 
               </div>
             </AdminDetailBlock>
 
+            <AdminDetailBlock title={pick(lang, '客户安全链接', 'Customer security links')}>
+              <AdminInfoList
+                items={[
+                  { label: pick(lang, '管理 token', 'Manage token'), value: appointment.confirmationToken || '—' },
+                  { label: pick(lang, '安全链接', 'Secure link'), value: appointment.confirmationToken ? `/api/booking/manage/${appointment.confirmationToken}` : '—' },
+                ]}
+              />
+            </AdminDetailBlock>
+
             <AdminDetailBlock title={pick(lang, '内部记录', 'Internal record')}>
               <AdminInfoList
                 items={[

@@ -1,4 +1,5 @@
 import { AppointmentSource, AppointmentStatus } from '@prisma/client'
+import { randomUUID } from 'crypto'
 import { prisma } from '../../lib/prisma'
 import { BookingInput } from '../../lib/validations/booking'
 
@@ -22,6 +23,7 @@ export async function createBooking(input: BookingInput) {
       notes: input.notes || null,
       status: AppointmentStatus.PENDING,
       source: AppointmentSource.WEBSITE,
+      confirmationToken: randomUUID(),
       serviceId: service.id,
     },
     include: { service: true },

@@ -2985,6 +2985,51 @@ Docker 部署当前已经不只是“页面能打开”，而是：
 2. 继续推进 P2：改约 / 取消安全 token 链接。
 3. 继续让后台首页、预约页、设置页保持同步，把安全能力与运营视角一起收口。
 
+#### 87) P2 安全项开始落地：改约 / 取消安全 token 基础链路
+- 本轮继续沿安全主线推进，开始把 P2（改约 / 取消安全 token）从概念推进到真实代码链路。
+- 本轮覆盖：
+  - `src/server/services/booking.service.ts`
+  - `src/server/repositories/admin/booking.repository.ts`
+  - `src/server/services/admin-booking.service.ts`
+  - `src/app/api/booking/manage/[token]/route.ts`
+  - `src/app/admin/appointments/[id]/page.tsx`
+- 已完成：
+  - 新预约创建时：
+    - 自动生成 `confirmationToken`（基于 `randomUUID()`）
+    - 让每条预约天然具备后续改约 / 取消安全链接的基础 token
+  - 仓储与服务层：
+    - 新增 `findAppointmentByToken(token)`
+    - 新增 `getAppointmentByToken(token)`
+    - 为后续前台 token 流程铺好可复用的数据访问层
+  - API 层：
+    - 新增 `GET /api/booking/manage/[token]`
+    - 当前可通过安全 token 拉取预约基础信息
+    - 为后续真正的改约 / 取消接口提供入口基础
+  - 后台预约详情页：
+    - 新增“客户安全链接 / Customer security links”区块
+    - 展示：
+      - `Manage token`
+      - `Secure link`
+    - 后台现在已经能直接看到这条预约对应的客户安全管理入口基础
+- 本轮价值：
+  - 这不是只补文案，而是正式把“预约安全 token”接进数据创建链与 API 链；
+  - 后续改约 / 取消功能将不需要从零设计 token 基础设施；
+  - 后台和接口开始围绕 token 协同，继续向正式运营系统推进。
+
+### 本阶段验证追加
+- `npm run build` 已通过。
+
+### 本阶段结论
+这一轮属于预约安全能力落地阶段：
+- 不改数据库结构（复用现有 `confirmationToken`）
+- 但已正式建立 token 生成、查询、后台展示三条基础链路
+- 为下一批真正的改约 / 取消安全操作打下了可直接扩展的基础。
+
+### 下一步建议
+1. 继续推进 token 链路，从“查询入口”扩展为真正的改约 / 取消操作接口。
+2. 将 token 返回内容进一步收口为面向客户的安全管理视图。
+3. 持续让后台详情页、设置页、预约 API 三者联动，形成完整预约安全体系。
+
 #### 57) NoticePill 抽象 + ContentEditor 输入提示继续收口
 - 本轮继续严格沿着上一轮 DEVELOPMENT_LOG 的下一步推进，没有改 API、数据结构或上传链核心逻辑。
 - 已新增共享组件：

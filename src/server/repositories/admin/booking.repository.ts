@@ -16,3 +16,10 @@ export async function findAdminAppointmentById(id: number) {
     include: { service: true, confirmedBy: true },
   })
 }
+
+export async function findAppointmentByToken(token: string) {
+  return prisma.appointment.findUnique({
+    where: { confirmationToken: token },
+    include: { service: true },
+  })
+}
