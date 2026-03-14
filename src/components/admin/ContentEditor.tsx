@@ -253,7 +253,10 @@ export function ContentEditor({
     <div className="space-y-6">
       <section className="rounded-[28px] border border-stone-200 bg-[#fcfbf8] p-6 shadow-[0_10px_30px_rgba(28,25,23,0.05)]">
         <div className="flex items-center justify-between gap-4">
-          <h2 className="text-lg font-semibold text-stone-900">{t(lang, '首页 Hero', 'Homepage Hero')}</h2>
+          <div>
+            <h2 className="text-lg font-semibold text-stone-900">{t(lang, '首页 Hero', 'Homepage Hero')}</h2>
+            <p className="mt-1 text-sm text-stone-500">{t(lang, '用于首页首屏展示的主文案与主视觉。支持上传图片，也可以手动填写图片地址。', 'Primary copy and hero media for the homepage first screen. You can upload an image or enter the image URL manually.')}</p>
+          </div>
           <label className="cursor-pointer rounded-full border border-stone-300 bg-white px-4 py-2 text-sm font-medium text-stone-700 transition hover:border-stone-500">
             {isHeroUploading ? t(lang, '上传中…', 'Uploading...') : t(lang, '上传 Hero 图片', 'Upload Hero image')}
             <input type="file" accept="image/*" onChange={handleHeroUpload} className="hidden" disabled={isHeroUploading} />
@@ -280,6 +283,7 @@ export function ContentEditor({
         <div className="mb-5">
           <p className="text-[11px] font-semibold uppercase tracking-[0.24em] text-stone-400">{t(lang, '联系信息', 'Contact')}</p>
           <h2 className="mt-2 text-lg font-semibold text-stone-900">{t(lang, '联系信息', 'Contact information')}</h2>
+          <p className="mt-1 text-sm text-stone-500">{t(lang, '这里的地址、电话和邮箱会优先用于前台联系页、页脚以及结构化信息展示。', 'These address, phone and email fields are preferred by the contact page, footer and structured business details.')}</p>
         </div>
         <div className="mt-5 grid gap-4 md:grid-cols-2">
           <label className="flex flex-col gap-2 text-sm text-stone-700 md:col-span-2"><span>{t(lang, '地址', 'Address')}</span><input value={contact.address ?? ''} onChange={(e) => setContact({ ...contact, address: e.target.value })} placeholder={t(lang, '填写门店完整地址，前台联系页与页脚会优先读取这里', 'Enter the full business address used on the contact page and footer')} className="rounded-2xl border border-stone-200 px-4 py-3 outline-none focus:border-amber-500" /></label>
@@ -292,6 +296,7 @@ export function ContentEditor({
         <div className="mb-5">
           <p className="text-[11px] font-semibold uppercase tracking-[0.24em] text-stone-400">{t(lang, '营业时间', 'Hours')}</p>
           <h2 className="mt-2 text-lg font-semibold text-stone-900">{t(lang, '营业时间', 'Business hours')}</h2>
+          <p className="mt-1 text-sm text-stone-500">{t(lang, '建议统一使用 24 小时制时间格式。勾选“关闭”后，该天会以前台休息日方式展示。', 'Use a 24-hour time format for consistency. When “Closed” is checked, the day is shown as unavailable on the website.')}</p>
         </div>
         <div className="mt-5 grid gap-4">
           {hours.map((item, index) => (
@@ -310,6 +315,7 @@ export function ContentEditor({
           <div>
             <p className="text-[11px] font-semibold uppercase tracking-[0.24em] text-stone-400">FAQ</p>
             <h2 className="mt-2 text-lg font-semibold text-stone-900">{t(lang, '常见问题', 'FAQ')}</h2>
+            <p className="mt-1 text-sm text-stone-500">{t(lang, '用于回答客户最常见的问题，也能为前台 FAQ 区块和长尾 SEO 提供内容。', 'Use this section for common customer questions and to support the public FAQ block and long-tail SEO content.')}</p>
           </div>
           <button type="button" onClick={addFaq} className="rounded-full border border-stone-300 bg-white px-4 py-2 text-sm font-medium text-stone-700 transition hover:border-stone-500">{t(lang, '新增 FAQ', 'Add FAQ')}</button>
         </div>
@@ -337,6 +343,7 @@ export function ContentEditor({
           <div>
             <p className="text-[11px] font-semibold uppercase tracking-[0.24em] text-stone-400">{t(lang, '图库', 'Gallery')}</p>
             <h2 className="mt-2 text-lg font-semibold text-stone-900">{t(lang, '图库管理', 'Gallery management')}</h2>
+            <p className="mt-1 text-sm text-stone-500">{t(lang, '这里维护前台图库、环境展示图和封面图。可使用本地上传路径，也可保留外部图片地址。', 'Manage gallery assets, environment photos and the cover image here. You can keep local uploaded paths or external image URLs.')}</p>
           </div>
           <div className="flex flex-wrap items-center gap-3">
             <label className="cursor-pointer rounded-full border border-stone-300 bg-white px-4 py-2 text-sm font-medium text-stone-700 transition hover:border-stone-500">
