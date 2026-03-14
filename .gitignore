@@ -20,6 +20,15 @@ login-smoke.json
 settings-smoke.json
 service-smoke.json
 booking-smoke.json
+appointment-confirm.json
+appointment-complete.json
+appointment-cancel.json
+content-smoke-patch.json
+service-update.json
+service-protected.json
+gallery-toggle.json
+smoke-upload.png
+smoke-hero-upload.png
 replace-hero.json
 smoke-cookies.txt
 tmp-smoke.png

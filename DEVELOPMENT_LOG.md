@@ -1,5 +1,23 @@
 # DEVELOPMENT_LOG.md
 
+## 2026-03-14 - 阶段继续推进：图库与上传链 smoke
+- 完成上传链实测：
+  - `usage=gallery` 上传成功
+  - 数据库成功创建 `File + GalleryImage`
+  - 图片宽高元数据正确写入
+  - `PATCH /api/admin/gallery/[id]` 可正常切换 `isActive` / `isCover`
+  - `/admin/gallery` 页面可访问
+- 发现并修复一个真实部署问题：上传成功后数据库里已有 `/uploads/...` 路径，但通过 `http://localhost/uploads/...` 访问返回 `404`。
+- 根因定位：上传文件实际已写入共享 volume，但 `nginx` 没有直接为 `/uploads/` 提供静态文件服务，仍把请求交给 Next standalone，导致上传资源访问失败。
+- 修复内容：
+  - `docker-compose.yml` 为 `nginx` 挂载 `uploads_data:/var/www/uploads:ro`
+  - `nginx/nginx.conf` 增加 `location /uploads/`，使用 `alias /var/www/uploads/` 直接提供静态文件
+- 修复后复测通过：上传图片 URL 可返回 `200 OK`。
+- Hero 上传链也已实测：
+  - 800x600 图片会被 hero 最小尺寸校验（1200x600）正确拒绝
+  - 1400x700 图片上传成功并返回 `imageUrl`
+- 本阶段结论：上传链已从“能写库”推进到“写库 + 文件可访问 + 运营开关可切换”的可用状态。
+
 ## 2026-03-14 - 阶段继续推进：服务管理 + 内容管理 smoke
 - 服务管理链路实测通过：
   - `PATCH /api/admin/services/[id]` 可正常更新名称、价格、时长、排序、精选、上下架状态
