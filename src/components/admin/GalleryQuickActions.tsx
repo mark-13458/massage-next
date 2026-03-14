@@ -89,7 +89,7 @@ export function GalleryQuickActions({
         </button>
       </div>
 
-      {message ? <p className={`text-xs ${noticeClassName(messageTone)}`}>{message}</p> : null}
+      {message ? <p className={`inline-flex rounded-full px-3 py-1 text-xs ${noticeClassName(messageTone)} ${messageTone === 'success' ? 'bg-emerald-50' : messageTone === 'error' ? 'bg-rose-50' : 'bg-stone-100'}`}>{message}</p> : null}
     </div>
   )
 }

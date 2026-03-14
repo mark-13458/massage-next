@@ -1692,3 +1692,35 @@ Docker 部署当前已经不只是“页面能打开”，而是：
 1. 继续检查 `services/[id]` 页是否需要引入补充信息块（如当前服务状态摘要），进一步向预约详情页靠拢。
 2. 开一轮后台乱码/编码污染专项修复，避免继续在日志或中文文案里出现异常字符。
 3. 后续可以把 pill 状态提示抽成统一的小组件，减少 quick action / form message 的重复样式。
+
+#### 54) 后台操作反馈统一（乱码专项前置收口）
+- 本轮原计划切入“后台乱码 / 编码污染专项修复”。
+- 实际扫描后确认：
+  - `AdminShell.tsx`、`AdminSettingsForm.tsx`、`AppointmentQuickActions.tsx`、`AppointmentStatusControls.tsx`、`ServiceForm.tsx` 等第一批高频组件当前源码已经是可读 UTF-8；
+  - 更明显的污染集中在后续一些交互组件与内容编辑器的大文件中。
+- 因为 `ContentEditor.tsx` 体量较大，本轮没有贸然把“大文件乱码修复”与“小组件反馈统一”混在一起，避免一次提交过重。
+- 本轮先完成一组低风险、高收益的前置收口：
+  - `ServiceControls.tsx`
+    - 底部操作区改为 `flex-wrap`；
+    - message 统一为 pill 提示样式。
+  - `DeleteServiceButton.tsx`
+    - 删除结果提示改为圆角 pill 提示。
+  - `GalleryQuickActions.tsx`
+    - 操作结果提示改为 pill 样式，并与其他后台 quick actions 的反馈语言保持一致。
+- 这一步的意义：
+  - 即使还没正式进入 `ContentEditor` 的大文件修复，后台多个关键操作点的反馈样式已经进一步统一；
+  - 同时也为后续抽象统一 notice / status pill 组件提供了更清晰的样式基线。
+
+### 本阶段验证追加
+- `npm run build` 已通过。
+
+### 本阶段结论
+这轮属于“乱码专项前的安全收口”：
+- 没有盲目大改重文件；
+- 先把后台关键交互反馈统一到同一视觉语言；
+- 并完成了一轮更准确的污染范围确认。
+
+### 下一步建议
+1. 正式进入 `ContentEditor.tsx` 的专项修复，按 section 分块处理，避免一次修改过重。
+2. 顺手清理 `GalleryQuickActions` / `DeleteServiceButton` / `ServiceControls` 以外仍存在历史中文污染的零散组件。
+3. 如果继续统一后台体验，可考虑把当前各处 pill 提示抽成一个可复用的小组件。

@@ -45,7 +45,7 @@ export function DeleteServiceButton({ id, lang = 'zh' }: { id: number; lang?: Ad
       >
         {isPending ? t(lang, '删除中…', 'Deleting...') : t(lang, '删除服务', 'Delete service')}
       </button>
-      {message ? <span className="text-xs text-stone-500">{message}</span> : null}
+      {message ? <span className="inline-flex rounded-full bg-stone-100 px-3 py-1 text-xs text-stone-600">{message}</span> : null}
     </div>
   )
 }
