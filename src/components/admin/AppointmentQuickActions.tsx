@@ -3,6 +3,7 @@
 import { useRouter } from 'next/navigation'
 import { useState, useTransition } from 'react'
 import { adminRequest } from '../../lib/admin-request'
+import { NoticePill } from './NoticePill'
 
 type AdminLang = 'zh' | 'en'
 
@@ -22,12 +23,6 @@ const actionMap = {
 } as const
 
 type NoticeTone = 'success' | 'error' | 'info'
-
-function noticeClassName(tone: NoticeTone) {
-  if (tone === 'success') return 'text-emerald-700'
-  if (tone === 'error') return 'text-rose-700'
-  return 'text-stone-500'
-}
 
 function t(lang: AdminLang, zh: string, en: string) {
   return lang === 'en' ? en : zh
@@ -75,7 +70,7 @@ export function AppointmentQuickActions({ id, lang = 'zh' }: { id: number; lang?
           </button>
         ))}
       </div>
-      {message ? <p className={`inline-flex rounded-full px-3 py-1 text-xs ${noticeClassName(messageTone)} ${messageTone === 'success' ? 'bg-emerald-50' : messageTone === 'error' ? 'bg-rose-50' : 'bg-stone-100'}`}>{message}</p> : null}
+      {message ? <NoticePill message={message} tone={messageTone} className="text-xs" /> : null}
     </div>
   )
 }

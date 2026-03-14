@@ -4,15 +4,10 @@ import { useRouter } from 'next/navigation'
 import { useState, useTransition } from 'react'
 import { APPOINTMENT_STATUS_OPTIONS, appointmentStatusLabel } from '../../lib/admin-status'
 import { adminRequest } from '../../lib/admin-request'
+import { NoticePill } from './NoticePill'
 
 type NoticeTone = 'success' | 'error' | 'info'
 type AdminLang = 'zh' | 'en'
-
-function noticeClassName(tone: NoticeTone) {
-  if (tone === 'success') return 'text-emerald-700'
-  if (tone === 'error') return 'text-rose-700'
-  return 'text-stone-500'
-}
 
 function t(lang: AdminLang, zh: string, en: string) {
   return lang === 'en' ? en : zh
@@ -86,7 +81,7 @@ export function AppointmentStatusControls({ id, currentStatus, internalNote, lan
         >
           {isPending ? t(lang, '保存中…', 'Saving...') : t(lang, '保存', 'Save')}
         </button>
-        {message ? <span className={`inline-flex rounded-full px-3 py-1 text-xs ${noticeClassName(messageTone)} ${messageTone === 'success' ? 'bg-emerald-50' : messageTone === 'error' ? 'bg-rose-50' : 'bg-stone-100'}`}>{message}</span> : null}
+        {message ? <NoticePill message={message} tone={messageTone} className="text-xs" /> : null}
       </div>
     </div>
   )
