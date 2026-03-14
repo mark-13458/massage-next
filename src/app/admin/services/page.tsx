@@ -24,7 +24,7 @@ export default async function AdminServicesPage() {
     <AdminShell
       lang={lang}
       title={pick(lang, '服务项目', 'Services')}
-      subtitle={pick(lang, '把服务清单做成可维护资产：双语文案、价格、时长、精选与上下架都在一个工作台里完成。', 'Turn the service library into a maintainable asset with bilingual copy, pricing, duration, featured status and publishing controls in one workspace.')}
+      subtitle={pick(lang, '把服务清单做成可维护资产：双语文案、价格、时长、精选与上下架都在一个工作区里完成。', 'Turn the service library into a maintainable asset with bilingual copy, pricing, duration, featured status and publishing controls in one workspace.')}
     >
       <AdminPageToolbar>
         <Link href="/admin" className="rounded-full border border-stone-300 bg-white px-4 py-2 text-sm font-medium text-stone-700 transition hover:border-stone-500">
@@ -108,12 +108,12 @@ export default async function AdminServicesPage() {
         <AdminSectionCard
           eyebrow={pick(lang, '管理建议', 'Management notes')}
           title={pick(lang, '服务管理建议', 'Service management notes')}
-          description={pick(lang, '先把服务条目做干净，再继续补更细的封面、批量操作和内容模板化能力。', 'Keep the service catalog clean first, then layer richer media, batch actions and templated editing on top.')}
+          description={pick(lang, '先把服务条目整理干净，再继续补更细的封面、批量操作和内容模板能力。', 'Keep the service catalog clean first, then layer richer media, batch actions and templated editing on top.')}
           tone="dark"
         >
           <div className="space-y-4 text-sm leading-7 text-stone-300">
             <p>每个服务至少保持：双语名称、双语摘要、时长、价格、排序和上下架状态完整。</p>
-            <p>如果后续要继续升级后台模板，服务表格会是最适合加入 badge、过滤器和批量操作的页面之一。</p>
+            <p>如果后续要继续升级后台模板，服务表格会是最适合加入状态标签、筛选器和批量操作的页面之一。</p>
             <p>当前这页先保持“稳定可运营”，后面再继续上更复杂的模板化交互。</p>
           </div>
         </AdminSectionCard>

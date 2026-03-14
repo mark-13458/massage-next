@@ -31,7 +31,7 @@ export default async function AdminSettingsPage() {
           <AdminSectionCard
             eyebrow={pick(lang, '系统偏好', 'System preferences')}
             title={pick(lang, '基础系统设置', 'Core system configuration')}
-            description={pick(lang, '把站点基本信息、预约文案和验证码设置拆成独立分区后，后台会更接近正式交付状态。', 'Splitting site basics, booking copy and captcha settings into clear zones makes the admin feel much closer to a production handoff.')}
+            description={pick(lang, '把站点基本信息、预约文案和验证码设置拆成独立分区后，后台会更接近正式可交付状态。', 'Splitting site basics, booking copy and captcha settings into clear zones makes the admin feel much closer to a production handoff.')}
           >
             <AdminSettingsForm lang={lang} initialSettings={settings} />
           </AdminSectionCard>
@@ -65,7 +65,7 @@ export default async function AdminSettingsPage() {
           <AdminSectionCard
             eyebrow={pick(lang, '当前配置', 'Runtime snapshot')}
             title={pick(lang, '当前配置概览', 'Current configuration snapshot')}
-            description={pick(lang, '用一个轻量面板快速确认前台默认语言、后台默认语言、货币和验证码开关当前是什么状态。', 'Use this lightweight panel to quickly confirm the current frontend locale, admin language, currency and captcha state.')}
+            description={pick(lang, '用一个轻量面板快速确认前台默认语言、后台默认语言、货币和验证码开关当前状态。', 'Use this lightweight panel to quickly confirm the current frontend locale, admin language, currency and captcha state.')}
           >
             <AdminInfoList
               items={[

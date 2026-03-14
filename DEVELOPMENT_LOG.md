@@ -2276,6 +2276,48 @@ Docker 部署当前已经不只是“页面能打开”，而是：
 2. 继续把 `ContentEditor` 里的中英混杂提示（如英文 placeholder / URL 表达）往更自然的中文后台语境收口。
 3. 继续检查后台全局是否还残留 `Dashboard / Workspace / Hero / Gallery` 这类可替换的高频英文术语。
 
+#### 69) 后台中文化与说明卡片收口（第三批批量修正）
+- 本轮继续按“阶段”推进，重点不在接口和功能，而在后台说明卡片与高频提示的自然中文表达。
+- 本轮覆盖：
+  - `src/app/admin/services/page.tsx`
+  - `src/app/admin/settings/page.tsx`
+  - `src/app/admin/gallery/page.tsx`
+  - `src/components/admin/ContentEditor.tsx`
+- 已完成：
+  - 服务管理页
+    - 页面副标题中的 `工作台` → `工作区`
+    - 侧栏建议卡片说明继续收口：`模板化能力` → `模板能力`
+    - `badge / 过滤器` → `状态标签 / 筛选器`
+  - 设置页
+    - 主卡片说明中的 `正式交付状态` → `正式可交付状态`
+    - 当前配置卡片说明继续压缩为更自然的中文句式
+  - 图库页
+    - 建议卡片说明中的 `资源运营能力` → `图片运营能力`
+  - `ContentEditor`
+    - 首页主视觉区块的 placeholder 继续去英文语感：
+      - `Hero eyebrow` → `Top label`
+      - `Hero title` → `Main title`
+      - `Hero subtitle` → `Subtitle`
+    - 这一步不是把英文界面改成中文，而是避免中文后台里继续出现不必要的 `Hero ...` 技术/设计术语
+- 本轮价值：
+  - 侧栏说明卡片、建议卡片和表单提示继续统一到更自然的中文运营语境；
+  - 后台从“功能能用”进一步走向“文案也像正式交付产品”；
+  - `ContentEditor` 的输入提示现在更像给运营人员看的字段说明，而不是给设计/开发看的术语。 
+
+### 本阶段验证追加
+- `npm run build` 已通过。
+
+### 本阶段结论
+这一轮属于第三批批量收口：
+- 不改接口；
+- 不改业务逻辑；
+- 集中推进后台说明卡片与高频提示的中文化质量。
+
+### 下一步建议
+1. 继续扫后台全局说明卡片，尤其 dashboard / gallery / settings 里仍偏英文思维的句式。
+2. 继续收口 `ContentEditor` 中剩余英文 placeholder（如 Image note / Image URL / Alt text / Sort / Active 等）在中文后台的表达。
+3. 继续检查后台全局是否还残留 `Dashboard / Workspace / Hero / Gallery / Content` 这类可替换的高频英文术语。
+
 #### 57) NoticePill 抽象 + ContentEditor 输入提示继续收口
 - 本轮继续严格沿着上一轮 DEVELOPMENT_LOG 的下一步推进，没有改 API、数据结构或上传链核心逻辑。
 - 已新增共享组件：

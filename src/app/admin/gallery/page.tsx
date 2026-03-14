@@ -204,7 +204,7 @@ export default async function AdminGalleryPage({
               title={pick(lang, '建议的下一步', 'Suggested next steps')}
               description={pick(
                 lang,
-                '把图库单独拉出来后，下一轮可以继续做更专业的资源运营能力。',
+                '把图库单独拉出来后，下一轮可以继续做更专业的图片运营能力。',
                 'Now that the gallery has its own surface, the next iteration can focus on more professional media operations.',
               )}
             >
