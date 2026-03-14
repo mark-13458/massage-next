@@ -105,6 +105,21 @@ export default async function AdminSettingsPage() {
           </AdminSectionCard>
 
           <AdminSectionCard
+            eyebrow={pick(lang, '安全执行清单', 'Security execution checklist')}
+            title={pick(lang, '下一批优先安全项', 'Next security priorities')}
+            description={pick(lang, '把即将真正落地的后台安全项整理成一个执行清单，方便后续直接开发。', 'Turn the next security-focused backend items into an execution checklist so the next phase can implement them directly.')}
+          >
+            <AdminInfoList
+              items={[
+                { label: 'P1：', value: pick(lang, '预约验证码 + 基础频率限制', 'Booking captcha + baseline rate limits') },
+                { label: 'P2：', value: pick(lang, '改约 / 取消安全 token 链接', 'Secure reschedule / cancel token links') },
+                { label: 'P3：', value: pick(lang, '隐私同意、数据保留与删除机制', 'Privacy consent, retention and deletion workflow') },
+                { label: 'P4：', value: pick(lang, '安全日志 / 登录失败记录 / 操作日志增强', 'Security logs / failed login records / enhanced operation logs') },
+              ]}
+            />
+          </AdminSectionCard>
+
+          <AdminSectionCard
             eyebrow={pick(lang, 'SEO 与合规', 'SEO & compliance')}
             title={pick(lang, 'SEO / 隐私待办', 'SEO / privacy checklist')}
             description={pick(lang, '把不会立刻破坏当前系统、但必须逐步补齐的 SEO 与合规项集中展示。', 'Surface the SEO and compliance follow-ups that should be added progressively without overloading the MVP.')}

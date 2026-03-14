@@ -134,6 +134,10 @@ export default async function AdminAppointmentsPage({
                 <span>{pick(lang, '当前高风险待确认预约', 'Potentially risky pending bookings')}</span>
                 <span className="font-semibold text-stone-900">{allAppointments.filter((entry) => entry.status === 'PENDING').length}</span>
               </div>
+              <Link href="/admin/appointments?status=NO_SHOW" className="flex items-center justify-between rounded-2xl border border-stone-200 bg-white px-4 py-3 text-stone-700 transition hover:border-stone-400">
+                <span>{pick(lang, '查看爽约记录', 'Review no-show bookings')}</span>
+                <span className="font-semibold text-stone-900">{allAppointments.filter((entry) => entry.status === 'NO_SHOW').length}</span>
+              </Link>
             </div>
           </div>
         </div>

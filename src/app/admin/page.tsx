@@ -142,6 +142,10 @@ export default async function AdminPage() {
                     <span>{pick(lang, '检查系统与安全设置', 'Review system and security settings')}</span>
                     <span className="text-white">→</span>
                   </Link>
+                  <Link href="/admin/settings" className="flex items-center justify-between rounded-2xl border border-white/10 bg-white/5 px-4 py-3 text-sm text-stone-200 transition hover:bg-white/10">
+                    <span>{pick(lang, '查看安全执行清单', 'Review security execution checklist')}</span>
+                    <span className="text-white">→</span>
+                  </Link>
                 </div>
               </AdminSectionCard>
 
