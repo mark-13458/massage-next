@@ -1,5 +1,24 @@
 # DEVELOPMENT_LOG.md
 
+## 2026-03-14 - 阶段继续推进：后台功能 smoke test + 预约接口修正
+- 完成后台主链 smoke：管理员登录、系统设置读取/保存、服务创建、前台预约提交、后台预约读取均已实际打通。
+- Smoke 结果确认：
+  - `POST /api/admin/login` 成功，能拿到 `massage_admin_session` cookie
+  - `GET/PATCH /api/admin/settings` 成功
+  - `POST /api/admin/services` 成功创建 smoke service
+  - `POST /api/booking` 成功创建预约并写入数据库
+  - 数据库内确认 `Appointment` 已新增记录
+- 过程中发现一个真实后台缺陷：`GET /api/admin/appointments` 会返回空数组，即使数据库中已有预约。
+- 根因定位：该接口未显式声明动态渲染，且未做管理员鉴权，导致被缓存为旧静态结果并存在后台 API 越权风险。
+- 修复内容：
+  - 为 `src/app/api/admin/appointments/route.ts` 增加 `dynamic = 'force-dynamic'`
+  - 增加 `revalidate = 0`
+  - 增加 `getCurrentAdmin()` 鉴权，未登录返回 `401 Unauthorized`
+- 修复后复测通过：
+  - 已登录请求能正确返回最新预约列表
+  - 未登录请求返回 `401`
+- 本阶段价值：后台最核心的“登录 → 设置 → 服务 → 预约 → 后台看到预约”链路已从文档描述变成实测可用。
+
 ## 2026-03-14 - 阶段继续推进：Docker smoke 联调打通（web / mysql / nginx）
 - 首次执行 `docker compose up -d --build` 失败，定位为 Docker Desktop / registry 元数据拉取瞬时中断，而不是项目代码构建失败；单独 `docker pull node:20-bullseye-slim` 后重试恢复正常。
 - 完成容器级 smoke：镜像构建成功，`mysql` / `web` / `nginx` 三个服务均可拉起。
