@@ -53,10 +53,19 @@ export default async function AdminAppointmentsPage({
       title={pick(lang, '预约管理', 'Bookings')}
       subtitle={pick(lang, '现在这页已经进入可操作阶段：支持状态筛选、状态修改、内部备注，并可进入详情页查看完整预约信息。', 'This page is now operational: filter by status, update states, leave internal notes and open full booking details.')}
     >
-      <div className="mb-6 flex flex-wrap items-center gap-3">
-        <Link href="/admin" className="rounded-full border border-stone-300 bg-white px-4 py-2 text-sm font-medium text-stone-700 transition hover:border-stone-500">
-          {pick(lang, '返回后台首页', 'Back to dashboard')}
-        </Link>
+      <div className="mb-6 space-y-3">
+        <div className="flex flex-wrap items-center gap-3">
+          <Link href="/admin" className="rounded-full border border-stone-300 bg-white px-4 py-2 text-sm font-medium text-stone-700 transition hover:border-stone-500">
+            {pick(lang, '返回后台首页', 'Back to dashboard')}
+          </Link>
+          <span className="rounded-full bg-stone-100 px-4 py-2 text-sm font-medium text-stone-700">
+            {pick(lang, `当前筛选结果 ${appointments.length} 条`, `Filtered result: ${appointments.length}`)}
+          </span>
+          <span className="rounded-full border border-stone-300 bg-white px-4 py-2 text-sm font-medium text-stone-700">
+            {pick(lang, `当前列表最多展示 50 条`, 'Showing up to 50 records')}
+          </span>
+        </div>
+        <div className="flex flex-wrap items-center gap-3">
         {allowedStatuses.map((status) => (
           <Link
             key={status}
@@ -66,15 +75,16 @@ export default async function AdminAppointmentsPage({
             {appointmentStatusLabel(status, lang)}
           </Link>
         ))}
+        </div>
       </div>
 
       <AdminListFrame
         title={pick(lang, '预约列表', 'Booking list')}
-        description={pick(lang, '当前展示最近 50 条记录，可按状态筛选，并可直接修改状态、内部备注或进入详情页查看完整信息。', 'Showing the latest 50 records. Filter by status, update status and internal notes, or open the detail page for full context.')}
+        description={pick(lang, '当前展示最近 50 条记录，可按状态筛选，并可直接修改状态、内部备注或进入详情页查看完整信息。现在也能更直观看到当前筛选结果数量。', 'Showing the latest 50 records. Filter by status, update status and internal notes, or open the detail page for full context.')}
       >
 
         {appointments.length === 0 ? (
-          <div className="px-6 py-12 text-sm text-stone-500">{pick(lang, '当前没有符合条件的预约数据，或运行环境尚未连接数据库。', 'No matching bookings yet, or the current environment is not connected to the database.')}</div>
+          <div className="px-6 py-12 text-sm text-stone-500">{pick(lang, selectedStatus === 'ALL' ? '当前还没有预约数据，或运行环境尚未连接数据库。' : '当前筛选下没有符合条件的预约数据。你可以切换状态筛选，或等待新的预约进入。', selectedStatus === 'ALL' ? 'No bookings yet, or the current environment is not connected to the database.' : 'No bookings match the current filter. Try another status filter or wait for new bookings to arrive.')}</div>
         ) : (
           <div className="overflow-x-auto">
             <table className="min-w-full divide-y divide-stone-100 text-sm">
