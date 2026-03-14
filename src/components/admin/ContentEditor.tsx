@@ -2,6 +2,7 @@
 
 import { ChangeEvent, useState, useTransition } from 'react'
 import { adminRequest } from '../../lib/admin-request'
+import { AdminSectionCard } from './AdminSectionCard'
 import { NoticePill } from './NoticePill'
 
 type AdminLang = 'zh' | 'en'
@@ -279,26 +280,24 @@ export function ContentEditor({
         </div>
       </section>
 
-      <section className="rounded-[28px] border border-stone-200 bg-white p-6 shadow-[0_10px_30px_rgba(28,25,23,0.05)]">
-        <div className="mb-5">
-          <p className="text-[11px] font-semibold uppercase tracking-[0.24em] text-stone-400">{t(lang, '联系信息', 'Contact')}</p>
-          <h2 className="mt-2 text-lg font-semibold text-stone-900">{t(lang, '联系信息', 'Contact information')}</h2>
-          <p className="mt-1 text-sm text-stone-500">{t(lang, '这里的地址、电话和邮箱会优先用于前台联系页、页脚以及结构化信息展示。', 'These address, phone and email fields are preferred by the contact page, footer and structured business details.')}</p>
-        </div>
-        <div className="mt-5 grid gap-4 md:grid-cols-2">
+      <AdminSectionCard
+        eyebrow={t(lang, '联系信息', 'Contact')}
+        title={t(lang, '联系信息', 'Contact information')}
+        description={t(lang, '这里的地址、电话和邮箱会优先用于前台联系页、页脚以及结构化信息展示。', 'These address, phone and email fields are preferred by the contact page, footer and structured business details.')}
+      >
+        <div className="grid gap-4 md:grid-cols-2">
           <label className="flex flex-col gap-2 text-sm text-stone-700 md:col-span-2"><span>{t(lang, '地址', 'Address')}</span><input value={contact.address ?? ''} onChange={(e) => setContact({ ...contact, address: e.target.value })} placeholder={t(lang, '填写门店完整地址，前台联系页与页脚会优先读取这里', 'Enter the full business address used on the contact page and footer')} className="rounded-2xl border border-stone-200 px-4 py-3 outline-none focus:border-amber-500" /></label>
           <label className="flex flex-col gap-2 text-sm text-stone-700"><span>{t(lang, '电话', 'Phone')}</span><input value={contact.phone ?? ''} onChange={(e) => setContact({ ...contact, phone: e.target.value })} placeholder={t(lang, '建议填写可直接接听预约咨询的号码', 'Use the phone number that should receive booking enquiries')} className="rounded-2xl border border-stone-200 px-4 py-3 outline-none focus:border-amber-500" /></label>
           <label className="flex flex-col gap-2 text-sm text-stone-700"><span>Email</span><input value={contact.email ?? ''} onChange={(e) => setContact({ ...contact, email: e.target.value })} placeholder={t(lang, '填写用于接收通知或客户联系的邮箱', 'Use the email address for notifications and customer contact')} className="rounded-2xl border border-stone-200 px-4 py-3 outline-none focus:border-amber-500" /></label>
         </div>
-      </section>
+      </AdminSectionCard>
 
-      <section className="rounded-[28px] border border-stone-200 bg-white p-6 shadow-[0_10px_30px_rgba(28,25,23,0.05)]">
-        <div className="mb-5">
-          <p className="text-[11px] font-semibold uppercase tracking-[0.24em] text-stone-400">{t(lang, '营业时间', 'Hours')}</p>
-          <h2 className="mt-2 text-lg font-semibold text-stone-900">{t(lang, '营业时间', 'Business hours')}</h2>
-          <p className="mt-1 text-sm text-stone-500">{t(lang, '建议统一使用 24 小时制时间格式。勾选“关闭”后，该天会以前台休息日方式展示。', 'Use a 24-hour time format for consistency. When “Closed” is checked, the day is shown as unavailable on the website.')}</p>
-        </div>
-        <div className="mt-5 grid gap-4">
+      <AdminSectionCard
+        eyebrow={t(lang, '营业时间', 'Hours')}
+        title={t(lang, '营业时间', 'Business hours')}
+        description={t(lang, '建议统一使用 24 小时制时间格式。勾选“关闭”后，该天会以前台休息日方式展示。', 'Use a 24-hour time format for consistency. When “Closed” is checked, the day is shown as unavailable on the website.')}
+      >
+        <div className="grid gap-4">
           {hours.map((item, index) => (
             <div key={item.weekday} className="grid gap-3 rounded-2xl border border-stone-100 p-4 md:grid-cols-[1.1fr_1fr_1fr_auto] md:items-center">
               <div className="text-sm font-medium text-stone-900">{item.label}</div>
@@ -308,18 +307,15 @@ export function ContentEditor({
             </div>
           ))}
         </div>
-      </section>
+      </AdminSectionCard>
 
-      <section className="rounded-[28px] border border-stone-200 bg-white p-6 shadow-[0_10px_30px_rgba(28,25,23,0.05)]">
-        <div className="flex items-center justify-between gap-4">
-          <div>
-            <p className="text-[11px] font-semibold uppercase tracking-[0.24em] text-stone-400">FAQ</p>
-            <h2 className="mt-2 text-lg font-semibold text-stone-900">{t(lang, '常见问题', 'FAQ')}</h2>
-            <p className="mt-1 text-sm text-stone-500">{t(lang, '用于回答客户最常见的问题，也能为前台 FAQ 区块和长尾 SEO 提供内容。', 'Use this section for common customer questions and to support the public FAQ block and long-tail SEO content.')}</p>
-          </div>
-          <button type="button" onClick={addFaq} className="rounded-full border border-stone-300 bg-white px-4 py-2 text-sm font-medium text-stone-700 transition hover:border-stone-500">{t(lang, '新增 FAQ', 'Add FAQ')}</button>
-        </div>
-        <div className="mt-5 grid gap-4">
+      <AdminSectionCard
+        eyebrow="FAQ"
+        title={t(lang, '常见问题', 'FAQ')}
+        description={t(lang, '用于回答客户最常见的问题，也能为前台 FAQ 区块和长尾 SEO 提供内容。', 'Use this section for common customer questions and to support the public FAQ block and long-tail SEO content.')}
+        actions={<button type="button" onClick={addFaq} className="rounded-full border border-stone-300 bg-white px-4 py-2 text-sm font-medium text-stone-700 transition hover:border-stone-500">{t(lang, '新增 FAQ', 'Add FAQ')}</button>}
+      >
+        <div className="grid gap-4">
           {faqs.filter((item) => !item._delete).map((item, index) => (
             <div key={item.id} className="rounded-3xl border border-stone-100 bg-[linear-gradient(180deg,#fff_0%,#fcfbf9_100%)] p-5">
               <div className="mb-4 flex justify-end"><button type="button" onClick={() => removeFaq(index)} className="rounded-full border border-rose-200 bg-rose-50 px-3 py-1 text-xs font-medium text-rose-700 transition hover:bg-rose-100">{t(lang, '删除', 'Delete')}</button></div>
@@ -336,7 +332,7 @@ export function ContentEditor({
             </div>
           ))}
         </div>
-      </section>
+      </AdminSectionCard>
 
       <section className="rounded-[28px] border border-stone-200 bg-white p-6 shadow-[0_10px_30px_rgba(28,25,23,0.05)]">
         <div className="flex items-center justify-between gap-4">
