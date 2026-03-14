@@ -129,7 +129,9 @@
 1. 更新 `DEVELOPMENT_LOG.md`
 2. 如有必要同步更新 `README_CN.md` / `ROADMAP.md` / `ARCHITECTURE.md`
 3. 再进行 build 验证
-4. 最后 commit
+4. commit
+5. push 到 GitHub 远端
+6. 给人类发送一条简洁进度汇报
 
 ### 提交风格建议
 推荐提交格式：
