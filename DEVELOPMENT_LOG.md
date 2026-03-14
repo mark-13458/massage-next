@@ -1,5 +1,17 @@
 # DEVELOPMENT_LOG.md
 
+## 2026-03-14 - 阶段继续推进：预约详情 / 状态流转 / 处理人链路实测
+- 完成后台预约详情相关主链 smoke：预约详情页可访问、状态修改 API 可用、内部备注可保存、快捷操作底层 PATCH 路径已实测通过。
+- 实测状态流转：
+  - `PENDING -> CONFIRMED` 成功，`confirmedAt` 正确写入
+  - `CONFIRMED -> COMPLETED` 成功，`completedAt` 正确写入
+  - `COMPLETED -> CANCELLED` 成功，`cancelledAt` 正确写入
+  - 内部备注在状态变更过程中可同步更新
+- 发现并修复一个真实细节问题：虽然预约详情页展示了“处理人（Handled by）”，但状态流转 API 并没有写 `confirmedById`，导致该字段长期为空。
+- 修复内容：在 `src/app/api/admin/appointments/[id]/route.ts` 中，当状态切为 `CONFIRMED` 时同步写入 `confirmedById = admin.id`。
+- 修复后复测通过：再次确认预约后，数据库中的 `confirmedById` 已正确写入。
+- 当前剩余注意点：状态时间戳目前不会在后续反向流转时自动清理（例如先 completed 再 cancelled 时会同时保留多个历史时间），这是可接受的历史留痕策略，但如果后续要更严格语义，可以再定义状态机规则。
+
 ## 2026-03-14 - 阶段继续推进：后台功能 smoke test + 预约接口修正
 - 完成后台主链 smoke：管理员登录、系统设置读取/保存、服务创建、前台预约提交、后台预约读取均已实际打通。
 - Smoke 结果确认：

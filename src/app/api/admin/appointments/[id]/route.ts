@@ -46,6 +46,7 @@ export async function PATCH(request: NextRequest, { params }: { params: { id: st
 
     if (nextStatus === AppointmentStatus.CONFIRMED) {
       data.confirmedAt = new Date()
+      data.confirmedById = admin.id
     }
 
     if (nextStatus === AppointmentStatus.COMPLETED) {
