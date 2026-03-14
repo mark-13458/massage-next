@@ -59,6 +59,19 @@ export async function PATCH(request: NextRequest) {
         typeof json.bookingRateLimitMaxRequests === 'number' && Number.isFinite(json.bookingRateLimitMaxRequests)
           ? Math.max(1, Math.min(20, Math.floor(json.bookingRateLimitMaxRequests)))
           : 3,
+      seoTitleTemplateDe: typeof json.seoTitleTemplateDe === 'string' ? json.seoTitleTemplateDe : '',
+      seoTitleTemplateEn: typeof json.seoTitleTemplateEn === 'string' ? json.seoTitleTemplateEn : '',
+      seoMetaDescriptionDe: typeof json.seoMetaDescriptionDe === 'string' ? json.seoMetaDescriptionDe : '',
+      seoMetaDescriptionEn: typeof json.seoMetaDescriptionEn === 'string' ? json.seoMetaDescriptionEn : '',
+      featureEnableEmailReminders: json.featureEnableEmailReminders !== false,
+      featureEnableBookingManage: json.featureEnableBookingManage !== false,
+      featureEnableWhatsappReminders: Boolean(json.featureEnableWhatsappReminders),
+      privacyConsentRequired: json.privacyConsentRequired !== false,
+      bookingRetentionDays:
+        typeof json.bookingRetentionDays === 'number' && Number.isFinite(json.bookingRetentionDays)
+          ? Math.max(1, Math.min(3650, Math.floor(json.bookingRetentionDays)))
+          : 180,
+      allowDeletionRequests: Boolean(json.allowDeletionRequests),
     }
 
     await prisma.siteSetting.upsert({

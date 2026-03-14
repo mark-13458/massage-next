@@ -73,6 +73,8 @@ export default async function AdminSettingsPage() {
                 { label: pick(lang, '后台默认语言：', 'Admin language: '), value: settings?.adminDefaultLanguage || 'zh' },
                 { label: pick(lang, '货币：', 'Currency: '), value: settings?.currency || 'EUR' },
                 { label: pick(lang, '验证码：', 'Captcha: '), value: settings?.cfTurnstileEnabled ? pick(lang, '已开启', 'Enabled') : pick(lang, '已关闭', 'Disabled') },
+                { label: pick(lang, '邮件提醒：', 'Email reminders: '), value: settings?.featureEnableEmailReminders === false ? pick(lang, '关闭', 'Disabled') : pick(lang, '开启', 'Enabled') },
+                { label: pick(lang, '客户自助改约：', 'Self-service manage: '), value: settings?.featureEnableBookingManage === false ? pick(lang, '关闭', 'Disabled') : pick(lang, '开启', 'Enabled') },
               ]}
             />
           </AdminSectionCard>
@@ -84,8 +86,9 @@ export default async function AdminSettingsPage() {
           >
             <AdminInfoList
               items={[
-                { label: pick(lang, '默认开启：', 'Enabled by default: '), value: pick(lang, '官网展示 / 在线预约 / 邮件提醒预留 / 改约取消 / 基础 SEO / 基础验证码能力', 'Website / online booking / email reminder readiness / reschedule & cancel / baseline SEO / baseline captcha capability') },
-                { label: pick(lang, '默认关闭：', 'Disabled by default: '), value: pick(lang, '在线支付 / 优惠券 / 会员系统 / WhatsApp 自动提醒 / 营销活动 / 强制 2FA', 'Online payments / coupons / membership / WhatsApp auto-reminders / campaigns / enforced 2FA') },
+                { label: pick(lang, '邮件提醒：', 'Email reminders: '), value: settings?.featureEnableEmailReminders === false ? pick(lang, '当前关闭', 'Currently disabled') : pick(lang, '当前开启', 'Currently enabled') },
+                { label: pick(lang, '客户自助改约：', 'Booking self-service: '), value: settings?.featureEnableBookingManage === false ? pick(lang, '当前关闭', 'Currently disabled') : pick(lang, '当前开启', 'Currently enabled') },
+                { label: pick(lang, 'WhatsApp 提醒：', 'WhatsApp reminders: '), value: settings?.featureEnableWhatsappReminders ? pick(lang, '当前开启', 'Currently enabled') : pick(lang, '当前关闭', 'Currently disabled') },
               ]}
             />
           </AdminSectionCard>
@@ -127,7 +130,8 @@ export default async function AdminSettingsPage() {
             <AdminInfoList
               items={[
                 { label: pick(lang, 'SEO 页面：', 'SEO pages: '), value: pick(lang, 'Impressum / Datenschutzerklärung 仍需继续收口与运营化', 'Impressum / Datenschutz pages still need further productization and operations polish') },
-                { label: pick(lang, '预约合规：', 'Booking compliance: '), value: pick(lang, '隐私同意、数据保留、删除机制建议纳入下一批后台能力', 'Privacy consent, retention and deletion workflow should be added in upcoming admin phases') },
+                { label: pick(lang, '预约合规：', 'Booking compliance: '), value: settings?.privacyConsentRequired === false ? pick(lang, '当前未强制隐私同意，建议尽快补齐', 'Privacy consent is not enforced now and should be added soon') : pick(lang, '已要求隐私同意，下一步补真实流程', 'Privacy consent is required; next step is real workflow support') },
+                { label: pick(lang, '数据保留：', 'Retention: '), value: pick(lang, `当前配置为 ${settings?.bookingRetentionDays || 180} 天`, `Currently set to ${settings?.bookingRetentionDays || 180} days`) },
                 { label: pick(lang, '安全平衡：', 'Security balance: '), value: pick(lang, '公开页面保持可索引，后台与敏感接口保持不可索引', 'Public pages remain indexable while admin and sensitive endpoints stay non-indexable') },
               ]}
             />

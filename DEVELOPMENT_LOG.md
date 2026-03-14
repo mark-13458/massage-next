@@ -3320,3 +3320,53 @@ Docker 部署当前已经不只是“页面能打开”，而是：
 1. 直接按 `SEO_SECURITY_MVP_PLAN.md` 继续把“安全设置 / 功能开关 / SEO 设置”做成真实后台能力。
 2. 优先把设置页、后台首页、预约安全链三条线继续合并推进。
 3. 再补内容页预览能力，让内容工作台进一步接近正式可运营后台。
+
+#### 94) 系统设置页继续落地：SEO / 功能开关 / 隐私合规配置结构化
+- 本轮开始把“系统设置页作为治理中心”的方向从说明层继续推进到真实可配置结构。
+- 本轮覆盖：
+  - `src/server/view-models/admin/settings.vm.ts`
+  - `src/app/api/admin/settings/route.ts`
+  - `src/components/admin/AdminSettingsForm.tsx`
+  - `src/app/admin/settings/page.tsx`
+- 已完成：
+  - 设置数据结构扩展：
+    - 新增 SEO 配置字段：
+      - `seoTitleTemplateDe`
+      - `seoTitleTemplateEn`
+      - `seoMetaDescriptionDe`
+      - `seoMetaDescriptionEn`
+    - 新增功能开关字段：
+      - `featureEnableEmailReminders`
+      - `featureEnableBookingManage`
+      - `featureEnableWhatsappReminders`
+    - 新增隐私与合规字段：
+      - `privacyConsentRequired`
+      - `bookingRetentionDays`
+      - `allowDeletionRequests`
+  - 设置 API 已支持保存上述配置；
+  - 设置页表单已新增三个真实配置分区：
+    - SEO 设置
+    - 功能开关
+    - 隐私与合规
+  - 设置页侧栏概览同步增强：
+    - 当前配置概览已显示邮件提醒 / 客户自助改约状态；
+    - 功能开关卡片已开始展示真实当前值，而不只是静态说明；
+    - SEO / 隐私待办卡片已开始读取真实配置状态（如隐私同意、保留期）。
+- 本轮价值：
+  - 系统设置页开始从“治理说明页”真正过渡为“治理配置中心”；
+  - 后续实现 SEO 后台化、隐私同意流程、删除请求与通知链时，不需要再先重建数据结构；
+  - 这一步显著提升后续开发速度，符合“尽快实现完整可运营后台”的方向。
+
+### 本阶段验证追加
+- `npm run build` 已通过。
+
+### 本阶段结论
+这一轮属于治理配置结构化阶段：
+- 不硬上重型安全改造；
+- 但先把 SEO / 功能开关 / 隐私合规正式落成可保存的后台结构；
+- 让设置页更像真实后台能力中心，而不是单纯展示面板。
+
+### 下一步建议
+1. 继续把设置页中的功能开关真正接到前台或预约流程逻辑。
+2. 优先把 `privacyConsentRequired` 接进预约页与预约 API。
+3. 再把 SEO 配置逐步接到前台 metadata 生成逻辑中。

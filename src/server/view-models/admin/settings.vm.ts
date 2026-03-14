@@ -14,6 +14,16 @@ export type AdminSettingsViewModel = {
   cfTurnstileSecretKey: string
   bookingRateLimitWindowMin: number
   bookingRateLimitMaxRequests: number
+  seoTitleTemplateDe: string
+  seoTitleTemplateEn: string
+  seoMetaDescriptionDe: string
+  seoMetaDescriptionEn: string
+  featureEnableEmailReminders: boolean
+  featureEnableBookingManage: boolean
+  featureEnableWhatsappReminders: boolean
+  privacyConsentRequired: boolean
+  bookingRetentionDays: number
+  allowDeletionRequests: boolean
 }
 
 export function toAdminSettingsViewModel(value: unknown): AdminSettingsViewModel | null {
@@ -34,5 +44,15 @@ export function toAdminSettingsViewModel(value: unknown): AdminSettingsViewModel
     cfTurnstileSecretKey: readString(record, 'cfTurnstileSecretKey'),
     bookingRateLimitWindowMin: readNumber(record, 'bookingRateLimitWindowMin', 15),
     bookingRateLimitMaxRequests: readNumber(record, 'bookingRateLimitMaxRequests', 3),
+    seoTitleTemplateDe: readString(record, 'seoTitleTemplateDe'),
+    seoTitleTemplateEn: readString(record, 'seoTitleTemplateEn'),
+    seoMetaDescriptionDe: readString(record, 'seoMetaDescriptionDe'),
+    seoMetaDescriptionEn: readString(record, 'seoMetaDescriptionEn'),
+    featureEnableEmailReminders: readBoolean(record, 'featureEnableEmailReminders', true),
+    featureEnableBookingManage: readBoolean(record, 'featureEnableBookingManage', true),
+    featureEnableWhatsappReminders: readBoolean(record, 'featureEnableWhatsappReminders'),
+    privacyConsentRequired: readBoolean(record, 'privacyConsentRequired', true),
+    bookingRetentionDays: readNumber(record, 'bookingRetentionDays', 180),
+    allowDeletionRequests: readBoolean(record, 'allowDeletionRequests'),
   }
 }
