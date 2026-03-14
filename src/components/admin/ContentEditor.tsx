@@ -274,7 +274,7 @@ export function ContentEditor({
 
       <section className="rounded-[28px] border border-stone-200 bg-white p-6 shadow-[0_10px_30px_rgba(28,25,23,0.05)]">
         <div className="mb-5">
-          <p className="text-[11px] font-semibold uppercase tracking-[0.24em] text-stone-400">Contact</p>
+          <p className="text-[11px] font-semibold uppercase tracking-[0.24em] text-stone-400">{t(lang, '联系信息', 'Contact')}</p>
           <h2 className="mt-2 text-lg font-semibold text-stone-900">{t(lang, '联系信息', 'Contact information')}</h2>
         </div>
         <div className="mt-5 grid gap-4 md:grid-cols-2">
@@ -286,7 +286,7 @@ export function ContentEditor({
 
       <section className="rounded-[28px] border border-stone-200 bg-white p-6 shadow-[0_10px_30px_rgba(28,25,23,0.05)]">
         <div className="mb-5">
-          <p className="text-[11px] font-semibold uppercase tracking-[0.24em] text-stone-400">Hours</p>
+          <p className="text-[11px] font-semibold uppercase tracking-[0.24em] text-stone-400">{t(lang, '营业时间', 'Hours')}</p>
           <h2 className="mt-2 text-lg font-semibold text-stone-900">{t(lang, '营业时间', 'Business hours')}</h2>
         </div>
         <div className="mt-5 grid gap-4">
@@ -331,7 +331,7 @@ export function ContentEditor({
       <section className="rounded-[28px] border border-stone-200 bg-white p-6 shadow-[0_10px_30px_rgba(28,25,23,0.05)]">
         <div className="flex items-center justify-between gap-4">
           <div>
-            <p className="text-[11px] font-semibold uppercase tracking-[0.24em] text-stone-400">Gallery</p>
+            <p className="text-[11px] font-semibold uppercase tracking-[0.24em] text-stone-400">{t(lang, '图库', 'Gallery')}</p>
             <h2 className="mt-2 text-lg font-semibold text-stone-900">{t(lang, '图库管理', 'Gallery management')}</h2>
           </div>
           <div className="flex flex-wrap items-center gap-3">
@@ -342,7 +342,7 @@ export function ContentEditor({
             <button type="button" onClick={addGalleryItem} className="rounded-full border border-stone-300 bg-white px-4 py-2 text-sm font-medium text-stone-700 transition hover:border-stone-500">{t(lang, '新增图片条目', 'Add image item')}</button>
           </div>
         </div>
-        {uploadMessage ? <p className={`mt-4 text-sm ${noticeClassName(uploadMessageTone)}`}>{uploadMessage}</p> : null}
+        {uploadMessage ? <p className={`mt-4 inline-flex rounded-full px-3 py-1 text-sm ${noticeClassName(uploadMessageTone)} ${uploadMessageTone === 'success' ? 'bg-emerald-50' : uploadMessageTone === 'error' ? 'bg-rose-50' : 'bg-stone-100'}`}>{uploadMessage}</p> : null}
         <div className="mt-5 grid gap-4">
           {gallery.filter((item) => !item._delete).length === 0 ? (
             <div className="text-sm text-stone-500">{t(lang, '当前还没有图库数据。现在已经支持直接上传图片，或继续新增 URL 型图片条目。', 'There is no gallery data yet. You can upload images directly now or continue adding URL-based gallery items.')}</div>
@@ -369,11 +369,11 @@ export function ContentEditor({
         </div>
       </section>
 
-      <div className="sticky bottom-4 z-10 flex items-center gap-4 rounded-full border border-stone-200 bg-white/95 px-4 py-3 shadow-[0_18px_40px_rgba(28,25,23,0.12)] backdrop-blur">
+      <div className="sticky bottom-4 z-10 flex flex-wrap items-center gap-4 rounded-full border border-stone-200 bg-white/95 px-4 py-3 shadow-[0_18px_40px_rgba(28,25,23,0.12)] backdrop-blur">
         <button type="button" onClick={save} disabled={isPending} className="rounded-full bg-stone-900 px-5 py-3 text-sm font-semibold text-white transition hover:bg-stone-800 disabled:cursor-not-allowed disabled:opacity-70">
           {isPending ? t(lang, '保存中…', 'Saving...') : t(lang, '保存内容', 'Save content')}
         </button>
-        {message ? <span className={`text-sm ${noticeClassName(messageTone)}`}>{message}</span> : null}
+        {message ? <span className={`inline-flex rounded-full px-3 py-1 text-sm ${noticeClassName(messageTone)} ${messageTone === 'success' ? 'bg-emerald-50' : messageTone === 'error' ? 'bg-rose-50' : 'bg-stone-100'}`}>{message}</span> : null}
       </div>
     </div>
   )

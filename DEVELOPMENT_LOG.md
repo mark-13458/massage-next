@@ -1816,3 +1816,40 @@ Docker 部署当前已经不只是“页面能打开”，而是：
 1. 正式进入 `ContentEditor.tsx` 的专项修复，按 section 分块处理，避免一次修改过重。
 2. 顺手清理 `GalleryQuickActions` / `DeleteServiceButton` / `ServiceControls` 以外仍存在历史中文污染的零散组件。
 3. 如果继续统一后台体验，可考虑把当前各处 pill 提示抽成一个可复用的小组件。
+
+#### 55) ContentEditor 第一轮收口（内容工作台专项）
+- 这轮根据 `ROADMAP.md`、`ARCHITECTURE.md`、`PROJECT_STATUS.md` 和近期开发日志重新校准后，确认 `ContentEditor.tsx` 仍是当前最值得继续收口的后台核心文件。
+- 原因很直接：
+  - 它处在上传链 / 内容链交叉点；
+  - 直接影响 `/admin/content` 的可交付性；
+  - 而且文件体量较大，适合按 section 小步改，避免一次改太重。
+- 本轮没有贸然重写大文件结构，而是先做第一轮高收益收口：
+  - 统一 section eyebrow / 辅助标签：
+    - `Contact` → 走 `t(lang, '联系信息', 'Contact')`
+    - `Hours` → 走 `t(lang, '营业时间', 'Hours')`
+    - `Gallery` → 走 `t(lang, '图库', 'Gallery')`
+  - 统一 Gallery 上传反馈：
+    - 从裸文本 message 收口为 pill 提示样式；
+    - success / error / info 与后台其他工作台页面保持一致。
+  - 统一底部 sticky 保存条：
+    - 操作区改为 `flex-wrap`；
+    - 保存结果提示改为 pill 样式；
+    - 让内容页在窄宽度和多状态下也更稳定。
+- 本轮价值：
+  - `ContentEditor` 虽然还没有“彻底抽象化”，但已经从大而杂的内容编辑页，继续往统一后台工作台语言收口；
+  - 上传链和保存链的反馈方式与其他后台模块开始更加一致。
+
+### 本阶段验证追加
+- `npm run build` 已通过。
+
+### 本阶段结论
+这一轮属于内容工作台专项的第一步：
+- 不改 API；
+- 不改数据结构；
+- 不重做整个内容页；
+- 先把最可见、最影响交付观感的部分统一掉。
+
+### 下一步建议
+1. 继续处理 `ContentEditor.tsx` 中 Hero / FAQ / Gallery 的 placeholder 与输入标签，让中英后台语境更统一。
+2. 继续把上传提示 / 保存提示抽成统一 notice 组件，减少后台重复样式。
+3. 再做一轮后台可见文案扫描，确认剩余真正的编码污染点，而不是重复处理已经正常的 UTF-8 文件。
