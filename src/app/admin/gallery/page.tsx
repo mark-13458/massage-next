@@ -52,8 +52,8 @@ export default async function AdminGalleryPage({
       <AdminWorkspaceLayout
         main={
           <AdminSectionCard
-            eyebrow={pick(lang, '图库资源库', 'Gallery library')}
-            title={pick(lang, '图库资源总览', 'Gallery library overview')}
+            eyebrow={pick(lang, '图片资料库', 'Gallery library')}
+            title={pick(lang, '图片资料总览', 'Gallery library overview')}
             description={pick(
               lang,
               '这一页先解决“快速看全图库状态”的问题；具体新增、上传、替换仍然复用现有内容工作台。',
@@ -65,7 +65,7 @@ export default async function AdminGalleryPage({
                   href="/admin/content"
                   className="rounded-full border border-stone-300 bg-white px-4 py-2 text-sm font-medium text-stone-700 transition hover:border-stone-500"
                 >
-                  {pick(lang, '前往内容工作台', 'Open content workspace')}
+                  {pick(lang, '前往内容管理页', 'Open content workspace')}
                 </Link>
               </div>
             }
@@ -179,8 +179,8 @@ export default async function AdminGalleryPage({
         aside={
           <>
             <AdminSectionCard
-              eyebrow={pick(lang, '图库统计', 'Gallery stats')}
-              title={pick(lang, '图库状态面板', 'Gallery status panel')}
+              eyebrow={pick(lang, '图片统计', 'Gallery stats')}
+              title={pick(lang, '图片状态看板', 'Gallery status panel')}
               description={pick(
                 lang,
                 '先把高频巡检信息抽出来，减少每次都进长表单翻查资源状态。',
@@ -200,7 +200,7 @@ export default async function AdminGalleryPage({
             </AdminSectionCard>
 
             <AdminSectionCard
-              eyebrow={pick(lang, '图库建议', 'Gallery notes')}
+              eyebrow={pick(lang, '图片建议', 'Gallery notes')}
               title={pick(lang, '建议的下一步', 'Suggested next steps')}
               description={pick(
                 lang,

@@ -66,7 +66,7 @@ export function AdminSettingsForm({ lang, initialSettings }: { lang: AdminLang; 
     <div className="space-y-6">
       <section className="rounded-3xl border border-stone-200 bg-white p-5">
         <div className="mb-4">
-          <h3 className="text-base font-semibold text-stone-900">{t(lang, '站点基础信息', 'Site basics')}</h3>
+          <h3 className="text-base font-semibold text-stone-900">{t(lang, '站点基本信息', 'Site basics')}</h3>
           <p className="mt-1 text-sm text-stone-600">{t(lang, '管理前台默认语言、品牌名称、时区和货币。', 'Manage the default frontend locale, brand name, timezone and currency.')}</p>
         </div>
         <div className="grid gap-4 md:grid-cols-2">
@@ -105,8 +105,8 @@ export function AdminSettingsForm({ lang, initialSettings }: { lang: AdminLang; 
 
       <section className="rounded-3xl border border-stone-200 bg-white p-5">
         <div className="mb-4">
-          <h3 className="text-base font-semibold text-stone-900">{t(lang, '预约与文案设置', 'Booking and copy settings')}</h3>
-          <p className="mt-1 text-sm text-stone-600">{t(lang, '管理不同语言下的预约说明，让前台 booking 页面文案可控。', 'Manage booking notices in each locale so the booking page copy stays configurable.')}</p>
+          <h3 className="text-base font-semibold text-stone-900">{t(lang, '预约与文案配置', 'Booking and copy settings')}</h3>
+          <p className="mt-1 text-sm text-stone-600">{t(lang, '管理不同语言下的预约说明，让前台预约页面文案可控。', 'Manage booking notices in each locale so the booking page copy stays configurable.')}</p>
         </div>
         <div className="grid gap-4 md:grid-cols-2">
           <label className="flex flex-col gap-2 text-sm text-stone-700">
@@ -122,20 +122,20 @@ export function AdminSettingsForm({ lang, initialSettings }: { lang: AdminLang; 
 
       <section className="rounded-3xl border border-stone-200 bg-stone-50 p-5">
         <div className="mb-4">
-          <h3 className="text-base font-semibold text-stone-900">{t(lang, 'Cloudflare Turnstile / 验证码', 'Cloudflare Turnstile / Captcha')}</h3>
+          <h3 className="text-base font-semibold text-stone-900">{t(lang, '验证码防护', 'Cloudflare Turnstile / Captcha')}</h3>
           <p className="mt-1 text-sm text-stone-600">{t(lang, '默认关闭。只有开启后，预约提交才会要求验证码校验。', 'Disabled by default. Booking submissions will require captcha verification only when enabled.')}</p>
         </div>
         <div className="grid gap-4 md:grid-cols-2">
           <label className="flex items-center gap-2 text-sm text-stone-700 md:col-span-2">
             <input type="checkbox" checked={form.cfTurnstileEnabled} onChange={(e) => setForm({ ...form, cfTurnstileEnabled: e.target.checked })} />
-            {t(lang, '启用 Turnstile 验证', 'Enable Turnstile verification')}
+            {t(lang, '启用验证码校验', 'Enable Turnstile verification')}
           </label>
           <label className="flex flex-col gap-2 text-sm text-stone-700">
-            <span>{t(lang, '站点 Key', 'Site key')}</span>
+            <span>{t(lang, '站点密钥', 'Site key')}</span>
             <input value={form.cfTurnstileSiteKey} onChange={(e) => setForm({ ...form, cfTurnstileSiteKey: e.target.value })} className="rounded-2xl border border-stone-200 px-4 py-3 outline-none focus:border-amber-500" placeholder="0x4AAAA..." />
           </label>
           <label className="flex flex-col gap-2 text-sm text-stone-700">
-            <span>{t(lang, '密钥 Secret', 'Secret key')}</span>
+            <span>{t(lang, '私密密钥', 'Secret key')}</span>
             <input value={form.cfTurnstileSecretKey} onChange={(e) => setForm({ ...form, cfTurnstileSecretKey: e.target.value })} className="rounded-2xl border border-stone-200 px-4 py-3 outline-none focus:border-amber-500" placeholder="0x4AAAA..." />
           </label>
         </div>
