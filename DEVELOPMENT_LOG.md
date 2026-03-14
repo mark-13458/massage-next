@@ -1,5 +1,12 @@
 # DEVELOPMENT_LOG.md
 
+## 2026-03-14 - 阶段继续推进：后台 view-model 格式化层收口
+- 清理 `src/server/view-models/admin/shared/formatters.ts` 中混入但未被实际使用的 mapper / Prisma 类型导入，避免共享格式化层继续膨胀。
+- 保留并整理日期、时长、金额、图片尺寸、本地/外部资源来源等真正仍在使用的共享格式化能力。
+- 将 `formatPriceEuro` 从简单字符串拼接升级为 `Intl.NumberFormat('de-DE', { currency: 'EUR' })` 格式化，统一后台价格展示语义。
+- 本阶段目标：先收掉当前未提交的脏改动，跑 `npm run build` 验证，再做 commit，确保项目继续保持可交接状态。
+
+
 # massage-next 开发阶段日志
 
 > 目的：持续记录每一阶段做了什么、为什么这么做、当前状态、下一步建议。
