@@ -27,6 +27,7 @@ services:
         condition: service_healthy
     environment:
       NODE_ENV: ${NODE_ENV:-production}
+      HOSTNAME: 0.0.0.0
       APP_URL: ${APP_URL:-http://localhost}
       DEFAULT_LOCALE: ${DEFAULT_LOCALE:-de}
       DATABASE_URL: ${DATABASE_URL:-mysql://appuser:apppassword@mysql:3306/massage_app}
@@ -46,7 +47,7 @@ services:
     volumes:
       - uploads_data:/app/public/uploads
     healthcheck:
-      test: ["CMD", "node", "-e", "fetch('http://127.0.0.1:3000/api/healthz').then(r=>process.exit(r.ok?0:1)).catch(()=>process.exit(1))"]
+      test: ["CMD", "node", "-e", "require('http').get('http://127.0.0.1:3000/api/healthz', (res) => process.exit(res.statusCode === 200 ? 0 : 1)).on('error', () => process.exit(1))"]
       interval: 10s
       timeout: 5s
       retries: 10

@@ -152,6 +152,7 @@ docker compose up -d --build
 健康检查：
 - 应用：`/api/healthz`
 - `web` 容器已在 Compose 中增加基于 `/api/healthz` 的 healthcheck
+- `nginx` 已改为通过 Docker DNS 动态解析 `web` upstream，避免容器重建后继续指向旧 IP
 
 ---
 

@@ -1,5 +1,17 @@
 # DEVELOPMENT_LOG.md
 
+## 2026-03-14 - 阶段继续推进：Docker smoke 联调打通（web / mysql / nginx）
+- 首次执行 `docker compose up -d --build` 失败，定位为 Docker Desktop / registry 元数据拉取瞬时中断，而不是项目代码构建失败；单独 `docker pull node:20-bullseye-slim` 后重试恢复正常。
+- 完成容器级 smoke：镜像构建成功，`mysql` / `web` / `nginx` 三个服务均可拉起。
+- 排查并修复 `web` healthcheck 失败：原因不是应用不可用，而是容器内对 `127.0.0.1:3000` 探活被拒绝；为 `web` 服务显式加入 `HOSTNAME=0.0.0.0` 后恢复正常。
+- 排查并修复 `nginx` 502：原因是 upstream 解析到了旧 `web` 容器地址；将 `nginx.conf` 改为走 Docker DNS `resolver 127.0.0.11` + 变量式 upstream，并强制重建 `nginx` 后恢复正常。
+- 最终 smoke 结果：
+  - `docker compose ps` 显示 `mysql` healthy、`web` healthy、`nginx` running
+  - `http://localhost/api/healthz` → `200 OK`
+  - `http://localhost/admin/login` → `200 OK`
+  - `http://localhost/de` → `200 OK`
+- 这一阶段的价值是：项目已经从“理论上能部署”推进到“本机 Docker + Nginx 联调可用”。
+
 ## 2026-03-14 - 阶段继续推进：部署基线收口（环境变量 + Compose 健康检查）
 - 统一 `UPLOAD_DIR` 默认值：将 `src/lib/env.ts` 从 `/app/uploads` 收口为 `/app/public/uploads`，与 `.env.example`、Docker volume 挂载路径保持一致，避免部署后文件落盘路径不一致。
 - 重构 `docker-compose.yml`：由硬编码默认密码/端口改为优先读取 `.env` 变量，并保留合理默认值，便于本地开发与测试环境部署复用同一份编排文件。

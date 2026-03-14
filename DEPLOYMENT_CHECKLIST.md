@@ -35,11 +35,11 @@
 - [ ] `README_CN.md` / `ARCHITECTURE.md` / `ROADMAP.md` / `DEVELOPMENT_LOG.md` 已与现状同步
 
 ### 1.2 本地构建
-- [ ] `npm install` 正常
-- [ ] `npx prisma generate` 正常
-- [ ] `npm run build` 正常
+- [x] `npm install` 正常
+- [x] `npx prisma generate` 正常
+- [x] `npm run build` 正常
 - [ ] 本地 `npm run dev` 正常
-- [ ] `/api/healthz` 可访问
+- [x] `/api/healthz` 可访问
 
 ---
 
@@ -191,18 +191,18 @@
 ## 7. Docker / Nginx 联调
 
 ### 7.1 Docker
-- [ ] `docker compose up -d --build` 正常
-- [ ] Web 容器正常启动
-- [ ] MySQL 容器正常启动
-- [ ] Nginx 容器正常启动
-- [ ] 容器日志无明显启动错误
+- [x] `docker compose up -d --build` 正常
+- [x] Web 容器正常启动
+- [x] MySQL 容器正常启动
+- [x] Nginx 容器正常启动
+- [x] 容器日志无明显启动错误
 - [ ] Prisma Client / 数据库连接在容器内正常
 
 ### 7.2 Nginx
-- [ ] 反向代理路径正确
+- [x] 反向代理路径正确
 - [ ] 静态资源可访问
 - [ ] 上传图片可访问
-- [ ] 健康检查可访问
+- [x] 健康检查可访问
 - [ ] 端口映射与域名规划清楚
 
 ### 7.3 持久化
