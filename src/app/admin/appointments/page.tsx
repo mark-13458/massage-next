@@ -41,11 +41,23 @@ export default async function AdminAppointmentsPage({
   const admin = await getCurrentAdmin()
   if (!admin) redirect('/admin/login')
 
-  const lang = await getAdminLang()
+  const [lang, allAppointments] = await Promise.all([
+    getAdminLang(),
+    getAdminAppointments('ALL'),
+  ])
   const resolvedSearchParams = (await searchParams) ?? {}
   const rawStatus = String(resolvedSearchParams.status || 'ALL').toUpperCase()
   const selectedStatus = (allowedStatuses.includes(rawStatus as StatusFilter) ? rawStatus : 'ALL') as StatusFilter
-  const appointments = await getAdminAppointments(selectedStatus)
+  const appointments = selectedStatus === 'ALL'
+    ? allAppointments
+    : allAppointments.filter((item) => item.status === selectedStatus)
+
+  const statusSummary = [
+    { key: 'PENDING', labelZh: '待确认', labelEn: 'Pending' },
+    { key: 'CONFIRMED', labelZh: '已确认', labelEn: 'Confirmed' },
+    { key: 'COMPLETED', labelZh: '已完成', labelEn: 'Completed' },
+    { key: 'CANCELLED', labelZh: '已取消', labelEn: 'Cancelled' },
+  ] as const
 
   return (
     <AdminShell
@@ -62,6 +74,9 @@ export default async function AdminAppointmentsPage({
             {pick(lang, `当前筛选结果 ${appointments.length} 条`, `Filtered result: ${appointments.length}`)}
           </span>
           <span className="rounded-full border border-stone-300 bg-white px-4 py-2 text-sm font-medium text-stone-700">
+            {pick(lang, `全部预约 ${allAppointments.length} 条`, `Total bookings: ${allAppointments.length}`)}
+          </span>
+          <span className="rounded-full border border-stone-300 bg-white px-4 py-2 text-sm font-medium text-stone-700">
             {pick(lang, `当前列表最多展示 50 条`, 'Showing up to 50 records')}
           </span>
         </div>
@@ -76,6 +91,15 @@ export default async function AdminAppointmentsPage({
           </Link>
         ))}
         </div>
+      </div>
+
+      <div className="mb-6 grid gap-3 sm:grid-cols-2 xl:grid-cols-4">
+        {statusSummary.map((item) => (
+          <div key={item.key} className="rounded-3xl border border-stone-200 bg-white px-5 py-4 shadow-sm">
+            <p className="text-[11px] font-semibold uppercase tracking-[0.24em] text-stone-400">{pick(lang, item.labelZh, item.labelEn)}</p>
+            <p className="mt-3 text-3xl font-semibold text-stone-900">{allAppointments.filter((entry) => entry.status === item.key).length}</p>
+          </div>
+        ))}
       </div>
 
       <AdminListFrame

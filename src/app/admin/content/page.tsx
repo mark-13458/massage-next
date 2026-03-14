@@ -49,6 +49,9 @@ export default async function AdminContentPage() {
               <span className="rounded-full border border-stone-300 bg-white px-4 py-2 text-sm font-medium text-stone-700">
                 {pick(lang, `图库图片 ${data.stats.galleryCount} 张`, `Gallery images: ${data.stats.galleryCount}`)}
               </span>
+              <span className="rounded-full border border-stone-300 bg-white px-4 py-2 text-sm font-medium text-stone-700">
+                {pick(lang, `封面图片 ${data.stats.coverCount} 张`, `Cover images: ${data.stats.coverCount}`)}
+              </span>
             </div>
             <ContentEditor
               lang={lang}

@@ -104,6 +104,14 @@ export default async function AdminServicesPage({
               title={pick(lang, '服务列表', 'Service list')}
               description={pick(lang, '当前支持完整内容维护、上架/下架、推荐服务切换和排序调整。现在也可以按状态快速筛选，减少来回翻找。', 'Support full content maintenance, publishing controls, featured toggles and sorting in one stable service workspace.')}
             >
+              <div className="mb-4 flex flex-wrap gap-3 text-sm">
+                <span className="rounded-full bg-emerald-50 px-3 py-1 font-medium text-emerald-700">
+                  {pick(lang, `已上架 ${services.filter((item) => item.isActive).length} 项`, `Published: ${services.filter((item) => item.isActive).length}`)}
+                </span>
+                <span className="rounded-full bg-amber-100 px-3 py-1 font-medium text-amber-800">
+                  {pick(lang, `推荐服务 ${services.filter((item) => item.isFeatured).length} 项`, `Featured: ${services.filter((item) => item.isFeatured).length}`)}
+                </span>
+              </div>
               <div className="overflow-x-auto">
                 <table className="min-w-full divide-y divide-stone-100 text-sm">
                   <thead className="bg-stone-50">
