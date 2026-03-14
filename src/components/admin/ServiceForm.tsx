@@ -1,6 +1,6 @@
 'use client'
 
-import { useMemo, useState, useTransition } from 'react'
+import { useEffect, useMemo, useState, useTransition } from 'react'
 import { adminRequest } from '../../lib/admin-request'
 import { NoticePill } from './NoticePill'
 
@@ -32,6 +32,16 @@ function t(lang: AdminLang, zh: string, en: string) {
   return lang === 'en' ? en : zh
 }
 
+function slugify(value: string) {
+  return value
+    .toLowerCase()
+    .trim()
+    .replace(/[^a-z0-9\s-]/g, '')
+    .replace(/\s+/g, '-')
+    .replace(/-+/g, '-')
+    .replace(/^-|-$/g, '')
+}
+
 export function ServiceForm({ mode, service, lang = 'zh' }: ServiceFormProps) {
   const [form, setForm] = useState({
     slug: service?.slug ?? '',
@@ -49,11 +59,24 @@ export function ServiceForm({ mode, service, lang = 'zh' }: ServiceFormProps) {
   })
   const [message, setMessage] = useState('')
   const [messageTone, setMessageTone] = useState<NoticeTone>('success')
+  const [slugTouched, setSlugTouched] = useState(Boolean(service?.slug))
   const [isPending, startTransition] = useTransition()
 
   const endpoint = useMemo(() => {
     return mode === 'create' ? '/api/admin/services' : `/api/admin/services/${service?.id}`
   }, [mode, service?.id])
+
+  useEffect(() => {
+    if (slugTouched) return
+
+    const source = form.nameEn || form.nameDe
+    const nextSlug = slugify(source)
+
+    setForm((current) => ({
+      ...current,
+      slug: nextSlug,
+    }))
+  }, [form.nameDe, form.nameEn, slugTouched])
 
   const method = mode === 'create' ? 'POST' : 'PATCH'
 
@@ -87,11 +110,15 @@ export function ServiceForm({ mode, service, lang = 'zh' }: ServiceFormProps) {
       <div className="grid gap-4 md:grid-cols-2">
         <label className="flex flex-col gap-2 text-sm text-stone-700">
           <span>{t(lang, '链接标识', 'Slug')}</span>
-          <input value={form.slug} onChange={(e) => setForm({ ...form, slug: e.target.value })} placeholder={t(lang, '用于生成页面链接，建议只用小写字母、数字和连字符', 'Used for page URLs. Prefer lowercase letters, numbers and hyphens')} className="rounded-2xl border border-stone-200 px-4 py-3 outline-none focus:border-amber-500" />
+          <input value={form.slug} onChange={(e) => {
+            setSlugTouched(true)
+            setForm({ ...form, slug: slugify(e.target.value) })
+          }} placeholder={t(lang, '用于生成页面链接，建议只用小写字母、数字和连字符', 'Used for page URLs. Prefer lowercase letters, numbers and hyphens')} className="rounded-2xl border border-stone-200 px-4 py-3 outline-none focus:border-amber-500" />
+          <span className="text-xs text-stone-500">{t(lang, `当前链接：/services/${form.slug || 'your-service'}`, `Current path: /services/${form.slug || 'your-service'}`)}</span>
         </label>
         <label className="flex flex-col gap-2 text-sm text-stone-700">
           <span>{t(lang, '显示顺序', 'Sort order')}</span>
-          <input value={form.sortOrder} onChange={(e) => setForm({ ...form, sortOrder: e.target.value })} placeholder={t(lang, '数字越小越靠前', 'Smaller numbers appear earlier')} className="rounded-2xl border border-stone-200 px-4 py-3 outline-none focus:border-amber-500" />
+          <input type="number" step="1" value={form.sortOrder} onChange={(e) => setForm({ ...form, sortOrder: e.target.value })} placeholder={t(lang, '数字越小越靠前', 'Smaller numbers appear earlier')} className="rounded-2xl border border-stone-200 px-4 py-3 outline-none focus:border-amber-500" />
         </label>
 
         <label className="flex flex-col gap-2 text-sm text-stone-700">
@@ -123,11 +150,11 @@ export function ServiceForm({ mode, service, lang = 'zh' }: ServiceFormProps) {
 
         <label className="flex flex-col gap-2 text-sm text-stone-700">
           <span>{t(lang, '服务时长（分钟）', 'Duration (minutes)')}</span>
-          <input value={form.durationMin} onChange={(e) => setForm({ ...form, durationMin: e.target.value })} placeholder={t(lang, '例如 60、90、120', 'For example: 60, 90 or 120')} className="rounded-2xl border border-stone-200 px-4 py-3 outline-none focus:border-amber-500" />
+          <input type="number" min="0" step="5" value={form.durationMin} onChange={(e) => setForm({ ...form, durationMin: e.target.value })} placeholder={t(lang, '例如 60、90、120', 'For example: 60, 90 or 120')} className="rounded-2xl border border-stone-200 px-4 py-3 outline-none focus:border-amber-500" />
         </label>
         <label className="flex flex-col gap-2 text-sm text-stone-700">
           <span>{t(lang, '服务价格 (€)', 'Price (€)')}</span>
-          <input value={form.price} onChange={(e) => setForm({ ...form, price: e.target.value })} placeholder={t(lang, '例如 59、79、99', 'For example: 59, 79 or 99')} className="rounded-2xl border border-stone-200 px-4 py-3 outline-none focus:border-amber-500" />
+          <input type="number" min="0" step="0.01" value={form.price} onChange={(e) => setForm({ ...form, price: e.target.value })} placeholder={t(lang, '例如 59、79、99', 'For example: 59, 79 or 99')} className="rounded-2xl border border-stone-200 px-4 py-3 outline-none focus:border-amber-500" />
         </label>
 
         <label className="flex items-center gap-2 text-sm text-stone-700">
