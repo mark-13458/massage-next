@@ -12,7 +12,7 @@ export function AdminTopSummary({ title, items, lang }: Props) {
       <div className="border-b border-stone-100 px-6 py-5 sm:px-7">
         <div className="flex flex-wrap items-center justify-between gap-3">
           <div>
-            <p className="text-[11px] font-semibold uppercase tracking-[0.24em] text-stone-400">{pick(lang, '概览', 'Overview')}</p>
+            <p className="text-[11px] font-semibold uppercase tracking-[0.24em] text-stone-400">{pick(lang, '总览', 'Overview')}</p>
             <h3 className="mt-2 text-lg font-semibold text-stone-900">{title}</h3>
           </div>
         </div>

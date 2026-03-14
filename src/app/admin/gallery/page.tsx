@@ -45,7 +45,7 @@ export default async function AdminGalleryPage({
       title={pick(lang, '图库管理', 'Gallery management')}
       subtitle={pick(
         lang,
-        '把图库作为独立运营模块查看：快速检查封面、启用状态、本地上传占比，并跳转到内容页继续编辑。',
+        '把图片资料作为独立运营模块查看：快速检查封面、启用状态、本地上传占比，并跳转到内容页继续编辑。',
         'Treat the gallery as a dedicated operations module: quickly inspect covers, active states, local uploads, and jump into content editing when needed.',
       )}
     >

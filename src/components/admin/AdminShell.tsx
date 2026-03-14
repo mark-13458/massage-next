@@ -4,12 +4,12 @@ import { AdminLogoutButton } from './AdminLogoutButton'
 import { AdminLang, pick } from '../../lib/admin-i18n'
 
 const navItems = [
-  { href: '/admin', labelZh: '概览', labelEn: 'Overview', descZh: '仪表盘', descEn: 'Dashboard', icon: '◈' },
+  { href: '/admin', labelZh: '概览', labelEn: 'Overview', descZh: '工作台', descEn: 'Dashboard', icon: '◈' },
   { href: '/admin/appointments', labelZh: '预约管理', labelEn: 'Bookings', descZh: '预约', descEn: 'Bookings', icon: '◌' },
   { href: '/admin/services', labelZh: '服务项目', labelEn: 'Services', descZh: '服务', descEn: 'Services', icon: '◇' },
-  { href: '/admin/content', labelZh: '网站内容', labelEn: 'Content', descZh: '内容', descEn: 'Content', icon: '◎' },
-  { href: '/admin/gallery', labelZh: '图库管理', labelEn: 'Gallery', descZh: '图片', descEn: 'Media', icon: '▣' },
-  { href: '/admin/settings', labelZh: '系统设置', labelEn: 'Settings', descZh: '系统', descEn: 'Settings', icon: '✦' },
+  { href: '/admin/content', labelZh: '网站内容', labelEn: 'Content', descZh: '文案与资料', descEn: 'Content', icon: '◎' },
+  { href: '/admin/gallery', labelZh: '图库管理', labelEn: 'Gallery', descZh: '图片资料', descEn: 'Media', icon: '▣' },
+  { href: '/admin/settings', labelZh: '系统设置', labelEn: 'Settings', descZh: '配置', descEn: 'Settings', icon: '✦' },
 ]
 
 export function AdminShell({ children, title, subtitle, lang = 'zh' }: { children: React.ReactNode; title: string; subtitle?: string; lang?: AdminLang }) {
@@ -20,10 +20,10 @@ export function AdminShell({ children, title, subtitle, lang = 'zh' }: { childre
           <div className="absolute inset-0 bg-[radial-gradient(circle_at_top_left,rgba(217,119,6,0.18),transparent_36%),radial-gradient(circle_at_bottom_right,rgba(251,191,36,0.08),transparent_32%)]" />
           <div className="relative flex h-full flex-col px-6 py-8">
             <div>
-              <p className="text-[11px] font-semibold uppercase tracking-[0.34em] text-amber-300/90">Wellness Admin</p>
+              <p className="text-[11px] font-semibold uppercase tracking-[0.34em] text-amber-300/90">{pick(lang, '养生后台', 'Wellness Admin')}</p>
               <h1 className="mt-4 text-2xl font-semibold tracking-tight text-white">China TCM Massage</h1>
               <p className="mt-3 max-w-xs text-sm leading-6 text-stone-300">
-                {pick(lang, '一个更适合日常运营的后台工作区：把预约、服务、内容与图片管理收拢到统一视图里。', 'A calmer operations workspace for daily management across bookings, services, content and media.')}
+                {pick(lang, '一个更适合日常运营的后台工作区：把预约、服务、网站内容与图片管理收拢到统一视图里。', 'A calmer operations workspace for daily management across bookings, services, content and media.')}
               </p>
             </div>
 
@@ -60,7 +60,7 @@ export function AdminShell({ children, title, subtitle, lang = 'zh' }: { childre
           <div className="border-b border-stone-200 bg-[#f8f3eb]/90 backdrop-blur">
             <div className="mx-auto flex max-w-7xl flex-wrap items-center justify-between gap-4 px-4 py-5 sm:px-6 lg:px-10">
               <div>
-                <p className="text-xs font-semibold uppercase tracking-[0.28em] text-amber-700">Admin Workspace</p>
+                <p className="text-xs font-semibold uppercase tracking-[0.28em] text-amber-700">{pick(lang, '后台工作台', 'Admin Workspace')}</p>
                 <h2 className="mt-2 text-2xl font-semibold tracking-tight text-stone-900">{title}</h2>
                 {subtitle ? <p className="mt-2 max-w-3xl text-sm leading-6 text-stone-600">{subtitle}</p> : null}
               </div>
