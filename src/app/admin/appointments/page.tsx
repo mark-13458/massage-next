@@ -93,13 +93,36 @@ export default async function AdminAppointmentsPage({
         </div>
       </div>
 
-      <div className="mb-6 grid gap-3 sm:grid-cols-2 xl:grid-cols-4">
-        {statusSummary.map((item) => (
-          <div key={item.key} className="rounded-3xl border border-stone-200 bg-white px-5 py-4 shadow-sm">
-            <p className="text-[11px] font-semibold uppercase tracking-[0.24em] text-stone-400">{pick(lang, item.labelZh, item.labelEn)}</p>
-            <p className="mt-3 text-3xl font-semibold text-stone-900">{allAppointments.filter((entry) => entry.status === item.key).length}</p>
+      <div className="mb-6 grid gap-6 xl:grid-cols-[1.15fr_0.85fr]">
+        <div className="grid gap-3 sm:grid-cols-2 xl:grid-cols-2">
+          {statusSummary.map((item) => (
+            <div key={item.key} className="rounded-3xl border border-stone-200 bg-white px-5 py-4 shadow-sm">
+              <p className="text-[11px] font-semibold uppercase tracking-[0.24em] text-stone-400">{pick(lang, item.labelZh, item.labelEn)}</p>
+              <p className="mt-3 text-3xl font-semibold text-stone-900">{allAppointments.filter((entry) => entry.status === item.key).length}</p>
+            </div>
+          ))}
+        </div>
+
+        <div className="space-y-4 rounded-3xl border border-stone-200 bg-white p-5 shadow-sm">
+          <div>
+            <p className="text-[11px] font-semibold uppercase tracking-[0.24em] text-stone-400">{pick(lang, '快捷处理', 'Quick actions')}</p>
+            <h2 className="mt-2 text-lg font-semibold text-stone-900">{pick(lang, '预约处理入口', 'Booking quick actions')}</h2>
           </div>
-        ))}
+          <div className="space-y-3 text-sm">
+            <Link href="/admin/appointments?status=PENDING" className="flex items-center justify-between rounded-2xl border border-stone-200 bg-white px-4 py-3 text-stone-700 transition hover:border-stone-400">
+              <span>{pick(lang, '处理待确认预约', 'Handle pending bookings')}</span>
+              <span className="font-semibold text-stone-900">{allAppointments.filter((entry) => entry.status === 'PENDING').length}</span>
+            </Link>
+            <Link href="/admin/appointments?status=CONFIRMED" className="flex items-center justify-between rounded-2xl border border-stone-200 bg-white px-4 py-3 text-stone-700 transition hover:border-stone-400">
+              <span>{pick(lang, '查看已确认预约', 'Review confirmed bookings')}</span>
+              <span className="font-semibold text-stone-900">{allAppointments.filter((entry) => entry.status === 'CONFIRMED').length}</span>
+            </Link>
+            <Link href="/admin/appointments?status=COMPLETED" className="flex items-center justify-between rounded-2xl border border-stone-200 bg-white px-4 py-3 text-stone-700 transition hover:border-stone-400">
+              <span>{pick(lang, '查看已完成预约', 'Review completed bookings')}</span>
+              <span className="font-semibold text-stone-900">{allAppointments.filter((entry) => entry.status === 'COMPLETED').length}</span>
+            </Link>
+          </div>
+        </div>
       </div>
 
       <AdminListFrame

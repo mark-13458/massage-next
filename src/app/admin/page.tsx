@@ -86,6 +86,10 @@ export default async function AdminPage() {
                     <span>{pick(lang, '处理待确认预约', 'Handle pending bookings')}</span>
                     <span className="font-semibold text-white">{stats.pendingAppointments}</span>
                   </Link>
+                  <Link href="/admin/appointments?status=CONFIRMED" className="flex items-center justify-between rounded-2xl border border-white/10 bg-white/5 px-4 py-3 text-sm text-stone-200 transition hover:bg-white/10">
+                    <span>{pick(lang, '跟进已确认预约', 'Follow up confirmed bookings')}</span>
+                    <span className="text-white">→</span>
+                  </Link>
                   <Link href="/admin/services?filter=inactive" className="flex items-center justify-between rounded-2xl border border-white/10 bg-white/5 px-4 py-3 text-sm text-stone-200 transition hover:bg-white/10">
                     <span>{pick(lang, '检查未上架服务', 'Review unpublished services')}</span>
                     <span className="text-white">→</span>
