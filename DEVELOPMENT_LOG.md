@@ -3030,6 +3030,50 @@ Docker 部署当前已经不只是“页面能打开”，而是：
 2. 将 token 返回内容进一步收口为面向客户的安全管理视图。
 3. 持续让后台详情页、设置页、预约 API 三者联动，形成完整预约安全体系。
 
+#### 88) P2 安全项继续落地：token 链路从可查询升级为可操作
+- 本轮继续沿预约安全主线推进，把上一轮的 token 基础链路从“只读查询”推进到“可取消 / 可改约”的操作级接口。
+- 本轮覆盖：
+  - `src/lib/validations/booking.ts`
+  - `src/app/api/booking/manage/[token]/route.ts`
+- 已完成：
+  - 新增 `bookingManageSchema`
+    - 支持 `action: 'cancel' | 'reschedule'`
+    - 为 token 管理接口提供独立 payload 校验
+  - `PATCH /api/booking/manage/[token]` 已落地
+    - `action = cancel`：
+      - 将预约状态更新为 `CANCELLED`
+      - 写入 `cancelledAt`
+      - 可带 notes
+    - `action = reschedule`：
+      - 要求提交 `appointmentDate + appointmentTime`
+      - 更新预约时间
+      - 将状态重置为 `PENDING`
+      - 清空已确认 / 已取消 / 已完成等状态时间字段
+    - 若预约已经 `CANCELLED` 或 `COMPLETED`，则拒绝修改
+  - 原有 `GET /api/booking/manage/[token]` 保留
+    - 现在 token 链路已经同时支持：
+      - 查询预约基础信息
+      - 安全取消预约
+      - 安全改约
+- 本轮价值：
+  - token 体系已经从“基础设施”推进为“真实业务能力”；
+  - 后续客户邮件、前台改约页、取消页都可以直接基于现有 token API 构建；
+  - 项目已经开始具备真正的预约安全闭环，而不是只做后台治理表达。
+
+### 本阶段验证追加
+- `npm run build` 已通过。
+
+### 本阶段结论
+这一轮属于预约安全能力继续落地阶段：
+- 不改数据库结构；
+- 继续复用现有 `confirmationToken`；
+- 但 token 链路已经从可查询升级为可操作，为正式改约 / 取消流程铺平了核心接口层。
+
+### 下一步建议
+1. 继续把 token API 收口成真正面向客户的改约 / 取消前台流程。
+2. 为 token 操作补邮件通知或安全日志，增强可追踪性。
+3. 继续联动后台详情页与设置页，让预约安全体系更完整。
+
 #### 57) NoticePill 抽象 + ContentEditor 输入提示继续收口
 - 本轮继续严格沿着上一轮 DEVELOPMENT_LOG 的下一步推进，没有改 API、数据结构或上传链核心逻辑。
 - 已新增共享组件：
