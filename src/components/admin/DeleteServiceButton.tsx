@@ -10,9 +10,16 @@ function t(lang: AdminLang, zh: string, en: string) {
   return lang === 'en' ? en : zh
 }
 
+type NoticeTone = 'success' | 'error'
+
+function noticeClassName(tone: NoticeTone) {
+  return tone === 'success' ? 'bg-emerald-50 text-emerald-700' : 'bg-rose-50 text-rose-700'
+}
+
 export function DeleteServiceButton({ id, lang = 'zh' }: { id: number; lang?: AdminLang }) {
   const router = useRouter()
   const [message, setMessage] = useState('')
+  const [messageTone, setMessageTone] = useState<NoticeTone>('success')
   const [isPending, startTransition] = useTransition()
 
   async function remove() {
@@ -27,10 +34,12 @@ export function DeleteServiceButton({ id, lang = 'zh' }: { id: number; lang?: Ad
         })
 
         setMessage(t(lang, '已删除', 'Deleted'))
+        setMessageTone('success')
         router.push('/admin/services')
         router.refresh()
       } catch {
         setMessage(t(lang, '删除失败', 'Delete failed'))
+        setMessageTone('error')
       }
     })
   }
@@ -45,7 +54,7 @@ export function DeleteServiceButton({ id, lang = 'zh' }: { id: number; lang?: Ad
       >
         {isPending ? t(lang, '删除中…', 'Deleting...') : t(lang, '删除服务', 'Delete service')}
       </button>
-      {message ? <span className="inline-flex rounded-full bg-stone-100 px-3 py-1 text-xs text-stone-600">{message}</span> : null}
+      {message ? <span className={`inline-flex rounded-full px-3 py-1 text-xs ${noticeClassName(messageTone)}`}>{message}</span> : null}
     </div>
   )
 }

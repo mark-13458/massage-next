@@ -90,6 +90,15 @@ function noticeClassName(tone: NoticeTone) {
   return 'text-stone-500'
 }
 
+function localizedFieldPlaceholder(lang: AdminLang, fieldZh: string, fieldEn: string, locale: 'de' | 'en') {
+  const localeLabel = locale.toUpperCase()
+  return t(
+    lang,
+    `${fieldZh}（${localeLabel}）`,
+    `${fieldEn} (${localeLabel})`,
+  )
+}
+
 export function ContentEditor({
   initialContact,
   initialHero,
@@ -257,14 +266,14 @@ export function ContentEditor({
         </div>
         {heroUploadMessage ? <p className={`mt-4 text-sm ${noticeClassName(heroUploadMessageTone)}`}>{heroUploadMessage}</p> : null}
         <div className="mt-5 grid gap-4 md:grid-cols-2">
-          <input value={hero.eyebrowDe ?? ''} onChange={(e) => setHero({ ...hero, eyebrowDe: e.target.value })} placeholder="Eyebrow DE" className="rounded-2xl border border-stone-200 px-4 py-3 text-sm outline-none focus:border-amber-500" />
-          <input value={hero.eyebrowEn ?? ''} onChange={(e) => setHero({ ...hero, eyebrowEn: e.target.value })} placeholder="Eyebrow EN" className="rounded-2xl border border-stone-200 px-4 py-3 text-sm outline-none focus:border-amber-500" />
-          <input value={hero.titleDe ?? ''} onChange={(e) => setHero({ ...hero, titleDe: e.target.value })} placeholder="Title DE" className="rounded-2xl border border-stone-200 px-4 py-3 text-sm outline-none focus:border-amber-500" />
-          <input value={hero.titleEn ?? ''} onChange={(e) => setHero({ ...hero, titleEn: e.target.value })} placeholder="Title EN" className="rounded-2xl border border-stone-200 px-4 py-3 text-sm outline-none focus:border-amber-500" />
-          <textarea value={hero.subtitleDe ?? ''} onChange={(e) => setHero({ ...hero, subtitleDe: e.target.value })} rows={4} placeholder="Subtitle DE" className="rounded-2xl border border-stone-200 px-4 py-3 text-sm outline-none focus:border-amber-500" />
-          <textarea value={hero.subtitleEn ?? ''} onChange={(e) => setHero({ ...hero, subtitleEn: e.target.value })} rows={4} placeholder="Subtitle EN" className="rounded-2xl border border-stone-200 px-4 py-3 text-sm outline-none focus:border-amber-500" />
-          <textarea value={hero.noteDe ?? ''} onChange={(e) => setHero({ ...hero, noteDe: e.target.value })} rows={3} placeholder="Image note DE" className="rounded-2xl border border-stone-200 px-4 py-3 text-sm outline-none focus:border-amber-500" />
-          <textarea value={hero.noteEn ?? ''} onChange={(e) => setHero({ ...hero, noteEn: e.target.value })} rows={3} placeholder="Image note EN" className="rounded-2xl border border-stone-200 px-4 py-3 text-sm outline-none focus:border-amber-500" />
+          <input value={hero.eyebrowDe ?? ''} onChange={(e) => setHero({ ...hero, eyebrowDe: e.target.value })} placeholder={localizedFieldPlaceholder(lang, 'Hero 上方短标签', 'Hero eyebrow', 'de')} className="rounded-2xl border border-stone-200 px-4 py-3 text-sm outline-none focus:border-amber-500" />
+          <input value={hero.eyebrowEn ?? ''} onChange={(e) => setHero({ ...hero, eyebrowEn: e.target.value })} placeholder={localizedFieldPlaceholder(lang, 'Hero 上方短标签', 'Hero eyebrow', 'en')} className="rounded-2xl border border-stone-200 px-4 py-3 text-sm outline-none focus:border-amber-500" />
+          <input value={hero.titleDe ?? ''} onChange={(e) => setHero({ ...hero, titleDe: e.target.value })} placeholder={localizedFieldPlaceholder(lang, 'Hero 标题', 'Hero title', 'de')} className="rounded-2xl border border-stone-200 px-4 py-3 text-sm outline-none focus:border-amber-500" />
+          <input value={hero.titleEn ?? ''} onChange={(e) => setHero({ ...hero, titleEn: e.target.value })} placeholder={localizedFieldPlaceholder(lang, 'Hero 标题', 'Hero title', 'en')} className="rounded-2xl border border-stone-200 px-4 py-3 text-sm outline-none focus:border-amber-500" />
+          <textarea value={hero.subtitleDe ?? ''} onChange={(e) => setHero({ ...hero, subtitleDe: e.target.value })} rows={4} placeholder={localizedFieldPlaceholder(lang, 'Hero 副标题', 'Hero subtitle', 'de')} className="rounded-2xl border border-stone-200 px-4 py-3 text-sm outline-none focus:border-amber-500" />
+          <textarea value={hero.subtitleEn ?? ''} onChange={(e) => setHero({ ...hero, subtitleEn: e.target.value })} rows={4} placeholder={localizedFieldPlaceholder(lang, 'Hero 副标题', 'Hero subtitle', 'en')} className="rounded-2xl border border-stone-200 px-4 py-3 text-sm outline-none focus:border-amber-500" />
+          <textarea value={hero.noteDe ?? ''} onChange={(e) => setHero({ ...hero, noteDe: e.target.value })} rows={3} placeholder={localizedFieldPlaceholder(lang, '图片说明', 'Image note', 'de')} className="rounded-2xl border border-stone-200 px-4 py-3 text-sm outline-none focus:border-amber-500" />
+          <textarea value={hero.noteEn ?? ''} onChange={(e) => setHero({ ...hero, noteEn: e.target.value })} rows={3} placeholder={localizedFieldPlaceholder(lang, '图片说明', 'Image note', 'en')} className="rounded-2xl border border-stone-200 px-4 py-3 text-sm outline-none focus:border-amber-500" />
           <label className="flex flex-col gap-2 text-sm text-stone-700 md:col-span-2">
             <span>{t(lang, 'Hero 图片 URL', 'Hero image URL')}</span>
             <input value={hero.imageUrl ?? ''} onChange={(e) => setHero({ ...hero, imageUrl: e.target.value })} className="rounded-2xl border border-stone-200 px-4 py-3 outline-none focus:border-amber-500" />
@@ -314,10 +323,10 @@ export function ContentEditor({
             <div key={item.id} className="rounded-3xl border border-stone-100 bg-[linear-gradient(180deg,#fff_0%,#fcfbf9_100%)] p-5">
               <div className="mb-4 flex justify-end"><button type="button" onClick={() => removeFaq(index)} className="rounded-full border border-rose-200 bg-rose-50 px-3 py-1 text-xs font-medium text-rose-700 transition hover:bg-rose-100">{t(lang, '删除', 'Delete')}</button></div>
               <div className="grid gap-4 md:grid-cols-2">
-                <input value={item.questionDe} onChange={(e) => { const next = [...faqs]; next[index] = { ...item, questionDe: e.target.value }; setFaqs(next) }} placeholder="Question DE" className="rounded-2xl border border-stone-200 px-4 py-3 text-sm outline-none focus:border-amber-500" />
-                <input value={item.questionEn} onChange={(e) => { const next = [...faqs]; next[index] = { ...item, questionEn: e.target.value }; setFaqs(next) }} placeholder="Question EN" className="rounded-2xl border border-stone-200 px-4 py-3 text-sm outline-none focus:border-amber-500" />
-                <textarea value={item.answerDe} onChange={(e) => { const next = [...faqs]; next[index] = { ...item, answerDe: e.target.value }; setFaqs(next) }} rows={4} placeholder="Answer DE" className="rounded-2xl border border-stone-200 px-4 py-3 text-sm outline-none focus:border-amber-500" />
-                <textarea value={item.answerEn} onChange={(e) => { const next = [...faqs]; next[index] = { ...item, answerEn: e.target.value }; setFaqs(next) }} rows={4} placeholder="Answer EN" className="rounded-2xl border border-stone-200 px-4 py-3 text-sm outline-none focus:border-amber-500" />
+                <input value={item.questionDe} onChange={(e) => { const next = [...faqs]; next[index] = { ...item, questionDe: e.target.value }; setFaqs(next) }} placeholder={localizedFieldPlaceholder(lang, '问题', 'Question', 'de')} className="rounded-2xl border border-stone-200 px-4 py-3 text-sm outline-none focus:border-amber-500" />
+                <input value={item.questionEn} onChange={(e) => { const next = [...faqs]; next[index] = { ...item, questionEn: e.target.value }; setFaqs(next) }} placeholder={localizedFieldPlaceholder(lang, '问题', 'Question', 'en')} className="rounded-2xl border border-stone-200 px-4 py-3 text-sm outline-none focus:border-amber-500" />
+                <textarea value={item.answerDe} onChange={(e) => { const next = [...faqs]; next[index] = { ...item, answerDe: e.target.value }; setFaqs(next) }} rows={4} placeholder={localizedFieldPlaceholder(lang, '答案', 'Answer', 'de')} className="rounded-2xl border border-stone-200 px-4 py-3 text-sm outline-none focus:border-amber-500" />
+                <textarea value={item.answerEn} onChange={(e) => { const next = [...faqs]; next[index] = { ...item, answerEn: e.target.value }; setFaqs(next) }} rows={4} placeholder={localizedFieldPlaceholder(lang, '答案', 'Answer', 'en')} className="rounded-2xl border border-stone-200 px-4 py-3 text-sm outline-none focus:border-amber-500" />
               </div>
               <div className="mt-4 flex flex-wrap items-center gap-4 text-sm text-stone-700">
                 <label className="flex items-center gap-2"><span>{t(lang, '排序', 'Sort')}</span><input value={String(item.sortOrder)} onChange={(e) => { const next = [...faqs]; next[index] = { ...item, sortOrder: Number(e.target.value) || 0 }; setFaqs(next) }} className="w-20 rounded-xl border border-stone-200 px-3 py-2 outline-none focus:border-amber-500" /></label>
@@ -352,10 +361,10 @@ export function ContentEditor({
               <div className="grid gap-4 md:grid-cols-[140px_1fr]">
                 <img src={item.imageUrl || 'https://placehold.co/400x500?text=Gallery'} alt={item.titleDe || item.titleEn || 'Gallery'} className="h-28 w-full rounded-2xl object-cover" />
                 <div className="grid gap-4 md:grid-cols-2">
-                  <input value={item.titleDe} onChange={(e) => { const next = [...gallery]; next[index] = { ...item, titleDe: e.target.value }; setGallery(next) }} placeholder="Title DE" className="rounded-2xl border border-stone-200 px-4 py-3 text-sm outline-none focus:border-amber-500" />
-                  <input value={item.titleEn} onChange={(e) => { const next = [...gallery]; next[index] = { ...item, titleEn: e.target.value }; setGallery(next) }} placeholder="Title EN" className="rounded-2xl border border-stone-200 px-4 py-3 text-sm outline-none focus:border-amber-500" />
-                  <input value={item.altDe} onChange={(e) => { const next = [...gallery]; next[index] = { ...item, altDe: e.target.value }; setGallery(next) }} placeholder="Alt DE" className="rounded-2xl border border-stone-200 px-4 py-3 text-sm outline-none focus:border-amber-500" />
-                  <input value={item.altEn} onChange={(e) => { const next = [...gallery]; next[index] = { ...item, altEn: e.target.value }; setGallery(next) }} placeholder="Alt EN" className="rounded-2xl border border-stone-200 px-4 py-3 text-sm outline-none focus:border-amber-500" />
+                  <input value={item.titleDe} onChange={(e) => { const next = [...gallery]; next[index] = { ...item, titleDe: e.target.value }; setGallery(next) }} placeholder={localizedFieldPlaceholder(lang, '图片标题', 'Image title', 'de')} className="rounded-2xl border border-stone-200 px-4 py-3 text-sm outline-none focus:border-amber-500" />
+                  <input value={item.titleEn} onChange={(e) => { const next = [...gallery]; next[index] = { ...item, titleEn: e.target.value }; setGallery(next) }} placeholder={localizedFieldPlaceholder(lang, '图片标题', 'Image title', 'en')} className="rounded-2xl border border-stone-200 px-4 py-3 text-sm outline-none focus:border-amber-500" />
+                  <input value={item.altDe} onChange={(e) => { const next = [...gallery]; next[index] = { ...item, altDe: e.target.value }; setGallery(next) }} placeholder={localizedFieldPlaceholder(lang, '替代文本', 'Alt text', 'de')} className="rounded-2xl border border-stone-200 px-4 py-3 text-sm outline-none focus:border-amber-500" />
+                  <input value={item.altEn} onChange={(e) => { const next = [...gallery]; next[index] = { ...item, altEn: e.target.value }; setGallery(next) }} placeholder={localizedFieldPlaceholder(lang, '替代文本', 'Alt text', 'en')} className="rounded-2xl border border-stone-200 px-4 py-3 text-sm outline-none focus:border-amber-500" />
                   <label className="flex flex-col gap-2 text-sm text-stone-700 md:col-span-2"><span>{t(lang, '图片 URL', 'Image URL')}</span><input value={item.imageUrl} onChange={(e) => { const next = [...gallery]; next[index] = { ...item, imageUrl: e.target.value }; setGallery(next) }} className="rounded-2xl border border-stone-200 px-4 py-3 outline-none focus:border-amber-500" /></label>
                   <label className="flex items-center gap-2 text-sm text-stone-700"><span>{t(lang, '排序', 'Sort')}</span><input value={String(item.sortOrder)} onChange={(e) => { const next = [...gallery]; next[index] = { ...item, sortOrder: Number(e.target.value) || 0 }; setGallery(next) }} className="w-20 rounded-xl border border-stone-200 px-3 py-2 outline-none focus:border-amber-500" /></label>
                   <div className="flex flex-wrap items-center gap-4 text-sm text-stone-700">
