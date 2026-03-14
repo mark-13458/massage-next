@@ -24,10 +24,10 @@ function validateImageFile(file: File, usage: 'hero' | 'gallery', lang: AdminLan
   }
 
   if (usage === 'hero') {
-    return t(lang, '将继续由服务端校验 Hero 最低尺寸：1200×600', 'The server will still validate the Hero minimum size: 1200×600')
+    return t(lang, '将继续由服务端校验首页主视觉的最低尺寸：1200×600', 'The server will still validate the hero minimum size: 1200×600')
   }
 
-  return t(lang, '将继续由服务端校验 Gallery 最低尺寸：600×400', 'The server will still validate the Gallery minimum size: 600×400')
+  return t(lang, '将继续由服务端校验图库图片的最低尺寸：600×400', 'The server will still validate the gallery minimum size: 600×400')
 }
 
 type Contact = {
@@ -204,7 +204,7 @@ export function ContentEditor({
         const item = data?.item
         if (!item) throw new Error(t(lang, '上传失败', 'Upload failed'))
         setGallery((current) => [...current, item])
-        setUploadMessage(t(lang, `上传成功，已加入图库列表（${item.width || '?'}×${item.height || '?'}）`, `Upload succeeded and was added to the gallery list (${item.width || '?'}×${item.height || '?'})`))
+        setUploadMessage(t(lang, `上传成功，已加入图片列表（${item.width || '?'}×${item.height || '?'}）`, `Upload succeeded and was added to the gallery list (${item.width || '?'}×${item.height || '?'})`))
         setUploadMessageTone('success')
       } catch (error) {
         setUploadMessage(error instanceof Error ? error.message : t(lang, '上传失败', 'Upload failed'))
@@ -239,7 +239,7 @@ export function ContentEditor({
         const item = data?.item
         if (!item?.imageUrl) throw new Error(t(lang, '上传失败', 'Upload failed'))
         setHero((current) => ({ ...current, imageUrl: item.imageUrl }))
-        setHeroUploadMessage(t(lang, `Hero 图片上传成功（${item.width || '?'}×${item.height || '?'}）`, `Hero image uploaded successfully (${item.width || '?'}×${item.height || '?'})`))
+        setHeroUploadMessage(t(lang, `主视觉图片上传成功（${item.width || '?'}×${item.height || '?'}）`, `Hero image uploaded successfully (${item.width || '?'}×${item.height || '?'})`))
         setHeroUploadMessageTone('success')
       } catch (error) {
         setHeroUploadMessage(error instanceof Error ? error.message : t(lang, '上传失败', 'Upload failed'))
@@ -255,26 +255,26 @@ export function ContentEditor({
       <section className="rounded-[28px] border border-stone-200 bg-[#fcfbf8] p-6 shadow-[0_10px_30px_rgba(28,25,23,0.05)]">
         <div className="flex items-center justify-between gap-4">
           <div>
-            <h2 className="text-lg font-semibold text-stone-900">{t(lang, '首页 Hero', 'Homepage Hero')}</h2>
-            <p className="mt-1 text-sm text-stone-500">{t(lang, '用于首页首屏展示的主文案与主视觉。支持上传图片，也可以手动填写图片地址。', 'Primary copy and hero media for the homepage first screen. You can upload an image or enter the image URL manually.')}</p>
+            <h2 className="text-lg font-semibold text-stone-900">{t(lang, '首页主视觉', 'Homepage hero')}</h2>
+            <p className="mt-1 text-sm text-stone-500">{t(lang, '用于首页首屏展示的主文案与主视觉图片。支持上传图片，也可以手动填写图片地址。', 'Primary copy and hero media for the homepage first screen. You can upload an image or enter the image URL manually.')}</p>
           </div>
           <label className="cursor-pointer rounded-full border border-stone-300 bg-white px-4 py-2 text-sm font-medium text-stone-700 transition hover:border-stone-500">
-            {isHeroUploading ? t(lang, '上传中…', 'Uploading...') : t(lang, '上传 Hero 图片', 'Upload Hero image')}
+            {isHeroUploading ? t(lang, '上传中…', 'Uploading...') : t(lang, '上传主视觉图片', 'Upload hero image')}
             <input type="file" accept="image/*" onChange={handleHeroUpload} className="hidden" disabled={isHeroUploading} />
           </label>
         </div>
         {heroUploadMessage ? <div className="mt-4"><NoticePill message={heroUploadMessage} tone={heroUploadMessageTone} /></div> : null}
         <div className="mt-5 grid gap-4 md:grid-cols-2">
-          <input value={hero.eyebrowDe ?? ''} onChange={(e) => setHero({ ...hero, eyebrowDe: e.target.value })} placeholder={localizedFieldPlaceholder(lang, 'Hero 上方短标签', 'Hero eyebrow', 'de')} className="rounded-2xl border border-stone-200 px-4 py-3 text-sm outline-none focus:border-amber-500" />
-          <input value={hero.eyebrowEn ?? ''} onChange={(e) => setHero({ ...hero, eyebrowEn: e.target.value })} placeholder={localizedFieldPlaceholder(lang, 'Hero 上方短标签', 'Hero eyebrow', 'en')} className="rounded-2xl border border-stone-200 px-4 py-3 text-sm outline-none focus:border-amber-500" />
-          <input value={hero.titleDe ?? ''} onChange={(e) => setHero({ ...hero, titleDe: e.target.value })} placeholder={localizedFieldPlaceholder(lang, 'Hero 标题', 'Hero title', 'de')} className="rounded-2xl border border-stone-200 px-4 py-3 text-sm outline-none focus:border-amber-500" />
-          <input value={hero.titleEn ?? ''} onChange={(e) => setHero({ ...hero, titleEn: e.target.value })} placeholder={localizedFieldPlaceholder(lang, 'Hero 标题', 'Hero title', 'en')} className="rounded-2xl border border-stone-200 px-4 py-3 text-sm outline-none focus:border-amber-500" />
-          <textarea value={hero.subtitleDe ?? ''} onChange={(e) => setHero({ ...hero, subtitleDe: e.target.value })} rows={4} placeholder={localizedFieldPlaceholder(lang, 'Hero 副标题', 'Hero subtitle', 'de')} className="rounded-2xl border border-stone-200 px-4 py-3 text-sm outline-none focus:border-amber-500" />
-          <textarea value={hero.subtitleEn ?? ''} onChange={(e) => setHero({ ...hero, subtitleEn: e.target.value })} rows={4} placeholder={localizedFieldPlaceholder(lang, 'Hero 副标题', 'Hero subtitle', 'en')} className="rounded-2xl border border-stone-200 px-4 py-3 text-sm outline-none focus:border-amber-500" />
+          <input value={hero.eyebrowDe ?? ''} onChange={(e) => setHero({ ...hero, eyebrowDe: e.target.value })} placeholder={localizedFieldPlaceholder(lang, '主视觉上方短标签', 'Hero eyebrow', 'de')} className="rounded-2xl border border-stone-200 px-4 py-3 text-sm outline-none focus:border-amber-500" />
+          <input value={hero.eyebrowEn ?? ''} onChange={(e) => setHero({ ...hero, eyebrowEn: e.target.value })} placeholder={localizedFieldPlaceholder(lang, '主视觉上方短标签', 'Hero eyebrow', 'en')} className="rounded-2xl border border-stone-200 px-4 py-3 text-sm outline-none focus:border-amber-500" />
+          <input value={hero.titleDe ?? ''} onChange={(e) => setHero({ ...hero, titleDe: e.target.value })} placeholder={localizedFieldPlaceholder(lang, '主视觉标题', 'Hero title', 'de')} className="rounded-2xl border border-stone-200 px-4 py-3 text-sm outline-none focus:border-amber-500" />
+          <input value={hero.titleEn ?? ''} onChange={(e) => setHero({ ...hero, titleEn: e.target.value })} placeholder={localizedFieldPlaceholder(lang, '主视觉标题', 'Hero title', 'en')} className="rounded-2xl border border-stone-200 px-4 py-3 text-sm outline-none focus:border-amber-500" />
+          <textarea value={hero.subtitleDe ?? ''} onChange={(e) => setHero({ ...hero, subtitleDe: e.target.value })} rows={4} placeholder={localizedFieldPlaceholder(lang, '主视觉副标题', 'Hero subtitle', 'de')} className="rounded-2xl border border-stone-200 px-4 py-3 text-sm outline-none focus:border-amber-500" />
+          <textarea value={hero.subtitleEn ?? ''} onChange={(e) => setHero({ ...hero, subtitleEn: e.target.value })} rows={4} placeholder={localizedFieldPlaceholder(lang, '主视觉副标题', 'Hero subtitle', 'en')} className="rounded-2xl border border-stone-200 px-4 py-3 text-sm outline-none focus:border-amber-500" />
           <textarea value={hero.noteDe ?? ''} onChange={(e) => setHero({ ...hero, noteDe: e.target.value })} rows={3} placeholder={localizedFieldPlaceholder(lang, '图片说明', 'Image note', 'de')} className="rounded-2xl border border-stone-200 px-4 py-3 text-sm outline-none focus:border-amber-500" />
           <textarea value={hero.noteEn ?? ''} onChange={(e) => setHero({ ...hero, noteEn: e.target.value })} rows={3} placeholder={localizedFieldPlaceholder(lang, '图片说明', 'Image note', 'en')} className="rounded-2xl border border-stone-200 px-4 py-3 text-sm outline-none focus:border-amber-500" />
           <label className="flex flex-col gap-2 text-sm text-stone-700 md:col-span-2">
-            <span>{t(lang, 'Hero 图片 URL', 'Hero image URL')}</span>
+            <span>{t(lang, '主视觉图片地址', 'Hero image URL')}</span>
             <input value={hero.imageUrl ?? ''} onChange={(e) => setHero({ ...hero, imageUrl: e.target.value })} placeholder={t(lang, '可填写上传后的本地路径，或手动输入外部图片地址', 'Use the uploaded local path or enter an external image URL manually')} className="rounded-2xl border border-stone-200 px-4 py-3 outline-none focus:border-amber-500" />
           </label>
         </div>
@@ -337,16 +337,16 @@ export function ContentEditor({
       <section className="rounded-[28px] border border-stone-200 bg-white p-6 shadow-[0_10px_30px_rgba(28,25,23,0.05)]">
         <div className="flex items-center justify-between gap-4">
           <div>
-            <p className="text-[11px] font-semibold uppercase tracking-[0.24em] text-stone-400">{t(lang, '图库', 'Gallery')}</p>
+            <p className="text-[11px] font-semibold uppercase tracking-[0.24em] text-stone-400">{t(lang, '图片资料', 'Gallery')}</p>
             <h2 className="mt-2 text-lg font-semibold text-stone-900">{t(lang, '图库管理', 'Gallery management')}</h2>
-            <p className="mt-1 text-sm text-stone-500">{t(lang, '这里维护前台图库、环境展示图和封面图。可使用本地上传路径，也可保留外部图片地址。', 'Manage gallery assets, environment photos and the cover image here. You can keep local uploaded paths or external image URLs.')}</p>
+            <p className="mt-1 text-sm text-stone-500">{t(lang, '这里维护前台图片资料、环境展示图和封面图。可使用本地上传路径，也可保留外部图片地址。', 'Manage gallery assets, environment photos and the cover image here. You can keep local uploaded paths or external image URLs.')}</p>
           </div>
           <div className="flex flex-wrap items-center gap-3">
             <label className="cursor-pointer rounded-full border border-stone-300 bg-white px-4 py-2 text-sm font-medium text-stone-700 transition hover:border-stone-500">
               {isUploading ? t(lang, '上传中…', 'Uploading...') : t(lang, '上传图片', 'Upload image')}
               <input type="file" accept="image/*" onChange={handleUpload} className="hidden" disabled={isUploading} />
             </label>
-            <button type="button" onClick={addGalleryItem} className="rounded-full border border-stone-300 bg-white px-4 py-2 text-sm font-medium text-stone-700 transition hover:border-stone-500">{t(lang, '新增图片条目', 'Add image item')}</button>
+            <button type="button" onClick={addGalleryItem} className="rounded-full border border-stone-300 bg-white px-4 py-2 text-sm font-medium text-stone-700 transition hover:border-stone-500">{t(lang, '新增图片资料', 'Add image item')}</button>
           </div>
         </div>
         {uploadMessage ? <div className="mt-4"><NoticePill message={uploadMessage} tone={uploadMessageTone} /></div> : null}
