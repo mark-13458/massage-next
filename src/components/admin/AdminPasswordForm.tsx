@@ -2,6 +2,7 @@
 
 import { useState, useTransition } from 'react'
 import { adminRequest } from '../../lib/admin-request'
+import { NoticePill } from './NoticePill'
 
 type Props = {
   lang: 'zh' | 'en'
@@ -11,11 +12,14 @@ function t(lang: 'zh' | 'en', zh: string, en: string) {
   return lang === 'en' ? en : zh
 }
 
+type NoticeTone = 'success' | 'error'
+
 export function AdminPasswordForm({ lang }: Props) {
   const [currentPassword, setCurrentPassword] = useState('')
   const [newPassword, setNewPassword] = useState('')
   const [confirmPassword, setConfirmPassword] = useState('')
   const [message, setMessage] = useState('')
+  const [messageTone, setMessageTone] = useState<NoticeTone>('success')
   const [isPending, startTransition] = useTransition()
 
   function submit() {
@@ -31,8 +35,10 @@ export function AdminPasswordForm({ lang }: Props) {
         setNewPassword('')
         setConfirmPassword('')
         setMessage(t(lang, '密码已更新', 'Password updated'))
+        setMessageTone('success')
       } catch (error) {
         setMessage(error instanceof Error ? error.message : t(lang, '修改密码失败', 'Failed to update password'))
+        setMessageTone('error')
       }
     })
   }
@@ -57,7 +63,7 @@ export function AdminPasswordForm({ lang }: Props) {
         <button type="button" onClick={submit} disabled={isPending} className="rounded-full bg-stone-900 px-5 py-3 text-sm font-semibold text-white transition hover:bg-stone-800 disabled:cursor-not-allowed disabled:opacity-70">
           {isPending ? t(lang, '提交中…', 'Submitting...') : t(lang, '修改密码', 'Update password')}
         </button>
-        {message ? <span className="rounded-full bg-stone-100 px-3 py-1 text-sm text-stone-600">{message}</span> : null}
+        {message ? <NoticePill message={message} tone={messageTone} /> : null}
       </div>
     </div>
   )
