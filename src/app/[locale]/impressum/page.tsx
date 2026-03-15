@@ -1,9 +1,9 @@
 import { Metadata } from 'next'
 import { getTranslations } from 'next-intl/server'
-import { Locale, isLocale } from '../../../../lib/i18n'
-import { SiteHeader } from '../../../../components/site/SiteHeader'
-import { SiteFooter } from '../../../../components/site/SiteFooter'
-import { SectionShell } from '../../../../components/site/SectionShell'
+import { Locale, isLocale } from '../../../lib/i18n'
+import { SiteHeader } from '../../../components/site/SiteHeader'
+import { SiteFooter } from '../../../components/site/SiteFooter'
+import { SectionShell } from '../../../components/site/SectionShell'
 import { notFound } from 'next/navigation'
 
 type Props = {

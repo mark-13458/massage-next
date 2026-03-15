@@ -81,6 +81,18 @@ export async function PATCH(request: Request, { params }: { params: { token: str
           ? `${appointment.internalNote}\n${auditNote}`
           : auditNote,
       },
+      include: { service: true },
+    })
+
+    // Async: Notify customer and merchant about cancellation
+    import('../../../../../server/services/mail.service').then(({ sendCustomerCancelledEmail, sendMerchantBookingNotification }) => {
+      const bookingData = item as any
+      // Notify customer if enabled
+      if (settings?.featureEnableEmailReminders !== false) {
+        sendCustomerCancelledEmail(bookingData).catch(console.error)
+      }
+      // Send a merchant notification too so they know it was cancelled
+      sendMerchantBookingNotification(bookingData).catch(console.error)
     })
 
     return apiOk({ item, action })
@@ -106,6 +118,17 @@ export async function PATCH(request: Request, { params }: { params: { token: str
         ? `${appointment.internalNote}\n${auditNote}`
         : auditNote,
     },
+    include: { service: true },
+  })
+
+  // Async: Notify customer and merchant about reschedule (as a new request)
+  import('../../../../../server/services/mail.service').then(({ sendCustomerReceivedEmail, sendMerchantBookingNotification }) => {
+    const bookingData = item as any
+    // Notify customer if enabled
+    if (settings?.featureEnableEmailReminders !== false) {
+      sendCustomerReceivedEmail(bookingData).catch(console.error)
+    }
+    sendMerchantBookingNotification(bookingData).catch(console.error)
   })
 
   return apiOk({ item, action })

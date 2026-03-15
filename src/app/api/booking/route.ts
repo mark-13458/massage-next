@@ -65,14 +65,24 @@ export async function POST(request: NextRequest) {
 
     const booking = await createBooking(parsed.data)
 
-    // Send notification email (fire and forget to not block response)
-    import('../../../server/services/mail.service').then(({ sendMerchantBookingNotification }) => {
+    // Send notification emails (fire and forget to not block response)
+    import('../../../server/services/mail.service').then(({ sendMerchantBookingNotification, sendCustomerReceivedEmail }) => {
       // Need to fetch full booking with service relation for email template
       // Or modify createBooking to return it. createBooking already includes service.
       // But type inference might need help. Let's trust createBooking return type.
-      sendMerchantBookingNotification(booking as any).catch(err => 
-        console.error('Failed to send async notification email:', err)
+      const bookingData = booking as any
+      
+      // 1. Notify merchant (Always sent unless SMTP is missing)
+      sendMerchantBookingNotification(bookingData).catch(err => 
+        console.error('Failed to send async merchant notification email:', err)
       )
+
+      // 2. Notify customer (Received / Pending) - Checked against feature flag
+      if (bookingData.customerEmail && systemSettings?.featureEnableEmailReminders !== false) {
+        sendCustomerReceivedEmail(bookingData).catch(err => 
+          console.error('Failed to send async customer received email:', err)
+        )
+      }
     })
 
     return NextResponse.json({

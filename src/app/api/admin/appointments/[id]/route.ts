@@ -3,6 +3,7 @@ import { AppointmentStatus } from '@prisma/client'
 import { apiError, apiOk } from '../../../../../lib/api-response'
 import { getCurrentAdmin } from '../../../../../lib/auth'
 import { prisma } from '../../../../../lib/prisma'
+import { getSystemSettings } from '../../../../../server/services/site.service'
 
 const allowedStatuses = new Set([
   AppointmentStatus.PENDING,
@@ -60,7 +61,22 @@ export async function PATCH(request: NextRequest, { params }: { params: { id: st
     const item = await prisma.appointment.update({
       where: { id },
       data,
+      include: { service: true },
     })
+
+    // Async: Send customer confirmation email if status became CONFIRMED
+    if (nextStatus === AppointmentStatus.CONFIRMED) {
+      // Check feature flag before sending
+      getSystemSettings().then(settings => {
+        if (settings?.featureEnableEmailReminders !== false) {
+          import('../../../../../server/services/mail.service').then(({ sendCustomerConfirmationEmail }) => {
+            sendCustomerConfirmationEmail(item as any).catch(err => 
+              console.error('Failed to send customer confirmation email:', err)
+            )
+          })
+        }
+      }).catch(() => { /* ignore settings fetch error */ })
+    }
 
     return apiOk({ item })
   } catch (error) {

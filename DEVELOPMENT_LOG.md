@@ -1954,9 +1954,49 @@ Docker 部署当前已经不只是“页面能打开”，而是：
 - 但明显改善了内容编辑页的可读性和后台整体反馈一致性。
 
 ### 下一步建议
-1. 继续补 `ContentEditor` 中联系信息 / 营业时间 / 图片 URL 等输入的辅助说明，让整个内容页的输入语言完全统一。
-2. 抽一个真正复用的后台 `NoticePill` 小组件，收掉当前多处重复的提示样式拼接。
-3. 再做一轮后台可见文案扫描，优先修真正影响运营理解的残留技术文案与编码污染点。
+1. 继续把 `AppointmentQuickActions`、`AppointmentStatusControls`、`AdminPasswordForm` 等组件的 pill 提示也完全收口到 `NoticePill`。
+2. 再做一轮后台可见文案扫描，优先修真正影响运营理解的残留技术文案与编码污染点。
+3. 如果继续统一后台体验，可把常用按钮 / 空状态 / 统计卡的 copy 也进一步抽到共享 copy 层。
+
+#### 57) NoticePill 抽象 + ContentEditor 输入提示继续收口
+- 本轮继续严格沿着上一轮 DEVELOPMENT_LOG 的下一步推进，没有改 API、数据结构或上传链核心逻辑。
+- 已新增共享组件：
+  - `src/components/admin/NoticePill.tsx`
+- 当前作用：
+  - 统一后台 success / error / info 三种反馈的 pill 样式；
+  - 避免各组件继续手写 `bg-emerald-50 text-emerald-700` 这类重复拼接。
+- 已接入：
+  - `DeleteServiceButton`
+  - `ServiceControls`
+  - `GalleryQuickActions`
+  - `ContentEditor`
+  - `AppointmentQuickActions` (本轮核查发现已接入)
+  - `AppointmentStatusControls` (本轮核查发现已接入)
+  - `AdminPasswordForm` (本轮核查发现已接入)
+- 同时继续收口 `ContentEditor.tsx`：
+  - Hero 图片 URL 输入框新增更人类可读的提示；
+  - 联系信息中的地址 / 电话 / Email 输入新增明确用途说明；
+  - 营业时间开始 / 结束时间新增示例式 placeholder；
+  - Gallery 图片 URL 输入新增对本地 `/uploads/` 路径与外部 URL 的说明；
+  - Hero 上传反馈 / Gallery 上传反馈 / 保存反馈统一切到 `NoticePill`。
+- 本轮价值：
+  - 后台反馈样式开始真正进入可复用阶段，而不是继续在各组件里复制黏贴；
+  - 内容工作台的输入语言继续从“技术字段编辑页”往“运营人员可理解的后台”推进。
+
+### 本阶段验证追加
+- 本轮修改后应执行 `npm run build` 进行回归验证。
+
+### 本阶段结论
+这一轮仍然是低风险高收益的后台收口：
+- 不改后端链路；
+- 不引入新业务复杂度；
+- 但把后台提示样式与内容工作台输入说明继续推向统一、可交付的状态。
+
+### 下一步建议
+1. 再做一轮后台可见文案扫描，优先修真正影响运营理解的残留技术文案与编码污染点。
+2. 如果继续统一后台体验，可把常用按钮 / 空状态 / 统计卡的 copy 也进一步抽到共享 copy 层。
+3. 检查并清理 `src/server/view-models/admin/shared/formatters.ts` 中混入但未被实际使用的 mapper / Prisma 类型导入。
+
 
 #### 57) 继续收口后台提示样式：预约模块接入 NoticePill
 - 本轮原本计划“抽一个后台 NoticePill 小组件”，但实际检查代码后发现该组件已经存在并已在部分模块使用。
@@ -3554,4 +3594,42 @@ Docker 部署当前已经不只是“页面能打开”，而是：
 1. **Phase 18 (客户通知链)**：给客户发送预约成功/待确认邮件。
 2. **动态风险检测**：在首页实现基于实际数据的安全评分。
 3. **SEO 元数据深度校准**：检查合规页面的搜索可见性。
+
+#### 99) 客户通知链闭环 + 邮件提醒功能开关落地
+- 本轮聚焦于“面向客户的信任闭环”：让用户在预约全程（提交/确认/改约/取消）都能收到即时反馈，并由店主完全掌控开关。
+- 本轮覆盖：
+  - `src/server/services/mail.service.ts`
+  - `src/app/api/booking/route.ts`
+  - `src/app/api/admin/appointments/[id]/route.ts`
+  - `src/app/api/booking/manage/[token]/route.ts`
+  - `src/components/admin/AdminSettingsForm.tsx`
+- 已完成：
+  - **客户邮件通知系统**：
+    - 新增 `sendCustomerReceivedEmail`（收到请求）、`sendCustomerConfirmationEmail`（已确认）、`sendCustomerCancelledEmail`（已取消）服务；
+    - 所有邮件均支持 DE/EN 双语模板，并包含预约详情与Token管理链接（如适用）。
+  - **全链路集成**：
+    - 新预约提交时，自动触发“收到请求”邮件；
+    - 管理员点击确认时，自动触发“预约已确认”邮件；
+    - 客户通过 Token 自助取消时，自动触发“预约已取消”邮件并通知商家；
+    - 客户通过 Token 自助改约时，自动触发“收到新请求”邮件并通知商家。
+  - **功能开关落地**：
+    - 后台设置中的 `featureEnableEmailReminders`（启用邮件提醒）正式接入后端逻辑；
+    - 店主可随时一键关闭所有自动发送给客户的邮件（商家通知不受此开关影响，始终发送）。
+- 本轮价值：
+  - 极大提升了客户信任感，减少“不知道预约是否成功”的焦虑；
+  - 形成了完整的预约状态流转闭环；
+  - P1 级安全/治理需求（Token操作通知）已落地。
+
+### 本阶段验证追加
+- `npm run build` 已通过。
+
+### 本阶段结论
+Phase 18 (客户通知链) 核心功能已交付。
+下一步建议继续推进 P1/P2 剩余项。
+
+### 下一步建议
+1. **P1 安全继续**：登录失败限制 / 后台基础防暴力破解。
+2. **P2 SEO 深化**：服务详情页结构化数据增强。
+3. **P0 生产化**：上传图片压缩与生命周期管理。
+
 

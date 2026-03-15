@@ -1,11 +1,11 @@
 import { NextResponse } from 'next/server'
-import { getSession } from '../../../../../lib/auth'
+import { getCurrentAdmin } from '../../../../../lib/auth'
 import { createMailTransport } from '../../../../../lib/mail'
 import { env } from '../../../../../lib/env'
 
 export async function POST() {
-  const session = await getSession()
-  if (!session) {
+  const admin = await getCurrentAdmin()
+  if (!admin) {
     return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
   }
 
