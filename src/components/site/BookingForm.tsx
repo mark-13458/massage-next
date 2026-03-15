@@ -244,7 +244,17 @@ export function BookingForm({ locale, services, contact, hours = [], currency = 
                 <label className="flex items-start gap-3 text-sm text-stone-700">
                   <input type="checkbox" checked={privacyConsent} onChange={(e) => setPrivacyConsent(e.target.checked)} className="mt-1" />
                   <span>
-                    <span className="font-medium text-brown-800">{labels.privacyConsent}</span>
+                    <span className="font-medium text-brown-800">
+                      {locale === 'de' ? (
+                        <>
+                          Ich stimme der Verarbeitung meiner Angaben zu (<a href="/de/privacy" target="_blank" className="underline hover:text-brown-600">Datenschutzerklärung</a>).
+                        </>
+                      ) : (
+                        <>
+                          I agree to the processing of my data (<a href="/en/privacy" target="_blank" className="underline hover:text-brown-600">Privacy Policy</a>).
+                        </>
+                      )}
+                    </span>
                     <span className="mt-1 block text-xs text-stone-500">{labels.privacyHint}</span>
                     {privacy?.retentionDays ? <span className="mt-1 block text-xs text-stone-500">{locale === 'de' ? `Die Daten werden standardmäßig bis zu ${privacy.retentionDays} Tage aufbewahrt.` : `Data is retained for up to ${privacy.retentionDays} days by default.`}</span> : null}
                   </span>

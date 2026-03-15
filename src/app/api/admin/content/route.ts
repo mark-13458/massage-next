@@ -1,21 +1,9 @@
-import { unlink } from 'fs/promises'
 import path from 'path'
 import { NextRequest } from 'next/server'
 import { apiError, apiOk } from '../../../../lib/api-response'
 import { getCurrentAdmin } from '../../../../lib/auth'
 import { prisma } from '../../../../lib/prisma'
-
-function publicPathToDiskPath(filePath: string) {
-  if (!filePath.startsWith('/uploads/')) return null
-  return path.join(process.cwd(), 'public', filePath.replace(/^\//, ''))
-}
-
-async function cleanupLocalUpload(filePath?: string | null) {
-  if (!filePath) return
-  const diskPath = publicPathToDiskPath(filePath)
-  if (!diskPath) return
-  await unlink(diskPath).catch(() => null)
-}
+import { deleteUpload } from '../../../../lib/uploads'
 
 export async function PATCH(request: NextRequest) {
   if (!process.env.DATABASE_URL) {
@@ -52,7 +40,7 @@ export async function PATCH(request: NextRequest) {
       await prisma.siteSetting.upsert({ where: { key: 'hero' }, update: { value: hero }, create: { key: 'hero', value: hero } })
 
       if (previousImageUrl && previousImageUrl !== nextImageUrl) {
-        await cleanupLocalUpload(previousImageUrl)
+        await deleteUpload(previousImageUrl)
       }
     }
 
@@ -104,7 +92,7 @@ export async function PATCH(request: NextRequest) {
         if (!existing) continue
         await prisma.galleryImage.delete({ where: { id: item.id } })
         if (existing.fileId) {
-          await cleanupLocalUpload(existing.file?.filePath)
+          await deleteUpload(existing.file?.filePath)
           await prisma.file.delete({ where: { id: existing.fileId } }).catch(() => null)
         }
         continue
@@ -155,8 +143,24 @@ export async function PATCH(request: NextRequest) {
         },
       })
 
-      if (existing?.fileId) {
-        await prisma.file.update({ where: { id: existing.fileId }, data: { filePath: item.imageUrl || '', altText: item.altDe || item.altEn || null } })
+      if (existing?.fileId && item.imageUrl && existing.file?.filePath !== item.imageUrl) {
+        // If image URL changed and it was a local file, clean up the old one
+        await deleteUpload(existing.file?.filePath)
+        
+        // Update file record
+        await prisma.file.update({
+          where: { id: existing.fileId },
+          data: {
+            filePath: item.imageUrl,
+            altText: item.altDe || item.altEn || null
+          }
+        })
+      } else if (existing?.fileId) {
+        // Just update alt text if image didn't change
+        await prisma.file.update({
+          where: { id: existing.fileId },
+          data: { altText: item.altDe || item.altEn || null }
+        })
       }
     }
 

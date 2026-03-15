@@ -67,6 +67,8 @@ export function AdminSettingsForm({ lang, initialSettings }: { lang: AdminLang; 
   const [message, setMessage] = useState('')
   const [messageTone, setMessageTone] = useState<NoticeTone>('success')
   const [isPending, startTransition] = useTransition()
+  const [testEmailPending, setTestEmailPending] = useState(false)
+  const [cleanupPending, setCleanupPending] = useState(false)
 
   function save() {
     setMessage('')
@@ -86,12 +88,51 @@ export function AdminSettingsForm({ lang, initialSettings }: { lang: AdminLang; 
     })
   }
 
+  async function sendTestEmail() {
+    setMessage('')
+    setTestEmailPending(true)
+    try {
+      await adminRequest('/api/admin/settings/test-email', { method: 'POST' })
+      setMessage(t(lang, '测试邮件已发送，请查收', 'Test email sent, please check inbox'))
+      setMessageTone('success')
+    } catch (error) {
+      setMessage(error instanceof Error ? error.message : t(lang, '发送测试邮件失败', 'Failed to send test email'))
+      setMessageTone('error')
+    } finally {
+      setTestEmailPending(false)
+    }
+  }
+
+  async function runCleanup() {
+    if (!confirm(t(lang, '确定要立即清理超过保留期限的历史预约吗？此操作不可恢复。', 'Are you sure you want to purge bookings older than the retention period? This cannot be undone.'))) return
+    
+    setMessage('')
+    setCleanupPending(true)
+    try {
+      const res = await adminRequest('/api/admin/system/cleanup', { method: 'POST' })
+      const data = await res.json()
+      setMessage(t(lang, `清理完成，共删除 ${data.deletedCount} 条历史数据。`, `Cleanup complete, deleted ${data.deletedCount} historical records.`))
+      setMessageTone('success')
+    } catch (error) {
+      setMessage(error instanceof Error ? error.message : t(lang, '执行清理失败', 'Failed to run cleanup'))
+      setMessageTone('error')
+    } finally {
+      setCleanupPending(false)
+    }
+  }
+
   return (
     <div className="space-y-6">
       <section className="rounded-3xl border border-stone-200 bg-white p-5">
         <div className="mb-4">
           <h3 className="text-base font-semibold text-stone-900">{t(lang, '站点基本信息', 'Site basics')}</h3>
           <p className="mt-1 text-sm text-stone-600">{t(lang, '管理前台默认语言、品牌名称、时区和货币。', 'Manage the default frontend locale, brand name, timezone and currency.')}</p>
+          <div className="mt-3 rounded-xl bg-stone-50 p-3 text-xs text-stone-500">
+            <span className="font-semibold text-stone-700">{t(lang, '💡 提示：', '💡 Tip: ')}</span>
+            {t(lang, '如需修改电话、邮箱、地址或营业时间，请前往 ', 'To update phone, email, address or business hours, please go to ')}
+            <a href="/admin/content" className="font-medium text-amber-600 underline hover:text-amber-700">{t(lang, '内容管理', 'Content Management')}</a>
+            。
+          </div>
         </div>
         <div className="grid gap-4 md:grid-cols-2">
           <label className="flex flex-col gap-2 text-sm text-stone-700">
@@ -207,6 +248,14 @@ export function AdminSettingsForm({ lang, initialSettings }: { lang: AdminLang; 
           <label className="flex items-center gap-2 text-sm text-stone-700">
             <input type="checkbox" checked={form.featureEnableEmailReminders} onChange={(e) => setForm({ ...form, featureEnableEmailReminders: e.target.checked })} />
             {t(lang, '启用邮件提醒', 'Enable email reminders')}
+            <button 
+              type="button" 
+              onClick={sendTestEmail} 
+              disabled={testEmailPending} 
+              className="ml-2 text-xs text-amber-600 underline hover:text-amber-700 disabled:opacity-50"
+            >
+              {testEmailPending ? '...' : t(lang, '发送测试邮件', 'Send test email')}
+            </button>
           </label>
           <label className="flex items-center gap-2 text-sm text-stone-700">
             <input type="checkbox" checked={form.featureEnableBookingManage} onChange={(e) => setForm({ ...form, featureEnableBookingManage: e.target.checked })} />
@@ -232,6 +281,17 @@ export function AdminSettingsForm({ lang, initialSettings }: { lang: AdminLang; 
           <label className="flex flex-col gap-2 text-sm text-stone-700">
             <span>{t(lang, '预约数据保留天数', 'Booking retention days')}</span>
             <input type="number" min="1" max="3650" value={form.bookingRetentionDays} onChange={(e) => setForm({ ...form, bookingRetentionDays: Number(e.target.value) || 180 })} className="rounded-2xl border border-stone-200 px-4 py-3 outline-none focus:border-amber-500" />
+            <div className="flex items-center justify-between gap-2">
+              <p className="text-xs text-stone-500">{t(lang, '超过此天数的历史预约将被系统自动清理（建议 180 天）。', 'Bookings older than this will be auto-purged (recommended 180 days).')}</p>
+              <button 
+                type="button" 
+                onClick={runCleanup} 
+                disabled={cleanupPending} 
+                className="text-xs font-medium text-red-600 hover:text-red-700 disabled:opacity-50"
+              >
+                {cleanupPending ? '...' : t(lang, '立即执行清理', 'Run cleanup now')}
+              </button>
+            </div>
           </label>
           <label className="flex items-center gap-2 text-sm text-stone-700">
             <input type="checkbox" checked={form.allowDeletionRequests} onChange={(e) => setForm({ ...form, allowDeletionRequests: e.target.checked })} />
