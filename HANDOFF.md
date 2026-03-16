@@ -66,9 +66,6 @@
 
 | 优先级 | 项目 | 说明 |
 |--------|------|------|
-| P0 | 图片压缩 | 上传时用 sharp 压缩并转 WebP |
-| P1 | 会话超时 | 当前 maxAge 7天，无活跃检测 |
-| P2 | SEO 设置后台化 | title template / meta description 可在后台编辑 |
 | P3 | 生产 smoke test | 测试环境完整联调 |
 
 ---
