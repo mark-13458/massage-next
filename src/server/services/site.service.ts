@@ -1,3 +1,4 @@
+import { cache } from 'react'
 import { prisma } from '../../lib/prisma'
 import { Locale } from '../../lib/i18n'
 
@@ -113,7 +114,7 @@ export async function getActiveGallery(locale: Locale) {
   }))
 }
 
-export async function getSystemSettings() {
+export const getSystemSettings = cache(async function getSystemSettings() {
   if (!process.env.DATABASE_URL) {
     return null
   }
@@ -168,4 +169,4 @@ export async function getSystemSettings() {
     seoMetaDescriptionDe: typeof record.seoMetaDescriptionDe === 'string' ? record.seoMetaDescriptionDe : '',
     seoMetaDescriptionEn: typeof record.seoMetaDescriptionEn === 'string' ? record.seoMetaDescriptionEn : '',
   }
-}
+})

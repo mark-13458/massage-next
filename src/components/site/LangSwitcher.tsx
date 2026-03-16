@@ -7,9 +7,9 @@ import { Locale } from '../../lib/i18n'
 export function LangSwitcher({ locale }: { locale: Locale }) {
   const pathname = usePathname()
 
-  // Swap /de/ ↔ /en/ in the current path
+  // Swap /de ↔ /en at the start of the path (precise match to avoid replacing locale in slugs)
   const otherLocale: Locale = locale === 'de' ? 'en' : 'de'
-  const otherPath = pathname.replace(`/${locale}`, `/${otherLocale}`)
+  const otherPath = pathname.replace(new RegExp(`^/${locale}(/|$)`), `/${otherLocale}$1`)
 
   return (
     <Link

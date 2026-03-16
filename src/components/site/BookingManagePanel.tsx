@@ -145,7 +145,10 @@ export function BookingManagePanel({ locale, token, booking }: BookingManagePane
           <button
             type="button"
             disabled={isPending || isLocked}
-            onClick={() => runAction({ action: 'cancel', notes }, t.cancelSuccess)}
+            onClick={() => {
+              if (!window.confirm(locale === 'de' ? 'Termin wirklich stornieren?' : 'Cancel this booking?')) return
+              runAction({ action: 'cancel', notes }, t.cancelSuccess)
+            }}
             className="w-full rounded-full bg-rose-600 px-5 py-3 text-sm font-semibold text-white transition hover:bg-rose-500 disabled:cursor-not-allowed disabled:opacity-70"
           >
             {isPending ? t.saving : t.cancel}

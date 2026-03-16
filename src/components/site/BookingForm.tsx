@@ -235,7 +235,7 @@ export function BookingForm({ locale, services, contact, hours = [], currency = 
 
             <label className="flex flex-col gap-2">
               <span className="text-sm font-medium text-brown-800">{labels.date}</span>
-              <input type="date" name="appointmentDate" required className="rounded-2xl border border-stone-200 px-4 py-3 outline-none ring-0 focus:border-brown-400" />
+              <input type="date" name="appointmentDate" required min={new Date().toISOString().slice(0, 10)} className="rounded-2xl border border-stone-200 px-4 py-3 outline-none ring-0 focus:border-brown-400" />
             </label>
 
             <label className="flex flex-col gap-2">

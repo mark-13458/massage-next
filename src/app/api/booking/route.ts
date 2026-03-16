@@ -5,8 +5,6 @@ import { createBooking } from '../../../server/services/booking.service'
 import { getSystemSettings } from '../../../server/services/site.service'
 import { getIpAddress } from '../../../lib/utils'
 
-const bookingRequestLog = new Map<string, number[]>()
-
 export async function POST(request: NextRequest) {
   try {
     const systemSettings = await getSystemSettings().catch(() => null)
@@ -33,27 +31,6 @@ export async function POST(request: NextRequest) {
       )
     }
 
-    const rateLimitWindowMin = systemSettings?.bookingRateLimitWindowMin || 15
-    const rateLimitMaxRequests = systemSettings?.bookingRateLimitMaxRequests || 3
-    const rateLimitWindowMs = rateLimitWindowMin * 60 * 1000
-    const bookingIdentifier = `${remoteip ?? 'anon'}:${parsed.data.customerPhone}:${parsed.data.customerEmail || '-'}`
-    const now = Date.now()
-    const previousAttempts = bookingRequestLog.get(bookingIdentifier) || []
-    const recentAttempts = previousAttempts.filter((timestamp) => now - timestamp < rateLimitWindowMs)
-
-    if (recentAttempts.length >= rateLimitMaxRequests) {
-      return NextResponse.json(
-        {
-          status: 'error',
-          error: `Too many booking attempts. Please try again later.`,
-        },
-        { status: 429 },
-      )
-    }
-
-    recentAttempts.push(now)
-    bookingRequestLog.set(bookingIdentifier, recentAttempts)
-
     const captcha = await verifyTurnstileToken(parsed.data.turnstileToken, remoteip)
 
     if (!captcha.ok) {
@@ -63,7 +40,7 @@ export async function POST(request: NextRequest) {
       )
     }
 
-    const booking = await createBooking(parsed.data)
+    const booking = await createBooking(parsed.data, { ipAddress: remoteip ?? undefined })
 
     // Send notification emails (fire and forget to not block response)
     import('../../../server/services/mail.service').then(({ sendMerchantBookingNotification, sendCustomerReceivedEmail }) => {

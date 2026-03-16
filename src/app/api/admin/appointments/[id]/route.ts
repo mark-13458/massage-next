@@ -13,7 +13,7 @@ const allowedStatuses = new Set([
   AppointmentStatus.NO_SHOW,
 ])
 
-export async function PATCH(request: NextRequest, { params }: { params: { id: string } }) {
+export async function PATCH(request: NextRequest, { params }: { params: Promise<{ id: string }> }) {
   if (!process.env.DATABASE_URL) {
     return apiError('DATABASE_URL is not configured', 500)
   }
@@ -24,7 +24,8 @@ export async function PATCH(request: NextRequest, { params }: { params: { id: st
   }
 
   try {
-    const id = Number(params.id)
+    const { id: idStr } = await params
+    const id = Number(idStr)
     const json = await request.json()
     const nextStatus = String(json.status || '').toUpperCase() as AppointmentStatus
     const internalNote = typeof json.internalNote === 'string' ? json.internalNote : undefined

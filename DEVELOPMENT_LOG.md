@@ -477,7 +477,20 @@
 - 所有前台页面插入 `<FloatingActions locale={typedLocale} />`：`page.tsx`（首页）、`about`、`booking`、`contact`、`gallery`、`services`、`services/[slug]`、`impressum`、`privacy`、`booking/manage/[token]`
 - `npm run build` 验证通过 ✓
 
-## Phase 43 — 语言切换 + 表单重置 + Fallback 补全（2026-03-16）
+## Phase 44 — Bug 修复 + 安全优化（2026-03-16）
+
+**Bug 修复**
+- `api/booking/route.ts`：移除内存速率限制 Map（多实例/重启后失效），统一使用 `booking.service.ts` 中数据库持久化的频率限制；`createBooking` 调用补传 `context: { ipAddress }`，修复审计日志和频率限制 IP 字段为空的问题
+- `api/admin/appointments/[id]/route.ts`：params 类型改为 `Promise<{ id: string }>` 并 `await params`，符合 Next.js 14 规范
+- `LangSwitcher.tsx`：路径替换改用精确正则 `/^\/(de|en)(\/|$)/`，避免路径中含 `de`/`en` 片段（如服务 slug）时误替换
+
+**优化**
+- `BookingForm.tsx`：日期 input 加 `min={today}` 属性，防止用户选择过去日期提交预约
+- `site.service.ts`：`getSystemSettings` 用 React `cache()` 包装，同一请求内多次调用自动去重，减少重复数据库查询
+- `BookingManagePanel.tsx`：取消预约按钮加 `window.confirm` 二次确认，防止误操作
+
+- `npm run build` 验证通过 ✅
+
 - 新建 `LangSwitcher.tsx`（client 组件）：读取当前路径，将 `/de/` ↔ `/en/` 互换，桌面端显示在导航栏右侧
 - `SiteHeader`：引入 `LangSwitcher`，插入在预约按钮左侧
 - `MobileMenu`：底部新增语言切换链接（显示完整语言名 Deutsch / English）
