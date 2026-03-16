@@ -25,4 +25,10 @@ export const env = {
   uploadDir: process.env.UPLOAD_DIR ?? '/app/public/uploads',
   siteName: process.env.BUSINESS_NAME ?? process.env.SITE_NAME ?? 'China TCM Massage',
   adminEmail: process.env.ADMIN_NOTIFY_EMAIL ?? process.env.SMTP_USER ?? '',
+  // Admin login Turnstile — independent of the booking-form Turnstile stored in DB.
+  // Set TURNSTILE_SECRET_KEY + NEXT_PUBLIC_TURNSTILE_SITE_KEY to enable on the login page.
+  adminTurnstile: {
+    secretKey: process.env.TURNSTILE_SECRET_KEY ?? '',
+    siteKey: process.env.NEXT_PUBLIC_TURNSTILE_SITE_KEY ?? '',
+  },
 }
