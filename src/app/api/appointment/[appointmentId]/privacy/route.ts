@@ -6,15 +6,16 @@ import {
 } from '@/server/services/privacy.service'
 
 /**
- * POST /api/appointment/[appointmentId]/privacy-consent
+ * POST /api/appointment/[appointmentId]/privacy
  * 记录客户隐私同意
  */
 export async function POST(
   request: NextRequest,
-  { params }: { params: { appointmentId: string } }
+  { params }: { params: Promise<{ appointmentId: string }> }
 ) {
   try {
-    const appointmentId = parseInt(params.appointmentId)
+    const { appointmentId: rawId } = await params
+    const appointmentId = parseInt(rawId)
 
     if (isNaN(appointmentId)) {
       return NextResponse.json(
@@ -36,7 +37,7 @@ export async function POST(
       success: true,
       message: 'Privacy consent recorded',
     })
-  } catch (error: any) {
+  } catch (error) {
     console.error('[PRIVACY_CONSENT] Error:', error)
     return NextResponse.json(
       { success: false, error: 'Internal server error' },
@@ -46,58 +47,16 @@ export async function POST(
 }
 
 /**
- * POST /api/appointment/[appointmentId]/data-deletion-request
- * 请求数据删除
- */
-export async function POST_DELETE(
-  request: NextRequest,
-  { params }: { params: { appointmentId: string } }
-) {
-  try {
-    const appointmentId = parseInt(params.appointmentId)
-    const body = await request.json()
-    const { email } = body
-
-    if (isNaN(appointmentId) || !email) {
-      return NextResponse.json(
-        { success: false, error: 'Invalid appointment ID or email' },
-        { status: 400 }
-      )
-    }
-
-    const result = await requestDataDeletion(appointmentId, email)
-
-    if (!result) {
-      return NextResponse.json(
-        { success: false, error: 'Failed to request data deletion' },
-        { status: 500 }
-      )
-    }
-
-    return NextResponse.json({
-      success: true,
-      message: 'Data deletion request submitted. Your data will be deleted within 30 days.',
-      deletionDate: new Date(Date.now() + 30 * 24 * 60 * 60 * 1000).toISOString(),
-    })
-  } catch (error: any) {
-    console.error('[DATA_DELETION] Error:', error)
-    return NextResponse.json(
-      { success: false, error: error.message || 'Internal server error' },
-      { status: 500 }
-    )
-  }
-}
-
-/**
- * GET /api/appointment/[appointmentId]/data-export
+ * GET /api/appointment/[appointmentId]/privacy?email=...
  * 导出客户个人数据
  */
 export async function GET(
   request: NextRequest,
-  { params }: { params: { appointmentId: string } }
+  { params }: { params: Promise<{ appointmentId: string }> }
 ) {
   try {
-    const appointmentId = parseInt(params.appointmentId)
+    const { appointmentId: rawId } = await params
+    const appointmentId = parseInt(rawId)
     const email = request.nextUrl.searchParams.get('email')
 
     if (isNaN(appointmentId) || !email) {
@@ -120,7 +79,7 @@ export async function GET(
       success: true,
       data,
     })
-  } catch (error: any) {
+  } catch (error) {
     console.error('[DATA_EXPORT] Error:', error)
     return NextResponse.json(
       { success: false, error: 'Internal server error' },

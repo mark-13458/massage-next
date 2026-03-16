@@ -491,6 +491,19 @@
 
 - `npm run build` 验证通过 ✅
 
+## Phase 50 — 安全加固续（2026-03-17）
+
+**审查范围**：privacy API 路由、params 类型规范、无效函数名
+
+**修复：`api/appointment/[appointmentId]/privacy/route.ts`**
+- params 类型改为 `Promise<{ appointmentId: string }>` 并 `await params`
+- 移除 `POST_DELETE` 函数（Next.js 不会路由到非标准 HTTP 方法名，该函数从未被调用）
+- 移除 `error: any` 类型断言，改为 `error: unknown`
+- `POST_DELETE` 中的 `error.message` 泄露随函数删除一并消除
+- GET handler 保留（数据导出功能）
+
+- `npm run build` 验证通过 ✅
+
 ## Phase 49 — 安全加固续（2026-03-17）
 
 **审查范围**：全部管理员 API 错误泄露、上传目录路径、params 类型规范
