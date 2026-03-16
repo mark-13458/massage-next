@@ -20,7 +20,7 @@ export async function POST() {
   try {
     const info = await transport.sendMail({
       from: `"Massage System" <${env.smtp.from || env.smtp.user}>`,
-      to: session.email,
+      to: admin.email,
       subject: '✅ SMTP Configuration Test',
       html: `
         <div style="font-family: sans-serif; padding: 20px;">
@@ -36,13 +36,13 @@ export async function POST() {
 
     return NextResponse.json({ 
       status: 'ok', 
-      message: `Test email sent to ${session.email}`,
+      message: `Test email sent to ${admin.email}`,
       messageId: info.messageId 
     })
   } catch (error: any) {
     console.error('Test email failed:', error)
     return NextResponse.json(
-      { error: error.message || 'Failed to send test email' },
+      { error: error instanceof Error ? error.message : 'Failed to send test email' },
       { status: 500 }
     )
   }

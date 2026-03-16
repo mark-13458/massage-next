@@ -491,6 +491,17 @@
 
 - `npm run build` 验证通过 ✅
 
+## Phase 51 — 安全加固续（2026-03-17）
+
+**修复 1：`api/admin/settings/test-email/route.ts` 运行时 Bug（高危）**
+- `session.email` 引用未定义变量，导致测试邮件接口 500；改为 `admin.email`（已通过 `getCurrentAdmin()` 获取）
+
+**修复 2：`error: any` 类型断言清理**
+- `api/appointment/reschedule/[token]/route.ts`：catch 块改为 `error instanceof Error` 类型守卫
+- `api/appointment/cancel/[token]/route.ts`：同上
+
+- `npm run build` 验证通过 ✅
+
 ## Phase 50 — 安全加固续（2026-03-17）
 
 **审查范围**：privacy API 路由、params 类型规范、无效函数名

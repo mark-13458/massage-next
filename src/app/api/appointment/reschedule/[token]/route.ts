@@ -120,11 +120,12 @@ export async function POST(
       success: true,
       message: 'Appointment rescheduled successfully',
     })
-  } catch (error: any) {
+  } catch (error) {
     console.error('[RESCHEDULE_API] Error:', error)
-    const isKnown = error?.message === 'Invalid or expired reschedule link'
+    const msg = error instanceof Error ? error.message : ''
+    const isKnown = msg === 'Invalid or expired reschedule link'
     return NextResponse.json(
-      { success: false, error: isKnown ? error.message : 'Internal server error' },
+      { success: false, error: isKnown ? msg : 'Internal server error' },
       { status: isKnown ? 400 : 500 }
     )
   }
