@@ -87,7 +87,12 @@ export async function sendMerchantBookingNotification(booking: BookingWithServic
     </div>
   `
 
-  const success = await sendEmail(env.adminEmail || env.smtp.user, subject, html)
+  const to = env.adminEmail || env.smtp.user
+  if (!to) {
+    console.warn('⚠️ No admin email configured, skipping merchant notification')
+    return false
+  }
+  const success = await sendEmail(to, subject, html)
   if (success) {
     console.log(`📧 Merchant notification sent for booking ${booking.uuid}`)
   }

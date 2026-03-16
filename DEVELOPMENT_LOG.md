@@ -491,6 +491,23 @@
 
 - `npm run build` 验证通过 ✅
 
+## Phase 54 — 代码质量优化（2026-03-17）
+
+**Bug 修复**
+- `appointment-reschedule.service.ts`：`generateRescheduleToken` / `generateCancelToken` 移除未使用的 `updated` 变量（TS 警告）
+- `api/appointment/reschedule/[token]/route.ts`：修复双重 `validateRescheduleToken` 查询 — 先验证 token 获取旧日期/时间，再将已验证的 appointment 传入 `rescheduleAppointmentByToken`，避免重复 DB 查询；同时修复原来 token 无效时不返回错误的逻辑漏洞
+- `mail.service.ts`：`sendMerchantBookingNotification` 收件人地址 `env.adminEmail || env.smtp.user` 可能为 `undefined`，改为先检查再发送，未配置时打印警告并跳过
+- `api/booking/route.ts`：移除 `as any` 类型断言，`createBooking` 返回值已包含 `service` 关系，直接使用
+- `api/booking/manage/[token]/route.ts`：移除两处 `as any` 类型断言
+
+**代码质量**
+- `email.service.ts`：transporter 改为懒加载（`getTransporter()`），避免模块加载时就初始化 nodemailer 连接，SMTP 未配置时不会产生无效连接
+- `src/lib/admin-booking-copy.ts` → `src/lib/admin-booking-labels.ts`：重命名去掉历史遗留的 `-copy` 后缀，引用自动更新
+
+- `npm run build` 验证通过 ✅
+
+---
+
 ## Phase 53 — 升级 Next.js 15.5.10 修复剩余 CVE（2026-03-17）
 
 - `next` 14.2.35 → **15.5.10**：修复 2 个剩余 CVE

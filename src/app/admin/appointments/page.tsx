@@ -6,7 +6,7 @@ import { AdminShell } from '../../../components/admin/AdminShell'
 import { AppointmentStatusControls } from '../../../components/admin/AppointmentStatusControls'
 import { getCurrentAdmin } from '../../../lib/auth'
 import { getAdminLang, pick } from '../../../lib/admin-i18n'
-import { bookingSourceLabel } from '../../../lib/admin-booking-copy'
+import { bookingSourceLabel } from '../../../lib/admin-booking-labels'
 import { appointmentStatusLabel } from '../../../lib/admin-status'
 import { getAdminAppointments, getAdminAppointmentStatusCounts } from '../../../server/services/admin-booking.service'
 

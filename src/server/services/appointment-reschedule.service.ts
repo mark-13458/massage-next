@@ -19,7 +19,7 @@ export async function generateRescheduleToken(appointmentId: number) {
   const expiresAt = new Date(Date.now() + APPOINTMENT_LINK_CONFIG.TOKEN_EXPIRY_HOURS * 60 * 60 * 1000)
 
   try {
-    const updated = await prisma.appointment.update({
+    await prisma.appointment.update({
       where: { id: appointmentId },
       data: {
         rescheduleToken: token,
@@ -46,7 +46,7 @@ export async function generateCancelToken(appointmentId: number) {
   const expiresAt = new Date(Date.now() + APPOINTMENT_LINK_CONFIG.TOKEN_EXPIRY_HOURS * 60 * 60 * 1000)
 
   try {
-    const updated = await prisma.appointment.update({
+    await prisma.appointment.update({
       where: { id: appointmentId },
       data: {
         cancelToken: token,
@@ -125,14 +125,16 @@ export async function validateCancelToken(token: string) {
 
 /**
  * 客户通过链接改约
+ * 如果已经验证过 token（传入 existingAppointment），则跳过重复查询
  */
 export async function rescheduleAppointmentByToken(
   token: string,
   newDate: Date,
   newTime: string,
-  context?: { ipAddress?: string; userAgent?: string }
+  context?: { ipAddress?: string; userAgent?: string },
+  existingAppointment?: Awaited<ReturnType<typeof validateRescheduleToken>>
 ) {
-  const appointment = await validateRescheduleToken(token)
+  const appointment = existingAppointment ?? await validateRescheduleToken(token)
 
   if (!appointment) {
     throw new Error('Invalid or expired reschedule link')

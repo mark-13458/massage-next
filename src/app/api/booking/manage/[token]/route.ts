@@ -105,7 +105,7 @@ export async function PATCH(
     // 异步发送取消通知邮件
     if (appointment.customerEmail) {
       import('../../../../../server/services/mail.service').then(({ sendCustomerCancelledEmail }) => {
-        sendCustomerCancelledEmail(updated as any).catch(err =>
+        sendCustomerCancelledEmail(updated).catch(err =>
           console.error('Failed to send customer cancellation email:', err)
         )
       })
@@ -145,7 +145,7 @@ export async function PATCH(
 
     // 异步发送改约通知邮件（商家）
     import('../../../../../server/services/mail.service').then(({ sendMerchantBookingNotification }) => {
-      sendMerchantBookingNotification(updated as any).catch(err =>
+      sendMerchantBookingNotification(updated).catch(err =>
         console.error('Failed to send merchant reschedule notification:', err)
       )
     })

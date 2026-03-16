@@ -88,17 +88,24 @@ export async function POST(
     const ipAddress = headersList.get('x-forwarded-for') || headersList.get('x-real-ip') || 'unknown'
     const userAgent = headersList.get('user-agent') || undefined
 
-    // 先获取旧日期/时间，再执行改约
+    // 先验证 token 获取旧日期/时间（避免改约后读不到旧值）
     const existing = await validateRescheduleToken(token)
-    const oldDate = existing?.appointmentDate ?? new Date(newDate)
-    const oldTime = existing?.appointmentTime ?? newTime
+    if (!existing) {
+      return NextResponse.json(
+        { success: false, error: 'Invalid or expired reschedule link' },
+        { status: 400 }
+      )
+    }
+    const oldDate = existing.appointmentDate
+    const oldTime = existing.appointmentTime
 
-    // 执行改约
+    // 执行改约（传入已验证的 appointment，避免重复查询）
     const updated = await rescheduleAppointmentByToken(
       token,
       parsedDate,
       newTime,
-      { ipAddress, userAgent }
+      { ipAddress, userAgent },
+      existing
     )
 
     // 发送通知邮件

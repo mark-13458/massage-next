@@ -3,20 +3,27 @@ import { prisma } from '../../lib/prisma'
 import { escapeHtml } from '../../lib/utils'
 
 /**
- * 邮件配置与发送器
+ * 邮件配置与发送器（懒加载，避免模块加载时就尝试连接 SMTP）
  */
-const transporter = nodemailer.createTransport({
-  host: process.env.SMTP_HOST || 'localhost',
-  port: parseInt(process.env.SMTP_PORT || '587'),
-  secure: process.env.SMTP_SECURE === 'true',
-  auth:
-    process.env.SMTP_USER && process.env.SMTP_PASSWORD
-      ? {
-          user: process.env.SMTP_USER,
-          pass: process.env.SMTP_PASSWORD,
-        }
-      : undefined,
-})
+let _transporter: ReturnType<typeof nodemailer.createTransport> | null = null
+
+function getTransporter() {
+  if (!_transporter) {
+    _transporter = nodemailer.createTransport({
+      host: process.env.SMTP_HOST || 'localhost',
+      port: parseInt(process.env.SMTP_PORT || '587'),
+      secure: process.env.SMTP_SECURE === 'true',
+      auth:
+        process.env.SMTP_USER && process.env.SMTP_PASSWORD
+          ? {
+              user: process.env.SMTP_USER,
+              pass: process.env.SMTP_PASSWORD,
+            }
+          : undefined,
+    })
+  }
+  return _transporter
+}
 
 /**
  * 邮件模板类型
@@ -52,7 +59,7 @@ async function sendEmail(options: {
       html: options.htmlContent,
     }
 
-    const result = await transporter.sendMail(mailOptions)
+    const result = await getTransporter().sendMail(mailOptions)
 
     // 记录邮件发送日志
     if (options.appointmentId) {
@@ -361,7 +368,7 @@ export async function sendPrivacyNoticeEmail(email: string, locale: string = 'de
  */
 export async function verifyEmailConfiguration() {
   try {
-    await transporter.verify()
+    await getTransporter().verify()
     console.log('[EMAIL] SMTP configuration verified successfully')
     return true
   } catch (error) {

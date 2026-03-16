@@ -10,7 +10,7 @@ import { AdminInfoList } from '../../../../components/admin/AdminInfoList'
 import { AdminWorkspaceLayout } from '../../../../components/admin/AdminWorkspaceLayout'
 import { getCurrentAdmin } from '../../../../lib/auth'
 import { getAdminLang, pick } from '../../../../lib/admin-i18n'
-import { bookingSourceLabel, localeLabel } from '../../../../lib/admin-booking-copy'
+import { bookingSourceLabel, localeLabel } from '../../../../lib/admin-booking-labels'
 import { appointmentStatusLabel } from '../../../../lib/admin-status'
 import { getAdminAppointmentDetail } from '../../../../server/services/admin-booking.service'
 
