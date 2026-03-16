@@ -1,7 +1,13 @@
 import { NextRequest, NextResponse } from 'next/server'
+import { getCurrentAdmin } from '../../../../../lib/auth'
 import { ADMIN_LANG_COOKIE, isAdminLang } from '../../../../../lib/admin-i18n'
 
 export async function POST(request: NextRequest) {
+  const admin = await getCurrentAdmin()
+  if (!admin) {
+    return NextResponse.json({ status: 'error', error: 'Unauthorized' }, { status: 401 })
+  }
+
   try {
     const json = await request.json()
     const lang = typeof json.lang === 'string' && isAdminLang(json.lang) ? json.lang : 'zh'

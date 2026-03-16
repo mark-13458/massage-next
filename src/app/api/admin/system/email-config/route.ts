@@ -1,101 +1,57 @@
 import { NextRequest, NextResponse } from 'next/server'
-import { verifyEmailConfiguration, sendBookingConfirmationEmail } from '@/server/services/email.service'
+import { getCurrentAdmin } from '../../../../../lib/auth'
+import { createMailTransport } from '../../../../../lib/mail'
+import { env } from '../../../../../lib/env'
 
-/**
- * GET /api/admin/system/email-config
- * 获取邮件配置状态
- */
-export async function GET(request: NextRequest) {
-  try {
-    const isConfigured = !!(
-      process.env.SMTP_HOST &&
-      process.env.SMTP_PORT &&
-      process.env.SMTP_USER &&
-      process.env.SMTP_PASSWORD
-    )
-
-    return NextResponse.json({
-      success: true,
-      configured: isConfigured,
-      config: {
-        host: process.env.SMTP_HOST ? '****' : null,
-        port: process.env.SMTP_PORT || null,
-        from: process.env.SMTP_FROM || 'noreply@massage-next.de',
-        business: process.env.BUSINESS_NAME || 'Massage Studio',
-      },
-    })
-  } catch (error: any) {
-    return NextResponse.json(
-      { success: false, error: error.message },
-      { status: 500 }
-    )
+export async function GET() {
+  const admin = await getCurrentAdmin()
+  if (!admin) {
+    return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
   }
+
+  const isConfigured = !!(env.smtp.host && env.smtp.port && env.smtp.user && env.smtp.pass)
+
+  return NextResponse.json({
+    success: true,
+    configured: isConfigured,
+    config: {
+      host: env.smtp.host ? '****' : null,
+      port: env.smtp.port || null,
+      from: env.smtp.user || null,
+      siteName: env.siteName || null,
+    },
+  })
 }
 
-/**
- * POST /api/admin/system/email-verify
- * 验证邮件配置与连接
- */
 export async function POST(request: NextRequest) {
+  const admin = await getCurrentAdmin()
+  if (!admin) {
+    return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
+  }
+
   try {
-    const body = await request.json()
-    const { testEmail } = body
-
-    if (!testEmail) {
-      return NextResponse.json(
-        { success: false, error: 'Test email is required' },
-        { status: 400 }
-      )
+    const { testEmail } = await request.json()
+    if (!testEmail || typeof testEmail !== 'string') {
+      return NextResponse.json({ success: false, error: 'testEmail is required' }, { status: 400 })
     }
 
-    // 验证 SMTP 配置
-    const isValid = await verifyEmailConfiguration()
-
-    if (!isValid) {
-      return NextResponse.json(
-        {
-          success: false,
-          error: 'SMTP configuration is invalid. Please check your email settings.',
-        },
-        { status: 500 }
-      )
+    const transport = createMailTransport()
+    if (!transport) {
+      return NextResponse.json({ success: false, error: 'SMTP not configured' }, { status: 500 })
     }
 
-    // 发送测试邮件
-    const result = await sendBookingConfirmationEmail({
-      uuid: 'test-' + Date.now(),
-      customerName: 'Test Customer',
-      customerEmail: testEmail,
-      appointmentDate: new Date(Date.now() + 24 * 60 * 60 * 1000),
-      appointmentTime: '10:00',
-      service: {
-        nameDe: 'Test Service',
-        nameEn: 'Test Service',
-      },
-      locale: 'de',
-      rescheduleToken: 'test-reschedule-token',
-      cancelToken: 'test-cancel-token',
+    await transport.sendMail({
+      from: `"${env.siteName || 'Admin'}" <${env.smtp.user}>`,
+      to: testEmail,
+      subject: 'Test Email',
+      html: '<p>SMTP configuration is working correctly.</p>',
     })
 
-    if (result.success) {
-      return NextResponse.json({
-        success: true,
-        message: 'Test email sent successfully. Please check your inbox.',
-      })
-    } else {
-      return NextResponse.json(
-        {
-          success: false,
-          error: result.error || 'Failed to send test email',
-        },
-        { status: 500 }
-      )
-    }
-  } catch (error: any) {
-    console.error('[EMAIL_VERIFY] Error:', error)
+    return NextResponse.json({ success: true, message: 'Test email sent.' })
+  } catch (error) {
     return NextResponse.json(
-      { success: false, error: error.message || 'Internal server error' },
-      { status: 500 }
+      { success: false, error: error instanceof Error ? error.message : 'Unknown error' },
+      { status: 500 },
     )
   }
 }
