@@ -104,7 +104,7 @@ export default async function AdminSettingsPage() {
                 { label: pick(lang, '防刷策略：', 'Anti-abuse policy: '), value: pick(lang, '✓ 手机号/邮箱频率限制已实现', '✓ Phone/email rate limits implemented') },
                 { label: pick(lang, '登录防护：', 'Login protection: '), value: pick(lang, '✓ 失败次数限制已实现', '✓ Failed attempt limits implemented') },
                 { label: pick(lang, '操作日志：', 'Audit logs: '), value: pick(lang, '✓ 预约与登录操作记录已实现', '✓ Booking & login audit logs implemented') },
-                { label: pick(lang, '下一步：', 'Next: '), value: pick(lang, '改约/取消 token 安全链接', 'Secure reschedule/cancel token links') },
+                { label: pick(lang, '下一步：', 'Next: '), value: pick(lang, '✓ 改约/取消 token 安全链接已实现', '✓ Secure reschedule/cancel token links implemented') },
               ]}
             />
           </AdminSectionCard>

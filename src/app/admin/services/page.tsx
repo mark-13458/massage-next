@@ -1,6 +1,5 @@
 import Link from 'next/link'
 import { redirect } from 'next/navigation'
-import { AdminListFrame } from '../../../components/admin/AdminListFrame'
 import { AdminPageToolbar } from '../../../components/admin/AdminPageToolbar'
 import { AdminShell } from '../../../components/admin/AdminShell'
 import { AdminEmptyState } from '../../../components/admin/AdminEmptyState'
@@ -124,10 +123,7 @@ export default async function AdminServicesPage({
               description={pick(lang, '你可以切换筛选条件，或者新建第一条服务。接通数据库后也可以直接在这里维护双语服务。', 'Try a different filter or create the first service. Once the database is connected, you can manage bilingual services here directly.')}
             />
           ) : (
-            <AdminListFrame
-              title={pick(lang, '服务列表', 'Service list')}
-              description={pick(lang, '当前支持完整内容维护、上架/下架、推荐服务切换和排序调整。现在也可以按状态快速筛选，减少来回翻找。', 'Support full content maintenance, publishing controls, featured toggles and sorting in one stable service workspace.')}
-            >
+            <>
               <div className="mb-4 flex flex-wrap gap-3 text-sm">
                 <span className="rounded-full bg-emerald-50 px-3 py-1 font-medium text-emerald-700">
                   {pick(lang, `已上架 ${services.filter((item) => item.isActive).length} 项`, `Published: ${services.filter((item) => item.isActive).length}`)}
@@ -188,7 +184,7 @@ export default async function AdminServicesPage({
                   </tbody>
                 </table>
               </div>
-            </AdminListFrame>
+            </>
           )}
         </AdminSectionCard>
 

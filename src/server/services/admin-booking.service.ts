@@ -6,6 +6,7 @@ export type GetAdminAppointmentsOptions = {
   status?: AppointmentStatus | 'ALL'
   dateFrom?: Date
   dateTo?: Date
+  search?: string
   page?: number
   pageSize?: number
 }
@@ -15,11 +16,12 @@ export async function getAdminAppointments(opts: GetAdminAppointmentsOptions | '
 
   // 兼容旧调用方式 getAdminAppointments('ALL')
   const options: GetAdminAppointmentsOptions = opts === 'ALL' ? {} : opts
-  const { status, ...rest } = options
+  const { status, search, ...rest } = options
 
   try {
     const result = await findAdminAppointments({
       status: status && status !== 'ALL' ? status : undefined,
+      search: search || undefined,
       ...rest,
     })
     return {

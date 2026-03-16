@@ -5,12 +5,13 @@ export type FindAdminAppointmentsOptions = {
   status?: AppointmentStatus
   dateFrom?: Date
   dateTo?: Date
+  search?: string
   page?: number
   pageSize?: number
 }
 
 export async function findAdminAppointments(opts: FindAdminAppointmentsOptions = {}) {
-  const { status, dateFrom, dateTo, page = 1, pageSize = 50 } = opts
+  const { status, dateFrom, dateTo, search, page = 1, pageSize = 50 } = opts
   const where = {
     ...(status ? { status } : {}),
     ...(dateFrom || dateTo
@@ -19,6 +20,14 @@ export async function findAdminAppointments(opts: FindAdminAppointmentsOptions =
             ...(dateFrom ? { gte: dateFrom } : {}),
             ...(dateTo ? { lte: dateTo } : {}),
           },
+        }
+      : {}),
+    ...(search
+      ? {
+          OR: [
+            { customerName: { contains: search } },
+            { customerPhone: { contains: search } },
+          ],
         }
       : {}),
   }

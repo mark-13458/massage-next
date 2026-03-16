@@ -34,7 +34,7 @@ type StatusFilter = (typeof allowedStatuses)[number]
 export default async function AdminAppointmentsPage({
   searchParams,
 }: {
-  searchParams?: Promise<{ status?: string; q?: string }>
+  searchParams?: Promise<{ status?: string; q?: string; dateFrom?: string; dateTo?: string }>
 }) {
   const admin = await getCurrentAdmin()
   if (!admin) redirect('/admin/login')
@@ -42,23 +42,23 @@ export default async function AdminAppointmentsPage({
   const resolvedSearchParams = (await searchParams) ?? {}
   const rawStatus = String(resolvedSearchParams.status || 'ALL').toUpperCase()
   const selectedStatus = (allowedStatuses.includes(rawStatus as StatusFilter) ? rawStatus : 'ALL') as StatusFilter
-  const searchQuery = String(resolvedSearchParams.q || '').trim().toLowerCase()
+  const searchQuery = String(resolvedSearchParams.q || '').trim()
+  const dateFrom = resolvedSearchParams.dateFrom || ''
+  const dateTo = resolvedSearchParams.dateTo || ''
 
   const [lang, result, statusCounts] = await Promise.all([
     getAdminLang(),
     getAdminAppointments({
       status: selectedStatus === 'ALL' ? undefined : selectedStatus as AppointmentStatus,
+      search: searchQuery || undefined,
+      dateFrom: dateFrom ? new Date(dateFrom) : undefined,
+      dateTo: dateTo ? new Date(dateTo) : undefined,
       pageSize: 100,
     }),
     getAdminAppointmentStatusCounts(),
   ])
 
-  const appointments = searchQuery
-    ? result.items.filter((item) =>
-        item.customerName.toLowerCase().includes(searchQuery) ||
-        item.customerPhone.toLowerCase().includes(searchQuery)
-      )
-    : result.items
+  const appointments = result.items
 
   const statusSummary = [
     { key: 'PENDING', labelZh: '待确认', labelEn: 'Pending' },
@@ -71,6 +71,8 @@ export default async function AdminAppointmentsPage({
     const params = new URLSearchParams()
     if (status !== 'ALL') params.set('status', status)
     if (searchQuery) params.set('q', searchQuery)
+    if (dateFrom) params.set('dateFrom', dateFrom)
+    if (dateTo) params.set('dateTo', dateTo)
     const qs = params.toString()
     return `/admin/appointments${qs ? `?${qs}` : ''}`
   }
@@ -96,20 +98,33 @@ export default async function AdminAppointmentsPage({
           </span>
         </div>
 
-        {/* 搜索框 */}
-        <form method="GET" action="/admin/appointments" className="flex items-center gap-2">
+        {/* 搜索框 + 日期筛选 */}
+        <form method="GET" action="/admin/appointments" className="flex flex-wrap items-center gap-2">
           {selectedStatus !== 'ALL' && <input type="hidden" name="status" value={selectedStatus} />}
           <input
             type="text"
             name="q"
             defaultValue={searchQuery}
             placeholder={pick(lang, '搜索客户姓名或电话…', 'Search by name or phone…')}
-            className="w-64 rounded-full border border-stone-300 bg-white px-4 py-2 text-sm text-stone-900 outline-none placeholder:text-stone-400 focus:border-amber-500"
+            className="w-56 rounded-full border border-stone-300 bg-white px-4 py-2 text-sm text-stone-900 outline-none placeholder:text-stone-400 focus:border-amber-500"
+          />
+          <input
+            type="date"
+            name="dateFrom"
+            defaultValue={dateFrom}
+            className="rounded-full border border-stone-300 bg-white px-4 py-2 text-sm text-stone-900 outline-none focus:border-amber-500"
+          />
+          <span className="text-sm text-stone-400">{pick(lang, '至', 'to')}</span>
+          <input
+            type="date"
+            name="dateTo"
+            defaultValue={dateTo}
+            className="rounded-full border border-stone-300 bg-white px-4 py-2 text-sm text-stone-900 outline-none focus:border-amber-500"
           />
           <button type="submit" className="rounded-full bg-stone-900 px-4 py-2 text-sm font-medium text-white transition hover:bg-stone-800">
             {pick(lang, '搜索', 'Search')}
           </button>
-          {searchQuery && (
+          {(searchQuery || dateFrom || dateTo) && (
             <Link href={statusUrl('')} className="rounded-full border border-stone-300 bg-white px-4 py-2 text-sm font-medium text-stone-700 transition hover:border-stone-500">
               {pick(lang, '清除', 'Clear')}
             </Link>
@@ -187,8 +202,7 @@ export default async function AdminAppointmentsPage({
               searchQuery ? `没有找到包含"${searchQuery}"的预约记录。` : selectedStatus === 'ALL' ? '当前还没有预约数据，或运行环境尚未连接数据库。' : '当前筛选下没有符合条件的预约数据。',
               searchQuery ? `No bookings found for "${searchQuery}".` : selectedStatus === 'ALL' ? 'No bookings yet, or the database is not connected.' : 'No bookings match the current filter.'
             )}
-          </div>
-        ) : (
+          </div>        ) : (
           <div className="overflow-x-auto">
             <table className="min-w-full divide-y divide-stone-100 text-sm">
               <thead className="bg-stone-50">
