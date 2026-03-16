@@ -1,135 +1,136 @@
-import { AppointmentStatus } from '@prisma/client'
-import { apiError, apiOk } from '../../../../../lib/api-response'
-import { bookingManageSchema } from '../../../../../lib/validations/booking'
+import { NextRequest, NextResponse } from 'next/server'
 import { prisma } from '../../../../../lib/prisma'
-import { getAppointmentByToken } from '../../../../../server/services/admin-booking.service'
 import { getSystemSettings } from '../../../../../server/services/site.service'
+import { createAuditLog } from '../../../../../server/services/audit.service'
+import { headers } from 'next/headers'
 
-export const dynamic = 'force-dynamic'
-export const revalidate = 0
+/**
+ * GET /api/booking/manage/[token]
+ * 通过 confirmationToken 获取预约信息（客户侧）
+ */
+export async function GET(
+  _request: NextRequest,
+  { params }: { params: Promise<{ token: string }> }
+) {
+  const { token } = await params
 
-export async function GET(_: Request, { params }: { params: { token: string } }) {
   const settings = await getSystemSettings().catch(() => null)
   if (settings?.featureEnableBookingManage === false) {
-    return apiError('Booking self-service is disabled', 403)
+    return NextResponse.json({ error: 'Booking management is disabled' }, { status: 403 })
   }
 
-  const token = params.token
-  if (!token) {
-    return apiError('Missing token', 400)
-  }
+  const appointment = await prisma.appointment.findFirst({
+    where: { confirmationToken: token },
+    include: { service: true },
+  })
 
-  const appointment = await getAppointmentByToken(token)
   if (!appointment) {
-    return apiError('Appointment not found', 404)
+    return NextResponse.json({ error: 'Booking not found' }, { status: 404 })
   }
 
-  return apiOk({
-    booking: {
-      id: appointment.id,
-      uuid: appointment.uuid,
-      customerName: appointment.customerName,
-      customerEmail: appointment.customerEmail,
-      customerPhone: appointment.customerPhone,
-      appointmentDate: appointment.appointmentDate,
-      appointmentTime: appointment.appointmentTime,
-      status: appointment.status,
-      serviceName: appointment.service.nameDe,
-      token: appointment.confirmationToken,
+  return NextResponse.json({
+    data: {
+      item: {
+        customerName: appointment.customerName,
+        serviceName: appointment.service.nameDe,
+        appointmentDate: appointment.appointmentDate.toISOString(),
+        appointmentTime: appointment.appointmentTime,
+        status: appointment.status,
+      },
     },
   })
 }
 
-export async function PATCH(request: Request, { params }: { params: { token: string } }) {
+/**
+ * PATCH /api/booking/manage/[token]
+ * 客户通过 token 改约或取消
+ * body: { action: 'cancel' | 'reschedule', appointmentDate?, appointmentTime?, notes? }
+ */
+export async function PATCH(
+  request: NextRequest,
+  { params }: { params: Promise<{ token: string }> }
+) {
+  const { token } = await params
+
   const settings = await getSystemSettings().catch(() => null)
   if (settings?.featureEnableBookingManage === false) {
-    return apiError('Booking self-service is disabled', 403)
+    return NextResponse.json({ error: 'Booking management is disabled' }, { status: 403 })
   }
 
-  const token = params.token
-  if (!token) {
-    return apiError('Missing token', 400)
-  }
-
-  const appointment = await getAppointmentByToken(token)
-  if (!appointment) {
-    return apiError('Appointment not found', 404)
-  }
-
-  if (appointment.status === AppointmentStatus.CANCELLED || appointment.status === AppointmentStatus.COMPLETED) {
-    return apiError('Appointment can no longer be modified', 400)
-  }
-
-  const json = await request.json().catch(() => null)
-  const parsed = bookingManageSchema.safeParse(json)
-
-  if (!parsed.success) {
-    return apiError('Invalid booking management payload', 400)
-  }
-
-  const { action, appointmentDate, appointmentTime, notes } = parsed.data
-
-  if (action === 'cancel') {
-    const auditNote = `Customer self-service cancel via secure link at ${new Date().toISOString()}`
-    const item = await prisma.appointment.update({
-      where: { id: appointment.id },
-      data: {
-        status: AppointmentStatus.CANCELLED,
-        cancelledAt: new Date(),
-        notes: typeof notes === 'string' ? notes : appointment.notes,
-        internalNote: appointment.internalNote
-          ? `${appointment.internalNote}\n${auditNote}`
-          : auditNote,
-      },
-      include: { service: true },
-    })
-
-    // Async: Notify customer and merchant about cancellation
-    import('../../../../../server/services/mail.service').then(({ sendCustomerCancelledEmail, sendMerchantBookingNotification }) => {
-      const bookingData = item as any
-      // Notify customer if enabled
-      if (settings?.featureEnableEmailReminders !== false) {
-        sendCustomerCancelledEmail(bookingData).catch(console.error)
-      }
-      // Send a merchant notification too so they know it was cancelled
-      sendMerchantBookingNotification(bookingData).catch(console.error)
-    })
-
-    return apiOk({ item, action })
-  }
-
-  if (!appointmentDate || !appointmentTime) {
-    return apiError('appointmentDate and appointmentTime are required for reschedule', 400)
-  }
-
-  const auditNote = `Customer self-service reschedule via secure link at ${new Date().toISOString()}`
-  const item = await prisma.appointment.update({
-    where: { id: appointment.id },
-    data: {
-      appointmentDate: new Date(appointmentDate),
-      appointmentTime,
-      notes: typeof notes === 'string' ? notes : appointment.notes,
-      status: AppointmentStatus.PENDING,
-      confirmedAt: null,
-      confirmedById: null,
-      cancelledAt: null,
-      completedAt: null,
-      internalNote: appointment.internalNote
-        ? `${appointment.internalNote}\n${auditNote}`
-        : auditNote,
-    },
+  const appointment = await prisma.appointment.findFirst({
+    where: { confirmationToken: token },
     include: { service: true },
   })
 
-  // Async: Notify customer and merchant about reschedule (as a new request)
-  import('../../../../../server/services/mail.service').then(({ sendCustomerReceivedEmail, sendMerchantBookingNotification }) => {
-    const bookingData = item as any
-    // Notify customer if enabled
-    if (settings?.featureEnableEmailReminders !== false) {
-      sendCustomerReceivedEmail(bookingData).catch(console.error)
-    }
-    sendMerchantBookingNotification(bookingData).catch(console.error)
-  })
+  if (!appointment) {
+    return NextResponse.json({ error: 'Booking not found' }, { status: 404 })
+  }
 
-  return apiOk({ item, action })
+  if (appointment.status === 'CANCELLED' || appointment.status === 'COMPLETED') {
+    return NextResponse.json({ error: 'Booking cannot be modified' }, { status: 400 })
+  }
+
+  const body = await request.json()
+  const { action, appointmentDate, appointmentTime, notes } = body
+
+  const headersList = await headers()
+  const ipAddress = headersList.get('x-forwarded-for') || headersList.get('x-real-ip') || 'unknown'
+
+  if (action === 'cancel') {
+    const updated = await prisma.appointment.update({
+      where: { id: appointment.id },
+      data: {
+        status: 'CANCELLED',
+        cancelledAt: new Date(),
+        internalNote: notes ? `[客户取消] ${notes}` : '[客户通过链接取消]',
+      },
+    })
+
+    await createAuditLog({
+      action: 'BOOKING_CANCELLED',
+      entityType: 'APPOINTMENT',
+      entityId: appointment.id,
+      ipAddress,
+      oldValue: { status: appointment.status },
+      newValue: { status: 'CANCELLED' },
+      additionalInfo: { method: 'CUSTOMER_TOKEN', notes },
+    })
+
+    return NextResponse.json({
+      data: { item: { status: updated.status, appointmentDate: updated.appointmentDate, appointmentTime: updated.appointmentTime } },
+    })
+  }
+
+  if (action === 'reschedule') {
+    if (!appointmentDate || !appointmentTime) {
+      return NextResponse.json({ error: 'Missing appointmentDate or appointmentTime' }, { status: 400 })
+    }
+
+    const updated = await prisma.appointment.update({
+      where: { id: appointment.id },
+      data: {
+        appointmentDate: new Date(appointmentDate),
+        appointmentTime,
+        status: 'PENDING',
+        confirmedAt: null,
+        internalNote: notes ? `[客户改约] ${notes}` : '[客户通过链接改约]',
+      },
+    })
+
+    await createAuditLog({
+      action: 'BOOKING_RESCHEDULED',
+      entityType: 'APPOINTMENT',
+      entityId: appointment.id,
+      ipAddress,
+      oldValue: { date: appointment.appointmentDate, time: appointment.appointmentTime },
+      newValue: { date: appointmentDate, time: appointmentTime },
+      additionalInfo: { method: 'CUSTOMER_TOKEN', notes },
+    })
+
+    return NextResponse.json({
+      data: { item: { status: updated.status, appointmentDate: updated.appointmentDate, appointmentTime: updated.appointmentTime } },
+    })
+  }
+
+  return NextResponse.json({ error: 'Invalid action' }, { status: 400 })
 }

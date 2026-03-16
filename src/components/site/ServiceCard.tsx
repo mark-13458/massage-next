@@ -1,3 +1,5 @@
+import Link from 'next/link'
+
 type ServiceCardProps = {
   name: string
   summary?: string | null
@@ -6,12 +8,13 @@ type ServiceCardProps = {
   featured?: boolean
   currency?: string
   locale?: 'de' | 'en'
+  slug?: string
 }
 
-export function ServiceCard({ name, summary, durationMin, price, featured, currency = 'EUR', locale = 'de' }: ServiceCardProps) {
+export function ServiceCard({ name, summary, durationMin, price, featured, currency = 'EUR', locale = 'de', slug }: ServiceCardProps) {
   const currencySymbol = currency === 'EUR' ? '€' : currency
 
-  return (
+  const inner = (
     <article className="group rounded-[2rem] border border-stone-200 bg-white p-6 shadow-soft transition duration-300 hover:-translate-y-1 hover:shadow-[0_28px_80px_rgba(121,85,72,0.18)]">
       {featured ? (
         <div className="mb-4 inline-flex rounded-full border border-amber-200 bg-amber-50 px-3 py-1 text-xs font-semibold uppercase tracking-[0.18em] text-amber-900">
@@ -26,4 +29,14 @@ export function ServiceCard({ name, summary, durationMin, price, featured, curre
       </div>
     </article>
   )
+
+  if (slug) {
+    return (
+      <Link href={`/${locale}/services/${slug}`} className="block">
+        {inner}
+      </Link>
+    )
+  }
+
+  return inner
 }

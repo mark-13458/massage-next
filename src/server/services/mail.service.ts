@@ -72,7 +72,7 @@ export async function sendMerchantBookingNotification(booking: BookingWithServic
 
       <div style="border: 1px solid #ddd; padding: 15px; border-radius: 5px; margin: 20px 0;">
         <h3 style="margin-top: 0;">预约详情</h3>
-        <p><strong>服务项目：</strong> ${booking.service.nameZh} / ${booking.service.nameEn}</p>
+        <p><strong>服务项目：</strong> ${booking.service.nameDe} / ${booking.service.nameEn}</p>
         <p><strong>预约日期：</strong> ${dateStr}</p>
         <p><strong>预约时间：</strong> ${timeStr}</p>
         <p><strong>服务时长：</strong> ${booking.durationMin} 分钟</p>

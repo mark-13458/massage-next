@@ -13,7 +13,7 @@ export const env = {
     host: process.env.SMTP_HOST,
     port: Number(process.env.SMTP_PORT ?? 587),
     secure: process.env.SMTP_SECURE === 'true',
-    user: process.env.SMTP_USERNAME,
+    user: process.env.SMTP_USER,
     pass: process.env.SMTP_PASSWORD,
     from: process.env.SMTP_FROM,
   },
@@ -23,4 +23,6 @@ export const env = {
     name: process.env.ADMIN_NAME,
   },
   uploadDir: process.env.UPLOAD_DIR ?? '/app/public/uploads',
+  siteName: process.env.BUSINESS_NAME ?? process.env.SITE_NAME ?? 'China TCM Massage',
+  adminEmail: process.env.ADMIN_NOTIFY_EMAIL ?? process.env.SMTP_USER ?? '',
 }

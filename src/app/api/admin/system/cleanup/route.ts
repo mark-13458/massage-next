@@ -5,9 +5,8 @@ import { getCurrentAdmin } from '../../../../../lib/auth'
 
 export async function POST(request: Request) {
   try {
-    // Basic auth check: require admin session
-    const session = await getSession()
-    if (!session) {
+    const admin = await getCurrentAdmin()
+    if (!admin) {
       return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
     }
 

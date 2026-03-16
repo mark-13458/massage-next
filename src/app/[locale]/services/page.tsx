@@ -53,8 +53,8 @@ export default async function ServicesPage({ params }: { params: Promise<{ local
         title={t.nav.services}
         description={
           typedLocale === 'de'
-            ? 'Klar strukturierte Leistungen mit transparenter Dauer und Preislogik. Die Inhalte werden später vollständig aus dem Admin gepflegt.'
-            : 'Clearly structured treatments with transparent duration and pricing. This content will later be fully managed from the admin side.'
+            ? 'Entdecken Sie unsere Massagen und Behandlungen – mit klarer Dauer und transparenten Preisen.'
+            : 'Explore our massages and treatments – with clear durations and transparent pricing.'
         }
       >
         <div className="grid gap-6 md:grid-cols-2 xl:grid-cols-3">
@@ -68,6 +68,7 @@ export default async function ServicesPage({ params }: { params: Promise<{ local
               featured={service.isFeatured}
               currency={settings?.currency || 'EUR'}
               locale={typedLocale}
+              slug={service.slug}
             />
           ))}
         </div>
