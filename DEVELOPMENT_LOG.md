@@ -320,5 +320,39 @@
 - 合规页面：Impressum + Datenschutzerklärung（双语）
 - Docker + Nginx 联调通过，上传目录持久化已配置
 
+---
+
+## Phase 32 — Dashboard 优化 + 前台评价星级（2026-03-16）
+
+- Dashboard 统计新增"今日新增"和"本周新增"预约数（repository + service + 页面全链路）
+- Dashboard 运营流程区块新增第 5 步"管理客户评价"，补全评价管理入口
+- 修复 Dashboard 右侧快速入口重复的两个 `/admin/settings` 链接，第二个改为 `/admin/testimonials`
+- 前台 about 页评价卡片新增星级显示（amber 色实心星，灰色空心星），`rating` 为 null 或 0 时不显示
+- `npm run build` 验证通过 ✅
+
+---
+
+## 当前状态（截至 2026-03-16）
+
+### 已具备
+- 双语官网核心页面（首页/服务/服务详情/预约/关于/联系/图库）
+- 服务详情页：`/[locale]/services/[slug]`，含独立 SEO metadata + 预约 CTA
+- 前台 SEO：metadata / canonical / hreflang / OG / LocalBusiness schema
+- 预约 API + 后台处理链（状态流转/备注/快捷操作）
+- 客户侧 token 管理页（改约/取消，通过 confirmationToken）
+- 邮件通知：商家通知 + 客户确认/取消邮件（SMTP 可选）
+- 中文后台登录保护（页面层 + 接口层双重鉴权）
+- 后台六大模块：Dashboard / Bookings / Services / Content / Media / Settings
+- 后台三层架构：repository → service → view model
+- 图片上传链：Gallery + Hero，含尺寸校验、MIME 白名单、文件清理、封面唯一性
+- 系统设置驱动前台行为（语言/货币/站点名/预约说明/功能开关）
+- Turnstile 防刷（后台可配置开关）
+- 登录防暴力（内存计数，5 次封锁 5 分钟）
+- 预约频率限制（手机号/邮箱维度，数据库持久化）
+- 审计日志（关键事件全覆盖，后台可查看）
+- GDPR 数据删除流程（请求 → grace period → 执行）
+- 合规页面：Impressum + Datenschutzerklärung（双语）
+- Docker + Nginx 联调通过，上传目录持久化已配置
+
 ### 未完成（优先级排序）
 1. **P3** 测试环境 smoke test → 生产上线联调
