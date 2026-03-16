@@ -55,10 +55,24 @@ export default function ReschedulePage() {
       return
     }
 
+    // 验证日期格式和未来日期
+    const dateRegex = /^\d{4}-\d{2}-\d{2}$/
+    if (!dateRegex.test(newDate)) {
+      setError(isGerman ? 'Ungültiges Datumsformat' : 'Invalid date format')
+      return
+    }
+    const parsedDate = new Date(newDate)
+    const today = new Date()
+    today.setHours(0, 0, 0, 0)
+    if (isNaN(parsedDate.getTime()) || parsedDate < today) {
+      setError(isGerman ? 'Bitte wählen Sie ein zukünftiges Datum' : 'Please select a future date')
+      return
+    }
+
     setSubmitting(true)
     setError(null)
 
-    const result = await submitReschedule(token, new Date(newDate), newTime)
+    const result = await submitReschedule(token, parsedDate, newTime)
 
     if (result.success) {
       setSuccess(true)

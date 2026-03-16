@@ -28,7 +28,9 @@ export async function PATCH(request: NextRequest, { params }: { params: Promise<
     const id = Number(idStr)
     const json = await request.json()
     const nextStatus = String(json.status || '').toUpperCase() as AppointmentStatus
-    const internalNote = typeof json.internalNote === 'string' ? json.internalNote : undefined
+    const internalNote = typeof json.internalNote === 'string'
+      ? json.internalNote.slice(0, 2000)  // 限制长度防止超大 payload
+      : undefined
 
     if (!Number.isFinite(id)) {
       return apiError('Invalid appointment id', 400)
@@ -86,6 +88,7 @@ export async function PATCH(request: NextRequest, { params }: { params: Promise<
 
     return apiOk({ item })
   } catch (error) {
-    return apiError(error instanceof Error ? error.message : 'Unknown error', 500)
+    console.error('[admin/appointments] unexpected error:', error)
+    return apiError('Internal server error', 500)
   }
 }

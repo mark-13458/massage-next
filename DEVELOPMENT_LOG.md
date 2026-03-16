@@ -491,6 +491,29 @@
 
 - `npm run build` 验证通过 ✅
 
+## Phase 48 — 安全加固（2026-03-17）
+
+**审查范围**：管理员 API 错误泄露、安全响应头、数据库索引、并发竞态、客户端输入校验
+
+**修复 1：管理员 API 错误信息泄露**
+- `api/admin/appointments/[id]/route.ts`：catch 块改为统一返回 "Internal server error"，不透传 `error.message`
+- `internalNote` 字段补 2000 字符长度限制，防止超大 payload 写入
+
+**修复 2：安全响应头补全**
+- `next.config.js`：补 `X-DNS-Prefetch-Control: on`、`Permissions-Policy`（禁用 camera/microphone/geolocation/payment）、`Strict-Transport-Security`（max-age=63072000 + includeSubDomains + preload）
+
+**修复 3：数据库索引优化**
+- `prisma/schema.prisma`：`Appointment` 表补 `confirmationToken`、`status`、`appointmentDate`、`customerPhone`、`customerEmail` 五个索引
+- 新增 `prisma/migrations/phase_48_security_indexes/migration.sql`
+
+**修复 4：并发竞态处理**
+- `booking-protection.service.ts`：catch 块区分 Prisma P2002 unique constraint 冲突（并发竞态，允许通过）和其他错误（记录日志）
+
+**修复 5：客户端改约页面输入校验**
+- `appointment/reschedule/[token]/page.tsx`：提交前补日期格式（`YYYY-MM-DD` 正则）+ 未来日期校验，date input 加 `min={today}` 属性
+
+- `npm run build` 验证通过 ✅
+
 ## Phase 47 — 安全审查 + Bug 修复（2026-03-17）
 
 **审查范围**：邮件模板 XSS、错误信息泄露、输入验证、API 数据一致性

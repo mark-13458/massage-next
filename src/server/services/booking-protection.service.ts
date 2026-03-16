@@ -84,8 +84,13 @@ export async function checkBookingFrequencyLimit(input: FrequencyLimitInput): Pr
       remaining: BOOKING_PROTECTION_CONFIG.MAX_BOOKINGS_PER_WINDOW - record.bookingCount - 1,
     }
   } catch (error) {
-    console.error('[BOOKING_PROTECTION] Error checking frequency limit:', error)
-    // 如果服务出错，允许预约以避免影响可用性
+    // P2002 = Prisma unique constraint violation (concurrent request race)
+    // In that case the record was already created by the concurrent request — allow
+    const isUniqueConflict = (error as any)?.code === 'P2002'
+    if (!isUniqueConflict) {
+      console.error('[BOOKING_PROTECTION] Error checking frequency limit:', error)
+    }
+    // Fail open to avoid blocking legitimate bookings on DB errors
     return { allowed: true, remaining: BOOKING_PROTECTION_CONFIG.MAX_BOOKINGS_PER_WINDOW }
   }
 }

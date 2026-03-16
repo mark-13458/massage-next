@@ -110,6 +110,11 @@ model Appointment {
   @@index([rescheduleToken])
   @@index([cancelToken])
   @@index([dataDeleteRequestedAt])
+  @@index([confirmationToken])
+  @@index([status])
+  @@index([appointmentDate])
+  @@index([customerPhone])
+  @@index([customerEmail])
 }
 
 model File {
