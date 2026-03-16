@@ -33,12 +33,13 @@ function getStatusBadge(status: AppointmentStatus, lang: 'zh' | 'en') {
   )
 }
 
-export default async function AppointmentDetailPage({ params }: { params: { id: string } }) {
+export default async function AppointmentDetailPage({ params }: { params: Promise<{ id: string }> }) {
   const admin = await getCurrentAdmin()
   if (!admin) redirect('/admin/login')
 
   const lang = await getAdminLang()
-  const id = Number(params.id)
+  const { id: rawId } = await params
+  const id = Number(rawId)
   if (!Number.isFinite(id)) notFound()
 
   const appointment = await getAdminAppointmentDetail(id)

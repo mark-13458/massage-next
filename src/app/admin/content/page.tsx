@@ -24,7 +24,7 @@ export default async function AdminContentPage() {
     <AdminShell
       lang={lang}
       title={pick(lang, '网站内容', 'Content')}
-      subtitle={pick(lang, '内容管理继续增强：现在不仅能编辑联系信息、营业时间、常见问题，也能接管首页主视觉和图库基础内容。', 'Content management now goes beyond contact, hours and FAQ into homepage hero and gallery operations.')}
+      subtitle={pick(lang, '管理首页主视觉、联系方式、营业时间、常见问题与图库内容。', 'Manage the homepage hero, contact details, opening hours, FAQ and gallery.')}
     >
       <AdminPageToolbar>
         <Link href="/admin" className="rounded-full border border-stone-300 bg-white px-4 py-2 text-sm font-medium text-stone-700 transition hover:border-stone-500">

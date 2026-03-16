@@ -247,6 +247,26 @@
 
 ---
 
+## Phase 29 — 后台审查修复 + 预约分页与日期筛选（2026-03-16）
+
+**Bug 修复**
+- `AdminShell` 导航 `key={item.label}` → `key={item.href}`（label 字段不存在）
+- `appointments/[id]/page.tsx` params 类型改为 `Promise<{ id: string }>`（Next.js 14 规范）
+- `GET /api/admin/appointments/route.ts` 直接写 Prisma 查询违反架构规范，改为调用 `getAdminAppointments` service
+- `appointments/page.tsx` / `content/page.tsx` subtitle 清理开发阶段文案
+- `settings/page.tsx` 安全执行清单已实现项 `⧮` 改为 `✓`
+
+**新功能**
+- 预约列表支持日期范围筛选（dateFrom / dateTo），URL 参数驱动，原生 form 提交
+- 预约列表支持分页（每页 20 条），URL 参数驱动，保留状态 + 日期筛选上下文
+- `booking.repository.ts` 升级：支持 status / dateFrom / dateTo / page / pageSize，同时返回 total
+- `admin-booking.service.ts` 升级：兼容旧调用方式，新增 options 对象入参
+- `AdminShell` 新增 `pendingCount` prop，侧边栏预约导航项显示待处理数量角标
+- Dashboard 传入 `pendingCount={stats.pendingAppointments}`
+- `npm run build` 验证通过 ✅
+
+---
+
 ## 当前状态（截至 2026-03-16）
 
 ### 已具备

@@ -2,24 +2,39 @@ import { AppointmentStatus } from '@prisma/client'
 import { findAdminAppointmentById, findAdminAppointments, findAppointmentByToken } from '../repositories/admin/booking.repository'
 import { toAdminBookingListItem } from '../view-models/admin/booking.vm'
 
-export async function getAdminAppointments(status: 'ALL' | AppointmentStatus = 'ALL') {
-  if (!process.env.DATABASE_URL) {
-    return []
-  }
+export type GetAdminAppointmentsOptions = {
+  status?: AppointmentStatus | 'ALL'
+  dateFrom?: Date
+  dateTo?: Date
+  page?: number
+  pageSize?: number
+}
+
+export async function getAdminAppointments(opts: GetAdminAppointmentsOptions | 'ALL' = 'ALL') {
+  if (!process.env.DATABASE_URL) return { items: [], total: 0, page: 1, pageSize: 50 }
+
+  // 兼容旧调用方式 getAdminAppointments('ALL')
+  const options: GetAdminAppointmentsOptions = opts === 'ALL' ? {} : opts
+  const { status, ...rest } = options
 
   try {
-    const items = await findAdminAppointments(status === 'ALL' ? undefined : status)
-    return items.map(toAdminBookingListItem)
+    const result = await findAdminAppointments({
+      status: status && status !== 'ALL' ? status : undefined,
+      ...rest,
+    })
+    return {
+      items: result.items.map(toAdminBookingListItem),
+      total: result.total,
+      page: result.page,
+      pageSize: result.pageSize,
+    }
   } catch {
-    return []
+    return { items: [], total: 0, page: 1, pageSize: 50 }
   }
 }
 
 export async function getAdminAppointmentDetail(id: number) {
-  if (!process.env.DATABASE_URL) {
-    return null
-  }
-
+  if (!process.env.DATABASE_URL) return null
   try {
     return await findAdminAppointmentById(id)
   } catch {
@@ -28,10 +43,7 @@ export async function getAdminAppointmentDetail(id: number) {
 }
 
 export async function getAppointmentByToken(token: string) {
-  if (!process.env.DATABASE_URL) {
-    return null
-  }
-
+  if (!process.env.DATABASE_URL) return null
   try {
     return await findAppointmentByToken(token)
   } catch {

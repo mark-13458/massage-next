@@ -118,8 +118,8 @@ export default async function AdminSettingsPage() {
               items={[
                 { label: '✓ P1：', value: pick(lang, '预约频率限制 (手机号/邮箱) + 登录防暴力', 'Booking rate limits (phone/email) + login brute-force protection') },
                 { label: '✓ P2：', value: pick(lang, '操作审计日志 (所有关键事件记录)', 'Audit logs (all critical events tracked)') },
-                { label: '⧮ P3：', value: pick(lang, '改约/取消安全 token 链接', 'Secure reschedule/cancel token links') },
-                { label: '⧮ P4：', value: pick(lang, '隐私同意、数据保留与删除机制', 'Privacy consent, retention and deletion workflow') },
+                { label: '✓ P3：', value: pick(lang, '改约/取消安全 token 链接', 'Secure reschedule/cancel token links') },
+                { label: '✓ P4：', value: pick(lang, '隐私同意、数据保留与删除机制', 'Privacy consent, retention and deletion workflow') },
               ]}
             />
           </AdminSectionCard>

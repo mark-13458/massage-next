@@ -12,7 +12,7 @@ const navItems = [
   { href: '/admin/settings', labelZh: '系统设置', labelEn: 'Settings', descZh: '配置', descEn: 'Settings', icon: '✦' },
 ]
 
-export function AdminShell({ children, title, subtitle, lang = 'zh' }: { children: React.ReactNode; title: string; subtitle?: string; lang?: AdminLang }) {
+export function AdminShell({ children, title, subtitle, lang = 'zh', pendingCount }: { children: React.ReactNode; title: string; subtitle?: string; lang?: AdminLang; pendingCount?: number }) {
   return (
     <div className="min-h-screen bg-[#f4efe7] text-stone-900">
       <div className="grid min-h-screen lg:grid-cols-[280px_minmax(0,1fr)]">
@@ -30,7 +30,7 @@ export function AdminShell({ children, title, subtitle, lang = 'zh' }: { childre
             <nav className="mt-10 grid gap-3">
               {navItems.map((item) => (
                 <Link
-                  key={item.label}
+                  key={item.href}
                   href={item.href}
                   className="group rounded-2xl border border-white/8 bg-white/5 px-4 py-4 transition hover:border-amber-300/30 hover:bg-white/10"
                 >
@@ -38,8 +38,13 @@ export function AdminShell({ children, title, subtitle, lang = 'zh' }: { childre
                     <div className="mt-0.5 flex h-9 w-9 items-center justify-center rounded-xl bg-amber-400/10 text-sm text-amber-200 ring-1 ring-amber-300/20">
                       {item.icon}
                     </div>
-                    <div>
-                      <div className="text-sm font-semibold text-white">{pick(lang, item.labelZh, item.labelEn)}</div>
+                    <div className="flex-1">
+                      <div className="flex items-center gap-2">
+                        <span className="text-sm font-semibold text-white">{pick(lang, item.labelZh, item.labelEn)}</span>
+                        {item.href === '/admin/appointments' && pendingCount && pendingCount > 0 ? (
+                          <span className="rounded-full bg-amber-400 px-2 py-0.5 text-[10px] font-bold text-stone-900">{pendingCount}</span>
+                        ) : null}
+                      </div>
                       <div className="mt-1 text-xs uppercase tracking-[0.24em] text-stone-400">{pick(lang, item.descZh, item.descEn)}</div>
                     </div>
                   </div>

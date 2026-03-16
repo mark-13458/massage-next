@@ -27,6 +27,7 @@ export default async function AdminPage() {
       lang={lang}
       title={pick(lang, '中文后台', 'Admin workspace')}
       subtitle={pick(lang, '查看关键数据，管理预约、服务、内容与图片。', 'Review key metrics and manage bookings, services, content and media.')}
+      pendingCount={stats.pendingAppointments}
     >
       <AdminTopSummary
         title={pick(lang, '运营概览', 'Operations overview')}

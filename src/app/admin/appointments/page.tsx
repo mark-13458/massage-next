@@ -63,7 +63,7 @@ export default async function AdminAppointmentsPage({
     <AdminShell
       lang={lang}
       title={pick(lang, '预约管理', 'Bookings')}
-      subtitle={pick(lang, '现在这页已经进入可操作阶段：支持状态筛选、状态修改、内部备注，并可进入详情页查看完整预约信息。', 'This page is now operational: filter by status, update states, leave internal notes and open full booking details.')}
+      subtitle={pick(lang, '查看预约、筛选状态、修改状态、写备注，或进入详情页处理完整预约信息。', 'Filter by status, update states, leave internal notes and open full booking details.')}
     >
       <div className="mb-6 space-y-3">
         <div className="flex flex-wrap items-center gap-3">
