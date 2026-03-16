@@ -54,7 +54,7 @@ export async function findAdminAppointmentById(id: number) {
 }
 
 export async function findAppointmentByToken(token: string) {
-  return prisma.appointment.findUnique({
+  return prisma.appointment.findFirst({
     where: { confirmationToken: token },
     include: { service: true },
   })

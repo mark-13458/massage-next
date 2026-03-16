@@ -9,9 +9,9 @@ import { headers } from 'next/headers'
  */
 export async function GET(
   request: NextRequest,
-  { params }: { params: { token: string } }
+  { params }: { params: Promise<{ token: string }> }
 ) {
-  const token = params.token
+  const { token } = await params
 
   try {
     const appointment = await validateRescheduleToken(token)
@@ -51,9 +51,9 @@ export async function GET(
  */
 export async function POST(
   request: NextRequest,
-  { params }: { params: { token: string } }
+  { params }: { params: Promise<{ token: string }> }
 ) {
-  const token = params.token
+  const { token } = await params
 
   try {
     const body = await request.json()
@@ -70,6 +70,11 @@ export async function POST(
     const headersList = await headers()
     const ipAddress = headersList.get('x-forwarded-for') || headersList.get('x-real-ip') || 'unknown'
     const userAgent = headersList.get('user-agent') || undefined
+
+    // 先获取旧日期/时间，再执行改约
+    const existing = await validateRescheduleToken(token)
+    const oldDate = existing?.appointmentDate ?? new Date(newDate)
+    const oldTime = existing?.appointmentTime ?? newTime
 
     // 执行改约
     const updated = await rescheduleAppointmentByToken(
@@ -88,8 +93,8 @@ export async function POST(
         appointmentTime: newTime,
         service: updated.service,
         locale: updated.locale,
-        oldDate: updated.appointmentDate,
-        oldTime: newTime,
+        oldDate,
+        oldTime,
         rescheduleToken: undefined,
       })
     }

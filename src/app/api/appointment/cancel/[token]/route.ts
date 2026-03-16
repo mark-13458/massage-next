@@ -9,9 +9,9 @@ import { headers } from 'next/headers'
  */
 export async function GET(
   request: NextRequest,
-  { params }: { params: { token: string } }
+  { params }: { params: Promise<{ token: string }> }
 ) {
-  const token = params.token
+  const { token } = await params
 
   try {
     const appointment = await validateCancelToken(token)
@@ -49,9 +49,9 @@ export async function GET(
  */
 export async function POST(
   request: NextRequest,
-  { params }: { params: { token: string } }
+  { params }: { params: Promise<{ token: string }> }
 ) {
-  const token = params.token
+  const { token } = await params
 
   try {
     const body = await request.json()

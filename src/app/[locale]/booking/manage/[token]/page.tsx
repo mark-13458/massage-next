@@ -63,7 +63,7 @@ export default async function BookingManagePage({ params }: { params: Promise<{ 
           token={token}
           booking={{
             customerName: appointment.customerName,
-            serviceName: appointment.service.nameDe,
+            serviceName: typedLocale === 'en' ? appointment.service.nameEn : appointment.service.nameDe,
             appointmentDate: appointment.appointmentDate.toISOString(),
             appointmentTime: appointment.appointmentTime,
             status: appointment.status,

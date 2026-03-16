@@ -21,16 +21,10 @@ export default function CancelPage() {
   const [success, setSuccess] = useState(false)
   const [confirmStep, setConfirmStep] = useState(false)
 
-  // Form state
-  const [reason, setReason] = useState('')
+  // 分开管理 radio 选项和附加备注
+  const [selectedReason, setSelectedReason] = useState('')
+  const [additionalNotes, setAdditionalNotes] = useState('')
 
-  const cancelReasons = [
-    { value: 'schedule_conflict', label: isGermanLang => isGermanLang ? 'Zeitkonflikt' : 'Schedule conflict' },
-    { value: 'feeling_better', label: isGermanLang => isGermanLang ? 'Fühle mich besser' : 'Feeling better' },
-    { value: 'other_reason', label: isGermanLang => isGermanLang ? 'Anderer Grund' : 'Other reason' },
-  ]
-
-  // Load appointment details
   useEffect(() => {
     async function loadAppointment() {
       const data = await validateCancelLink(token)
@@ -42,32 +36,33 @@ export default function CancelPage() {
       }
       setLoading(false)
     }
-
     loadAppointment()
   }, [token])
 
   const isGerman = appointment?.locale === 'de'
 
-  function isGermanLang(condition: boolean) {
-    return condition ? true : false
-  }
+  const cancelReasons = [
+    { value: 'schedule_conflict', label: isGerman ? 'Zeitkonflikt' : 'Schedule conflict' },
+    { value: 'feeling_better', label: isGerman ? 'Fühle mich besser' : 'Feeling better' },
+    { value: 'other_reason', label: isGerman ? 'Anderer Grund' : 'Other reason' },
+  ]
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
 
-    if (!reason) {
-      setError(isGerman ? 'Bitte geben Sie einen Grund an' : 'Please provide a reason')
+    if (!selectedReason) {
+      setError(isGerman ? 'Bitte wählen Sie einen Grund aus' : 'Please select a reason')
       return
     }
 
     setSubmitting(true)
     setError(null)
 
+    const reason = additionalNotes ? `${selectedReason}: ${additionalNotes}` : selectedReason
     const result = await submitCancel(token, reason)
 
     if (result.success) {
       setSuccess(true)
-      // Redirect after 3 seconds
       setTimeout(() => {
         router.push(isGerman ? '/de' : '/en')
       }, 3000)
@@ -108,9 +103,7 @@ export default function CancelPage() {
     )
   }
 
-  if (!appointment) {
-    return null
-  }
+  if (!appointment) return null
 
   if (success) {
     return (
@@ -119,11 +112,7 @@ export default function CancelPage() {
           <div className="mb-4">
             <div className="inline-block p-3 bg-green-100 rounded-full">
               <svg className="w-8 h-8 text-green-600" fill="currentColor" viewBox="0 0 20 20">
-                <path
-                  fillRule="evenodd"
-                  d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z"
-                  clipRule="evenodd"
-                />
+                <path fillRule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clipRule="evenodd" />
               </svg>
             </div>
           </div>
@@ -131,9 +120,7 @@ export default function CancelPage() {
             {isGerman ? 'Termin abgesagt' : 'Appointment cancelled'}
           </h1>
           <p className="text-stone-600 mb-2">
-            {isGerman
-              ? 'Sie erhalten in Kürze eine Bestätigungsmail.'
-              : 'You will receive a confirmation email shortly.'}
+            {isGerman ? 'Sie erhalten in Kürze eine Bestätigungsmail.' : 'You will receive a confirmation email shortly.'}
           </p>
           <p className="text-stone-500 text-sm">
             {isGerman ? 'Weitergeleitet in 3 Sekunden...' : 'Redirecting in 3 seconds...'}
@@ -146,7 +133,6 @@ export default function CancelPage() {
   return (
     <div className="min-h-screen bg-stone-50 py-12 px-4 sm:px-6 lg:px-8">
       <div className="max-w-2xl mx-auto">
-        {/* Header */}
         <div className="mb-8">
           <h1 className="text-3xl font-bold text-stone-900 mb-2">
             {isGerman ? 'Termin absagen' : 'Cancel Appointment'}
@@ -158,9 +144,8 @@ export default function CancelPage() {
           </p>
         </div>
 
-        {/* Current Appointment Info */}
         <div className="bg-white rounded-lg shadow-sm border border-stone-200 p-6 mb-6">
-          <h2 className="text-sm font-semibold text-stone-900 uppercase mb-4 text-stone-700">
+          <h2 className="text-sm font-semibold uppercase mb-4 text-stone-700">
             {isGerman ? 'Termin Details' : 'Appointment Details'}
           </h2>
           <div className="space-y-3">
@@ -175,76 +160,73 @@ export default function CancelPage() {
               <span className="font-medium text-stone-900">{appointment.appointmentTime}</span>
             </div>
             <div className="flex justify-between">
-              <span className="text-stone-600">{isGerman ? 'Dauer:' : 'Duration:'}</span>
-              <span className="font-medium text-stone-900">{appointment.durationMin} min</span>
-            </div>
-            <div className="flex justify-between">
               <span className="text-stone-600">{isGerman ? 'Name:' : 'Name:'}</span>
               <span className="font-medium text-stone-900">{appointment.customerName}</span>
             </div>
           </div>
         </div>
 
-        {/* Warning */}
         <div className="bg-amber-50 border border-amber-200 rounded-lg p-4 mb-6">
           <p className="text-amber-800 text-sm">
             {isGerman
-              ? '⚠️ Diese Aktion kann nicht rückgängig gemacht werden. Bitte bestätigen Sie, dass Sie diesen Termin wirklich absagen möchten.'
-              : '⚠️ This action cannot be undone. Please confirm that you really want to cancel this appointment.'}
+              ? '⚠️ Diese Aktion kann nicht rückgängig gemacht werden.'
+              : '⚠️ This action cannot be undone.'}
           </p>
         </div>
 
-        {/* Error Message */}
         {error && (
           <div className="bg-red-50 border border-red-200 rounded-lg p-4 mb-6">
             <p className="text-red-800">{error}</p>
           </div>
         )}
 
-        {/* Cancel Form */}
         <form onSubmit={handleSubmit} className="bg-white rounded-lg shadow-sm border border-stone-200 p-6">
           <div className="space-y-6">
-            {/* Reason Selection */}
             <div>
               <label className="block text-sm font-medium text-stone-900 mb-3">
                 {isGerman ? 'Grund für Absage' : 'Reason for cancellation'} *
               </label>
               <div className="space-y-2">
-                {cancelReasons.map((reasonOption) => (
-                  <label key={reasonOption.value} className="flex items-center p-3 border border-stone-200 rounded-lg hover:bg-stone-50 cursor-pointer">
+                {cancelReasons.map((r) => (
+                  <label key={r.value} className="flex items-center p-3 border border-stone-200 rounded-lg hover:bg-stone-50 cursor-pointer">
                     <input
                       type="radio"
                       name="reason"
-                      value={reasonOption.value}
-                      checked={reason === reasonOption.value}
-                      onChange={(e) => setReason(e.target.value)}
+                      value={r.value}
+                      checked={selectedReason === r.value}
+                      onChange={(e) => setSelectedReason(e.target.value)}
                       className="w-4 h-4 text-stone-900"
                     />
-                    <span className="ml-3 text-stone-700">{reasonOption.label(isGerman)}</span>
+                    <span className="ml-3 text-stone-700">{r.label}</span>
                   </label>
                 ))}
               </div>
             </div>
 
-            {/* Additional Notes (optional) */}
             <div>
               <label className="block text-sm font-medium text-stone-900 mb-2">
                 {isGerman ? 'Zusätzliche Notizen (optional)' : 'Additional notes (optional)'}
               </label>
               <textarea
-                value={reason}
-                onChange={(e) => setReason(e.target.value)}
-                placeholder={isGerman ? 'Schreiben Sie hier weitere Details...' : 'Write additional details here...'}
+                value={additionalNotes}
+                onChange={(e) => setAdditionalNotes(e.target.value)}
+                placeholder={isGerman ? 'Weitere Details...' : 'Additional details...'}
                 className="w-full px-4 py-2 border border-stone-300 rounded-lg focus:ring-2 focus:ring-stone-900 focus:border-transparent"
-                rows={4}
+                rows={3}
               />
             </div>
 
-            {/* Confirmation */}
             {!confirmStep ? (
               <button
                 type="button"
-                onClick={() => setConfirmStep(true)}
+                onClick={() => {
+                  if (!selectedReason) {
+                    setError(isGerman ? 'Bitte wählen Sie einen Grund aus' : 'Please select a reason')
+                    return
+                  }
+                  setError(null)
+                  setConfirmStep(true)
+                }}
                 className="w-full bg-amber-600 text-white py-3 rounded-lg font-medium hover:bg-amber-700 transition"
               >
                 {isGerman ? 'Weiter zur Bestätigung' : 'Proceed to confirmation'}

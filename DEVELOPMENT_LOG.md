@@ -491,6 +491,20 @@
 
 - `npm run build` 验证通过 ✅
 
+## Phase 45 — 功能逻辑全面审查 + Bug 修复（2026-03-16）
+
+**审查范围**：预约管理 token 链路、改约/取消 API、邮件通知、客户侧页面、repository 层
+
+**Bug 修复**
+- `booking.repository.ts`：`findAppointmentByToken` 用 `findUnique({ where: { confirmationToken } })` 但 `confirmationToken` 非 `@unique` 字段，导致 Prisma 类型错误；改为 `findFirst`
+- `booking/manage/[token]/page.tsx`：`serviceName` 硬编码 `nameDe`，英文用户看到德语服务名；改为按 `locale` 选择 `nameEn` / `nameDe`
+- `api/appointment/reschedule/[token]/route.ts`：params 类型改为 `Promise<{ token: string }>`；发送改约邮件时 `oldDate` 传的是已更新后的新日期（逻辑错误），改为在执行改约前先读取旧日期/时间
+- `api/appointment/cancel/[token]/route.ts`：params 类型改为 `Promise<{ token: string }>`
+- `appointment/cancel/[token]/page.tsx`：textarea 和 radio 共用同一个 `reason` state，导致选了 radio 后 textarea 也显示 radio value；拆分为 `selectedReason` + `additionalNotes` 两个独立 state；移除无用的 `isGermanLang` 函数；提交前校验 radio 必选
+- `api/booking/manage/[token]/route.ts`：取消和改约操作后缺少邮件通知；取消后异步发送 `sendCustomerCancelledEmail`，改约后异步通知商家 `sendMerchantBookingNotification`；`prisma.appointment.update` 补 `include: { service: true }` 以支持邮件模板
+
+- `npm run build` 验证通过 ✅
+
 - 新建 `LangSwitcher.tsx`（client 组件）：读取当前路径，将 `/de/` ↔ `/en/` 互换，桌面端显示在导航栏右侧
 - `SiteHeader`：引入 `LangSwitcher`，插入在预约按钮左侧
 - `MobileMenu`：底部新增语言切换链接（显示完整语言名 Deutsch / English）

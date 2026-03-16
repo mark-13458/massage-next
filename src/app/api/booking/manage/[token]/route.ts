@@ -84,6 +84,7 @@ export async function PATCH(
         cancelledAt: new Date(),
         internalNote: notes ? `[客户取消] ${notes}` : '[客户通过链接取消]',
       },
+      include: { service: true },
     })
 
     await createAuditLog({
@@ -95,6 +96,15 @@ export async function PATCH(
       newValue: { status: 'CANCELLED' },
       additionalInfo: { method: 'CUSTOMER_TOKEN', notes },
     })
+
+    // 异步发送取消通知邮件
+    if (appointment.customerEmail) {
+      import('../../../../../server/services/mail.service').then(({ sendCustomerCancelledEmail }) => {
+        sendCustomerCancelledEmail(updated as any).catch(err =>
+          console.error('Failed to send customer cancellation email:', err)
+        )
+      })
+    }
 
     return NextResponse.json({
       data: { item: { status: updated.status, appointmentDate: updated.appointmentDate, appointmentTime: updated.appointmentTime } },
@@ -115,6 +125,7 @@ export async function PATCH(
         confirmedAt: null,
         internalNote: notes ? `[客户改约] ${notes}` : '[客户通过链接改约]',
       },
+      include: { service: true },
     })
 
     await createAuditLog({
@@ -125,6 +136,13 @@ export async function PATCH(
       oldValue: { date: appointment.appointmentDate, time: appointment.appointmentTime },
       newValue: { date: appointmentDate, time: appointmentTime },
       additionalInfo: { method: 'CUSTOMER_TOKEN', notes },
+    })
+
+    // 异步发送改约通知邮件（商家）
+    import('../../../../../server/services/mail.service').then(({ sendMerchantBookingNotification }) => {
+      sendMerchantBookingNotification(updated as any).catch(err =>
+        console.error('Failed to send merchant reschedule notification:', err)
+      )
     })
 
     return NextResponse.json({
