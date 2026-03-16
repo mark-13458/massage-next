@@ -1,7 +1,7 @@
 import { redirect } from 'next/navigation'
-import { AdminLoginForm } from '../../../../src/components/admin/AdminLoginForm'
-import { getCurrentAdmin } from '../../../../src/lib/auth'
-import { getAdminLang, pick } from '../../../../src/lib/admin-i18n'
+import { AdminLoginForm } from '../../../components/admin/AdminLoginForm'
+import { getCurrentAdmin } from '../../../lib/auth'
+import { getAdminLang, pick } from '../../../lib/admin-i18n'
 
 export default async function AdminLoginPage() {
   const admin = await getCurrentAdmin()

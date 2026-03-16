@@ -3,9 +3,9 @@ import path from 'path'
 import { randomUUID } from 'crypto'
 import sharp from 'sharp'
 import { NextRequest } from 'next/server'
-import { apiError, apiOk } from '../../../../../src/lib/api-response'
-import { getCurrentAdmin } from '../../../../../src/lib/auth'
-import { prisma } from '../../../../../src/lib/prisma'
+import { apiError, apiOk } from '../../../../lib/api-response'
+import { getCurrentAdmin } from '../../../../lib/auth'
+import { prisma } from '../../../../lib/prisma'
 
 const MAX_FILE_SIZE = 10 * 1024 * 1024
 const ALLOWED_IMAGE_TYPES = new Set(['image/jpeg', 'image/png', 'image/webp', 'image/gif'])

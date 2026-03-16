@@ -1,9 +1,9 @@
 import { NextRequest, NextResponse } from 'next/server'
 import bcrypt from 'bcryptjs'
-import { apiError, apiOk } from '../../../../../src/lib/api-response'
-import { prisma } from '../../../../../src/lib/prisma'
-import { setAdminSession } from '../../../../../src/lib/auth'
-import { getIpAddress } from '../../../../../src/lib/utils' // Assuming this helper function exists or will be created
+import { apiError, apiOk } from '../../../../lib/api-response'
+import { prisma } from '../../../../lib/prisma'
+import { setAdminSession } from '../../../../lib/auth'
+import { getIpAddress } from '../../../../lib/utils'
 
 // In-memory store for failed login attempts
 // Key: ip_address or email
