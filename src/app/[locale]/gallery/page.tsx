@@ -110,6 +110,22 @@ export default async function GalleryPage({ params }: { params: Promise<{ locale
             </article>
           ))}
         </div>
+        <div className="mt-12 rounded-[2rem] border border-stone-200 bg-stone-950 p-8 text-center shadow-soft">
+          <p className="text-lg font-semibold text-white">
+            {typedLocale === 'de' ? 'Bereit für Ihren Besuch?' : 'Ready to visit us?'}
+          </p>
+          <p className="mt-2 text-sm text-stone-300">
+            {typedLocale === 'de'
+              ? 'Erleben Sie die Atmosphäre persönlich – fragen Sie jetzt Ihren Termin an.'
+              : 'Experience the atmosphere in person – request your appointment now.'}
+          </p>
+          <Link
+            href={`/${typedLocale}/booking`}
+            className="mt-6 inline-flex rounded-full bg-white px-6 py-3 text-sm font-semibold text-brown-900 transition hover:bg-stone-100"
+          >
+            {typedLocale === 'de' ? 'Termin anfragen' : 'Request appointment'}
+          </Link>
+        </div>
       </SectionShell>
       <SiteFooter locale={typedLocale} />
     </main>

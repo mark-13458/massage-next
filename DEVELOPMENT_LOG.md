@@ -357,6 +357,16 @@
 ### 未完成（优先级排序）
 1. **P3** 测试环境 smoke test → 生产上线联调
 
+## Phase 39 — 前台细节完善 + 结构化数据（2026-03-16）
+
+- `contact/page.tsx`：修正 Google Maps embed URL，使用正确的慕尼黑 Arnulfstraße 104 坐标参数
+- `gallery/page.tsx`：图库页底部新增预约 CTA 区块（深色背景，与服务页风格对齐）
+- `about/page.tsx`：评价区块底部新增预约 CTA 区块，补 `Link` import
+- `services/[slug]/page.tsx`：补 BreadcrumbList JSON-LD 结构化数据（首页 → 服务列表 → 当前服务）
+- `AdminInfoList.tsx`：扩展类型支持 `LinkValue[]` 数组，多个链接值可分行显示
+
+- `npm run build` 验证通过 ✅
+
 ## Phase 34 — 后台页面优化（2026-03-16）
 
 **预约列表**

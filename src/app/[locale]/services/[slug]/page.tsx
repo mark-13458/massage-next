@@ -81,8 +81,23 @@ export default async function ServiceDetailPage({ params }: Props) {
   const priceLabel = typedLocale === 'de' ? 'Preis' : 'Price'
   const minLabel = typedLocale === 'de' ? 'Min.' : 'min'
 
+  const baseUrl = process.env.APP_URL || 'https://example.com'
+  const breadcrumbJsonLd = {
+    '@context': 'https://schema.org',
+    '@type': 'BreadcrumbList',
+    itemListElement: [
+      { '@type': 'ListItem', position: 1, name: typedLocale === 'de' ? 'Startseite' : 'Home', item: `${baseUrl}/${typedLocale}` },
+      { '@type': 'ListItem', position: 2, name: typedLocale === 'de' ? 'Leistungen' : 'Services', item: `${baseUrl}/${typedLocale}/services` },
+      { '@type': 'ListItem', position: 3, name, item: `${baseUrl}/${typedLocale}/services/${service.slug}` },
+    ],
+  }
+
   return (
     <main>
+      <script
+        type="application/ld+json"
+        dangerouslySetInnerHTML={{ __html: JSON.stringify(breadcrumbJsonLd) }}
+      />
       <SiteHeader locale={typedLocale} />
 
       <section className="py-16 sm:py-20">

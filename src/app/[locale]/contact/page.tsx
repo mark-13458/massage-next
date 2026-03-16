@@ -141,7 +141,7 @@ export default async function ContactPage({ params }: { params: Promise<{ locale
           <div className="overflow-hidden rounded-3xl border border-stone-200 shadow-sm">
             <iframe
               title={typedLocale === 'de' ? 'Standort auf der Karte' : 'Location on map'}
-              src="https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d2662.3!2d11.5364!3d48.1441!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x479e75f9b3b3b3b3%3A0x0!2sArnulfstra%C3%9Fe+104%2C+80636+M%C3%BCnchen!5e0!3m2!1sde!2sde!4v1"
+              src="https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d2662.0!2d11.5364!3d48.1441!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x479e75e9b5f5f5f5%3A0x1234567890abcdef!2sArnulfstra%C3%9Fe+104%2C+80636+M%C3%BCnchen%2C+Germany!5e0!3m2!1sde!2sde!4v1710000000000!5m2!1sde!2sde"
               width="100%"
               height="360"
               style={{ border: 0 }}

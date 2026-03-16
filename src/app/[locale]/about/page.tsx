@@ -1,4 +1,5 @@
 import type { Metadata } from 'next'
+import Link from 'next/link'
 import { notFound } from 'next/navigation'
 import { SiteHeader } from '../../../components/site/SiteHeader'
 import { SiteFooter } from '../../../components/site/SiteFooter'
@@ -132,6 +133,22 @@ export default async function AboutPage({ params }: { params: Promise<{ locale: 
               <p className="mt-4 text-sm font-semibold text-brown-600">{'— '}{item.customerName}</p>
             </article>
           ))}
+        </div>
+        <div className="mt-12 rounded-[2rem] border border-stone-200 bg-stone-950 p-8 text-center shadow-soft">
+          <p className="text-lg font-semibold text-white">
+            {typedLocale === 'de' ? 'Überzeugt? Jetzt Termin anfragen.' : 'Convinced? Request your appointment now.'}
+          </p>
+          <p className="mt-2 text-sm text-stone-300">
+            {typedLocale === 'de'
+              ? 'Erleben Sie traditionelle chinesische Behandlungen in ruhiger Studioatmosphäre.'
+              : 'Experience traditional Chinese treatments in a calm studio atmosphere.'}
+          </p>
+          <Link
+            href={`/${typedLocale}/booking`}
+            className="mt-6 inline-flex rounded-full bg-white px-6 py-3 text-sm font-semibold text-brown-900 transition hover:bg-stone-100"
+          >
+            {typedLocale === 'de' ? 'Termin anfragen' : 'Request appointment'}
+          </Link>
         </div>
       </SectionShell>
 
