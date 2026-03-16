@@ -10,7 +10,7 @@ export async function SiteFooter({ locale }: { locale: Locale }) {
   ])
 
   const siteName = settings?.siteName || 'China TCM Massage'
-  const footerHours = hours.slice(0, 4)
+  const footerHours = hours
 
   return (
     <footer className="border-t border-stone-200 bg-stone-950 text-stone-200">
@@ -41,8 +41,8 @@ export async function SiteFooter({ locale }: { locale: Locale }) {
           </h4>
           <ul className="mt-3 space-y-2 text-sm text-stone-300">
             <li>{contact?.address || 'Arnulfstraße 104, 80636 München'}</li>
-            <li>{contact?.phone || '015563 188800'}</li>
-            <li>{contact?.email || 'chinesischemassage8@gmail.com'}</li>
+            <li><a href={`tel:${(contact?.phone || '015563188800').replace(/\s/g, '')}`} className="hover:text-white transition">{contact?.phone || '015563 188800'}</a></li>
+            <li><a href={`mailto:${contact?.email || 'chinesischemassage8@gmail.com'}`} className="hover:text-white transition">{contact?.email || 'chinesischemassage8@gmail.com'}</a></li>
           </ul>
         </div>
         <div>

@@ -20,10 +20,10 @@ export async function generateMetadata({ params }: { params: Promise<{ locale: s
   return createPageMetadata({
     locale,
     pathname: '/about',
-    title: locale === 'de' ? 'Uber unser Studio' : 'About Our Studio',
+    title: locale === 'de' ? 'Über unser Studio' : 'About Our Studio',
     description:
       locale === 'de'
-        ? settings?.seoMetaDescriptionDe || 'Erfahren Sie mehr uber die Haltung, Atmosphare und Behandlungsphilosophie von China TCM Massage in Munchen.'
+        ? settings?.seoMetaDescriptionDe || 'Erfahren Sie mehr über die Haltung, Atmosphäre und Behandlungsphilosophie von China TCM Massage in München.'
         : settings?.seoMetaDescriptionEn || 'Learn more about the approach, atmosphere and treatment philosophy behind China TCM Massage in Munich.',
     titleTemplate: locale === 'de' ? settings?.seoTitleTemplateDe : settings?.seoTitleTemplateEn,
     siteNameOverride: settings?.siteName,
@@ -49,11 +49,11 @@ export default async function AboutPage({ params }: { params: Promise<{ locale: 
       <SiteHeader locale={typedLocale} />
 
       <SectionShell
-        eyebrow={typedLocale === 'de' ? 'Uber uns' : 'About us'}
+        eyebrow={typedLocale === 'de' ? 'Über uns' : 'About us'}
         title={t.nav.about}
         description={
           typedLocale === 'de'
-            ? 'China TCM Massage verbindet traditionelle Anwendungen mit einer modernen, ruhigen Studioatmosphare. Ziel ist kein hektischer Massensalon, sondern ein klarer, vertrauenswurdiger Ort fur Entspannung und regelmasige Regeneration.'
+            ? 'China TCM Massage verbindet traditionelle Anwendungen mit einer modernen, ruhigen Studioatmosphäre. Ziel ist kein hektischer Massensalon, sondern ein klarer, vertrauenswürdiger Ort für Entspannung und regelmäßige Regeneration.'
             : 'China TCM Massage combines traditional treatments with a calm, modern studio atmosphere. The goal is not a rushed salon experience, but a clear, trustworthy place for relaxation and regular recovery.'
         }
       >
@@ -65,12 +65,12 @@ export default async function AboutPage({ params }: { params: Promise<{ locale: 
             <div className="mt-5 space-y-4 text-sm leading-7 text-brown-700">
               <p>
                 {typedLocale === 'de'
-                  ? 'Wir legen Wert auf klare Strukturen: verstandliche Leistungen, transparente Preise, einfache Kontaktwege und eine angenehme Atmosphare, die Vertrauen schafft.'
+                  ? 'Wir legen Wert auf klare Strukturen: verständliche Leistungen, transparente Preise, einfache Kontaktwege und eine angenehme Atmosphäre, die Vertrauen schafft.'
                   : 'We value clarity: understandable services, transparent pricing, simple contact paths and a welcoming atmosphere that builds trust.'}
               </p>
               <p>
                 {typedLocale === 'de'
-                  ? 'Jede Behandlung wird individuell abgestimmt. Unser Ziel ist nicht Quantitat, sondern nachhaltige Qualitat und das Wohlbefinden unserer Gaste.'
+                  ? 'Jede Behandlung wird individuell abgestimmt. Unser Ziel ist nicht Quantität, sondern nachhaltige Qualität und das Wohlbefinden unserer Gäste.'
                   : 'Every treatment is individually tailored. Our goal is not quantity, but lasting quality and the wellbeing of our guests.'}
               </p>
             </div>
@@ -78,12 +78,12 @@ export default async function AboutPage({ params }: { params: Promise<{ locale: 
 
           <article className="rounded-3xl border border-stone-200 bg-stone-950 p-8 shadow-sm">
             <h2 className="text-2xl font-semibold text-white">
-              {typedLocale === 'de' ? 'Warum Gaste wiederkommen' : 'Why guests come back'}
+              {typedLocale === 'de' ? 'Warum Gäste wiederkommen' : 'Why guests come back'}
             </h2>
             <ul className="mt-5 space-y-4 text-sm leading-7 text-stone-300">
-              <li>{'• '}{typedLocale === 'de' ? 'Ruhige Atmosphare statt hektischer Abfertigung' : 'A calm atmosphere instead of a rushed workflow'}</li>
+              <li>{'• '}{typedLocale === 'de' ? 'Ruhige Atmosphäre statt hektischer Abfertigung' : 'A calm atmosphere instead of a rushed workflow'}</li>
               <li>{'• '}{typedLocale === 'de' ? 'Klare Kommunikation vor und nach dem Termin' : 'Clear communication before and after the appointment'}</li>
-              <li>{'• '}{typedLocale === 'de' ? 'Leicht verstandliche Leistungen mit transparenter Dauer und Preis' : 'Easy-to-understand treatments with transparent duration and pricing'}</li>
+              <li>{'• '}{typedLocale === 'de' ? 'Leicht verständliche Leistungen mit transparenter Dauer und Preis' : 'Easy-to-understand treatments with transparent duration and pricing'}</li>
               <li>{'• '}{typedLocale === 'de' ? 'Ein moderner Markenauftritt, der professionell wirkt' : 'A modern brand presence that feels professional and trustworthy'}</li>
             </ul>
           </article>
@@ -95,7 +95,7 @@ export default async function AboutPage({ params }: { params: Promise<{ locale: 
         title={t.sections.faq}
         description={
           typedLocale === 'de'
-            ? 'Antworten auf haufige Fragen rund um Behandlungen, Terminwunsche und den Ablauf vor Ort.'
+            ? 'Antworten auf häufige Fragen rund um Behandlungen, Terminwünsche und den Ablauf vor Ort.'
             : 'Answers to common questions about treatments, appointment requests and what to expect on site.'
         }
       >
@@ -114,7 +114,7 @@ export default async function AboutPage({ params }: { params: Promise<{ locale: 
         title={t.sections.testimonials}
         description={
           typedLocale === 'de'
-            ? 'Vertrauen entsteht durch konsistente Qualitat, ruhige Ablaufe und positive Ruckmeldungen von Gasten.'
+            ? 'Vertrauen entsteht durch konsistente Qualität, ruhige Abläufe und positive Rückmeldungen von Gästen.'
             : 'Trust grows through consistent quality, calm processes and positive guest feedback.'
         }
       >

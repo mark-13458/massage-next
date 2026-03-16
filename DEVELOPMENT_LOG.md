@@ -387,7 +387,16 @@
 - 预约详情页 aside 新增"关联服务"区块，含"编辑服务"和"全部预约"快捷链接
 - `npm run build` 验证通过 ✅
 
-## Phase 36 — 前台细节完善（2026-03-16）
+## Phase 37 — 前台文案修复 + 页脚完善（2026-03-16）
+
+- `about/page.tsx`：修复所有德语文案缺失的 umlauts（`Atmosphäre`、`Gäste`、`Qualität`、`regelmäßige`、`häufige`、`Wünsche`、`Rückmeldungen` 等），metadata title 同步修正
+- `SiteFooter`：联系信息电话/邮箱改为可点击 `tel:` / `mailto:` 链接，hover 变白色
+- `SiteFooter`：营业时间移除 `slice(0, 4)`，改为显示全部
+- `services/[slug]/page.tsx`：预约 CTA 按钮颜色从 `amber-500` 改为与全站一致的 `brown-900`
+
+- `npm run build` 验证通过 ✅
+
+
 
 - 首页评价区块补星级显示（amber 色实心星 / 灰色空心星），`rating` 为 null 或 0 时不显示，与 about 页对齐
 - 首页联系区块电话/邮箱改为可点击 `tel:` / `mailto:` 链接，hover 变白色
