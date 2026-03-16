@@ -386,3 +386,19 @@
 - 评价列表加语言筛选（全部/DE/EN）+ 发布状态筛选（全部/已发布/未发布），客户端实时过滤
 - 预约详情页 aside 新增"关联服务"区块，含"编辑服务"和"全部预约"快捷链接
 - `npm run build` 验证通过 ✅
+
+## Phase 35 — 预约搜索服务端化 + 日期筛选 + 页面清理（2026-03-16）
+
+**预约管理**
+- 搜索从客户端 filter 改为服务端查询：repository 新增 `search` 字段（Prisma `OR` 条件，匹配 customerName / customerPhone），service 层透传，页面层直接传 `search` 参数
+- 预约列表新增日期范围筛选 UI（dateFrom / dateTo），与搜索框同一 form 提交，URL 参数驱动，与状态筛选联动
+- 清除按钮扩展为同时清除搜索词和日期范围
+
+**服务管理**
+- 移除 `AdminSectionCard` 内嵌套的冗余 `AdminListFrame`，统计标签和表格直接在 card 内渲染
+- 移除已无用的 `AdminListFrame` import
+
+**系统设置**
+- 修复"预约防护"卡片中"下一步：改约/取消 token 安全链接"为已完成状态（✓），该功能已在 Phase 19 实现
+
+- `npm run build` 验证通过 ✅
