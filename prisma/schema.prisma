@@ -45,6 +45,7 @@ model User {
   updatedAt              DateTime      @updatedAt
   uploadedFiles          File[]
   confirmedAppointments  Appointment[] @relation("AppointmentConfirmedBy")
+  auditLogs              AuditLog[]    @relation("AuditLogChangedBy")
 }
 
 model Service {
@@ -69,31 +70,46 @@ model Service {
 }
 
 model Appointment {
-  id                Int                 @id @default(autoincrement())
-  uuid              String              @unique @default(uuid())
-  customerName      String
-  customerEmail     String?
-  customerPhone     String
-  locale            String              @default("de")
-  appointmentDate   DateTime
-  appointmentTime   String
-  durationMin       Int
-  priceSnapshot     Decimal             @db.Decimal(10, 2)
-  notes             String?             @db.Text
-  internalNote      String?             @db.Text
-  status            AppointmentStatus   @default(PENDING)
-  source            AppointmentSource   @default(WEBSITE)
-  confirmationToken String?
-  confirmationSent  Boolean             @default(false)
-  confirmedAt       DateTime?
-  cancelledAt       DateTime?
-  completedAt       DateTime?
-  serviceId         Int
-  service           Service             @relation(fields: [serviceId], references: [id])
-  confirmedById     Int?
-  confirmedBy       User?               @relation("AppointmentConfirmedBy", fields: [confirmedById], references: [id])
-  createdAt         DateTime            @default(now())
-  updatedAt         DateTime            @updatedAt
+  id                      Int                 @id @default(autoincrement())
+  uuid                    String              @unique @default(uuid())
+  customerName            String
+  customerEmail           String?
+  customerPhone           String
+  locale                  String              @default("de")
+  appointmentDate         DateTime
+  appointmentTime         String
+  durationMin             Int
+  priceSnapshot           Decimal             @db.Decimal(10, 2)
+  notes                   String?             @db.Text
+  internalNote            String?             @db.Text
+  status                  AppointmentStatus   @default(PENDING)
+  source                  AppointmentSource   @default(WEBSITE)
+  confirmationToken       String?
+  confirmationSent        Boolean             @default(false)
+  confirmedAt             DateTime?
+  cancelledAt             DateTime?
+  completedAt             DateTime?
+  // Phase 17 - 改约/取消安全链接
+  rescheduleToken         String?             @unique
+  rescheduleTokenExpires  DateTime?
+  cancelToken             String?             @unique
+  cancelTokenExpires      DateTime?
+  // Phase 17 - 隐私同意
+  privacyConsent          Boolean             @default(false)
+  privacyConsentAt        DateTime?
+  dataDeleteRequestedAt   DateTime?           // 数据删除请求时间
+  dataDeletedAt           DateTime?           // 数据实际删除时间
+  // 关联
+  serviceId               Int
+  service                 Service             @relation(fields: [serviceId], references: [id])
+  confirmedById           Int?
+  confirmedBy             User?               @relation("AppointmentConfirmedBy", fields: [confirmedById], references: [id])
+  createdAt               DateTime            @default(now())
+  updatedAt               DateTime            @updatedAt
+
+  @@index([rescheduleToken])
+  @@index([cancelToken])
+  @@index([dataDeleteRequestedAt])
 }
 
 model File {
@@ -187,4 +203,73 @@ model EmailLog {
   sentAt     DateTime?
   createdAt  DateTime @default(now())
   updatedAt  DateTime @updatedAt
+}
+
+model AuditLog {
+  id              Int       @id @default(autoincrement())
+  action          String    // e.g., "BOOKING_CREATED", "BOOKING_CONFIRMED", "BOOKING_CANCELLED", "BOOKING_MANAGE"
+  entityType      String    // e.g., "APPOINTMENT", "USER", "SETTINGS"
+  entityId        Int?
+  changedBy       Int?      // userId if admin action
+  changedByUser   User?     @relation("AuditLogChangedBy", fields: [changedBy], references: [id])
+  oldValue        Json?
+  newValue        Json?
+  ipAddress       String?
+  userAgent       String?
+  additionalInfo  Json?
+  createdAt       DateTime  @default(now())
+  updatedAt       DateTime  @updatedAt
+
+  @@index([action])
+  @@index([entityType, entityId])
+  @@index([createdAt])
+}
+
+model BookingFrequencyLimit {
+  id            Int       @id @default(autoincrement())
+  limitType     String    // "PHONE", "EMAIL", "IP"
+  limitValue    String    // 实际的手机号、邮箱或 IP
+  bookingCount  Int       @default(1)
+  lastAttemptAt DateTime
+  windowStart   DateTime  // 时间窗口开始
+  createdAt     DateTime  @default(now())
+  updatedAt     DateTime  @updatedAt
+
+  @@unique([limitType, limitValue, windowStart])
+  @@index([limitType, limitValue])
+  @@index([lastAttemptAt])
+}
+
+model LoginAttempt {
+  id          Int       @id @default(autoincrement())
+  email       String
+  success     Boolean
+  ipAddress   String?
+  userAgent   String?
+  failureReason String?
+  createdAt   DateTime  @default(now())
+  updatedAt   DateTime  @updatedAt
+
+  @@index([email, createdAt])
+  @@index([success])
+  @@index([ipAddress])
+}
+
+// Phase 17 - 预约管理历史记录（用于改约追踪）
+model AppointmentAudit {
+  id                Int         @id @default(autoincrement())
+  appointmentId     Int
+  appointmentUuid   String
+  action            String      // "RESCHEDULED", "CANCELLED_BY_CUSTOMER", "CANCELLED_BY_ADMIN"
+  oldAppointmentDate DateTime?
+  oldAppointmentTime String?
+  newAppointmentDate DateTime?
+  newAppointmentTime String?
+  reason            String?
+  customerEmail     String?
+  createdAt         DateTime    @default(now())
+
+  @@index([appointmentId])
+  @@index([appointmentUuid])
+  @@index([createdAt])
 }

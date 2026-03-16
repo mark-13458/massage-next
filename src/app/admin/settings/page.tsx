@@ -1,4 +1,5 @@
 import { redirect } from 'next/navigation'
+import Link from 'next/link'
 import { AdminInfoList } from '../../../components/admin/AdminInfoList'
 import { AdminPasswordForm } from '../../../components/admin/AdminPasswordForm'
 import { AdminSectionCard } from '../../../components/admin/AdminSectionCard'
@@ -100,26 +101,50 @@ export default async function AdminSettingsPage() {
           >
             <AdminInfoList
               items={[
-                { label: pick(lang, '防刷策略：', 'Anti-abuse policy: '), value: pick(lang, '验证码、IP 频率限制、手机号/邮箱频率限制应作为下一批优先能力', 'Captcha, IP throttling and phone/email rate limits should be prioritized next') },
-                { label: pick(lang, '改约/取消：', 'Reschedule / cancel: '), value: pick(lang, '建议补安全 token 链接与异常预约识别机制', 'Secure token links and abnormal-booking detection should be added') },
-                { label: pick(lang, '数据最少化：', 'Data minimization: '), value: pick(lang, '当前仅围绕姓名、电话、邮箱继续设计存储与删除策略', 'Continue designing storage and deletion policy around name, phone and email only') },
+                { label: pick(lang, '防刷策略：', 'Anti-abuse policy: '), value: pick(lang, '✓ 手机号/邮箱频率限制已实现', '✓ Phone/email rate limits implemented') },
+                { label: pick(lang, '登录防护：', 'Login protection: '), value: pick(lang, '✓ 失败次数限制已实现', '✓ Failed attempt limits implemented') },
+                { label: pick(lang, '操作日志：', 'Audit logs: '), value: pick(lang, '✓ 预约与登录操作记录已实现', '✓ Booking & login audit logs implemented') },
+                { label: pick(lang, '下一步：', 'Next: '), value: pick(lang, '改约/取消 token 安全链接', 'Secure reschedule/cancel token links') },
               ]}
             />
           </AdminSectionCard>
 
           <AdminSectionCard
             eyebrow={pick(lang, '安全执行清单', 'Security execution checklist')}
-            title={pick(lang, '下一批优先安全项', 'Next security priorities')}
-            description={pick(lang, '把即将真正落地的后台安全项整理成一个执行清单，方便后续直接开发。', 'Turn the next security-focused backend items into an execution checklist so the next phase can implement them directly.')}
+            title={pick(lang, '优先级与已实现项', 'Priorities & implemented features')}
+            description={pick(lang, '把已落地的安全防护与下一阶段工作整理成清单。', 'Organized list of implemented security features and next priorities.')}
           >
             <AdminInfoList
               items={[
-                { label: 'P1：', value: pick(lang, '预约验证码 + 基础频率限制', 'Booking captcha + baseline rate limits') },
-                { label: 'P2：', value: pick(lang, '改约 / 取消安全 token 链接', 'Secure reschedule / cancel token links') },
-                { label: 'P3：', value: pick(lang, '隐私同意、数据保留与删除机制', 'Privacy consent, retention and deletion workflow') },
-                { label: 'P4：', value: pick(lang, '安全日志 / 登录失败记录 / 操作日志增强', 'Security logs / failed login records / enhanced operation logs') },
+                { label: '✓ P1：', value: pick(lang, '预约频率限制 (手机号/邮箱) + 登录防暴力', 'Booking rate limits (phone/email) + login brute-force protection') },
+                { label: '✓ P2：', value: pick(lang, '操作审计日志 (所有关键事件记录)', 'Audit logs (all critical events tracked)') },
+                { label: '⧮ P3：', value: pick(lang, '改约/取消安全 token 链接', 'Secure reschedule/cancel token links') },
+                { label: '⧮ P4：', value: pick(lang, '隐私同意、数据保留与删除机制', 'Privacy consent, retention and deletion workflow') },
               ]}
             />
+          </AdminSectionCard>
+
+          <AdminSectionCard
+            eyebrow={pick(lang, '审计与监控', 'Audit & monitoring')}
+            title={pick(lang, '操作日志查看', 'Audit log access')}
+            description={pick(lang, '直接查看系统关键事件日志：预约操作、管理员操作、登录记录等。', 'Direct access to system audit logs: booking operations, admin actions, login records and more.')}
+          >
+            <div className="space-y-3">
+              <Link
+                href="/admin/settings/audit-logs"
+                className="flex items-center justify-between rounded-2xl border border-stone-200 bg-white px-4 py-3 text-stone-700 transition hover:border-stone-400"
+              >
+                <span>{pick(lang, '查看完整操作日志', 'View full audit logs')}</span>
+                <span className="text-stone-500">→</span>
+              </Link>
+              <Link
+                href="/admin/settings/audit-logs?action=BOOKING_CREATED"
+                className="flex items-center justify-between rounded-2xl border border-stone-200 bg-white px-4 py-3 text-stone-700 transition hover:border-stone-400"
+              >
+                <span>{pick(lang, '预约创建记录', 'Booking creation logs')}</span>
+                <span className="text-stone-500">→</span>
+              </Link>
+            </div>
           </AdminSectionCard>
 
           <AdminSectionCard

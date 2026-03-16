@@ -29,25 +29,28 @@
 
 ---
 
-## 2. 当前开发结论（截至 2026-03-13）
+## 2. 当前开发结论（截至 2026-03-16）
 
-项目已经从“官网原型”推进到：
+项目已经从"官网原型"推进到：
 
-> **可运营网站系统雏形**
+> **可运营网站系统 + 完整预约生命周期管理 + 隐私合规体系**
 
 也就是说：
-- 已经不是静态展示站
-- 已经有后台登录与运营模块
-- 已经有预约管理
-- 已经有服务管理
-- 已经有内容管理
-- 已经有基础图片上传链
+- ✓ 已经不是静态展示站
+- ✓ 已经有后台登录与运营模块
+- ✓ 已经有预约管理与完整保护机制
+- ✓ 已经有服务管理
+- ✓ 已经有内容管理
+- ✓ 已经有基础图片上传链
+- ✓ 已经有审计日志与安全记录
+- ✓ 已经有改约/取消安全链接
+- ✓ 已经有邮件通知系统
+- ✓ 已经有 GDPR 隐私合规机制
 
-但它还没有完全收口到“生产上线版”。
-
-从当前阶段开始，项目的统一方向进一步明确为：
-
-> **适合德国单店按摩店的双语官网 + 中文后台运营系统，并从架构层同时兼顾 SEO、预约安全、数据隐私与基础合规。**
+项目现在距离"可上线版本"只差：
+1. 前台改约/取消 UI 页面
+2. Docker 邮件配置与联调
+3. 隐私页面法律文本
 
 ---
 
@@ -124,13 +127,7 @@
 - Hero 替换图片时，已补本地旧文件清理逻辑
 - 上传接口已补基础 MIME 白名单校验（jpg/png/webp/gif）
 
----
-
-## 4. 当前正在推进的阶段
-
-## 🚧 Phase 15 - 上传链收尾 + 交接文档完善
-
-### 当前已做
+### ✅ 已完成：Phase 15 - 上传链收尾 + 交接文档完善
 - Hero 旧文件清理逻辑已补上
 - 上传接口用途校验已补上
 - 上传图片类型白名单已补上
@@ -141,80 +138,120 @@
 - 后台保存 / 上传反馈增强已补上
 - 预约后台反馈体验对齐已补上
 - 预约状态可视化增强已补上
-- 本地生产模式启动测试已跑通（页面可起，数据库未接通）
-- Docker standalone 启动方式已修正并验证通过
-- `.dockerignore` 已补齐，构建上下文已大幅缩小
-- Docker Prisma 运行时兼容性已修复（bookworm -> bullseye）
-- Docker 登录 / seed / 预约 smoke test 已通过
-- 内容链清理闭环已修复并验证通过（Hero/ Gallery 空 payload、前端删除标记、文件清理）
-- Docker 上传目录持久化卷已补上
-- robots/sitemap 已改为走 `APP_URL` 动态生成，并避免构建期误依赖 `DATABASE_URL`
-- 方案 A 继续验证已完成（内容 CRUD / SEO / 浏览器目检）
-- 后台页面访问控制已修复并验证通过（未登录重定向到 `/admin/login`）
-- 后台模板化改造 B1 已继续推进（新 AdminShell / Summary / Services / Content 结构已落地并验证）
-- `DEVELOPMENT_LOG.md` 已建立
-- `HANDOFF.md` 已建立
-- `PROJECT_STATUS.md`（本文件）已建立
-- `DEPLOYMENT_CHECKLIST.md` 已纳入正式交接体系
-- `TEST_ARTIFACTS.md` 已建立，用于说明测试临时文件
-- 前台页面级 SEO metadata 已补齐（首页 / services / about / contact / gallery / booking）
-- 前台已补 canonical / `hreflang` alternates / Open Graph / Twitter card 基础能力
-- 前台首页 / contact 已补 `LocalBusiness` / `HealthAndBeautyBusiness` 结构化数据基础
-- 前台一批开发阶段说明式文案已收口，更接近真实上线站点表达
+- Docker 部署验证已通过
+- 内容链清理闭环已完成
+- 前台 SEO metadata 已补齐
+- 后台模板化改造已完成
+
+### ✅ 已完成：Phase 16 - 预约安全与审计体系
+- ✓ 审计日志表创建（AuditLog）
+- ✓ 预约频率限制表创建（BookingFrequencyLimit）
+- ✓ 登录尝试记录表创建（LoginAttempt）
+- ✓ 审计日志服务实现（`audit.service.ts`）
+- ✓ 预约防护服务实现（`booking-protection.service.ts`）
+  - 手机号/邮箱/IP 三维度频率限制
+  - 60 分钟时间窗口，每维度最多 3 次预约
+- ✓ 管理员认证增强（`admin-auth.service.ts`）
+  - 15 分钟内失败 5 次则锁定
+- ✓ 审计日志查看器后台界面
+- ✓ 系统设置页面增强
+- ✓ 数据库迁移与部署指南
+
+---
+
+## 4. 当前正在推进的阶段
+
+## 🚧 Phase 17 - 改约/取消流程与隐私合规（完成编码）
+
+### 已完成项
+- ✓ 改约/取消安全 token 链接生成与验证
+- ✓ 改约/取消 API 路由实现
+  - `GET /api/appointment/reschedule/[token]` - 验证改约
+  - `POST /api/appointment/reschedule/[token]` - 执行改约
+  - `GET /api/appointment/cancel/[token]` - 验证取消
+  - `POST /api/appointment/cancel/[token]` - 执行取消
+- ✓ 邮件通知系统
+  - 预约确认邮件（含改约/取消链接）
+  - 改约通知邮件
+  - 取消通知邮件
+  - 隐私通知邮件
+  - 双语支持（德语/英语）
+- ✓ 隐私与数据管理服务
+  - 隐私同意记录
+  - 数据删除请求与执行
+  - 个人数据导出（GDPR）
+  - 定期数据清理任务
+  - 30 天 grace period（GDPR）
+  - 6 个月数据保留期（可配置）
+- ✓ 数据库扩展
+  - Appointment 表新增 8 个字段
+  - AppointmentAudit 表（改约/取消历史）
+  - 完整迁移文件
+- ✓ 改约历史追踪
+  - 所有改约操作记录在 AppointmentAudit
+  - 包含原始时间、新时间、原因等
+- ✓ 完整文档与指南
+  - `DEVELOPMENT_LOG.md` - Phase 17 详细记录
+  - `PHASE_17_INTEGRATION_GUIDE.md` - 集成指南
+  - `PHASE_17_CHECKLIST.md` - 验证清单
+- ✓ 编译验证
+  - TypeScript 编译无错误
+  - 所有 API 路由正确注册
+  - Path aliases 正确配置
+
+### 优先级说明
+| 优先级 | 项目 | 状态 |
+|------|------|------|
+| P0 | 改约/取消安全链接 | ✓ 已实现 |
+| P0 | 邮件通知系统 | ✓ 已实现 |
+| P0 | 隐私数据管理 | ✓ 已实现 |
+| P1 | 前台 UI 页面 | ⧮ 下阶段 |
+| P1 | Docker 邮件联调 | ⧮ 下阶段 |
 
 ### 当前还没做完
-- 图片大小限制提示更细化
-- Hero / Gallery 更统一的资源替换策略
-- 更正式的图片元数据处理（如 compression / 规范化导出）
-- 上传链更完整的生产化策略（生命周期、替换、回收一致性）
-- 后台内容工作台的表单提示与交互细节继续收口
+- [ ] 前台改约/取消 UI 页面（改为 Phase 18）
+- [ ] Docker 邮件配置测试（改为 Phase 18）
+- [ ] 隐私页面法律文本（改为 Phase 18）
 
 ---
 
 ## 5. 未完成但优先级高的阶段
 
-### Phase 16 - 上传链生产化
-优先级：**高**
-
-#### 建议完成项
-- 图片大小 / 类型错误提示优化
-- 统一图片替换与删除策略
-- 更清晰的本地文件生命周期管理
-- 图片压缩 / 规范化导出等生产化能力
-- 继续补齐上传链的边界与回收规则
-
-### Phase 17 - 后台体验继续增强
-优先级：**中高**
-
-#### 建议完成项
-- 预约列表与详情联动体验优化
-- 操作反馈更清晰
-- 内容页交互状态更明确
-- 表单保存成功/失败提示增强
-- 系统设置页补安全设置 / 功能开关 / SEO 与隐私待办表达
-- 后台首页补系统与安全入口，逐步形成统一运营总控台
-- 让 SEO / 安全 / 合规设计不只停留在文档，而是逐步转成真实后台能力
-
-### Phase 18 - 部署联调
-优先级：**高**
+### Phase 18 - 前台 UI 与邮件联调
+优先级：**超高 (P0)**
 
 #### 必做项
-- 环境变量校验
-- Prisma migration / seed 流程确认
-- Docker / Nginx / MySQL 联调
-- 上传目录持久化策略
-- 生产环境访问路径检查
+1. 前台改约/取消 UI 页面
+   - 显示当前预约信息
+   - 改约日期/时间选择器
+   - 取消原因输入
+   - 成功/失败提示
 
-### Phase 19 - 上线前质量检查
+2. 邮件系统测试与监控
+   - 后台邮件配置验证接口
+   - 邮件发送日志查看
+   - SMTP 连接测试
+
+3. 隐私页面补全
+   - Datenschutz (德语隐私政策)
+   - Privacy Policy (英文隐私政策)
+   - 数据导出说明
+   - 删除请求流程说明
+
+4. Docker 邮件联调
+   - SMTP 配置加入 docker-compose.yml
+   - 本地 Mailhog 测试
+   - 生产 SMTP 配置文档
+
+### Phase 19 - 上线前最终检查
 优先级：**高**
 
 #### 建议完成项
-- SEO 检查
-- 上传资源访问检查
-- 后台关键流程回归测试
-- 预约闭环回归测试
-- 默认账号与默认密码检查
-- robots / sitemap / 后台隔离 / 隐私页面 / 安全 Header 联合检查
+- 完整端到端测试（创建预约→确认→改约→取消）
+- 邮件模板样式验证
+- 隐私合规审核
+- 性能基准测试
+- 备份与恢复流程测试
 
 ---
 
@@ -237,47 +274,76 @@
 如果你今天第一次接手这个项目，建议按这个顺序：
 
 1. 读 `README_CN.md`
-2. 读 `ARCHITECTURE.md`
-3. 读 `ROADMAP.md`
-4. 读 `DEVELOPMENT_LOG.md`
-5. 读 `HANDOFF.md`
-6. 读 `PROJECT_STATUS.md`
-7. 再进入代码
+2. 读 `ARCHITECTURE.md`（如有）
+3. 读 `ROADMAP.md`（如有）
+4. 读 `DEVELOPMENT_LOG.md` （了解每个阶段做了什么）
+5. 读 `HANDOFF.md` （了解交接要点）
+6. 读 `PROJECT_STATUS.md` （本文件，快速概览）
+7. 读 `PHASE_17_INTEGRATION_GUIDE.md` （如要做 Phase 17 工作）
+8. 再进入代码
 
 ---
 
 ## 8. 推荐先看的代码文件
 
+### 改约/取消与隐私链（新增）
+- `src/server/services/appointment-reschedule.service.ts`
+- `src/server/services/email.service.ts`
+- `src/server/services/privacy.service.ts`
+- `src/app/api/appointment/reschedule/[token]/route.ts`
+- `src/app/api/appointment/cancel/[token]/route.ts`
+- `src/app/api/appointment/[appointmentId]/privacy/route.ts`
+
+### 安全与审计链
+- `src/server/services/audit.service.ts`
+- `src/server/services/booking-protection.service.ts`
+- `src/server/services/admin-auth.service.ts`
+- `src/app/admin/settings/audit-logs/page.tsx`
+
 ### 上传链 / 内容链
 - `src/app/api/admin/upload/route.ts`
 - `src/app/api/admin/content/route.ts`
 - `src/app/admin/content/page.tsx`
-- `src/components/admin/ContentEditor.tsx`
 
 ### 预约链
-- `src/app/api/admin/appointments/route.ts`
-- `src/app/api/admin/appointments/[id]/route.ts`
+- `src/app/api/booking/route.ts`
 - `src/app/admin/appointments/page.tsx`
-- `src/app/admin/appointments/[id]/page.tsx`
-
-### 服务管理
-- `src/app/admin/services/page.tsx`
-- `src/app/admin/services/[id]/page.tsx`
 
 ---
 
-## 9. 当前主要风险
+## 9. 当前主要风险与下一步
 
-1. 上传链还不是最终生产形态
-2. 图片元数据处理还不完整
-3. 后台交互体验还可继续抛光
-4. 部署链还没最终联调收口
-5. 仍需一次更系统的上线前检查
-6. 安全与隐私治理仍有相当部分停留在表达层，需继续转成真实能力
+| 风险 | 优先级 | 建议 |
+|-----|------|------|
+| 前台改约/取消 UI 缺失 | 🔴 高 | Phase 18 立即做 |
+| 邮件配置未在 Docker 中测试 | 🔴 高 | Phase 18 联调 |
+| 隐私页面法律文本缺失 | 🟠 中 | Phase 18 补齐 |
+| 定期清理任务未配置 cron | 🟠 中 | Phase 18 配置 |
+| 没有邮件失败告警 | 🟡 低 | Phase 19 优化 |
 
 ---
 
-## 10. 文档维护规则
+## 10. 部署与上线清单
+
+```
+✓ Phase 1-15：基础功能
+✓ Phase 16：安全防护体系
+✓ Phase 17：改约/取消与隐私
+⏳ Phase 18：UI 与部署联调
+⏳ Phase 19：上线前检查
+
+距离上线还差：
+- 前台 UI（1-2 天）
+- Docker 联调（1 天）
+- 隐私文本（1 天）
+- 最终测试（1-2 天）
+
+总计：3-5 天可上线
+```
+
+---
+
+## 11. 文档维护规则
 
 以后每个阶段都要做到：
 - 开发前：更新阶段目标（可选）

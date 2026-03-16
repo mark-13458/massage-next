@@ -1,0 +1,108 @@
+import { NextRequest, NextResponse } from 'next/server'
+import { validateRescheduleToken, rescheduleAppointmentByToken } from '@/server/services/appointment-reschedule.service'
+import { sendRescheduleNotificationEmail } from '@/server/services/email.service'
+import { headers } from 'next/headers'
+
+/**
+ * GET /api/appointment/reschedule/[token]
+ * 验证改约 token 并返回预约详情
+ */
+export async function GET(
+  request: NextRequest,
+  { params }: { params: { token: string } }
+) {
+  const token = params.token
+
+  try {
+    const appointment = await validateRescheduleToken(token)
+
+    if (!appointment) {
+      return NextResponse.json(
+        { success: false, error: 'Invalid or expired reschedule link' },
+        { status: 404 }
+      )
+    }
+
+    // 返回预约详情（不包含敏感信息）
+    return NextResponse.json({
+      success: true,
+      data: {
+        id: appointment.id,
+        uuid: appointment.uuid,
+        customerName: appointment.customerName,
+        appointmentDate: appointment.appointmentDate,
+        appointmentTime: appointment.appointmentTime,
+        locale: appointment.locale,
+        durationMin: appointment.durationMin,
+      },
+    })
+  } catch (error) {
+    console.error('[RESCHEDULE_API] Error:', error)
+    return NextResponse.json(
+      { success: false, error: 'Internal server error' },
+      { status: 500 }
+    )
+  }
+}
+
+/**
+ * POST /api/appointment/reschedule/[token]
+ * 执行改约操作
+ */
+export async function POST(
+  request: NextRequest,
+  { params }: { params: { token: string } }
+) {
+  const token = params.token
+
+  try {
+    const body = await request.json()
+    const { newDate, newTime } = body
+
+    if (!newDate || !newTime) {
+      return NextResponse.json(
+        { success: false, error: 'Missing newDate or newTime' },
+        { status: 400 }
+      )
+    }
+
+    // 获取请求上下文
+    const headersList = await headers()
+    const ipAddress = headersList.get('x-forwarded-for') || headersList.get('x-real-ip') || 'unknown'
+    const userAgent = headersList.get('user-agent') || undefined
+
+    // 执行改约
+    const updated = await rescheduleAppointmentByToken(
+      token,
+      new Date(newDate),
+      newTime,
+      { ipAddress, userAgent }
+    )
+
+    // 发送通知邮件
+    if (updated.customerEmail) {
+      await sendRescheduleNotificationEmail({
+        customerName: updated.customerName,
+        customerEmail: updated.customerEmail,
+        appointmentDate: updated.appointmentDate,
+        appointmentTime: newTime,
+        service: updated.service,
+        locale: updated.locale,
+        oldDate: updated.appointmentDate,
+        oldTime: newTime,
+        rescheduleToken: undefined,
+      })
+    }
+
+    return NextResponse.json({
+      success: true,
+      message: 'Appointment rescheduled successfully',
+    })
+  } catch (error: any) {
+    console.error('[RESCHEDULE_API] Error:', error)
+    return NextResponse.json(
+      { success: false, error: error.message || 'Internal server error' },
+      { status: 500 }
+    )
+  }
+}

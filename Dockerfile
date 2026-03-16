@@ -9,6 +9,7 @@ FROM node:20-bullseye-slim AS build
 WORKDIR /app
 COPY --from=deps /app/node_modules ./node_modules
 COPY --from=deps /app/prisma ./prisma
+ENV DATABASE_URL="mysql://user:password@localhost:3306/db" 
 COPY . .
 RUN npm run build
 
