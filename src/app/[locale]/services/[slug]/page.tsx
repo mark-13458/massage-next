@@ -3,6 +3,7 @@ import { notFound } from 'next/navigation'
 import Link from 'next/link'
 import { SiteHeader } from '../../../../components/site/SiteHeader'
 import { SiteFooter } from '../../../../components/site/SiteFooter'
+import { ServiceCard } from '../../../../components/site/ServiceCard'
 import { isLocale, Locale } from '../../../../lib/i18n'
 import { createPageMetadata } from '../../../../lib/seo'
 import { getSystemSettings } from '../../../../server/services/site.service'
@@ -16,7 +17,25 @@ async function getService(slug: string) {
   })
 }
 
+async function getRelatedServices(slug: string, locale: string) {
+  const services = await prisma.service.findMany({
+    where: { isActive: true, slug: { not: slug } },
+    orderBy: [{ isFeatured: 'desc' }, { sortOrder: 'asc' }],
+    take: 3,
+  })
+  return services.map((s) => ({
+    id: s.id,
+    slug: s.slug,
+    name: locale === 'de' ? s.nameDe : s.nameEn,
+    summary: locale === 'de' ? s.summaryDe : s.summaryEn,
+    durationMin: s.durationMin,
+    price: s.price.toString(),
+    isFeatured: s.isFeatured,
+  }))
+}
+
 export const dynamicParams = true
+
 
 export async function generateStaticParams() {
   try {
@@ -62,9 +81,10 @@ export default async function ServiceDetailPage({ params }: Props) {
   if (!isLocale(locale)) notFound()
 
   const typedLocale = locale as Locale
-  const [service, settings] = await Promise.all([
+  const [service, settings, relatedServices] = await Promise.all([
     getService(slug),
     getSystemSettings().catch(() => null),
+    getRelatedServices(slug, locale).catch(() => []),
   ])
 
   if (!service) notFound()
@@ -150,6 +170,34 @@ export default async function ServiceDetailPage({ params }: Props) {
           </div>
         </div>
       </section>
+
+      {relatedServices.length > 0 && (
+        <section className="py-12 sm:py-16">
+          <div className="mx-auto max-w-6xl px-4 sm:px-6 lg:px-8">
+            <p className="text-xs uppercase tracking-[0.26em] text-brown-500">
+              {typedLocale === 'de' ? 'Weitere Behandlungen' : 'More treatments'}
+            </p>
+            <h2 className="mt-3 text-2xl font-semibold text-brown-900">
+              {typedLocale === 'de' ? 'Das könnte Sie auch interessieren' : 'You might also like'}
+            </h2>
+            <div className="mt-8 grid gap-6 md:grid-cols-3">
+              {relatedServices.map((s) => (
+                <ServiceCard
+                  key={s.id}
+                  name={s.name}
+                  summary={s.summary}
+                  durationMin={s.durationMin}
+                  price={s.price}
+                  featured={s.isFeatured}
+                  currency={currency}
+                  locale={typedLocale}
+                  slug={s.slug}
+                />
+              ))}
+            </div>
+          </div>
+        </section>
+      )}
 
       <SiteFooter locale={typedLocale} />
     </main>

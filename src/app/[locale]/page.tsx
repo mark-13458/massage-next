@@ -85,6 +85,7 @@ export default async function LocaleHome({ params }: { params: Promise<{ locale:
       <SiteHeader locale={typedLocale} />
       <HeroSection locale={typedLocale} />
 
+      {/* Services */}
       <SectionShell
         eyebrow={typedLocale === 'de' ? 'Ausgewählte Behandlungen' : 'Selected services'}
         title={t.sections.featuredServices}
@@ -108,22 +109,55 @@ export default async function LocaleHome({ params }: { params: Promise<{ locale:
               slug={service.slug}
             />
           ))}
+          {services.length === 0 && (
+            <div className="col-span-full rounded-[2rem] border border-stone-200 bg-white p-10 text-center shadow-soft">
+              <p className="text-sm text-brown-600">
+                {typedLocale === 'de'
+                  ? 'Behandlungen werden in Kürze veröffentlicht.'
+                  : 'Treatments will be published shortly.'}
+              </p>
+              <Link
+                href={`/${typedLocale}/contact`}
+                className="mt-4 inline-flex rounded-full border border-brown-300 px-5 py-2.5 text-sm font-medium text-brown-800 transition hover:border-brown-500"
+              >
+                {typedLocale === 'de' ? 'Jetzt anfragen' : 'Get in touch'}
+              </Link>
+            </div>
+          )}
         </div>
+        {services.length > 0 && (
+          <div className="mt-8 text-center">
+            <Link
+              href={`/${typedLocale}/services`}
+              className="inline-flex rounded-full border border-brown-300 bg-white px-5 py-3 text-sm font-medium text-brown-800 transition hover:border-brown-500"
+            >
+              {typedLocale === 'de' ? 'Alle Behandlungen ansehen' : 'View all treatments'}
+            </Link>
+          </div>
+        )}
       </SectionShell>
 
+      {/* Gallery preview */}
       <SectionShell
         eyebrow={typedLocale === 'de' ? 'Studio & Atmosphäre' : 'Studio atmosphere'}
         title={typedLocale === 'de' ? 'Der erste Eindruck beginnt mit dem Raumgefühl' : 'The first impression begins with the atmosphere'}
         description={
           typedLocale === 'de'
-            ? 'Das Studio soll Wärme, Ruhe und Vertrauen ausstrahlen – nicht nur Leistungen auflisten.'
-            : 'The studio should communicate warmth, calm and trust, not just list treatments.'
+            ? 'Wärme, Ruhe und Vertrauen – das Studio ist ein Ort, an dem Gäste sich sofort wohlfühlen sollen.'
+            : 'Warmth, calm and trust – the studio is designed to make guests feel at ease from the very first moment.'
         }
       >
         <div className="grid gap-5 md:grid-cols-3">
           {homeGallery.map((image, index) => (
-            <div key={image} className={`overflow-hidden rounded-[2rem] border border-stone-200 bg-white shadow-soft ${index === 1 ? 'md:translate-y-8' : ''}`}>
-              <img src={image} alt="Studio gallery preview" className="aspect-[4/5] w-full object-cover" />
+            <div
+              key={image}
+              className={`overflow-hidden rounded-[2rem] border border-stone-200 bg-white shadow-soft ${index === 1 ? 'md:translate-y-8' : ''}`}
+            >
+              <img
+                src={image}
+                alt={typedLocale === 'de' ? 'Studio-Atmosphäre' : 'Studio atmosphere'}
+                className="aspect-[4/5] w-full object-cover"
+              />
             </div>
           ))}
         </div>
@@ -137,6 +171,7 @@ export default async function LocaleHome({ params }: { params: Promise<{ locale:
         </div>
       </SectionShell>
 
+      {/* Testimonials */}
       <SectionShell
         eyebrow={typedLocale === 'de' ? 'Gästestimmen' : 'Guest feedback'}
         title={t.sections.testimonials}
@@ -152,46 +187,93 @@ export default async function LocaleHome({ params }: { params: Promise<{ locale:
               {item.rating != null && item.rating > 0 && (
                 <div className="mb-3 flex gap-0.5">
                   {Array.from({ length: 5 }).map((_, i) => (
-                    <span key={i} className={i < item.rating! ? 'text-amber-400' : 'text-stone-200'}>★</span>
+                    <span key={i} className={i < item.rating! ? 'text-amber-400' : 'text-stone-200'}>
+                      {'★'}
+                    </span>
                   ))}
                 </div>
               )}
-              <p className="text-base leading-7 text-brown-800">“{item.content}”</p>
-              <p className="mt-4 text-sm font-semibold text-brown-600">— {item.customerName}</p>
+              <p className="text-base leading-7 text-brown-800">{'"'}{item.content}{'"'}</p>
+              <p className="mt-4 text-sm font-semibold text-brown-600">{'— '}{item.customerName}</p>
             </article>
           ))}
+          {testimonials.length === 0 && (
+            <div className="col-span-full rounded-[2rem] border border-stone-200 bg-white p-10 text-center shadow-soft">
+              <div className="mb-3 flex justify-center gap-0.5">
+                {Array.from({ length: 5 }).map((_, i) => (
+                  <span key={i} className="text-amber-400">{'★'}</span>
+                ))}
+              </div>
+              <p className="text-sm text-brown-600">
+                {typedLocale === 'de'
+                  ? 'Gästestimmen werden in Kürze veröffentlicht. Wir freuen uns auf Ihren Besuch.'
+                  : 'Guest reviews will be published shortly. We look forward to welcoming you.'}
+              </p>
+            </div>
+          )}
         </div>
       </SectionShell>
 
+      {/* Hours & Contact */}
       <SectionShell
         eyebrow={typedLocale === 'de' ? 'Öffnungszeiten & Kontakt' : 'Hours & contact'}
-        title={typedLocale === 'de' ? 'Alle wichtigen Infos für Ihren Besuch' : 'Clear visit and booking information'}
+        title={typedLocale === 'de' ? 'Alle wichtigen Infos für Ihren Besuch' : 'Everything you need to plan your visit'}
         description={
           typedLocale === 'de'
-            ? 'Öffnungszeiten und Kontaktinfos direkt auf der Startseite helfen Gästen, schneller eine Entscheidung zu treffen.'
-            : 'Showing opening hours and contact details directly on the homepage reduces friction for potential guests.'
+            ? 'Öffnungszeiten und Kontaktinfos direkt auf der Startseite – damit Gäste schnell eine Entscheidung treffen können.'
+            : 'Opening hours and contact details right on the homepage – so guests can decide quickly and easily.'
         }
       >
         <div className="grid gap-6 lg:grid-cols-[1.1fr_0.9fr]">
           <article className="rounded-[2rem] border border-stone-200 bg-white p-6 shadow-soft sm:p-8">
-            <h3 className="text-2xl font-semibold text-brown-900">{typedLocale === 'de' ? 'Öffnungszeiten' : 'Opening hours'}</h3>
+            <h3 className="text-2xl font-semibold text-brown-900">
+              {typedLocale === 'de' ? 'Öffnungszeiten' : 'Opening hours'}
+            </h3>
             <div className="mt-5 divide-y divide-stone-100">
-              {hours.map((item) => (
+              {hours.length > 0 ? hours.map((item) => (
                 <div key={item.weekday} className="flex items-center justify-between py-3 text-sm text-brown-700">
                   <span className="font-medium text-brown-900">{item.label}</span>
                   <span>{item.isClosed ? (typedLocale === 'de' ? 'Geschlossen' : 'Closed') : `${item.openTime} – ${item.closeTime}`}</span>
                 </div>
-              ))}
+              )) : (
+                <p className="py-4 text-sm text-brown-600">
+                  {typedLocale === 'de' ? 'Mo–Sa 09:30–20:00 · So nach Vereinbarung' : 'Mon–Sat 09:30–20:00 · Sun by arrangement'}
+                </p>
+              )}
             </div>
           </article>
 
           <article className="rounded-[2rem] border border-stone-200 bg-stone-950 p-6 text-stone-100 shadow-soft sm:p-8">
-            <h3 className="text-2xl font-semibold text-white">{typedLocale === 'de' ? 'Kontakt' : 'Contact'}</h3>
+            <h3 className="text-2xl font-semibold text-white">
+              {typedLocale === 'de' ? 'Kontakt' : 'Contact'}
+            </h3>
             <div className="mt-5 space-y-4 text-sm leading-7 text-stone-300">
-              <p><span className="font-semibold text-white">{typedLocale === 'de' ? 'Adresse' : 'Address'}:</span> {contact?.address ?? 'Arnulfstraße 104, 80636 München'}</p>
-              <p><span className="font-semibold text-white">{typedLocale === 'de' ? 'Telefon' : 'Phone'}:</span> <a href={`tel:${contact?.phone ?? '015563 188800'}`} className="hover:text-white transition">{contact?.phone ?? '015563 188800'}</a></p>
-              <p><span className="font-semibold text-white">E-Mail:</span> <a href={`mailto:${contact?.email ?? 'chinesischemassage8@gmail.com'}`} className="hover:text-white transition">{contact?.email ?? 'chinesischemassage8@gmail.com'}</a></p>
-              <p><span className="font-semibold text-white">{typedLocale === 'de' ? 'Währung' : 'Currency'}:</span> {settings?.currency || 'EUR'}</p>
+              <p>
+                <span className="font-semibold text-white">{typedLocale === 'de' ? 'Adresse' : 'Address'}:</span>{' '}
+                {contact?.address ?? 'Arnulfstraße 104, 80636 München'}
+              </p>
+              <p>
+                <span className="font-semibold text-white">{typedLocale === 'de' ? 'Telefon' : 'Phone'}:</span>{' '}
+                <a
+                  href={`tel:${(contact?.phone ?? '015563188800').replace(/\s/g, '')}`}
+                  className="hover:text-white transition"
+                >
+                  {contact?.phone ?? '015563 188800'}
+                </a>
+              </p>
+              <p>
+                <span className="font-semibold text-white">E-Mail:</span>{' '}
+                <a
+                  href={`mailto:${contact?.email ?? 'chinesischemassage8@gmail.com'}`}
+                  className="hover:text-white transition"
+                >
+                  {contact?.email ?? 'chinesischemassage8@gmail.com'}
+                </a>
+              </p>
+              <p>
+                <span className="font-semibold text-white">{typedLocale === 'de' ? 'Sprachen' : 'Languages'}:</span>{' '}
+                {typedLocale === 'de' ? 'Deutsch · Englisch · Chinesisch' : 'German · English · Chinese'}
+              </p>
             </div>
             <div className="mt-6">
               <Link
@@ -205,6 +287,7 @@ export default async function LocaleHome({ params }: { params: Promise<{ locale:
         </div>
       </SectionShell>
 
+      {/* FAQ */}
       <SectionShell
         eyebrow={typedLocale === 'de' ? 'Häufige Fragen' : 'Common questions'}
         title={t.sections.faq}
@@ -221,6 +304,18 @@ export default async function LocaleHome({ params }: { params: Promise<{ locale:
               <p className="mt-3 text-sm leading-7 text-brown-700">{faq.answer}</p>
             </article>
           ))}
+          {faqs.length === 0 && (
+            <div className="col-span-full rounded-[2rem] border border-stone-200 bg-white p-8 shadow-soft">
+              <h3 className="text-lg font-semibold text-brown-900">
+                {typedLocale === 'de' ? 'Wie läuft eine Terminanfrage ab?' : 'How does the booking request work?'}
+              </h3>
+              <p className="mt-3 text-sm leading-7 text-brown-700">
+                {typedLocale === 'de'
+                  ? 'Füllen Sie das Formular auf der Buchungsseite aus und wählen Sie Ihre Wunschbehandlung. Das Studio meldet sich zur Bestätigung der Verfügbarkeit.'
+                  : 'Fill in the form on the booking page and select your preferred treatment. The studio will follow up to confirm availability.'}
+              </p>
+            </div>
+          )}
         </div>
       </SectionShell>
 

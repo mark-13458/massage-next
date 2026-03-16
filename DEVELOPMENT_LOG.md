@@ -357,7 +357,19 @@
 ### 未完成（优先级排序）
 1. **P3** 测试环境 smoke test → 生产上线联调
 
-## Phase 39 — 前台细节完善 + 结构化数据（2026-03-16）
+## Phase 40 — 前台页面完善 + UI 美化 + Fallback 内容（2026-03-16）
+
+- `gallery/page.tsx`：补缺失的 `Link` import（修复潜在构建错误）
+- `page.tsx`（首页）：联系区块移除"Währung"字段，改为"Sprachen"（语言支持），更有实用价值
+- `page.tsx`（首页）：服务区块补 fallback（数据库空时显示提示 + 联系链接）；补"查看全部"按钮
+- `page.tsx`（首页）：评价区块补 fallback（数据库空时显示占位星级 + 提示文案）
+- `page.tsx`（首页）：FAQ 区块补 fallback（数据库空时显示默认 Q&A）
+- `page.tsx`（首页）：营业时间区块补 fallback（数据库空时显示默认时间文案）
+- `page.tsx`（首页）：图库区块 alt 文案改为双语语义化描述
+- `contact/page.tsx`：补 `Link` import；地图区块后新增预约 CTA 区块（深色背景，与其他页面风格对齐）
+- `services/[slug]/page.tsx`：新增 `getRelatedServices()` 函数；详情页底部新增"相关服务"推荐区块（最多 3 条，优先精选服务）；引入 `ServiceCard` 组件
+
+- `npm run build` 验证通过 ✅
 
 - `contact/page.tsx`：修正 Google Maps embed URL，使用正确的慕尼黑 Arnulfstraße 104 坐标参数
 - `gallery/page.tsx`：图库页底部新增预约 CTA 区块（深色背景，与服务页风格对齐）

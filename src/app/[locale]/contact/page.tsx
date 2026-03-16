@@ -1,4 +1,5 @@
 import type { Metadata } from 'next'
+import Link from 'next/link'
 import { notFound } from 'next/navigation'
 import { SiteHeader } from '../../../components/site/SiteHeader'
 import { SiteFooter } from '../../../components/site/SiteFooter'
@@ -149,6 +150,27 @@ export default async function ContactPage({ params }: { params: Promise<{ locale
               loading="lazy"
               referrerPolicy="no-referrer-when-downgrade"
             />
+          </div>
+        </div>
+      </section>
+
+      <section className="py-12">
+        <div className="mx-auto max-w-6xl px-4 sm:px-6 lg:px-8">
+          <div className="rounded-[2rem] border border-stone-200 bg-stone-950 p-8 text-center shadow-soft">
+            <p className="text-lg font-semibold text-white">
+              {typedLocale === 'de' ? 'Bereit für Ihren Termin?' : 'Ready to book your appointment?'}
+            </p>
+            <p className="mt-2 text-sm text-stone-300">
+              {typedLocale === 'de'
+                ? 'Fragen Sie Ihren Wunschtermin online an – das Studio bestätigt die Verfügbarkeit.'
+                : 'Request your preferred slot online – the studio will confirm availability.'}
+            </p>
+            <Link
+              href={`/${typedLocale}/booking`}
+              className="mt-6 inline-flex rounded-full bg-white px-6 py-3 text-sm font-semibold text-brown-900 transition hover:bg-stone-100"
+            >
+              {typedLocale === 'de' ? 'Termin anfragen' : 'Request appointment'}
+            </Link>
           </div>
         </div>
       </section>
