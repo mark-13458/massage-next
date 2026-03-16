@@ -491,6 +491,22 @@
 
 - `npm run build` 验证通过 ✅
 
+## Phase 49 — 安全加固续（2026-03-17）
+
+**审查范围**：全部管理员 API 错误泄露、上传目录路径、params 类型规范
+
+**修复 1：上传目录路径不一致**
+- `api/admin/upload/route.ts`：`uploadDir` 从 `path.join(process.cwd(), 'public', 'uploads')` 改为读取 `env.uploadDir`（即 `UPLOAD_DIR` 环境变量），与 Docker 挂载卷配置保持一致
+
+**修复 2：管理员 API 错误信息泄露（批量）**
+- `api/admin/settings/route.ts`：catch 块改为统一返回 "Internal server error"
+- `api/admin/services/route.ts`：同上
+- `api/admin/services/[id]/route.ts`：PATCH + DELETE 两个 handler 均修复；同时 params 类型改为 `Promise<{ id: string }>` 并 `await params`
+- `api/admin/content/route.ts`：同上；移除未使用的 `import path from 'path'`
+- `api/admin/gallery/[id]/route.ts`：同上；params 类型改为 `Promise<{ id: string }>` 并 `await params`
+
+- `npm run build` 验证通过 ✅
+
 ## Phase 48 — 安全加固（2026-03-17）
 
 **审查范围**：管理员 API 错误泄露、安全响应头、数据库索引、并发竞态、客户端输入校验

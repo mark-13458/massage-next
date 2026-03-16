@@ -6,6 +6,7 @@ import { NextRequest } from 'next/server'
 import { apiError, apiOk } from '../../../../lib/api-response'
 import { getCurrentAdmin } from '../../../../lib/auth'
 import { prisma } from '../../../../lib/prisma'
+import { env } from '../../../../lib/env'
 
 const MAX_FILE_SIZE = 10 * 1024 * 1024
 const ALLOWED_IMAGE_TYPES = new Set(['image/jpeg', 'image/png', 'image/webp', 'image/gif'])
@@ -112,7 +113,7 @@ export async function POST(request: NextRequest) {
       )
     }
 
-    const uploadDir = path.join(process.cwd(), 'public', 'uploads')
+    const uploadDir = env.uploadDir
     await mkdir(uploadDir, { recursive: true })
 
     const storedFilename = `${randomUUID()}${extension}`

@@ -5,7 +5,7 @@ import { getCurrentAdmin } from '../../../../../lib/auth'
 import { prisma } from '../../../../../lib/prisma'
 import { CACHE_TAGS } from '../../../../../server/services/site.service'
 
-export async function PATCH(request: NextRequest, { params }: { params: { id: string } }) {
+export async function PATCH(request: NextRequest, { params }: { params: Promise<{ id: string }> }) {
   if (!process.env.DATABASE_URL) {
     return apiError('DATABASE_URL is not configured', 500)
   }
@@ -16,7 +16,8 @@ export async function PATCH(request: NextRequest, { params }: { params: { id: st
   }
 
   try {
-    const id = Number(params.id)
+    const { id: idStr } = await params
+    const id = Number(idStr)
     const json = await request.json()
 
     if (!Number.isFinite(id)) {
@@ -62,6 +63,7 @@ export async function PATCH(request: NextRequest, { params }: { params: { id: st
       },
     })
   } catch (error) {
-    return apiError(error instanceof Error ? error.message : 'Unknown error', 500)
+    console.error('[admin/gallery] unexpected error:', error)
+    return apiError('Internal server error', 500)
   }
 }

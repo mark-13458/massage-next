@@ -1,4 +1,3 @@
-import path from 'path'
 import { revalidateTag } from 'next/cache'
 import { NextRequest } from 'next/server'
 import { apiError, apiOk } from '../../../../lib/api-response'
@@ -174,6 +173,7 @@ export async function PATCH(request: NextRequest) {
 
     return apiOk()
   } catch (error) {
-    return apiError(error instanceof Error ? error.message : 'Unknown error', 500)
+    console.error('[admin/content] unexpected error:', error)
+    return apiError('Internal server error', 500)
   }
 }

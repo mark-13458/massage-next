@@ -39,6 +39,7 @@ export async function POST(request: NextRequest) {
 
     return apiOk({ item })
   } catch (error) {
-    return apiError(error instanceof Error ? error.message : 'Unknown error', 500)
+    console.error('[admin/services] POST unexpected error:', error)
+    return apiError('Internal server error', 500)
   }
 }
