@@ -1,6 +1,8 @@
+import { revalidateTag } from 'next/cache'
 import { apiError, apiOk } from '../../../../../lib/api-response'
 import { getCurrentAdmin } from '../../../../../lib/auth'
 import { updateTestimonial, deleteTestimonial } from '../../../../../server/services/admin-testimonial.service'
+import { CACHE_TAGS } from '../../../../../server/services/site.service'
 
 export const dynamic = 'force-dynamic'
 
@@ -23,6 +25,7 @@ export async function PATCH(req: Request, { params }: { params: Promise<{ id: st
       ...(sortOrder !== undefined ? { sortOrder: Number(sortOrder) || 0 } : {}),
       ...(isPublished !== undefined ? { isPublished: Boolean(isPublished) } : {}),
     })
+    revalidateTag(CACHE_TAGS.testimonials)
     return apiOk({ item })
   } catch {
     return apiError('Failed to update testimonial', 500)
@@ -39,6 +42,7 @@ export async function DELETE(_req: Request, { params }: { params: Promise<{ id: 
 
   try {
     await deleteTestimonial(id)
+    revalidateTag(CACHE_TAGS.testimonials)
     return apiOk({ deleted: true })
   } catch {
     return apiError('Failed to delete testimonial', 500)

@@ -1,9 +1,11 @@
 import path from 'path'
+import { revalidateTag } from 'next/cache'
 import { NextRequest } from 'next/server'
 import { apiError, apiOk } from '../../../../lib/api-response'
 import { getCurrentAdmin } from '../../../../lib/auth'
 import { prisma } from '../../../../lib/prisma'
 import { deleteUpload } from '../../../../lib/uploads'
+import { CACHE_TAGS } from '../../../../server/services/site.service'
 
 export async function PATCH(request: NextRequest) {
   if (!process.env.DATABASE_URL) {
@@ -163,6 +165,12 @@ export async function PATCH(request: NextRequest) {
         })
       }
     }
+
+    if (hasContactPayload) revalidateTag(CACHE_TAGS.contact)
+    if (hasHeroPayload) revalidateTag(CACHE_TAGS.hero)
+    if (hours.length > 0) revalidateTag(CACHE_TAGS.hours)
+    if (faqs.length > 0) revalidateTag(CACHE_TAGS.faqs)
+    if (hasGalleryPayload) revalidateTag(CACHE_TAGS.gallery)
 
     return apiOk()
   } catch (error) {

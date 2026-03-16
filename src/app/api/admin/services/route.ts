@@ -1,7 +1,9 @@
+import { revalidateTag } from 'next/cache'
 import { NextRequest } from 'next/server'
 import { apiError, apiOk } from '../../../../lib/api-response'
 import { getCurrentAdmin } from '../../../../lib/auth'
 import { prisma } from '../../../../lib/prisma'
+import { CACHE_TAGS } from '../../../../server/services/site.service'
 
 export async function POST(request: NextRequest) {
   if (!process.env.DATABASE_URL) {
@@ -32,6 +34,8 @@ export async function POST(request: NextRequest) {
         isActive: typeof json.isActive === 'boolean' ? json.isActive : true,
       },
     })
+
+    revalidateTag(CACHE_TAGS.services)
 
     return apiOk({ item })
   } catch (error) {

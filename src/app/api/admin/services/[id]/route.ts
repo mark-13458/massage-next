@@ -1,7 +1,9 @@
+import { revalidateTag } from 'next/cache'
 import { NextRequest } from 'next/server'
 import { apiError, apiOk } from '../../../../../lib/api-response'
 import { getCurrentAdmin } from '../../../../../lib/auth'
 import { prisma } from '../../../../../lib/prisma'
+import { CACHE_TAGS } from '../../../../../server/services/site.service'
 
 export async function PATCH(request: NextRequest, { params }: { params: { id: string } }) {
   if (!process.env.DATABASE_URL) {
@@ -39,6 +41,8 @@ export async function PATCH(request: NextRequest, { params }: { params: { id: st
       },
     })
 
+    revalidateTag(CACHE_TAGS.services)
+
     return apiOk({ item })
   } catch (error) {
     return apiError(error instanceof Error ? error.message : 'Unknown error', 500)
@@ -68,6 +72,7 @@ export async function DELETE(_: NextRequest, { params }: { params: { id: string 
     }
 
     await prisma.service.delete({ where: { id } })
+    revalidateTag(CACHE_TAGS.services)
     return apiOk()
   } catch (error) {
     return apiError(error instanceof Error ? error.message : 'Unknown error', 500)

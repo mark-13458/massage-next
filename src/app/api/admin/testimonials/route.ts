@@ -1,6 +1,8 @@
+import { revalidateTag } from 'next/cache'
 import { apiError, apiOk } from '../../../../lib/api-response'
 import { getCurrentAdmin } from '../../../../lib/auth'
 import { getAdminTestimonials, createTestimonial } from '../../../../server/services/admin-testimonial.service'
+import { CACHE_TAGS } from '../../../../server/services/site.service'
 
 export const dynamic = 'force-dynamic'
 
@@ -29,6 +31,7 @@ export async function POST(req: Request) {
       sortOrder: Number(sortOrder) || 0,
       isPublished: isPublished !== false,
     })
+    revalidateTag(CACHE_TAGS.testimonials)
     return apiOk({ item })
   } catch {
     return apiError('Failed to create testimonial', 500)

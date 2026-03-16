@@ -491,7 +491,27 @@
 
 - `npm run build` 验证通过 ✅
 
-## Phase 45 — 功能逻辑全面审查 + Bug 修复（2026-03-16）
+## Phase 46 — unstable_cache 缓存优化 + revalidateTag（2026-03-16）
+
+**缓存策略**：不引入 Redis（本地按摩店日访问量几十到几百次，无高并发场景，Redis 性价比极低）。改用 Next.js 内置 `unstable_cache`，零依赖，直接解决每次 SSR 打多个并行 DB 查询的问题。
+
+**site.service.ts 重写**
+- `getActiveServices`、`getPublishedTestimonials`、`getActiveFaqs`、`getBusinessHours`、`getContactSettings`、`getHeroSettings`、`getActiveGallery` 全部改为 `unstable_cache` 包装，TTL 5 分钟 + tag-based revalidation
+- 新增 `CACHE_TAGS` 常量导出，供管理员写操作时 revalidate 使用
+- `getSystemSettings` 保留 React `cache()`（同一请求内去重，不需要跨请求缓存）
+
+**管理员写操作补 revalidateTag**
+- `PATCH /api/admin/content` → revalidate contact / hero / hours / faqs / gallery（按实际 payload 选择性 revalidate）
+- `PATCH /api/admin/settings` → revalidate settings
+- `POST /api/admin/services` → revalidate services
+- `PATCH/DELETE /api/admin/services/[id]` → revalidate services
+- `POST /api/admin/testimonials` → revalidate testimonials
+- `PATCH/DELETE /api/admin/testimonials/[id]` → revalidate testimonials
+- `PATCH /api/admin/gallery/[id]` → revalidate gallery
+
+- `npm run build` 验证通过 ✅
+
+
 
 **审查范围**：预约管理 token 链路、改约/取消 API、邮件通知、客户侧页面、repository 层
 

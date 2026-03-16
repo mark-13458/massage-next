@@ -1,118 +1,159 @@
 import { cache } from 'react'
+import { unstable_cache } from 'next/cache'
 import { prisma } from '../../lib/prisma'
 import { Locale } from '../../lib/i18n'
 
-export async function getActiveServices(locale: Locale) {
-  const services = await prisma.service.findMany({
-    where: { isActive: true },
-    orderBy: [{ sortOrder: 'asc' }, { createdAt: 'asc' }],
-  })
+// 缓存 tag 常量，供管理员写操作时 revalidate 使用
+export const CACHE_TAGS = {
+  services: 'site-services',
+  testimonials: 'site-testimonials',
+  faqs: 'site-faqs',
+  hours: 'site-hours',
+  contact: 'site-contact',
+  hero: 'site-hero',
+  gallery: 'site-gallery',
+  settings: 'site-settings',
+} as const
 
-  return services.map((service) => ({
-    id: service.id,
-    slug: service.slug,
-    name: locale === 'de' ? service.nameDe : service.nameEn,
-    summary: locale === 'de' ? service.summaryDe : service.summaryEn,
-    description: locale === 'de' ? service.descriptionDe : service.descriptionEn,
-    durationMin: service.durationMin,
-    price: service.price,
-    isFeatured: service.isFeatured,
-  }))
-}
+export const getActiveServices = unstable_cache(
+  async function getActiveServices(locale: Locale) {
+    const services = await prisma.service.findMany({
+      where: { isActive: true },
+      orderBy: [{ sortOrder: 'asc' }, { createdAt: 'asc' }],
+    })
 
-export async function getPublishedTestimonials(locale: Locale) {
-  return prisma.testimonial.findMany({
-    where: { isPublished: true, locale },
-    orderBy: [{ sortOrder: 'asc' }, { createdAt: 'desc' }],
-    take: 3,
-  })
-}
+    return services.map((service) => ({
+      id: service.id,
+      slug: service.slug,
+      name: locale === 'de' ? service.nameDe : service.nameEn,
+      summary: locale === 'de' ? service.summaryDe : service.summaryEn,
+      description: locale === 'de' ? service.descriptionDe : service.descriptionEn,
+      durationMin: service.durationMin,
+      price: service.price,
+      isFeatured: service.isFeatured,
+    }))
+  },
+  ['site-services'],
+  { revalidate: 300, tags: [CACHE_TAGS.services] }
+)
 
-export async function getActiveFaqs(locale: Locale) {
-  const items = await prisma.faqItem.findMany({
-    where: { isActive: true },
-    orderBy: [{ sortOrder: 'asc' }, { createdAt: 'asc' }],
-  })
+export const getPublishedTestimonials = unstable_cache(
+  async function getPublishedTestimonials(locale: Locale) {
+    return prisma.testimonial.findMany({
+      where: { isPublished: true, locale },
+      orderBy: [{ sortOrder: 'asc' }, { createdAt: 'desc' }],
+      take: 3,
+    })
+  },
+  ['site-testimonials'],
+  { revalidate: 300, tags: [CACHE_TAGS.testimonials] }
+)
 
-  return items.map((item) => ({
-    id: item.id,
-    question: locale === 'de' ? item.questionDe : item.questionEn,
-    answer: locale === 'de' ? item.answerDe : item.answerEn,
-  }))
-}
+export const getActiveFaqs = unstable_cache(
+  async function getActiveFaqs(locale: Locale) {
+    const items = await prisma.faqItem.findMany({
+      where: { isActive: true },
+      orderBy: [{ sortOrder: 'asc' }, { createdAt: 'asc' }],
+    })
 
-export async function getBusinessHours(locale: Locale) {
-  const items = await prisma.businessHour.findMany({
-    orderBy: [{ weekday: 'asc' }],
-  })
+    return items.map((item) => ({
+      id: item.id,
+      question: locale === 'de' ? item.questionDe : item.questionEn,
+      answer: locale === 'de' ? item.answerDe : item.answerEn,
+    }))
+  },
+  ['site-faqs'],
+  { revalidate: 300, tags: [CACHE_TAGS.faqs] }
+)
 
-  return items.map((item) => ({
-    weekday: item.weekday,
-    label: locale === 'de' ? item.dayLabelDe : item.dayLabelEn,
-    openTime: item.openTime,
-    closeTime: item.closeTime,
-    isClosed: item.isClosed,
-  }))
-}
+export const getBusinessHours = unstable_cache(
+  async function getBusinessHours(locale: Locale) {
+    const items = await prisma.businessHour.findMany({
+      orderBy: [{ weekday: 'asc' }],
+    })
 
-export async function getContactSettings() {
-  const setting = await prisma.siteSetting.findUnique({
-    where: { key: 'contact' },
-  })
+    return items.map((item) => ({
+      weekday: item.weekday,
+      label: locale === 'de' ? item.dayLabelDe : item.dayLabelEn,
+      openTime: item.openTime,
+      closeTime: item.closeTime,
+      isClosed: item.isClosed,
+    }))
+  },
+  ['site-hours'],
+  { revalidate: 300, tags: [CACHE_TAGS.hours] }
+)
 
-  const value = setting?.value
+export const getContactSettings = unstable_cache(
+  async function getContactSettings() {
+    const setting = await prisma.siteSetting.findUnique({
+      where: { key: 'contact' },
+    })
 
-  if (!value || typeof value !== 'object' || Array.isArray(value)) {
-    return null
-  }
+    const value = setting?.value
 
-  const record = value as Record<string, unknown>
+    if (!value || typeof value !== 'object' || Array.isArray(value)) {
+      return null
+    }
 
-  return {
-    phone: typeof record.phone === 'string' ? record.phone : null,
-    email: typeof record.email === 'string' ? record.email : null,
-    address: typeof record.address === 'string' ? record.address : null,
-  }
-}
+    const record = value as Record<string, unknown>
 
-export async function getHeroSettings(locale: Locale) {
-  const setting = await prisma.siteSetting.findUnique({
-    where: { key: 'hero' },
-  })
+    return {
+      phone: typeof record.phone === 'string' ? record.phone : null,
+      email: typeof record.email === 'string' ? record.email : null,
+      address: typeof record.address === 'string' ? record.address : null,
+    }
+  },
+  ['site-contact'],
+  { revalidate: 300, tags: [CACHE_TAGS.contact] }
+)
 
-  const value = setting?.value
+export const getHeroSettings = unstable_cache(
+  async function getHeroSettings(locale: Locale) {
+    const setting = await prisma.siteSetting.findUnique({
+      where: { key: 'hero' },
+    })
 
-  if (!value || typeof value !== 'object' || Array.isArray(value)) {
-    return null
-  }
+    const value = setting?.value
 
-  const record = value as Record<string, unknown>
+    if (!value || typeof value !== 'object' || Array.isArray(value)) {
+      return null
+    }
 
-  return {
-    eyebrow: locale === 'de' ? record.eyebrowDe : record.eyebrowEn,
-    title: locale === 'de' ? record.titleDe : record.titleEn,
-    subtitle: locale === 'de' ? record.subtitleDe : record.subtitleEn,
-    note: locale === 'de' ? record.noteDe : record.noteEn,
-    imageUrl: typeof record.imageUrl === 'string' ? record.imageUrl : null,
-  }
-}
+    const record = value as Record<string, unknown>
 
-export async function getActiveGallery(locale: Locale) {
-  const items = await prisma.galleryImage.findMany({
-    where: { isActive: true, file: { isPublic: true } },
-    include: { file: true },
-    orderBy: [{ sortOrder: 'asc' }, { createdAt: 'asc' }],
-    take: 24,
-  })
+    return {
+      eyebrow: locale === 'de' ? record.eyebrowDe : record.eyebrowEn,
+      title: locale === 'de' ? record.titleDe : record.titleEn,
+      subtitle: locale === 'de' ? record.subtitleDe : record.subtitleEn,
+      note: locale === 'de' ? record.noteDe : record.noteEn,
+      imageUrl: typeof record.imageUrl === 'string' ? record.imageUrl : null,
+    }
+  },
+  ['site-hero'],
+  { revalidate: 300, tags: [CACHE_TAGS.hero] }
+)
 
-  return items.map((item) => ({
-    id: item.id,
-    title: locale === 'de' ? item.titleDe : item.titleEn,
-    alt: locale === 'de' ? item.altDe : item.altEn,
-    imageUrl: item.file.filePath,
-    isCover: item.isCover,
-  }))
-}
+export const getActiveGallery = unstable_cache(
+  async function getActiveGallery(locale: Locale) {
+    const items = await prisma.galleryImage.findMany({
+      where: { isActive: true, file: { isPublic: true } },
+      include: { file: true },
+      orderBy: [{ sortOrder: 'asc' }, { createdAt: 'asc' }],
+      take: 24,
+    })
+
+    return items.map((item) => ({
+      id: item.id,
+      title: locale === 'de' ? item.titleDe : item.titleEn,
+      alt: locale === 'de' ? item.altDe : item.altEn,
+      imageUrl: item.file.filePath,
+      isCover: item.isCover,
+    }))
+  },
+  ['site-gallery'],
+  { revalidate: 300, tags: [CACHE_TAGS.gallery] }
+)
 
 export const getSystemSettings = cache(async function getSystemSettings() {
   if (!process.env.DATABASE_URL) {

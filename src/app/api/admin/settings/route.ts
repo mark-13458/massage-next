@@ -1,7 +1,9 @@
+import { revalidateTag } from 'next/cache'
 import { NextRequest } from 'next/server'
 import { apiError, apiOk } from '../../../../lib/api-response'
 import { getCurrentAdmin } from '../../../../lib/auth'
 import { prisma } from '../../../../lib/prisma'
+import { CACHE_TAGS } from '../../../../server/services/site.service'
 
 export const dynamic = 'force-dynamic'
 export const revalidate = 0
@@ -79,6 +81,8 @@ export async function PATCH(request: NextRequest) {
       update: { value },
       create: { key: SETTINGS_KEY, value },
     })
+
+    revalidateTag(CACHE_TAGS.settings)
 
     return apiOk({ value })
   } catch (error) {
