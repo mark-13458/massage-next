@@ -1,3 +1,5 @@
+version: '3.8'
+
 services:
   mysql:
     image: mysql:8.0
@@ -18,6 +20,19 @@ services:
     volumes:
       - db_data:/var/lib/mysql
 
+  # 本地邮件测试工具 (开发环境可选)
+  mailhog:
+    image: mailhog/mailhog:latest
+    container_name: massage-mailhog
+    restart: unless-stopped
+    ports:
+      - "${MAILHOG_SMTP_PORT:-1025}:1025"  # SMTP 端口
+      - "${MAILHOG_WEB_PORT:-8025}:8025"   # Web UI 端口 (访问 http://localhost:8025)
+    environment:
+      MH_SMTP_BIND_ADDR: 0.0.0.0:1025
+      MH_API_BIND_ADDR: 0.0.0.0:8025
+      MH_UI_WEB_PATH: /
+
   web:
     build: .
     container_name: massage-web
@@ -35,12 +50,16 @@ services:
       ADMIN_PASSWORD: ${ADMIN_PASSWORD:-ChangeMe123!}
       ADMIN_NAME: ${ADMIN_NAME:-Admin}
       SESSION_SECRET: ${SESSION_SECRET:-change_me_to_a_long_random_secret}
-      SMTP_HOST: ${SMTP_HOST:-smtp.example.com}
-      SMTP_PORT: ${SMTP_PORT:-587}
+      # SMTP 配置（支持 Mailhog 或真实 SMTP）
+      # 开发环境：使用 Mailhog
+      SMTP_HOST: ${SMTP_HOST:-mailhog}
+      SMTP_PORT: ${SMTP_PORT:-1025}
       SMTP_SECURE: ${SMTP_SECURE:-false}
-      SMTP_USERNAME: ${SMTP_USERNAME:-user@example.com}
-      SMTP_PASSWORD: ${SMTP_PASSWORD:-password}
-      SMTP_FROM: ${SMTP_FROM:-no-reply@example.com}
+      SMTP_USER: ${SMTP_USER:-any}
+      SMTP_PASSWORD: ${SMTP_PASSWORD:-any}
+      # 生产环境：替换为真实 SMTP 服务
+      SMTP_FROM: ${SMTP_FROM:-noreply@massage-studio.de}
+      BUSINESS_NAME: ${BUSINESS_NAME:-Massage Studio}
       UPLOAD_DIR: ${UPLOAD_DIR:-/app/public/uploads}
     ports:
       - "${APP_PORT:-3002}:3000"
