@@ -1,0 +1,96 @@
+version: '3.8'
+
+services:
+  mysql:
+    image: mysql:8.0
+    container_name: massage-mysql-prod
+    restart: always
+    environment:
+      MYSQL_DATABASE: ${MYSQL_DATABASE:-massage_app}
+      MYSQL_USER: ${MYSQL_USER:-appuser}
+      MYSQL_PASSWORD: ${MYSQL_PASSWORD:-apppassword}
+      MYSQL_ROOT_PASSWORD: ${MYSQL_ROOT_PASSWORD:-rootpassword}
+    ports:
+      - "127.0.0.1:${MYSQL_PORT:-3307}:3306"  # 仅本地访问
+    healthcheck:
+      test: ["CMD", "mysqladmin", "ping", "-h", "localhost", "-u", "root", "-p${MYSQL_ROOT_PASSWORD:-rootpassword}"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+    volumes:
+      - db_data:/var/lib/mysql
+    logging:
+      driver: "json-file"
+      options:
+        max-size: "10m"
+        max-file: "3"
+
+  web:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: massage-web-prod
+    restart: always
+    depends_on:
+      mysql:
+        condition: service_healthy
+    environment:
+      NODE_ENV: production
+      HOSTNAME: 0.0.0.0
+      APP_URL: ${APP_URL:-http://localhost}
+      DEFAULT_LOCALE: ${DEFAULT_LOCALE:-de}
+      DATABASE_URL: ${DATABASE_URL:-mysql://appuser:apppassword@mysql:3306/massage_app}
+      ADMIN_EMAIL: ${ADMIN_EMAIL:-admin@example.com}
+      ADMIN_PASSWORD: ${ADMIN_PASSWORD:-ChangeMe123!}
+      ADMIN_NAME: ${ADMIN_NAME:-Admin}
+      SESSION_SECRET: ${SESSION_SECRET:-change_me_to_a_long_random_secret}
+      # SMTP 生产配置（必须设置）
+      SMTP_HOST: ${SMTP_HOST:-smtp.example.com}
+      SMTP_PORT: ${SMTP_PORT:-587}
+      SMTP_SECURE: ${SMTP_SECURE:-false}
+      SMTP_USER: ${SMTP_USER:-your-email@example.com}
+      SMTP_PASSWORD: ${SMTP_PASSWORD:-your-password}
+      SMTP_FROM: ${SMTP_FROM:-noreply@your-domain.com}
+      BUSINESS_NAME: ${BUSINESS_NAME:-Massage Studio}
+      UPLOAD_DIR: ${UPLOAD_DIR:-/app/public/uploads}
+    ports:
+      - "127.0.0.1:${APP_PORT:-3002}:3000"  # 仅本地访问（通过 Nginx 反向代理）
+    volumes:
+      - uploads_data:/app/public/uploads
+    healthcheck:
+      test: ["CMD", "node", "-e", "require('http').get('http://127.0.0.1:3000/api/healthz', (res) => process.exit(res.statusCode === 200 ? 0 : 1)).on('error', () => process.exit(1))"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 40s
+    logging:
+      driver: "json-file"
+      options:
+        max-size: "10m"
+        max-file: "3"
+
+  nginx:
+    image: nginx:alpine
+    container_name: massage-nginx-prod
+    restart: always
+    depends_on:
+      web:
+        condition: service_healthy
+    ports:
+      - "80:80"
+      - "443:443"
+    volumes:
+      - ./nginx/nginx.conf:/etc/nginx/nginx.conf:ro
+      - ./nginx/ssl:/etc/nginx/ssl:ro  # 自签证书或 Let's Encrypt 证书
+      - uploads_data:/var/www/uploads:ro
+    logging:
+      driver: "json-file"
+      options:
+        max-size: "10m"
+        max-file: "3"
+
+volumes:
+  db_data:
+    driver: local
+  uploads_data:
+    driver: local
