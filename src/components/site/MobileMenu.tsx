@@ -31,6 +31,9 @@ export function MobileMenu({ locale, navLinks, bookingLabel }: Props) {
     }
   }, [open])
 
+  const otherLocale = locale === 'de' ? 'en' : 'de'
+  const otherPath = pathname.replace(`/${locale}`, `/${otherLocale}`)
+
   return (
     <div className="md:hidden">
       <button
@@ -85,12 +88,18 @@ export function MobileMenu({ locale, navLinks, bookingLabel }: Props) {
               {link.label}
             </Link>
           ))}
-          <div className="mt-2 border-t border-stone-100 pt-3">
+          <div className="mt-2 border-t border-stone-100 pt-3 flex flex-col gap-2">
             <Link
               href={`/${locale}/booking`}
               className="block rounded-full bg-brown-800 px-4 py-3 text-center text-sm font-semibold text-white transition hover:bg-brown-700 active:bg-brown-900"
             >
               {bookingLabel}
+            </Link>
+            <Link
+              href={otherPath}
+              className="block rounded-full border border-stone-200 px-4 py-2.5 text-center text-sm font-medium text-brown-700 transition hover:border-brown-300 hover:text-brown-900"
+            >
+              {otherLocale === 'de' ? 'Deutsch' : 'English'}
             </Link>
           </div>
         </nav>

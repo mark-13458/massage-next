@@ -108,6 +108,18 @@ export default async function AboutPage({ params }: { params: Promise<{ locale: 
               <p className="mt-3 text-sm leading-7 text-brown-700">{faq.answer}</p>
             </article>
           ))}
+          {faqs.length === 0 && (
+            <div className="col-span-full rounded-3xl border border-stone-200 bg-white p-8 shadow-sm">
+              <h3 className="text-lg font-semibold text-brown-900">
+                {typedLocale === 'de' ? 'Wie läuft eine Behandlung ab?' : 'What does a treatment session look like?'}
+              </h3>
+              <p className="mt-3 text-sm leading-7 text-brown-700">
+                {typedLocale === 'de'
+                  ? 'Nach Ihrer Terminanfrage meldet sich das Studio zur Bestätigung. Bitte kommen Sie pünktlich und tragen Sie bequeme Kleidung. Die Behandlung wird individuell auf Ihre Bedürfnisse abgestimmt.'
+                  : 'After your booking request, the studio will confirm your appointment. Please arrive on time and wear comfortable clothing. The treatment will be tailored to your individual needs.'}
+              </p>
+            </div>
+          )}
         </div>
       </SectionShell>
 

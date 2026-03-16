@@ -1,7 +1,7 @@
 'use client'
 
 import Script from 'next/script'
-import { useEffect, useMemo, useState } from 'react'
+import { useEffect, useMemo, useRef, useState } from 'react'
 import { useSearchParams } from 'next/navigation'
 import { Locale } from '../../lib/i18n'
 
@@ -60,6 +60,7 @@ export function BookingForm({ locale, services, contact, hours = [], currency = 
   const [privacyConsent, setPrivacyConsent] = useState(false)
   const [widgetReady, setWidgetReady] = useState(false)
   const [widgetId, setWidgetId] = useState<string | null>(null)
+  const formRef = useRef<HTMLFormElement>(null)
 
   const labels = useMemo(() => {
     return locale === 'de'
@@ -178,7 +179,9 @@ export function BookingForm({ locale, services, contact, hours = [], currency = 
 
       setStatus('success')
       setMessage(labels.success)
+      setPrivacyConsent(false)
       setTurnstileToken('')
+      formRef.current?.reset()
       if (widgetId && window.turnstile) {
         try {
           window.turnstile.reset(widgetId)
@@ -201,7 +204,7 @@ export function BookingForm({ locale, services, contact, hours = [], currency = 
       ) : null}
 
       <div className="grid gap-8 lg:grid-cols-[1.15fr_0.85fr]">
-        <form action={onSubmit} className="rounded-3xl border border-stone-200 bg-white p-6 shadow-sm sm:p-8">
+        <form action={onSubmit} ref={formRef} className="rounded-3xl border border-stone-200 bg-white p-6 shadow-sm sm:p-8">
           <div className="grid gap-5 sm:grid-cols-2">
             <label className="flex flex-col gap-2 sm:col-span-2">
               <span className="text-sm font-medium text-brown-800">{labels.name}</span>

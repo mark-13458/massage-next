@@ -103,12 +103,16 @@ export default async function ContactPage({ params }: { params: Promise<{ locale
                 {typedLocale === 'de' ? 'Öffnungszeiten' : 'Opening hours'}
               </h2>
               <div className="mt-5 divide-y divide-stone-100">
-                {hours.map((item) => (
+                {hours.length > 0 ? hours.map((item) => (
                   <div key={item.weekday} className="flex items-center justify-between py-3 text-sm text-brown-700">
                     <span className="font-medium text-brown-900">{item.label}</span>
                     <span>{item.isClosed ? (typedLocale === 'de' ? 'Geschlossen' : 'Closed') : `${item.openTime} – ${item.closeTime}`}</span>
                   </div>
-                ))}
+                )) : (
+                  <p className="py-4 text-sm text-brown-600">
+                    {typedLocale === 'de' ? 'Mo–Sa 09:30–20:00 · So nach Vereinbarung' : 'Mon–Sat 09:30–20:00 · Sun by arrangement'}
+                  </p>
+                )}
               </div>
             </article>
 

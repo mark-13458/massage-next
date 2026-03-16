@@ -4,6 +4,7 @@ import { Locale } from '../../lib/i18n'
 import { getMessages } from '../../lib/copy'
 import { getSystemSettings } from '../../server/services/site.service'
 import { MobileMenu } from './MobileMenu'
+import { LangSwitcher } from './LangSwitcher'
 
 export async function SiteHeader({ locale }: { locale: Locale }) {
   const t = getMessages(locale)
@@ -44,6 +45,7 @@ export async function SiteHeader({ locale }: { locale: Locale }) {
               {link.label}
             </Link>
           ))}
+          <LangSwitcher locale={locale} />
           <Link
             href={`/${locale}/booking`}
             className="rounded-full bg-brown-800 px-4 py-2 text-sm font-medium text-white transition hover:bg-brown-700"

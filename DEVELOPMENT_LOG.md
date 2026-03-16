@@ -476,3 +476,12 @@
 - 新建 `src/components/site/FloatingActions.tsx`：server component，读取 `getContactSettings()` 获取电话号码，自动转换 WhatsApp 格式（+49 前缀），包含 WhatsApp 绿色圆形按钮 + 预约 CTA 按钮，`fixed bottom-5 right-4 z-50`
 - 所有前台页面插入 `<FloatingActions locale={typedLocale} />`：`page.tsx`（首页）、`about`、`booking`、`contact`、`gallery`、`services`、`services/[slug]`、`impressum`、`privacy`、`booking/manage/[token]`
 - `npm run build` 验证通过 ✓
+
+## Phase 43 — 语言切换 + 表单重置 + Fallback 补全（2026-03-16）
+- 新建 `LangSwitcher.tsx`（client 组件）：读取当前路径，将 `/de/` ↔ `/en/` 互换，桌面端显示在导航栏右侧
+- `SiteHeader`：引入 `LangSwitcher`，插入在预约按钮左侧
+- `MobileMenu`：底部新增语言切换链接（显示完整语言名 Deutsch / English）
+- `about/page.tsx`：FAQ 区块补 fallback（数据库空时显示默认 Q&A）
+- `contact/page.tsx`：营业时间区块补 fallback（数据库空时显示默认时间文案）
+- `BookingForm`：成功提交后调用 `formRef.current?.reset()` 重置所有表单字段，同时重置 `privacyConsent` 状态
+- `npm run build` 验证通过 ✅
