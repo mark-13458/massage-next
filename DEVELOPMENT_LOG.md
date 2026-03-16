@@ -491,6 +491,14 @@
 
 - `npm run build` 验证通过 ✅
 
+## Phase 52 — 依赖安全升级（2026-03-17）
+
+- `next` 14.1.0 → 14.2.35：修复 15 个 CVE（SSRF、Cache Poisoning、DoS、Authorization Bypass 等）
+- `nodemailer` 6.x → 8.0.2：修复 2 个 CVE（DoS、邮件域名解析漏洞）；breaking change 仅为错误码 `NoAuth` → `ENOAUTH`，项目未使用该错误码，无影响
+- 剩余 2 个 Next.js 漏洞（GHSA-9g9p-9gw9-jx7f / GHSA-h25m-26qc-wcjf）需升级到 Next.js 16 才能修复，属 major breaking change，暂不升级；两个漏洞均需特定条件触发，在当前项目使用场景下实际风险极低
+
+- `npm run build` 验证通过 ✅
+
 ## Phase 51 — 安全加固续（2026-03-17）
 
 **修复 1：`api/admin/settings/test-email/route.ts` 运行时 Bug（高危）**
