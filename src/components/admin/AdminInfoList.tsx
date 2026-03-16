@@ -1,6 +1,6 @@
 type InfoItem = {
   label: string
-  value: string
+  value: string | { href: string; text: string }
 }
 
 export function AdminInfoList({ items }: { items: InfoItem[] }) {
@@ -9,7 +9,13 @@ export function AdminInfoList({ items }: { items: InfoItem[] }) {
       {items.map((item) => (
         <div key={item.label} className="rounded-2xl border border-stone-200/80 bg-stone-50/70 px-4 py-3 leading-6">
           <div className="text-[11px] font-semibold uppercase tracking-[0.18em] text-stone-400">{item.label}</div>
-          <div className="mt-1 text-sm font-medium text-stone-900">{item.value}</div>
+          <div className="mt-1 text-sm font-medium text-stone-900">
+            {typeof item.value === 'object' ? (
+              <a href={item.value.href} className="hover:text-brown-700 transition">{item.value.text}</a>
+            ) : (
+              item.value
+            )}
+          </div>
         </div>
       ))}
     </div>

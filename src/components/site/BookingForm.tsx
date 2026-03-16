@@ -301,8 +301,8 @@ export function BookingForm({ locale, services, contact, hours = [], currency = 
             </div>
             <div className="rounded-2xl border border-stone-800 bg-stone-900 p-4">
               <p className="font-semibold text-white">{labels.contact}</p>
-              <p className="mt-2">{contact?.phone || '015563 188800'}</p>
-              <p>{contact?.email || 'chinesischemassage8@gmail.com'}</p>
+              <p className="mt-2"><a href={`tel:${(contact?.phone || '015563188800').replace(/\s/g, '')}`} className="hover:text-white transition">{contact?.phone || '015563 188800'}</a></p>
+              <p><a href={`mailto:${contact?.email || 'chinesischemassage8@gmail.com'}`} className="hover:text-white transition">{contact?.email || 'chinesischemassage8@gmail.com'}</a></p>
             </div>
             <div className="rounded-2xl border border-stone-800 bg-stone-900 p-4">
               <p className="font-semibold text-white">{labels.openingHours}</p>

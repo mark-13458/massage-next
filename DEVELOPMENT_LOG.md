@@ -387,7 +387,16 @@
 - 预约详情页 aside 新增"关联服务"区块，含"编辑服务"和"全部预约"快捷链接
 - `npm run build` 验证通过 ✅
 
-## Phase 37 — 前台文案修复 + 页脚完善（2026-03-16）
+## Phase 38 — 后台预约分页 + 可点击联系链接（2026-03-16）
+
+- 预约列表：`pageSize` 从硬编码 100 改为每页 20 条，新增分页导航（上一页/页码/下一页），URL 参数 `?page=` 驱动，与状态/搜索/日期筛选联动
+- 预约列表：联系方式列电话改为 `tel:` 可点击链接，邮箱改为 `mailto:` 可点击链接
+- 预约详情：`AdminInfoList` 扩展支持 `{ href, text }` 类型 value，电话/邮箱改为可点击链接
+- `BookingForm` aside 联系信息电话/邮箱改为可点击 `tel:` / `mailto:` 链接（深色背景版本）
+
+- `npm run build` 验证通过 ✅
+
+
 
 - `about/page.tsx`：修复所有德语文案缺失的 umlauts（`Atmosphäre`、`Gäste`、`Qualität`、`regelmäßige`、`häufige`、`Wünsche`、`Rückmeldungen` 等），metadata title 同步修正
 - `SiteFooter`：联系信息电话/邮箱改为可点击 `tel:` / `mailto:` 链接，hover 变白色

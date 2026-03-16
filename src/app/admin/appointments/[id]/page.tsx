@@ -71,8 +71,8 @@ export default async function AppointmentDetailPage({ params }: { params: Promis
               <AdminInfoList
                 items={[
                   { label: pick(lang, '客户姓名', 'Customer name'), value: appointment.customerName },
-                  { label: pick(lang, '联系电话', 'Phone'), value: appointment.customerPhone },
-                  { label: pick(lang, '邮箱', 'Email'), value: appointment.customerEmail || '—' },
+                  { label: pick(lang, '联系电话', 'Phone'), value: appointment.customerPhone ? { href: `tel:${appointment.customerPhone.replace(/\s/g, '')}`, text: appointment.customerPhone } : '—' },
+                  { label: pick(lang, '邮箱', 'Email'), value: appointment.customerEmail ? { href: `mailto:${appointment.customerEmail}`, text: appointment.customerEmail } : '—' },
                   { label: pick(lang, '语言', 'Locale'), value: localeLabel(appointment.locale, lang) },
                   { label: pick(lang, '服务项目', 'Service'), value: appointment.service.nameDe },
                   { label: pick(lang, '来源', 'Source'), value: bookingSourceLabel(appointment.source, lang) },

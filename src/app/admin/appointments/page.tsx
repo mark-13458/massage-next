@@ -34,7 +34,7 @@ type StatusFilter = (typeof allowedStatuses)[number]
 export default async function AdminAppointmentsPage({
   searchParams,
 }: {
-  searchParams?: Promise<{ status?: string; q?: string; dateFrom?: string; dateTo?: string }>
+  searchParams?: Promise<{ status?: string; q?: string; dateFrom?: string; dateTo?: string; page?: string }>
 }) {
   const admin = await getCurrentAdmin()
   if (!admin) redirect('/admin/login')
@@ -45,6 +45,8 @@ export default async function AdminAppointmentsPage({
   const searchQuery = String(resolvedSearchParams.q || '').trim()
   const dateFrom = resolvedSearchParams.dateFrom || ''
   const dateTo = resolvedSearchParams.dateTo || ''
+  const PAGE_SIZE = 20
+  const currentPage = Math.max(1, parseInt(resolvedSearchParams.page || '1', 10) || 1)
 
   const [lang, result, statusCounts] = await Promise.all([
     getAdminLang(),
@@ -53,12 +55,14 @@ export default async function AdminAppointmentsPage({
       search: searchQuery || undefined,
       dateFrom: dateFrom ? new Date(dateFrom) : undefined,
       dateTo: dateTo ? new Date(dateTo) : undefined,
-      pageSize: 100,
+      page: currentPage,
+      pageSize: PAGE_SIZE,
     }),
     getAdminAppointmentStatusCounts(),
   ])
 
   const appointments = result.items
+  const totalPages = Math.ceil(result.total / PAGE_SIZE)
 
   const statusSummary = [
     { key: 'PENDING', labelZh: '待确认', labelEn: 'Pending' },
@@ -73,6 +77,17 @@ export default async function AdminAppointmentsPage({
     if (searchQuery) params.set('q', searchQuery)
     if (dateFrom) params.set('dateFrom', dateFrom)
     if (dateTo) params.set('dateTo', dateTo)
+    const qs = params.toString()
+    return `/admin/appointments${qs ? `?${qs}` : ''}`
+  }
+
+  function pageUrl(page: number) {
+    const params = new URLSearchParams()
+    if (selectedStatus !== 'ALL') params.set('status', selectedStatus)
+    if (searchQuery) params.set('q', searchQuery)
+    if (dateFrom) params.set('dateFrom', dateFrom)
+    if (dateTo) params.set('dateTo', dateTo)
+    if (page > 1) params.set('page', String(page))
     const qs = params.toString()
     return `/admin/appointments${qs ? `?${qs}` : ''}`
   }
@@ -96,7 +111,11 @@ export default async function AdminAppointmentsPage({
           <span className="rounded-full border border-stone-300 bg-white px-4 py-2 text-sm font-medium text-stone-700">
             {pick(lang, `全部 ${result.total} 条`, `Total: ${result.total}`)}
           </span>
-        </div>
+          {totalPages > 1 && (
+            <span className="rounded-full border border-stone-300 bg-white px-4 py-2 text-sm font-medium text-stone-700">
+              {pick(lang, `第 ${currentPage} / ${totalPages} 页`, `Page ${currentPage} of ${totalPages}`)}
+            </span>
+          )}        </div>
 
         {/* 搜索框 + 日期筛选 */}
         <form method="GET" action="/admin/appointments" className="flex flex-wrap items-center gap-2">
@@ -247,8 +266,8 @@ export default async function AdminAppointmentsPage({
                     </td>
                     {/* 联系方式 */}
                     <td className="px-5 py-4">
-                      <div className="text-stone-700">{item.customerPhone}</div>
-                      {item.customerEmail ? <div className="mt-1 text-xs text-stone-400">{item.customerEmail}</div> : null}
+                      <a href={`tel:${item.customerPhone.replace(/\s/g, '')}`} className="text-stone-700 hover:text-stone-900 transition">{item.customerPhone}</a>
+                      {item.customerEmail ? <div className="mt-1 text-xs"><a href={`mailto:${item.customerEmail}`} className="text-stone-400 hover:text-stone-700 transition">{item.customerEmail}</a></div> : null}
                     </td>
                     {/* 来源 */}
                     <td className="px-5 py-4 text-stone-500 text-xs">{bookingSourceLabel(item.source, lang)}</td>
@@ -265,6 +284,39 @@ export default async function AdminAppointmentsPage({
           </div>
         )}
       </AdminListFrame>
+
+      {/* 分页导航 */}
+      {totalPages > 1 && (
+        <div className="mt-4 flex flex-wrap items-center justify-between gap-3">
+          <p className="text-sm text-stone-500">
+            {pick(lang, `共 ${result.total} 条，每页 ${PAGE_SIZE} 条`, `${result.total} total, ${PAGE_SIZE} per page`)}
+          </p>
+          <div className="flex items-center gap-2">
+            {currentPage > 1 && (
+              <Link href={pageUrl(currentPage - 1)} className="rounded-full border border-stone-300 bg-white px-4 py-2 text-sm font-medium text-stone-700 transition hover:border-stone-500">
+                {pick(lang, '上一页', 'Previous')}
+              </Link>
+            )}
+            {Array.from({ length: Math.min(totalPages, 7) }, (_, i) => {
+              const page = totalPages <= 7 ? i + 1 : currentPage <= 4 ? i + 1 : currentPage >= totalPages - 3 ? totalPages - 6 + i : currentPage - 3 + i
+              return (
+                <Link
+                  key={page}
+                  href={pageUrl(page)}
+                  className={`rounded-full px-4 py-2 text-sm font-medium transition ${page === currentPage ? 'bg-stone-900 text-white' : 'border border-stone-300 bg-white text-stone-700 hover:border-stone-500'}`}
+                >
+                  {page}
+                </Link>
+              )
+            })}
+            {currentPage < totalPages && (
+              <Link href={pageUrl(currentPage + 1)} className="rounded-full border border-stone-300 bg-white px-4 py-2 text-sm font-medium text-stone-700 transition hover:border-stone-500">
+                {pick(lang, '下一页', 'Next')}
+              </Link>
+            )}
+          </div>
+        </div>
+      )}
     </AdminShell>
   )
 }
