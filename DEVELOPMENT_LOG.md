@@ -240,6 +240,13 @@
 
 ---
 
+## Phase 28 — 合规页面 + 后台文案清理（2026-03-16）
+- `impressum/page.tsx` / `privacy/page.tsx`：删除无用 `getTranslations` import，联系信息（电话/邮箱/地址）改为读 DB（`getContactSettings`），fallback 保留默认值
+- `admin/page.tsx`：清理 subtitle 开发阶段说明文案，替换为正式文案
+- `npm run build` 验证通过 ✅
+
+---
+
 ## 当前状态（截至 2026-03-16）
 
 ### 已具备

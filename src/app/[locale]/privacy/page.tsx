@@ -1,9 +1,9 @@
 import { Metadata } from 'next'
-import { getTranslations } from 'next-intl/server'
 import { Locale, isLocale } from '../../../lib/i18n'
 import { SiteHeader } from '../../../components/site/SiteHeader'
 import { SiteFooter } from '../../../components/site/SiteFooter'
 import { SectionShell } from '../../../components/site/SectionShell'
+import { getContactSettings } from '../../../server/services/site.service'
 import { notFound } from 'next/navigation'
 
 type Props = {
@@ -13,7 +13,6 @@ type Props = {
 export async function generateMetadata({ params }: Props): Promise<Metadata> {
   const { locale } = await params
   if (!isLocale(locale)) return {}
-  const t = await getTranslations({ locale, namespace: 'Metadata' })
   return {
     title: locale === 'de' ? 'Datenschutzerklärung | China TCM Massage' : 'Privacy Policy | China TCM Massage',
     description: locale === 'de' ? 'Datenschutzerklärung und Informationen zum Datenschutz.' : 'Privacy policy and data protection information.',
@@ -24,6 +23,11 @@ export default async function PrivacyPage({ params }: Props) {
   const { locale } = await params
   if (!isLocale(locale)) notFound()
   const typedLocale = locale as Locale
+
+  const contact = await getContactSettings()
+  const phone = contact?.phone ?? '015563 188800'
+  const email = contact?.email ?? 'chinesischemassage8@gmail.com'
+  const address = contact?.address ?? 'Arnulfstraße 104, 80636 München'
 
   return (
     <main>
@@ -60,8 +64,8 @@ export default async function PrivacyPage({ params }: Props) {
 
               <h3>Hinweis zur verantwortlichen Stelle</h3>
               <p>Die verantwortliche Stelle für die Datenverarbeitung auf dieser Website ist:</p>
-              <p>China TCM Massage<br />Arnulfstraße 104<br />80636 München</p>
-              <p>Telefon: 015563 188800<br />E-Mail: chinesischemassage8@gmail.com</p>
+              <p>China TCM Massage<br />{address}</p>
+              <p>Telefon: <a href={`tel:${phone.replace(/\s/g, '')}`}>{phone}</a><br />E-Mail: <a href={`mailto:${email}`}>{email}</a></p>
 
               <h2>4. Datenerfassung auf dieser Website</h2>
               <h3>Kontaktformular</h3>
@@ -93,8 +97,8 @@ export default async function PrivacyPage({ params }: Props) {
 
               <h3>Note on the Responsible Body</h3>
               <p>The responsible body for data processing on this website is:</p>
-              <p>China TCM Massage<br />Arnulfstraße 104<br />80636 Munich</p>
-              <p>Phone: 015563 188800<br />Email: chinesischemassage8@gmail.com</p>
+              <p>China TCM Massage<br />{address}</p>
+              <p>Phone: <a href={`tel:${phone.replace(/\s/g, '')}`}>{phone}</a><br />Email: <a href={`mailto:${email}`}>{email}</a></p>
 
               <h2>4. Data Collection on this Website</h2>
               <h3>Contact Form</h3>

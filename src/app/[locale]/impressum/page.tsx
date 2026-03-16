@@ -1,9 +1,9 @@
 import { Metadata } from 'next'
-import { getTranslations } from 'next-intl/server'
 import { Locale, isLocale } from '../../../lib/i18n'
 import { SiteHeader } from '../../../components/site/SiteHeader'
 import { SiteFooter } from '../../../components/site/SiteFooter'
 import { SectionShell } from '../../../components/site/SectionShell'
+import { getContactSettings } from '../../../server/services/site.service'
 import { notFound } from 'next/navigation'
 
 type Props = {
@@ -13,7 +13,6 @@ type Props = {
 export async function generateMetadata({ params }: Props): Promise<Metadata> {
   const { locale } = await params
   if (!isLocale(locale)) return {}
-  const t = await getTranslations({ locale, namespace: 'Metadata' })
   return {
     title: locale === 'de' ? 'Impressum | China TCM Massage' : 'Imprint | China TCM Massage',
     description: locale === 'de' ? 'Impressum und rechtliche Hinweise.' : 'Imprint and legal information.',
@@ -24,6 +23,11 @@ export default async function ImprintPage({ params }: Props) {
   const { locale } = await params
   if (!isLocale(locale)) notFound()
   const typedLocale = locale as Locale
+
+  const contact = await getContactSettings()
+  const phone = contact?.phone ?? '015563 188800'
+  const email = contact?.email ?? 'chinesischemassage8@gmail.com'
+  const address = contact?.address ?? 'Arnulfstraße 104, 80636 München'
 
   return (
     <main>
@@ -37,10 +41,10 @@ export default async function ImprintPage({ params }: Props) {
           {typedLocale === 'de' ? (
             <>
               <h2>Angaben gemäß § 5 TMG</h2>
-              <p>China TCM Massage<br />Arnulfstraße 104<br />80636 München</p>
+              <p>China TCM Massage<br />{address}</p>
 
               <h2>Kontakt</h2>
-              <p>Telefon: 015563 188800<br />E-Mail: chinesischemassage8@gmail.com</p>
+              <p>Telefon: <a href={`tel:${phone.replace(/\s/g, '')}`}>{phone}</a><br />E-Mail: <a href={`mailto:${email}`}>{email}</a></p>
 
               <h2>Redaktionell verantwortlich</h2>
               <p>Inhaber/Geschäftsführer</p>
@@ -58,10 +62,10 @@ export default async function ImprintPage({ params }: Props) {
           ) : (
             <>
               <h2>Information according to § 5 TMG</h2>
-              <p>China TCM Massage<br />Arnulfstraße 104<br />80636 Munich</p>
+              <p>China TCM Massage<br />{address}</p>
 
               <h2>Contact</h2>
-              <p>Phone: 015563 188800<br />Email: chinesischemassage8@gmail.com</p>
+              <p>Phone: <a href={`tel:${phone.replace(/\s/g, '')}`}>{phone}</a><br />Email: <a href={`mailto:${email}`}>{email}</a></p>
 
               <h2>Editorial Responsibility</h2>
               <p>Owner / Managing Director</p>

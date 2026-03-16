@@ -26,7 +26,7 @@ export default async function AdminPage() {
     <AdminShell
       lang={lang}
       title={pick(lang, '中文后台', 'Admin workspace')}
-      subtitle={pick(lang, '现在已经从纯占位页推进到后台首页雏形：先看关键数据，再逐步接预约、服务、内容和图片管理。', 'The admin is now beyond a placeholder: start with core metrics, then move into bookings, services, content and media management.')}
+      subtitle={pick(lang, '查看关键数据，管理预约、服务、内容与图片。', 'Review key metrics and manage bookings, services, content and media.')}
     >
       <AdminTopSummary
         title={pick(lang, '运营概览', 'Operations overview')}
