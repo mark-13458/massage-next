@@ -1,4 +1,5 @@
 ﻿import type { Metadata } from 'next'
+import Image from 'next/image'
 import Link from 'next/link'
 import { notFound } from 'next/navigation'
 import { HeroSection } from '../../components/site/HeroSection'
@@ -153,11 +154,16 @@ export default async function LocaleHome({ params }: { params: Promise<{ locale:
               key={image}
               className={`overflow-hidden rounded-[2rem] border border-stone-200 bg-white shadow-soft ${index === 1 ? 'md:translate-y-8' : ''}`}
             >
-              <img
-                src={image}
-                alt={typedLocale === 'de' ? 'Studio-Atmosphäre' : 'Studio atmosphere'}
-                className="aspect-[4/5] w-full object-cover"
-              />
+              <div className="relative aspect-[4/5] w-full">
+                <Image
+                  src={image}
+                  alt={typedLocale === 'de' ? 'Studio-Atmosphäre' : 'Studio atmosphere'}
+                  fill
+                  sizes="(max-width: 768px) 100vw, 33vw"
+                  className="object-cover"
+                  loading="lazy"
+                />
+              </div>
             </div>
           ))}
         </div>

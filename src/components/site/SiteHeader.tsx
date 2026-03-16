@@ -1,3 +1,4 @@
+import Image from 'next/image'
 import Link from 'next/link'
 import { Locale } from '../../lib/i18n'
 import { getMessages } from '../../lib/copy'
@@ -18,17 +19,30 @@ export async function SiteHeader({ locale }: { locale: Locale }) {
   ]
 
   return (
-    <header className="sticky top-0 z-40 border-b border-stone-200/80 bg-cream/90 backdrop-blur">
-      <nav className="mx-auto flex h-16 max-w-6xl items-center justify-between px-4 sm:px-6 lg:px-8">
-        <Link href={`/${locale}`} className="flex items-center gap-3">
-          <img src="/logo.svg" alt={siteName} className="h-8 w-auto" />
-          <span className="text-sm font-semibold tracking-wide text-brown-800 sm:text-base">{siteName}</span>
+    <header className="sticky top-0 z-40 border-b border-stone-200/80 bg-cream/95 backdrop-blur-md">
+      <nav className="mx-auto flex h-14 max-w-6xl items-center justify-between px-4 sm:h-16 sm:px-6 lg:px-8">
+        <Link href={`/${locale}`} className="flex min-w-0 items-center gap-2.5 sm:gap-3">
+          <Image
+            src="/logo.svg"
+            alt={siteName}
+            width={32}
+            height={32}
+            className="h-7 w-auto flex-shrink-0 sm:h-8"
+            priority
+          />
+          <span className="truncate text-sm font-semibold tracking-wide text-brown-800 sm:text-base">{siteName}</span>
         </Link>
 
         {/* Desktop nav */}
-        <div className="hidden items-center gap-6 text-sm text-brown-700 md:flex">
+        <div className="hidden items-center gap-5 text-sm text-brown-700 md:flex lg:gap-6">
           {navLinks.map((link) => (
-            <Link key={link.href} href={link.href}>{link.label}</Link>
+            <Link
+              key={link.href}
+              href={link.href}
+              className="transition-colors hover:text-brown-900"
+            >
+              {link.label}
+            </Link>
           ))}
           <Link
             href={`/${locale}/booking`}

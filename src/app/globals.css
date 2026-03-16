@@ -9,16 +9,24 @@
 
 html {
   scroll-behavior: smooth;
+  /* Prevent layout shift from scrollbar appearing */
+  scrollbar-gutter: stable;
 }
 
 body {
   background: var(--bg);
   color: var(--fg);
+  /* Improve text rendering on mobile */
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  text-rendering: optimizeLegibility;
 }
 
 @layer base {
   * {
     @apply border-stone-200;
+    /* Prevent tap highlight on mobile */
+    -webkit-tap-highlight-color: transparent;
   }
 
   body {
@@ -27,5 +35,26 @@ body {
 
   a {
     @apply transition-colors;
+  }
+
+  /* Improve touch targets on mobile */
+  button, a {
+    touch-action: manipulation;
+  }
+
+  /* Prevent horizontal overflow on mobile */
+  img, video {
+    max-width: 100%;
+  }
+}
+
+@layer utilities {
+  /* Smooth horizontal scroll for mobile carousels */
+  .scroll-snap-x {
+    scroll-snap-type: x mandatory;
+    -webkit-overflow-scrolling: touch;
+  }
+  .scroll-snap-start {
+    scroll-snap-align: start;
   }
 }

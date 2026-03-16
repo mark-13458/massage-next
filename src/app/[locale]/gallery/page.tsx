@@ -1,4 +1,5 @@
 import type { Metadata } from 'next'
+import Image from 'next/image'
 import Link from 'next/link'
 import { notFound } from 'next/navigation'
 import { SiteHeader } from '../../../components/site/SiteHeader'
@@ -97,10 +98,13 @@ export default async function GalleryPage({ params }: { params: Promise<{ locale
               className={`group overflow-hidden rounded-[2rem] border border-stone-200 bg-white shadow-soft ${index % 3 === 0 ? 'xl:translate-y-6' : ''}`}
             >
               <div className="relative aspect-[4/5] overflow-hidden">
-                <img
+                <Image
                   src={item.image}
                   alt={item.title}
-                  className="h-full w-full object-cover transition duration-700 group-hover:scale-105"
+                  fill
+                  sizes="(max-width: 768px) 100vw, (max-width: 1280px) 50vw, 33vw"
+                  className="object-cover transition duration-700 group-hover:scale-105"
+                  loading="lazy"
                 />
                 <div className="absolute inset-0 bg-gradient-to-t from-stone-950/70 via-stone-950/10 to-transparent" />
                 <div className="absolute bottom-0 left-0 right-0 p-5 text-white">

@@ -357,6 +357,26 @@
 ### 未完成（优先级排序）
 1. **P3** 测试环境 smoke test → 生产上线联调
 
+## Phase 41 — 性能优化 + 移动端布局改善（2026-03-16）
+
+**性能优化**
+- `next.config.js`：开启 `images.formats: ['image/avif', 'image/webp']`，配置 `remotePatterns`（pexels.com），添加安全 headers（X-Content-Type-Options / X-Frame-Options / Referrer-Policy），`/uploads/` 静态资源加 `Cache-Control: immutable`
+- `HeroSection`：`<img>` → `<Image>`，加 `priority`（LCP 优化），`sizes` 属性精确描述响应式尺寸
+- `gallery/page.tsx`：`<img>` → `<Image>`，加 `loading="lazy"` + `sizes`
+- `page.tsx`（首页）：图库预览区块 `<img>` → `<Image>`，加 `loading="lazy"` + `sizes`
+- `SiteHeader`：logo `<img>` → `<Image>`，加 `priority`
+- `layout.tsx`：新增 `viewport` export（`device-width / initialScale / themeColor`），符合 Next.js 14 规范
+- `globals.css`：加 `scrollbar-gutter: stable`（防止滚动条出现导致 CLS），`-webkit-tap-highlight-color: transparent`，`touch-action: manipulation`，`text-rendering: optimizeLegibility`
+
+**移动端布局改善**
+- `HeroSection`：移动端图片 `aspect-[4/3]`（更适合手机屏），stats 卡片改为横向滚动（`overflow-x-auto`），CTA 按钮 padding 收紧
+- `MobileMenu`：加半透明遮罩（`backdrop-blur-sm`），菜单开关动画（`translate-y + opacity transition`），body scroll lock，路由变化自动关闭，预约按钮加分隔线
+- `SectionShell`：移动端 `py-12`（原 `py-16`），标题字号 `text-2xl` → `sm:text-3xl` → `lg:text-4xl` 响应式
+- `ServiceCard`：`flex flex-col h-full`（等高卡片），移动端 padding 收紧 `p-5`，标题 `text-lg` → `sm:text-xl`
+- `SiteFooter`：移动端 2 列布局（`grid-cols-2`），品牌列 `col-span-2`，营业时间 fallback 改为 `Mo–So`
+
+- `npm run build` 验证通过 ✅
+
 ## Phase 40 — 前台页面完善 + UI 美化 + Fallback 内容（2026-03-16）
 
 - `gallery/page.tsx`：补缺失的 `Link` import（修复潜在构建错误）
