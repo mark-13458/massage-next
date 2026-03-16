@@ -1,6 +1,7 @@
 import { mkdir, writeFile } from 'fs/promises'
 import path from 'path'
 import { randomUUID } from 'crypto'
+import sharp from 'sharp'
 import { NextRequest } from 'next/server'
 import { apiError, apiOk } from '../../../../../src/lib/api-response'
 import { getCurrentAdmin } from '../../../../../src/lib/auth'
@@ -14,115 +15,39 @@ const MIN_DIMENSIONS = {
   gallery: { width: 600, height: 400 },
 } as const
 
-type ImageDimensions = {
+// GIF 不转 WebP，其余统一转 WebP
+async function processImage(buffer: Buffer, mimeType: string): Promise<{
+  data: Buffer
   width: number
   height: number
-}
+  outputMime: string
+  extension: string
+}> {
+  if (mimeType === 'image/gif') {
+    const meta = await sharp(buffer, { animated: false }).metadata()
+    return {
+      data: buffer,
+      width: meta.width ?? 0,
+      height: meta.height ?? 0,
+      outputMime: 'image/gif',
+      extension: '.gif',
+    }
+  }
 
-const EXTENSION_BY_MIME_TYPE: Record<string, string> = {
-  'image/jpeg': '.jpg',
-  'image/png': '.png',
-  'image/webp': '.webp',
-  'image/gif': '.gif',
-}
+  const image = sharp(buffer)
+  const meta = await image.metadata()
 
-function readPngDimensions(buffer: Buffer): ImageDimensions | null {
-  if (buffer.length < 24) return null
-  if (buffer.toString('ascii', 1, 4) !== 'PNG') return null
+  const output = await image
+    .webp({ quality: 85 })
+    .toBuffer({ resolveWithObject: true })
+
   return {
-    width: buffer.readUInt32BE(16),
-    height: buffer.readUInt32BE(20),
+    data: output.data,
+    width: output.info.width,
+    height: output.info.height,
+    outputMime: 'image/webp',
+    extension: '.webp',
   }
-}
-
-function readGifDimensions(buffer: Buffer): ImageDimensions | null {
-  if (buffer.length < 10) return null
-  const signature = buffer.toString('ascii', 0, 6)
-  if (signature !== 'GIF87a' && signature !== 'GIF89a') return null
-  return {
-    width: buffer.readUInt16LE(6),
-    height: buffer.readUInt16LE(8),
-  }
-}
-
-function readJpegDimensions(buffer: Buffer): ImageDimensions | null {
-  if (buffer.length < 4 || buffer[0] !== 0xff || buffer[1] !== 0xd8) return null
-
-  let offset = 2
-  while (offset < buffer.length) {
-    if (buffer[offset] !== 0xff) {
-      offset += 1
-      continue
-    }
-
-    const marker = buffer[offset + 1]
-    if (!marker) break
-
-    const isStartOfFrame = (
-      marker >= 0xc0 &&
-      marker <= 0xcf &&
-      marker !== 0xc4 &&
-      marker !== 0xc8 &&
-      marker !== 0xcc
-    )
-
-    if (isStartOfFrame) {
-      if (offset + 8 >= buffer.length) return null
-      return {
-        height: buffer.readUInt16BE(offset + 5),
-        width: buffer.readUInt16BE(offset + 7),
-      }
-    }
-
-    if (offset + 3 >= buffer.length) return null
-    const segmentLength = buffer.readUInt16BE(offset + 2)
-    if (segmentLength < 2) return null
-    offset += 2 + segmentLength
-  }
-
-  return null
-}
-
-function readWebpDimensions(buffer: Buffer): ImageDimensions | null {
-  if (buffer.length < 16) return null
-  if (buffer.toString('ascii', 0, 4) !== 'RIFF' || buffer.toString('ascii', 8, 12) !== 'WEBP') return null
-
-  const chunkType = buffer.toString('ascii', 12, 16)
-
-  if (chunkType === 'VP8 ') {
-    if (buffer.length < 30) return null
-    return {
-      width: buffer.readUInt16LE(26) & 0x3fff,
-      height: buffer.readUInt16LE(28) & 0x3fff,
-    }
-  }
-
-  if (chunkType === 'VP8L') {
-    if (buffer.length < 25) return null
-    const value = buffer.readUInt32LE(21)
-    return {
-      width: (value & 0x3fff) + 1,
-      height: ((value >> 14) & 0x3fff) + 1,
-    }
-  }
-
-  if (chunkType === 'VP8X') {
-    if (buffer.length < 30) return null
-    return {
-      width: 1 + buffer.readUIntLE(24, 3),
-      height: 1 + buffer.readUIntLE(27, 3),
-    }
-  }
-
-  return null
-}
-
-function getImageDimensions(buffer: Buffer, mimeType: string): ImageDimensions | null {
-  if (mimeType === 'image/png') return readPngDimensions(buffer)
-  if (mimeType === 'image/gif') return readGifDimensions(buffer)
-  if (mimeType === 'image/jpeg') return readJpegDimensions(buffer)
-  if (mimeType === 'image/webp') return readWebpDimensions(buffer)
-  return null
 }
 
 export async function POST(request: NextRequest) {
@@ -163,37 +88,45 @@ export async function POST(request: NextRequest) {
       return apiError('File too large (max 10MB)', 400)
     }
 
+    const rawBuffer = Buffer.from(await file.arrayBuffer())
+
+    // 用 sharp 处理：读取尺寸 + 压缩转 WebP
+    let processed: Awaited<ReturnType<typeof processImage>>
+    try {
+      processed = await processImage(rawBuffer, file.type)
+    } catch {
+      return apiError('Unable to process image', 400)
+    }
+
+    const { data, width, height, outputMime, extension } = processed
+
+    if (width === 0 || height === 0) {
+      return apiError('Unable to read image dimensions', 400)
+    }
+
+    const minDimensions = MIN_DIMENSIONS[usage as keyof typeof MIN_DIMENSIONS]
+    if (width < minDimensions.width || height < minDimensions.height) {
+      return apiError(
+        `${usage === 'hero' ? 'Hero' : 'Gallery'} image must be at least ${minDimensions.width}×${minDimensions.height}px`,
+        400,
+      )
+    }
+
     const uploadDir = path.join(process.cwd(), 'public', 'uploads')
     await mkdir(uploadDir, { recursive: true })
-
-    const extension = EXTENSION_BY_MIME_TYPE[file.type]
-    if (!extension) {
-      return apiError('Unsupported image type', 400)
-    }
 
     const storedFilename = `${randomUUID()}${extension}`
     const outputPath = path.join(uploadDir, storedFilename)
     const publicPath = `/uploads/${storedFilename}`
 
-    const bytes = Buffer.from(await file.arrayBuffer())
-    const dimensions = getImageDimensions(bytes, file.type)
-    if (!dimensions) {
-      return apiError('Unable to read image dimensions', 400)
-    }
-
-    const minDimensions = MIN_DIMENSIONS[usage as keyof typeof MIN_DIMENSIONS]
-    if (dimensions.width < minDimensions.width || dimensions.height < minDimensions.height) {
-      return apiError(`${usage === 'hero' ? 'Hero' : 'Gallery'} image must be at least ${minDimensions.width}x${minDimensions.height}`, 400)
-    }
-
-    await writeFile(outputPath, bytes)
+    await writeFile(outputPath, data)
 
     if (usage === 'hero') {
       return apiOk({
         item: {
           imageUrl: publicPath,
-          width: dimensions.width,
-          height: dimensions.height,
+          width,
+          height,
         },
       })
     }
@@ -203,12 +136,12 @@ export async function POST(request: NextRequest) {
         originalFilename: file.name,
         storedFilename,
         filePath: publicPath,
-        fileSize: file.size,
-        mimeType: file.type,
+        fileSize: data.length,
+        mimeType: outputMime,
         kind: 'IMAGE',
         altText: altDe || altEn || null,
-        width: dimensions.width,
-        height: dimensions.height,
+        width,
+        height,
         isPublic: true,
         uploadedById: admin.id,
       },
@@ -240,8 +173,8 @@ export async function POST(request: NextRequest) {
         altDe: gallery.altDe || '',
         altEn: gallery.altEn || '',
         imageUrl: gallery.file.filePath,
-        width: dimensions.width,
-        height: dimensions.height,
+        width,
+        height,
         sortOrder: gallery.sortOrder,
         isActive: gallery.isActive,
         isCover: gallery.isCover,

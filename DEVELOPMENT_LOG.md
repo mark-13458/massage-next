@@ -160,6 +160,15 @@
 
 ---
 
+## Phase 23 — 图片压缩（sharp）+ 会话超时（2026-03-16）
+- 上传路由接入 sharp：所有非 GIF 图片上传时自动转 WebP（quality=85），删除手写的 dimension 解析代码
+- `File` 记录写入压缩后的真实 `fileSize` / `mimeType` / `width` / `height`
+- GIF 保持原格式不转换
+- 会话超时：`setAdminSession` maxAge 改为 8 小时；middleware 每次后台请求刷新 cookie（滑动窗口）
+- `npm run build` 验证通过 ✅
+
+---
+
 ## Phase 22 — 文档整合与规范化（2026-03-16）
 - 删除过时文件：`PHASE_16/17/18/19_CHECKLIST.md`、`PHASE_16/17_INTEGRATION_GUIDE.md`、`PROJECT_STATUS.md`（共 7 个文件）
 - 重写 `HANDOFF.md`：替换伪造的"100% 完成"版本，改为真实状态的 AI 接手指南
@@ -203,8 +212,6 @@
 - Docker + Nginx 联调通过，上传目录持久化已配置
 
 ### 未完成（优先级排序）
-1. **P0** 图片压缩 / 规范化导出（sharp 方案）
-2. **P1** 商家通知邮件在预约确认时触发（当前只在创建时触发）
-3. **P1** 会话超时机制（当前 session maxAge 7 天，无活跃检测）
-4. **P2** SEO 设置后台化（title template / meta description 可在后台编辑）
-5. **P3** 测试环境 smoke test → 生产上线联调
+1. **P1** 商家通知邮件在预约确认时触发（当前只在创建时触发）
+2. **P2** SEO 设置后台化（title template / meta description 可在后台编辑）
+3. **P3** 测试环境 smoke test → 生产上线联调
