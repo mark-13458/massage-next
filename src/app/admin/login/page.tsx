@@ -17,7 +17,7 @@ export default async function AdminLoginPage() {
         <div className="mb-6 rounded-3xl bg-white p-8 shadow-sm">
           <p className="text-sm font-semibold uppercase tracking-[0.18em] text-amber-700">Admin Access</p>
           <h1 className="mt-2 text-3xl font-semibold text-stone-900">{pick(lang, '后台登录', 'Admin sign in')}</h1>
-          <p className="mt-3 text-sm leading-6 text-stone-600">{pick(lang, '先把后台加上最基本的认证保护。后面可以再继续升级成完整 session / role-based auth。', 'Start with a protected admin login, then continue upgrading toward fuller session and role-based auth.')}</p>
+          <p className="mt-3 text-sm leading-6 text-stone-600">{pick(lang, '请使用管理员账号登录。', 'Sign in with your administrator account.')}</p>
         </div>
         <AdminLoginForm lang={lang} />
       </div>

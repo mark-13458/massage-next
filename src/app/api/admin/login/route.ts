@@ -64,8 +64,9 @@ export async function POST(request: NextRequest) {
     await setAdminSession(user.id, user.email)
     return apiOk()
   } catch (error) {
-    recordFailedAttempt(ip, 'unknown-email', Date.now()) // Catch-all for unexpected errors
-    return apiError(error instanceof Error ? error.message : 'Unknown error', 500)
+    recordFailedAttempt(ip, 'unknown-email', Date.now())
+    console.error('[admin/login] unexpected error:', error)
+    return apiError('Internal server error', 500)
   }
 }
 

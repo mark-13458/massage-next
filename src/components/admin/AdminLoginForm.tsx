@@ -34,16 +34,34 @@ export function AdminLoginForm({ lang = 'zh' }: { lang?: 'zh' | 'en' }) {
     })
   }
 
+  function handleKeyDown(e: React.KeyboardEvent) {
+    if (e.key === 'Enter' && !isPending) submit()
+  }
+
   return (
     <div className="rounded-3xl bg-white p-8 shadow-sm">
       <div className="grid gap-4">
         <label className="flex flex-col gap-2 text-sm text-stone-700">
           <span>{t(lang, '邮箱', 'Email')}</span>
-          <input value={email} onChange={(e) => setEmail(e.target.value)} className="rounded-2xl border border-stone-200 px-4 py-3 outline-none focus:border-amber-500" />
+          <input
+            type="email"
+            autoComplete="username"
+            value={email}
+            onChange={(e) => setEmail(e.target.value)}
+            onKeyDown={handleKeyDown}
+            className="rounded-2xl border border-stone-200 px-4 py-3 outline-none focus:border-amber-500"
+          />
         </label>
         <label className="flex flex-col gap-2 text-sm text-stone-700">
           <span>{t(lang, '密码', 'Password')}</span>
-          <input type="password" value={password} onChange={(e) => setPassword(e.target.value)} className="rounded-2xl border border-stone-200 px-4 py-3 outline-none focus:border-amber-500" />
+          <input
+            type="password"
+            autoComplete="current-password"
+            value={password}
+            onChange={(e) => setPassword(e.target.value)}
+            onKeyDown={handleKeyDown}
+            className="rounded-2xl border border-stone-200 px-4 py-3 outline-none focus:border-amber-500"
+          />
         </label>
       </div>
       <div className="mt-6 flex items-center gap-4">
