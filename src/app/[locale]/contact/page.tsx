@@ -113,13 +113,18 @@ export default async function ContactPage({ params }: { params: Promise<{ locale
               <div className="mt-5 space-y-4 text-sm leading-7 text-brown-700">
                 <p>
                   {typedLocale === 'de'
-                    ? 'Die Seite ist bereits so vorbereitet, dass Adresse, Telefon und Zeiten später zentral über SiteSetting / BusinessHour gepflegt werden können.'
-                    : 'This page is already prepared so that address, phone and opening times can later be managed centrally via SiteSetting and BusinessHour.'}
+                    ? 'Bitte kommen Sie pünktlich zu Ihrem Termin. Falls Sie sich verspäten, informieren Sie uns bitte telefonisch.'
+                    : 'Please arrive on time for your appointment. If you are running late, please let us know by phone.'}
                 </p>
                 <p>
                   {typedLocale === 'de'
-                    ? 'Als nächster Schritt können wir hier Google Maps, Anfahrtsbeschreibung, Parkhinweise und strukturierte LocalBusiness-Daten ergänzen.'
-                    : 'The next step here is to add Google Maps, travel directions, parking notes and structured LocalBusiness data.'}
+                    ? 'Wir empfehlen, bequeme Kleidung zu tragen. Für Ihre Wertsachen stehen Schließfächer zur Verfügung.'
+                    : 'We recommend wearing comfortable clothing. Lockers are available for your valuables.'}
+                </p>
+                <p>
+                  {typedLocale === 'de'
+                    ? 'Parkplätze sind in der Umgebung vorhanden. Mit öffentlichen Verkehrsmitteln erreichen Sie uns bequem über die nächste U-Bahn-Station.'
+                    : 'Parking is available nearby. You can also reach us conveniently by public transport via the nearest metro station.'}
                 </p>
               </div>
             </article>

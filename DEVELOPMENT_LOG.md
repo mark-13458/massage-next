@@ -160,6 +160,16 @@
 
 ---
 
+## Phase 24 — SEO 收口 + 前台文案清理（2026-03-16）
+- sitemap 补充服务详情页（动态读取 slug）+ impressum/privacy 静态页，服务页优先级提升至 0.85
+- robots.ts 补充 `disallow: ['/admin', '/api/']`，屏蔽后台和接口路由被索引
+- 修复 contact 页面"Besuchshinweise"区块：移除开发阶段说明，替换为真实访客提示（准时到达/着装/停车）
+- 删除 `src/app/admin/README.md`（放错位置，内容已在 `ADMIN_ARCHITECTURE.md`）
+- 确认 P2 SEO 设置后台化已完整实现（`AdminSettingsForm` + API + view model 全链路已就绪）
+- `npm run build` 验证通过 ✅
+
+---
+
 ## Phase 23 — 图片压缩（sharp）+ 会话超时（2026-03-16）
 - 上传路由接入 sharp：所有非 GIF 图片上传时自动转 WebP（quality=85），删除手写的 dimension 解析代码
 - `File` 记录写入压缩后的真实 `fileSize` / `mimeType` / `width` / `height`
@@ -213,5 +223,4 @@
 
 ### 未完成（优先级排序）
 1. **P1** 商家通知邮件在预约确认时触发（当前只在创建时触发）
-2. **P2** SEO 设置后台化（title template / meta description 可在后台编辑）
-3. **P3** 测试环境 smoke test → 生产上线联调
+2. **P3** 测试环境 smoke test → 生产上线联调
