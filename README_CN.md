@@ -203,14 +203,13 @@ docker compose up -d --build
 - `DEPLOYMENT_CHECKLIST.md`：部署联调、测试环境 smoke test、上线前检查清单
 
 建议接手顺序：
-1. `README_CN.md`
-2. `SEO_SECURITY_MVP_PLAN.md`
-3. `ARCHITECTURE.md`
-4. `ROADMAP.md`
-5. `DEVELOPMENT_LOG.md`
-6. `PROJECT_STATUS.md`
-7. `HANDOFF.md`
-8. `DEPLOYMENT_CHECKLIST.md`
+1. `HANDOFF.md`
+2. `DEVELOPMENT_LOG.md`
+3. `AI_CONTEXT.md`
+4. `ARCHITECTURE.md`
+5. `ADMIN_ARCHITECTURE.md`
+6. `SEO_SECURITY_MVP_PLAN.md`
+7. `DEPLOYMENT_CHECKLIST.md`
 
 ## 🔐 SEO + 安全执行基线
 

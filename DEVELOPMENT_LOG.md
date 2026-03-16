@@ -160,6 +160,16 @@
 
 ---
 
+## Phase 22 — 文档整合与规范化（2026-03-16）
+- 删除过时文件：`PHASE_16/17/18/19_CHECKLIST.md`、`PHASE_16/17_INTEGRATION_GUIDE.md`、`PROJECT_STATUS.md`（共 7 个文件）
+- 重写 `HANDOFF.md`：替换伪造的"100% 完成"版本，改为真实状态的 AI 接手指南
+- 重写 `AI_CONTEXT.md`：精简为开发规范与基线，包含工作流、代码规范、Git 规范、文档规范
+- 更新 `README.md`：精简为快速启动 + 正确的文档阅读顺序
+- 更新 `README_CN.md`：修正接手顺序，去掉已删除文件引用
+- 文档体系收口为：`HANDOFF.md`（状态）→ `DEVELOPMENT_LOG.md`（历史）→ `AI_CONTEXT.md`（规范）→ 架构文档
+
+---
+
 ## Phase 21 — 服务详情页 + Bug 修复（2026-03-16）
 - 修复 `mail.service.ts`：商家通知邮件引用了不存在的 `service.nameZh`，改为 `service.nameDe`
 - 新建 `/[locale]/services/[slug]/page.tsx`：服务详情页，含服务名、摘要、描述、时长、价格、预约 CTA
