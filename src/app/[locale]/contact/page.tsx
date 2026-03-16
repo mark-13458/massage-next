@@ -3,6 +3,7 @@ import Link from 'next/link'
 import { notFound } from 'next/navigation'
 import { SiteHeader } from '../../../components/site/SiteHeader'
 import { SiteFooter } from '../../../components/site/SiteFooter'
+import { FloatingActions } from '../../../components/site/FloatingActions'
 import { SectionShell } from '../../../components/site/SectionShell'
 import { isLocale, Locale } from '../../../lib/i18n'
 import { getMessages } from '../../../lib/copy'
@@ -175,6 +176,7 @@ export default async function ContactPage({ params }: { params: Promise<{ locale
         </div>
       </section>
 
+      <FloatingActions locale={typedLocale} />
       <SiteFooter locale={typedLocale} />
     </main>
   )

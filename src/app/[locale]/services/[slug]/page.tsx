@@ -3,6 +3,7 @@ import { notFound } from 'next/navigation'
 import Link from 'next/link'
 import { SiteHeader } from '../../../../components/site/SiteHeader'
 import { SiteFooter } from '../../../../components/site/SiteFooter'
+import { FloatingActions } from '../../../../components/site/FloatingActions'
 import { ServiceCard } from '../../../../components/site/ServiceCard'
 import { isLocale, Locale } from '../../../../lib/i18n'
 import { createPageMetadata } from '../../../../lib/seo'
@@ -199,6 +200,7 @@ export default async function ServiceDetailPage({ params }: Props) {
         </section>
       )}
 
+      <FloatingActions locale={typedLocale} />
       <SiteFooter locale={typedLocale} />
     </main>
   )

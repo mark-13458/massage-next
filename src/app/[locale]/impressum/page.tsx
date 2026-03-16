@@ -2,6 +2,7 @@ import { Metadata } from 'next'
 import { Locale, isLocale } from '../../../lib/i18n'
 import { SiteHeader } from '../../../components/site/SiteHeader'
 import { SiteFooter } from '../../../components/site/SiteFooter'
+import { FloatingActions } from '../../../components/site/FloatingActions'
 import { SectionShell } from '../../../components/site/SectionShell'
 import { getContactSettings } from '../../../server/services/site.service'
 import { notFound } from 'next/navigation'
@@ -83,6 +84,7 @@ export default async function ImprintPage({ params }: Props) {
           )}
         </div>
       </SectionShell>
+      <FloatingActions locale={typedLocale} />
       <SiteFooter locale={typedLocale} />
     </main>
   )

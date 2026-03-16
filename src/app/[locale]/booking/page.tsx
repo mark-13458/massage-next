@@ -2,6 +2,7 @@ import type { Metadata } from 'next'
 import { notFound } from 'next/navigation'
 import { SiteHeader } from '../../../components/site/SiteHeader'
 import { SiteFooter } from '../../../components/site/SiteFooter'
+import { FloatingActions } from '../../../components/site/FloatingActions'
 import { SectionShell } from '../../../components/site/SectionShell'
 import { BookingForm } from '../../../components/site/BookingForm'
 import { getMessages } from '../../../lib/copy'
@@ -78,6 +79,7 @@ export default async function BookingPage({ params }: { params: Promise<{ locale
           }}
         />
       </SectionShell>
+      <FloatingActions locale={typedLocale} />
       <SiteFooter locale={typedLocale} />
     </main>
   )

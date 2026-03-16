@@ -5,6 +5,7 @@ import { notFound } from 'next/navigation'
 import { HeroSection } from '../../components/site/HeroSection'
 import { SectionShell } from '../../components/site/SectionShell'
 import { ServiceCard } from '../../components/site/ServiceCard'
+import { FloatingActions } from '../../components/site/FloatingActions'
 import { SiteFooter } from '../../components/site/SiteFooter'
 import { SiteHeader } from '../../components/site/SiteHeader'
 import { getMessages } from '../../lib/copy'
@@ -325,6 +326,7 @@ export default async function LocaleHome({ params }: { params: Promise<{ locale:
         </div>
       </SectionShell>
 
+      <FloatingActions locale={typedLocale} />
       <SiteFooter locale={typedLocale} />
     </main>
   )

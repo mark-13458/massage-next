@@ -471,3 +471,8 @@
 - 修复"预约防护"卡片中"下一步：改约/取消 token 安全链接"为已完成状态（✓），该功能已在 Phase 19 实现
 
 - `npm run build` 验证通过 ✅
+
+## Phase 42 — 悬浮窗预约按钮 + WhatsApp 链接按钮（2026-03-16）
+- 新建 `src/components/site/FloatingActions.tsx`：server component，读取 `getContactSettings()` 获取电话号码，自动转换 WhatsApp 格式（+49 前缀），包含 WhatsApp 绿色圆形按钮 + 预约 CTA 按钮，`fixed bottom-5 right-4 z-50`
+- 所有前台页面插入 `<FloatingActions locale={typedLocale} />`：`page.tsx`（首页）、`about`、`booking`、`contact`、`gallery`、`services`、`services/[slug]`、`impressum`、`privacy`、`booking/manage/[token]`
+- `npm run build` 验证通过 ✓
