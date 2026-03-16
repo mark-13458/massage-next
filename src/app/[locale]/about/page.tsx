@@ -65,13 +65,13 @@ export default async function AboutPage({ params }: { params: Promise<{ locale: 
             <div className="mt-5 space-y-4 text-sm leading-7 text-brown-700">
               <p>
                 {typedLocale === 'de'
-                  ? 'Wir bauen diese Website bewusst mit klarer Struktur: verständliche Leistungen, transparente Preise, einfache Kontaktwege und eine angenehme Markenwirkung.'
-                  : 'We are intentionally building this website with clarity: understandable services, transparent pricing, simple contact paths and a polished brand experience.'}
+                  ? 'Wir legen Wert auf klare Strukturen: verständliche Leistungen, transparente Preise, einfache Kontaktwege und eine angenehme Atmosphäre, die Vertrauen schafft.'
+                  : 'We value clarity: understandable services, transparent pricing, simple contact paths and a welcoming atmosphere that builds trust.'}
               </p>
               <p>
                 {typedLocale === 'de'
-                  ? 'Langfristig soll daraus ein kleines, aber sehr brauchbares Betreiber-System entstehen: mit Buchungen, Inhalten, Bildern, Öffnungszeiten und SEO-Pflege in einem chinesischsprachigen Backend.'
-                  : 'Over time this will become a compact but practical operating system for the studio: bookings, content, imagery, opening hours and SEO maintenance inside a Chinese-language admin backend.'}
+                  ? 'Jede Behandlung wird individuell abgestimmt. Unser Ziel ist nicht Quantität, sondern nachhaltige Qualität und das Wohlbefinden unserer Gäste.'
+                  : 'Every treatment is individually tailored. Our goal is not quantity, but lasting quality and the wellbeing of our guests.'}
               </p>
             </div>
           </article>

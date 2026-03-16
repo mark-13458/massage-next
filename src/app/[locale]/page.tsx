@@ -105,6 +105,7 @@ export default async function LocaleHome({ params }: { params: Promise<{ locale:
               featured={service.isFeatured}
               currency={settings?.currency || 'EUR'}
               locale={typedLocale}
+              slug={service.slug}
             />
           ))}
         </div>

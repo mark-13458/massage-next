@@ -221,6 +221,15 @@
 
 ---
 
+## Phase 26 — 前台完善（2026-03-16）
+- 首页 ServiceCard 补传 `slug`，服务卡片现在可点击跳转详情页
+- `about/page.tsx` 移除开发内部说明文案，替换为真实品牌文案
+- `SiteFooter` 重构：4 列布局，补导航链接栏，底部补 Impressum / Datenschutz 合规链接 + 版权年份
+- `SiteHeader` 新增移动端汉堡菜单（`MobileMenu` client 组件），手机上导航可用
+- `npm run build` 验证通过 ✅
+
+---
+
 ## 当前状态（截至 2026-03-16）
 
 ### 已具备
