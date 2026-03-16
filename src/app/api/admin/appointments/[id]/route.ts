@@ -64,15 +64,20 @@ export async function PATCH(request: NextRequest, { params }: { params: { id: st
       include: { service: true },
     })
 
-    // Async: Send customer confirmation email if status became CONFIRMED
-    if (nextStatus === AppointmentStatus.CONFIRMED) {
-      // Check feature flag before sending
+    // Async: Send customer email on status change
+    if (nextStatus === AppointmentStatus.CONFIRMED || nextStatus === AppointmentStatus.CANCELLED) {
       getSystemSettings().then(settings => {
         if (settings?.featureEnableEmailReminders !== false) {
-          import('../../../../../server/services/mail.service').then(({ sendCustomerConfirmationEmail }) => {
-            sendCustomerConfirmationEmail(item as any).catch(err => 
-              console.error('Failed to send customer confirmation email:', err)
-            )
+          import('../../../../../server/services/mail.service').then((mail) => {
+            if (nextStatus === AppointmentStatus.CONFIRMED) {
+              mail.sendCustomerConfirmationEmail(item as any).catch(err =>
+                console.error('Failed to send customer confirmation email:', err)
+              )
+            } else if (nextStatus === AppointmentStatus.CANCELLED) {
+              mail.sendCustomerCancelledEmail(item as any).catch(err =>
+                console.error('Failed to send customer cancellation email:', err)
+              )
+            }
           })
         }
       }).catch(() => { /* ignore settings fetch error */ })

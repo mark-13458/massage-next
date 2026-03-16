@@ -199,6 +199,28 @@
 
 ---
 
+## Phase 25 — 后台全链路审查 + Bug 修复（2026-03-16）
+
+审查范围：登录 → Dashboard → 预约 → 服务 → 内容 → 图库 → 退出
+
+**修复 1：`logout/route.ts` import 路径错误**
+- 原路径 `../../../../../src/lib/...` 多了一层 `src/`，导致退出登录接口 500
+- 修正为 `../../../../lib/...`
+
+**修复 2：取消预约时未发送客户取消邮件**
+- `appointments/[id]/route.ts` 状态变为 `CANCELLED` 时未调用 `sendCustomerCancelledEmail`
+- 合并 CONFIRMED / CANCELLED 两个分支，统一在状态变更后按 feature flag 发送对应邮件
+
+**审查结论（无问题）**：
+- `utils.ts`：`getIpAddress` 存在且逻辑正确
+- `booking/route.ts`：商家通知 + 客户收到邮件均在创建时触发，逻辑正确
+- `services/[id]/route.ts`：PATCH + DELETE 完整，有关联预约保护
+- `gallery/[id]/route.ts`：封面唯一性约束正确
+- `content/route.ts`：contact/hero/hours/faq/gallery 全链路 upsert 逻辑正确
+- 所有后台页面均有 `getCurrentAdmin()` 鉴权 + `force-dynamic`
+
+---
+
 ## 当前状态（截至 2026-03-16）
 
 ### 已具备
@@ -222,5 +244,4 @@
 - Docker + Nginx 联调通过，上传目录持久化已配置
 
 ### 未完成（优先级排序）
-1. **P1** 商家通知邮件在预约确认时触发（当前只在创建时触发）
-2. **P3** 测试环境 smoke test → 生产上线联调
+1. **P3** 测试环境 smoke test → 生产上线联调
