@@ -20,7 +20,7 @@ type ServiceFilter = (typeof allowedFilters)[number]
 export default async function AdminServicesPage({
   searchParams,
 }: {
-  searchParams?: Promise<{ filter?: string }>
+  searchParams?: Promise<{ filter?: string; q?: string }>
 }) {
   const admin = await getCurrentAdmin()
   if (!admin) redirect('/admin/login')
@@ -30,6 +30,7 @@ export default async function AdminServicesPage({
   const resolvedSearchParams = (await searchParams) ?? {}
   const rawFilter = String(resolvedSearchParams.filter || 'all').toLowerCase()
   const selectedFilter = (allowedFilters.includes(rawFilter as ServiceFilter) ? rawFilter : 'all') as ServiceFilter
+  const searchQuery = String(resolvedSearchParams.q || '').trim().toLowerCase()
 
   const filters = [
     { key: 'all', labelZh: '全部', labelEn: 'All' },
@@ -39,10 +40,15 @@ export default async function AdminServicesPage({
   ] as const
 
   const filteredServices = services.filter((item) => {
-    if (selectedFilter === 'active') return item.isActive
-    if (selectedFilter === 'inactive') return !item.isActive
-    if (selectedFilter === 'featured') return item.isFeatured
-    return true
+    const matchesFilter =
+      selectedFilter === 'active' ? item.isActive :
+      selectedFilter === 'inactive' ? !item.isActive :
+      selectedFilter === 'featured' ? item.isFeatured : true
+    const matchesSearch = !searchQuery ||
+      item.nameDe.toLowerCase().includes(searchQuery) ||
+      item.nameEn.toLowerCase().includes(searchQuery) ||
+      (item.slug || '').toLowerCase().includes(searchQuery)
+    return matchesFilter && matchesSearch
   })
 
   return (
@@ -69,6 +75,24 @@ export default async function AdminServicesPage({
             {pick(lang, `全部服务 ${services.length} 项`, `Total services: ${services.length}`)}
           </span>
         </div>
+        <form method="GET" action="/admin/services" className="flex items-center gap-2">
+          {selectedFilter !== 'all' && <input type="hidden" name="filter" value={selectedFilter} />}
+          <input
+            type="text"
+            name="q"
+            defaultValue={searchQuery}
+            placeholder={pick(lang, '搜索服务名称或 slug…', 'Search by name or slug…')}
+            className="w-64 rounded-full border border-stone-300 bg-white px-4 py-2 text-sm text-stone-900 outline-none placeholder:text-stone-400 focus:border-amber-500"
+          />
+          <button type="submit" className="rounded-full bg-stone-900 px-4 py-2 text-sm font-medium text-white transition hover:bg-stone-800">
+            {pick(lang, '搜索', 'Search')}
+          </button>
+          {searchQuery && (
+            <Link href={selectedFilter !== 'all' ? `/admin/services?filter=${selectedFilter}` : '/admin/services'} className="rounded-full border border-stone-300 bg-white px-4 py-2 text-sm font-medium text-stone-700 transition hover:border-stone-500">
+              {pick(lang, '清除', 'Clear')}
+            </Link>
+          )}
+        </form>
         <div className="flex flex-wrap items-center gap-3">
         {filters.map((filter) => {
           const href = filter.key === 'all' ? '/admin/services' : `/admin/services?filter=${filter.key}`

@@ -96,6 +96,21 @@ export default async function AppointmentDetailPage({ params }: { params: Promis
               <AppointmentQuickActions id={appointment.id} lang={lang} currentStatus={appointment.status} />
             </AdminDetailBlock>
 
+            <AdminDetailBlock title={pick(lang, '关联服务', 'Related service')}>
+              <div className="space-y-2 text-sm">
+                <p className="font-semibold text-stone-900">{appointment.service.nameDe}</p>
+                {appointment.service.nameEn && <p className="text-stone-500">{appointment.service.nameEn}</p>}
+                <div className="flex flex-wrap gap-2 pt-1">
+                  <Link href={`/admin/services/${appointment.service.id}`} className="rounded-full border border-stone-300 bg-white px-3 py-1.5 text-xs font-medium text-stone-700 transition hover:border-stone-500">
+                    {pick(lang, '编辑服务', 'Edit service')}
+                  </Link>
+                  <Link href={`/admin/appointments?status=ALL`} className="rounded-full border border-stone-300 bg-white px-3 py-1.5 text-xs font-medium text-stone-700 transition hover:border-stone-500">
+                    {pick(lang, '全部预约', 'All bookings')}
+                  </Link>
+                </div>
+              </div>
+            </AdminDetailBlock>
+
             <AdminDetailBlock title={pick(lang, '状态操作', 'Status handling')}>
               <div className="flex flex-wrap items-center justify-between gap-3">
                 {getStatusBadge(appointment.status, lang)}
