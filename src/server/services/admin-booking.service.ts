@@ -1,5 +1,5 @@
 import { AppointmentStatus } from '@prisma/client'
-import { findAdminAppointmentById, findAdminAppointments, findAppointmentByToken } from '../repositories/admin/booking.repository'
+import { findAdminAppointmentById, findAdminAppointments, findAppointmentByToken, getAppointmentStatusCounts } from '../repositories/admin/booking.repository'
 import { toAdminBookingListItem } from '../view-models/admin/booking.vm'
 
 export type GetAdminAppointmentsOptions = {
@@ -48,5 +48,16 @@ export async function getAppointmentByToken(token: string) {
     return await findAppointmentByToken(token)
   } catch {
     return null
+  }
+}
+
+export async function getAdminAppointmentStatusCounts() {
+  if (!process.env.DATABASE_URL) {
+    return { PENDING: 0, CONFIRMED: 0, COMPLETED: 0, CANCELLED: 0, NO_SHOW: 0 }
+  }
+  try {
+    return await getAppointmentStatusCounts()
+  } catch {
+    return { PENDING: 0, CONFIRMED: 0, COMPLETED: 0, CANCELLED: 0, NO_SHOW: 0 }
   }
 }

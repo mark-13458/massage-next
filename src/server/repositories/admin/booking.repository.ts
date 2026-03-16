@@ -50,3 +50,11 @@ export async function findAppointmentByToken(token: string) {
     include: { service: true },
   })
 }
+
+export async function getAppointmentStatusCounts() {
+  const statuses = ['PENDING', 'CONFIRMED', 'COMPLETED', 'CANCELLED', 'NO_SHOW'] as const
+  const counts = await Promise.all(
+    statuses.map((status) => prisma.appointment.count({ where: { status } }))
+  )
+  return Object.fromEntries(statuses.map((s, i) => [s, counts[i]])) as Record<typeof statuses[number], number>
+}

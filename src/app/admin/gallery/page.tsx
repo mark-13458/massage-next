@@ -181,8 +181,8 @@ export default async function AdminGalleryPage({
                           </div>
                         </dl>
 
-                        <div className="rounded-2xl border border-stone-200 bg-white px-4 py-3 text-xs leading-6 text-stone-500">
-                          {item.imageUrl}
+                        <div className="rounded-2xl border border-stone-200 bg-stone-50 px-4 py-3 text-xs leading-6 text-stone-500 font-mono truncate" title={item.imageUrl ?? ''}>
+                          {item.imageUrl ? item.imageUrl.split('/').pop() : '—'}
                         </div>
 
                         <GalleryQuickActions

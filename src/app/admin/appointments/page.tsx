@@ -8,12 +8,12 @@ import { getCurrentAdmin } from '../../../lib/auth'
 import { getAdminLang, pick } from '../../../lib/admin-i18n'
 import { bookingSourceLabel } from '../../../lib/admin-booking-copy'
 import { appointmentStatusLabel } from '../../../lib/admin-status'
-import { getAdminAppointments } from '../../../server/services/admin-booking.service'
+import { getAdminAppointments, getAdminAppointmentStatusCounts } from '../../../server/services/admin-booking.service'
 
 export const dynamic = 'force-dynamic'
 export const revalidate = 0
 
-function getStatusBadge(status: AppointmentStatus, lang: 'zh' | 'en') {
+function StatusBadge({ status, lang }: { status: AppointmentStatus; lang: 'zh' | 'en' }) {
   const styles: Record<AppointmentStatus, string> = {
     PENDING: 'bg-amber-50 text-amber-700 border-amber-200',
     CONFIRMED: 'bg-sky-50 text-sky-700 border-sky-200',
@@ -44,16 +44,15 @@ export default async function AdminAppointmentsPage({
   const selectedStatus = (allowedStatuses.includes(rawStatus as StatusFilter) ? rawStatus : 'ALL') as StatusFilter
   const searchQuery = String(resolvedSearchParams.q || '').trim().toLowerCase()
 
-  const [lang, result] = await Promise.all([
+  const [lang, result, statusCounts] = await Promise.all([
     getAdminLang(),
-    getAdminAppointments({ status: selectedStatus === 'ALL' ? undefined : selectedStatus as AppointmentStatus, pageSize: 100 }),
+    getAdminAppointments({
+      status: selectedStatus === 'ALL' ? undefined : selectedStatus as AppointmentStatus,
+      pageSize: 100,
+    }),
+    getAdminAppointmentStatusCounts(),
   ])
 
-  // 全量统计用（不受搜索词影响）
-  const allResult = await getAdminAppointments({ pageSize: 200 })
-  const allItems = allResult.items
-
-  // 搜索过滤（客户名 / 电话）
   const appointments = searchQuery
     ? result.items.filter((item) =>
         item.customerName.toLowerCase().includes(searchQuery) ||
@@ -68,15 +67,6 @@ export default async function AdminAppointmentsPage({
     { key: 'CANCELLED', labelZh: '已取消', labelEn: 'Cancelled' },
   ] as const
 
-  // 构建搜索 URL（保留 status 参数）
-  function searchUrl(q: string) {
-    const params = new URLSearchParams()
-    if (selectedStatus !== 'ALL') params.set('status', selectedStatus)
-    if (q) params.set('q', q)
-    const qs = params.toString()
-    return `/admin/appointments${qs ? `?${qs}` : ''}`
-  }
-
   function statusUrl(status: string) {
     const params = new URLSearchParams()
     if (status !== 'ALL') params.set('status', status)
@@ -90,7 +80,7 @@ export default async function AdminAppointmentsPage({
       lang={lang}
       title={pick(lang, '预约管理', 'Bookings')}
       subtitle={pick(lang, '查看预约、筛选状态、搜索客户、修改状态、写备注，或进入详情页处理完整预约信息。', 'Filter by status, search customers, update states, leave internal notes and open full booking details.')}
-      pendingCount={allItems.filter((e) => e.status === 'PENDING').length}
+      pendingCount={statusCounts.PENDING}
     >
       {/* 工具栏 */}
       <div className="mb-6 space-y-3">
@@ -102,7 +92,7 @@ export default async function AdminAppointmentsPage({
             {pick(lang, `当前结果 ${appointments.length} 条`, `Results: ${appointments.length}`)}
           </span>
           <span className="rounded-full border border-stone-300 bg-white px-4 py-2 text-sm font-medium text-stone-700">
-            {pick(lang, `全部 ${allResult.total} 条`, `Total: ${allResult.total}`)}
+            {pick(lang, `全部 ${result.total} 条`, `Total: ${result.total}`)}
           </span>
         </div>
 
@@ -146,7 +136,7 @@ export default async function AdminAppointmentsPage({
           {statusSummary.map((item) => (
             <Link key={item.key} href={statusUrl(item.key)} className="rounded-3xl border border-stone-200 bg-white px-5 py-4 shadow-sm transition hover:border-stone-300">
               <p className="text-[11px] font-semibold uppercase tracking-[0.24em] text-stone-400">{pick(lang, item.labelZh, item.labelEn)}</p>
-              <p className="mt-3 text-3xl font-semibold text-stone-900">{allItems.filter((e) => e.status === item.key).length}</p>
+              <p className="mt-3 text-3xl font-semibold text-stone-900">{statusCounts[item.key]}</p>
             </Link>
           ))}
         </div>
@@ -159,15 +149,15 @@ export default async function AdminAppointmentsPage({
           <div className="space-y-3 text-sm">
             <Link href="/admin/appointments?status=PENDING" className="flex items-center justify-between rounded-2xl border border-stone-200 bg-white px-4 py-3 text-stone-700 transition hover:border-stone-400">
               <span>{pick(lang, '处理待确认预约', 'Handle pending bookings')}</span>
-              <span className="font-semibold text-stone-900">{allItems.filter((e) => e.status === 'PENDING').length}</span>
+              <span className="font-semibold text-stone-900">{statusCounts.PENDING}</span>
             </Link>
             <Link href="/admin/appointments?status=CONFIRMED" className="flex items-center justify-between rounded-2xl border border-stone-200 bg-white px-4 py-3 text-stone-700 transition hover:border-stone-400">
               <span>{pick(lang, '查看已确认预约', 'Review confirmed bookings')}</span>
-              <span className="font-semibold text-stone-900">{allItems.filter((e) => e.status === 'CONFIRMED').length}</span>
+              <span className="font-semibold text-stone-900">{statusCounts.CONFIRMED}</span>
             </Link>
             <Link href="/admin/appointments?status=COMPLETED" className="flex items-center justify-between rounded-2xl border border-stone-200 bg-white px-4 py-3 text-stone-700 transition hover:border-stone-400">
               <span>{pick(lang, '查看已完成预约', 'Review completed bookings')}</span>
-              <span className="font-semibold text-stone-900">{allItems.filter((e) => e.status === 'COMPLETED').length}</span>
+              <span className="font-semibold text-stone-900">{statusCounts.COMPLETED}</span>
             </Link>
           </div>
           <div className="border-t border-stone-100 pt-4">
@@ -179,7 +169,7 @@ export default async function AdminAppointmentsPage({
               </Link>
               <Link href="/admin/appointments?status=NO_SHOW" className="flex items-center justify-between rounded-2xl border border-stone-200 bg-white px-4 py-3 text-stone-700 transition hover:border-stone-400">
                 <span>{pick(lang, '查看爽约记录', 'Review no-show bookings')}</span>
-                <span className="font-semibold text-stone-900">{allItems.filter((e) => e.status === 'NO_SHOW').length}</span>
+                <span className="font-semibold text-stone-900">{statusCounts.NO_SHOW}</span>
               </Link>
             </div>
           </div>
@@ -203,40 +193,57 @@ export default async function AdminAppointmentsPage({
             <table className="min-w-full divide-y divide-stone-100 text-sm">
               <thead className="bg-stone-50">
                 <tr>
-                  {[pick(lang, '客户', 'Customer'), pick(lang, '服务', 'Service'), pick(lang, '预约时间', 'Booking time'), pick(lang, '当前状态 / 操作', 'Status / actions'), pick(lang, '来源', 'Source'), pick(lang, '联系方式', 'Contact'), pick(lang, '详情', 'Details'), pick(lang, '提交时间', 'Created at')].map((label) => (
-                    <th key={label} className="px-6 py-4 text-left font-semibold text-stone-700">{label}</th>
+                  {[
+                    pick(lang, '客户', 'Customer'),
+                    pick(lang, '服务 / 时间', 'Service / time'),
+                    pick(lang, '状态 / 操作', 'Status / actions'),
+                    pick(lang, '联系方式', 'Contact'),
+                    pick(lang, '来源', 'Source'),
+                    pick(lang, '详情', 'Details'),
+                  ].map((label) => (
+                    <th key={label} className="px-5 py-4 text-left font-semibold text-stone-700">{label}</th>
                   ))}
                 </tr>
               </thead>
               <tbody className="divide-y divide-stone-100 bg-white">
                 {appointments.map((item) => (
                   <tr key={item.id} className="align-top">
-                    <td className="px-6 py-4">
+                    {/* 客户 */}
+                    <td className="px-5 py-4">
                       <div className="font-semibold text-stone-900">{item.customerName}</div>
-                      {item.notes ? <div className="mt-2 max-w-xs text-xs leading-6 text-stone-500">{pick(lang, '客户备注：', 'Note: ')}{item.notes}</div> : null}
+                      {item.notes ? (
+                        <div className="mt-1 max-w-[200px] truncate text-xs text-stone-400" title={item.notes}>
+                          {item.notes}
+                        </div>
+                      ) : null}
+                      <div className="mt-1 text-[11px] text-stone-400">{item.createdAtLabel}</div>
                     </td>
-                    <td className="px-6 py-4 text-stone-700">{item.serviceName}</td>
-                    <td className="px-6 py-4 text-stone-700">
-                      <div>{item.appointmentDateLabel}</div>
-                      <div className="mt-1 text-xs text-stone-500">{item.appointmentTimeLabel}</div>
+                    {/* 服务 / 时间 */}
+                    <td className="px-5 py-4">
+                      <div className="font-medium text-stone-800">{item.serviceName}</div>
+                      <div className="mt-1 text-xs text-stone-500">{item.appointmentDateLabel}</div>
+                      <div className="text-xs text-stone-400">{item.appointmentTimeLabel}</div>
                     </td>
-                    <td className="px-6 py-4">
-                      <div className="space-y-3">
-                        <div>{getStatusBadge(item.status, lang)}</div>
+                    {/* 状态 / 操作 */}
+                    <td className="px-5 py-4">
+                      <div className="space-y-2">
+                        <StatusBadge status={item.status} lang={lang} />
                         <AppointmentStatusControls id={item.id} currentStatus={item.status} internalNote={item.internalNote} lang={lang} />
                       </div>
                     </td>
-                    <td className="px-6 py-4 text-stone-700">{bookingSourceLabel(item.source, lang)}</td>
-                    <td className="px-6 py-4 text-stone-700">
-                      <div>{item.customerPhone}</div>
-                      {item.customerEmail ? <div className="mt-1 text-xs text-stone-500">{item.customerEmail}</div> : null}
+                    {/* 联系方式 */}
+                    <td className="px-5 py-4">
+                      <div className="text-stone-700">{item.customerPhone}</div>
+                      {item.customerEmail ? <div className="mt-1 text-xs text-stone-400">{item.customerEmail}</div> : null}
                     </td>
-                    <td className="px-6 py-4">
+                    {/* 来源 */}
+                    <td className="px-5 py-4 text-stone-500 text-xs">{bookingSourceLabel(item.source, lang)}</td>
+                    {/* 详情 */}
+                    <td className="px-5 py-4">
                       <Link href={`/admin/appointments/${item.id}`} className="rounded-full border border-stone-300 bg-white px-4 py-2 text-xs font-medium text-stone-700 transition hover:border-stone-500">
-                        {pick(lang, '查看详情', 'View details')}
+                        {pick(lang, '查看', 'View')}
                       </Link>
                     </td>
-                    <td className="px-6 py-4 text-stone-500">{item.createdAtLabel}</td>
                   </tr>
                 ))}
               </tbody>
