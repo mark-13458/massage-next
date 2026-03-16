@@ -307,7 +307,7 @@ export function BookingForm({ locale, services, contact, hours = [], currency = 
             <div className="rounded-2xl border border-stone-800 bg-stone-900 p-4">
               <p className="font-semibold text-white">{labels.openingHours}</p>
               <div className="mt-2 space-y-1">
-                {hours.length > 0 ? hours.slice(0, 3).map((item) => (
+                {hours.length > 0 ? hours.map((item) => (
                   <p key={item.weekday}>{item.label}: {item.isClosed ? labels.closed : `${item.openTime} – ${item.closeTime}`}</p>
                 )) : (
                   <>

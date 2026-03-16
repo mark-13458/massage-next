@@ -1,4 +1,4 @@
-import type { Metadata } from 'next'
+﻿import type { Metadata } from 'next'
 import Link from 'next/link'
 import { notFound } from 'next/navigation'
 import { HeroSection } from '../../components/site/HeroSection'
@@ -149,6 +149,13 @@ export default async function LocaleHome({ params }: { params: Promise<{ locale:
         <div className="grid gap-6 lg:grid-cols-3">
           {testimonials.map((item) => (
             <article key={item.id} className="rounded-[2rem] border border-stone-200 bg-white p-6 shadow-soft">
+              {item.rating != null && item.rating > 0 && (
+                <div className="mb-3 flex gap-0.5">
+                  {Array.from({ length: 5 }).map((_, i) => (
+                    <span key={i} className={i < item.rating! ? 'text-amber-400' : 'text-stone-200'}>★</span>
+                  ))}
+                </div>
+              )}
               <p className="text-base leading-7 text-brown-800">“{item.content}”</p>
               <p className="mt-4 text-sm font-semibold text-brown-600">— {item.customerName}</p>
             </article>
@@ -182,8 +189,8 @@ export default async function LocaleHome({ params }: { params: Promise<{ locale:
             <h3 className="text-2xl font-semibold text-white">{typedLocale === 'de' ? 'Kontakt' : 'Contact'}</h3>
             <div className="mt-5 space-y-4 text-sm leading-7 text-stone-300">
               <p><span className="font-semibold text-white">{typedLocale === 'de' ? 'Adresse' : 'Address'}:</span> {contact?.address ?? 'Arnulfstraße 104, 80636 München'}</p>
-              <p><span className="font-semibold text-white">{typedLocale === 'de' ? 'Telefon' : 'Phone'}:</span> {contact?.phone ?? '015563 188800'}</p>
-              <p><span className="font-semibold text-white">E-Mail:</span> {contact?.email ?? 'chinesischemassage8@gmail.com'}</p>
+              <p><span className="font-semibold text-white">{typedLocale === 'de' ? 'Telefon' : 'Phone'}:</span> <a href={`tel:${contact?.phone ?? '015563 188800'}`} className="hover:text-white transition">{contact?.phone ?? '015563 188800'}</a></p>
+              <p><span className="font-semibold text-white">E-Mail:</span> <a href={`mailto:${contact?.email ?? 'chinesischemassage8@gmail.com'}`} className="hover:text-white transition">{contact?.email ?? 'chinesischemassage8@gmail.com'}</a></p>
               <p><span className="font-semibold text-white">{typedLocale === 'de' ? 'Währung' : 'Currency'}:</span> {settings?.currency || 'EUR'}</p>
             </div>
             <div className="mt-6">

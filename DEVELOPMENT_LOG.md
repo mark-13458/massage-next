@@ -387,7 +387,16 @@
 - 预约详情页 aside 新增"关联服务"区块，含"编辑服务"和"全部预约"快捷链接
 - `npm run build` 验证通过 ✅
 
-## Phase 35 — 预约搜索服务端化 + 日期筛选 + 页面清理（2026-03-16）
+## Phase 36 — 前台细节完善（2026-03-16）
+
+- 首页评价区块补星级显示（amber 色实心星 / 灰色空心星），`rating` 为 null 或 0 时不显示，与 about 页对齐
+- 首页联系区块电话/邮箱改为可点击 `tel:` / `mailto:` 链接，hover 变白色
+- `BookingForm` aside 营业时间移除 `slice(0, 3)`，改为显示全部营业时间
+- 服务列表页底部新增预约 CTA 区块（深色背景，含跳转预约页按钮）
+
+- `npm run build` 验证通过 ✅
+
+
 
 **预约管理**
 - 搜索从客户端 filter 改为服务端查询：repository 新增 `search` 字段（Prisma `OR` 条件，匹配 customerName / customerPhone），service 层透传，页面层直接传 `search` 参数

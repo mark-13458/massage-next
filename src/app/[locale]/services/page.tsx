@@ -1,4 +1,5 @@
 import type { Metadata } from 'next'
+import Link from 'next/link'
 import { notFound } from 'next/navigation'
 import { SiteHeader } from '../../../components/site/SiteHeader'
 import { SiteFooter } from '../../../components/site/SiteFooter'
@@ -71,6 +72,22 @@ export default async function ServicesPage({ params }: { params: Promise<{ local
               slug={service.slug}
             />
           ))}
+        </div>
+        <div className="mt-12 rounded-[2rem] border border-stone-200 bg-stone-950 p-8 text-center shadow-soft">
+          <p className="text-lg font-semibold text-white">
+            {typedLocale === 'de' ? 'Bereit für Ihre Behandlung?' : 'Ready to book your treatment?'}
+          </p>
+          <p className="mt-2 text-sm text-stone-300">
+            {typedLocale === 'de'
+              ? 'Wählen Sie Ihre Wunschbehandlung und senden Sie eine Terminanfrage – das Studio bestätigt die Verfügbarkeit.'
+              : 'Choose your preferred treatment and send an appointment request – the studio will confirm availability.'}
+          </p>
+          <Link
+            href={`/${typedLocale}/booking`}
+            className="mt-6 inline-flex rounded-full bg-white px-6 py-3 text-sm font-semibold text-brown-900 transition hover:bg-stone-100"
+          >
+            {typedLocale === 'de' ? 'Termin anfragen' : 'Request appointment'}
+          </Link>
         </div>
       </SectionShell>
       <SiteFooter locale={typedLocale} />
