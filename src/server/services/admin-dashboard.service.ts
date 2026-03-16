@@ -7,6 +7,8 @@ export async function getAdminDashboardStats() {
       pendingAppointments: 0,
       servicesTotal: 0,
       testimonialsTotal: 0,
+      todayAppointments: 0,
+      weekAppointments: 0,
     }
   }
 

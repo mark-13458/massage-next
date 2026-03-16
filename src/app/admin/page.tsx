@@ -35,6 +35,8 @@ export default async function AdminPage() {
         items={[
           { labelZh: '全部预约', labelEn: 'All bookings', value: stats.appointmentsTotal },
           { labelZh: '待处理预约', labelEn: 'Pending bookings', value: stats.pendingAppointments, tone: 'accent' },
+          { labelZh: '今日新增', labelEn: 'Today', value: stats.todayAppointments },
+          { labelZh: '本周新增', labelEn: 'This week', value: stats.weekAppointments },
           { labelZh: '服务项目', labelEn: 'Services', value: stats.servicesTotal },
           { labelZh: '已发布评价', labelEn: 'Published testimonials', value: stats.testimonialsTotal },
         ]}
@@ -102,11 +104,12 @@ export default async function AdminPage() {
                 <span className="rounded-full border border-stone-200 bg-white px-3 py-1">{pick(lang, '再内容维护', 'Then content')}</span>
                 <span className="rounded-full border border-stone-200 bg-white px-3 py-1">{pick(lang, '最后安全巡检', 'Finish with security')}</span>
               </div>
-              <div className="grid gap-3 md:grid-cols-2 xl:grid-cols-4">
+              <div className="grid gap-3 md:grid-cols-2 xl:grid-cols-5">
                 {[
                   { title: pick(lang, '先处理预约', 'Start with bookings'), desc: pick(lang, '优先检查待确认和已确认预约。', 'Check pending and confirmed bookings first.'), href: '/admin/appointments?status=PENDING' },
                   { title: pick(lang, '再检查服务', 'Then review services'), desc: pick(lang, '确认服务是否已上架、推荐是否完整。', 'Confirm publish status and featured services.'), href: '/admin/services?filter=inactive' },
                   { title: pick(lang, '继续维护内容', 'Continue content work'), desc: pick(lang, '检查主视觉、FAQ、营业时间与联系信息。', 'Review hero content, FAQ, business hours and contact info.'), href: '/admin/content' },
+                  { title: pick(lang, '管理客户评价', 'Manage testimonials'), desc: pick(lang, '审核新评价，发布或取消发布。', 'Review new testimonials and manage publish status.'), href: '/admin/testimonials' },
                   { title: pick(lang, '最后巡检图片', 'Finish with media checks'), desc: pick(lang, '查看封面图、本地上传和启用中图片。', 'Inspect cover images, local uploads and active media.'), href: '/admin/gallery?filter=cover' },
                 ].map((item) => (
                   <Link key={item.title} href={item.href} className="rounded-3xl border border-stone-200 bg-white px-5 py-4 transition hover:border-stone-400 hover:shadow-sm">
@@ -149,12 +152,12 @@ export default async function AdminPage() {
                     <span>{pick(lang, '巡检封面图片', 'Inspect cover images')}</span>
                     <span className="text-white">→</span>
                   </Link>
-                  <Link href="/admin/settings" className="flex items-center justify-between rounded-2xl border border-white/10 bg-white/5 px-4 py-3 text-sm text-stone-200 transition hover:bg-white/10">
-                    <span>{pick(lang, '检查系统与安全设置', 'Review system and security settings')}</span>
+                  <Link href="/admin/testimonials" className="flex items-center justify-between rounded-2xl border border-white/10 bg-white/5 px-4 py-3 text-sm text-stone-200 transition hover:bg-white/10">
+                    <span>{pick(lang, '管理客户评价', 'Manage testimonials')}</span>
                     <span className="text-white">→</span>
                   </Link>
                   <Link href="/admin/settings" className="flex items-center justify-between rounded-2xl border border-white/10 bg-white/5 px-4 py-3 text-sm text-stone-200 transition hover:bg-white/10">
-                    <span>{pick(lang, '查看安全执行清单', 'Review security execution checklist')}</span>
+                    <span>{pick(lang, '检查系统与安全设置', 'Review system and security settings')}</span>
                     <span className="text-white">→</span>
                   </Link>
                 </div>
