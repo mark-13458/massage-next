@@ -24,14 +24,14 @@ export function AppointmentStatusControls({ id, currentStatus, internalNote, lan
   const router = useRouter()
   const [status, setStatus] = useState(currentStatus)
   const [note, setNote] = useState(internalNote ?? '')
+  const [saved, setSaved] = useState(false)
   const [message, setMessage] = useState('')
   const [messageTone, setMessageTone] = useState<NoticeTone>('info')
   const [isPending, startTransition] = useTransition()
 
   async function save() {
-    setMessage(t(lang, '正在保存预约状态…', 'Saving booking status...'))
-    setMessageTone('info')
-
+    setMessage('')
+    setSaved(false)
     startTransition(async () => {
       try {
         await adminRequest(`/api/admin/appointments/${id}`, {
@@ -39,8 +39,8 @@ export function AppointmentStatusControls({ id, currentStatus, internalNote, lan
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify({ status, internalNote: note }),
         })
-
-        setMessage(t(lang, '预约状态已保存，页面已刷新', 'Booking status saved and page refreshed'))
+        setSaved(true)
+        setMessage(t(lang, '已保存', 'Saved'))
         setMessageTone('success')
         router.refresh()
       } catch (error) {
@@ -79,7 +79,7 @@ export function AppointmentStatusControls({ id, currentStatus, internalNote, lan
           disabled={isPending}
           className="rounded-full bg-stone-900 px-4 py-2 text-xs font-semibold text-white transition hover:bg-stone-800 disabled:cursor-not-allowed disabled:opacity-70"
         >
-          {isPending ? t(lang, '保存中…', 'Saving...') : t(lang, '保存', 'Save')}
+          {isPending ? t(lang, '保存中…', 'Saving...') : saved ? t(lang, '✓ 已保存', '✓ Saved') : t(lang, '保存', 'Save')}
         </button>
         {message ? <NoticePill message={message} tone={messageTone} className="text-xs" /> : null}
       </div>

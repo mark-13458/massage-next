@@ -145,12 +145,12 @@ export function TestimonialCreateForm({ lang, onCreated }: { lang: AdminLang; on
   function submit() {
     startTransition(async () => {
       try {
-        const res = await adminRequest('/api/admin/testimonials', {
+        const data = await adminRequest<{ item: Item }>('/api/admin/testimonials', {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify({ ...form, rating: Number(form.rating), sortOrder: Number(form.sortOrder) }),
         })
-        const data = await res.json()
+        if (!data?.item) throw new Error('no item')
         onCreated(data.item)
         setForm({ customerName: '', locale: 'de', rating: '5', content: '', sortOrder: '0', isPublished: true })
         setOpen(false)

@@ -1,19 +1,21 @@
-import Link from 'next/link'
 import { AdminLanguageSwitcher } from './AdminLanguageSwitcher'
 import { AdminLogoutButton } from './AdminLogoutButton'
+import { AdminNav } from './AdminNav'
 import { AdminLang, pick } from '../../lib/admin-i18n'
 
-const navItems = [
-  { href: '/admin', labelZh: '概览', labelEn: 'Overview', descZh: '工作台', descEn: 'Dashboard', icon: '◈' },
-  { href: '/admin/appointments', labelZh: '预约管理', labelEn: 'Bookings', descZh: '预约', descEn: 'Bookings', icon: '◌' },
-  { href: '/admin/services', labelZh: '服务项目', labelEn: 'Services', descZh: '服务', descEn: 'Services', icon: '◇' },
-  { href: '/admin/content', labelZh: '网站内容', labelEn: 'Content', descZh: '文案与资料', descEn: 'Content', icon: '◎' },
-  { href: '/admin/gallery', labelZh: '图库管理', labelEn: 'Gallery', descZh: '图片资料', descEn: 'Media', icon: '▣' },
-  { href: '/admin/testimonials', labelZh: '客户评价', labelEn: 'Testimonials', descZh: '评价', descEn: 'Reviews', icon: '◉' },
-  { href: '/admin/settings', labelZh: '系统设置', labelEn: 'Settings', descZh: '配置', descEn: 'Settings', icon: '✦' },
-]
-
-export function AdminShell({ children, title, subtitle, lang = 'zh', pendingCount }: { children: React.ReactNode; title: string; subtitle?: string; lang?: AdminLang; pendingCount?: number }) {
+export function AdminShell({
+  children,
+  title,
+  subtitle,
+  lang = 'zh',
+  pendingCount,
+}: {
+  children: React.ReactNode
+  title: string
+  subtitle?: string
+  lang?: AdminLang
+  pendingCount?: number
+}) {
   return (
     <div className="min-h-screen bg-[#f4efe7] text-stone-900">
       <div className="grid min-h-screen lg:grid-cols-[280px_minmax(0,1fr)]">
@@ -24,39 +26,16 @@ export function AdminShell({ children, title, subtitle, lang = 'zh', pendingCoun
               <p className="text-[11px] font-semibold uppercase tracking-[0.34em] text-amber-300/90">{pick(lang, '养生后台', 'Wellness Admin')}</p>
               <h1 className="mt-4 text-2xl font-semibold tracking-tight text-white">China TCM Massage</h1>
               <p className="mt-3 max-w-xs text-sm leading-6 text-stone-300">
-                {pick(lang, '一个更适合日常运营的后台工作区：把预约、服务、网站内容与图片管理收拢到统一视图里。', 'A calmer operations workspace for daily management across bookings, services, content and media.')}
+                {pick(lang, '预约、服务、内容与图片管理的统一工作区。', 'A unified workspace for bookings, services, content and media.')}
               </p>
             </div>
 
-            <nav className="mt-10 grid gap-3">
-              {navItems.map((item) => (
-                <Link
-                  key={item.href}
-                  href={item.href}
-                  className="group rounded-2xl border border-white/8 bg-white/5 px-4 py-4 transition hover:border-amber-300/30 hover:bg-white/10"
-                >
-                  <div className="flex items-start gap-3">
-                    <div className="mt-0.5 flex h-9 w-9 items-center justify-center rounded-xl bg-amber-400/10 text-sm text-amber-200 ring-1 ring-amber-300/20">
-                      {item.icon}
-                    </div>
-                    <div className="flex-1">
-                      <div className="flex items-center gap-2">
-                        <span className="text-sm font-semibold text-white">{pick(lang, item.labelZh, item.labelEn)}</span>
-                        {item.href === '/admin/appointments' && pendingCount && pendingCount > 0 ? (
-                          <span className="rounded-full bg-amber-400 px-2 py-0.5 text-[10px] font-bold text-stone-900">{pendingCount}</span>
-                        ) : null}
-                      </div>
-                      <div className="mt-1 text-xs uppercase tracking-[0.24em] text-stone-400">{pick(lang, item.descZh, item.descEn)}</div>
-                    </div>
-                  </div>
-                </Link>
-              ))}
-            </nav>
+            <AdminNav lang={lang} pendingCount={pendingCount} />
 
             <div className="mt-auto rounded-3xl border border-white/10 bg-white/5 p-5 backdrop-blur-sm">
-              <p className="text-xs font-semibold uppercase tracking-[0.24em] text-stone-400">{pick(lang, '当前重点', 'Current Focus')}</p>
+              <p className="text-xs font-semibold uppercase tracking-[0.24em] text-stone-400">{pick(lang, '当前会话', 'Session')}</p>
               <p className="mt-3 text-sm leading-6 text-stone-200">
-                {pick(lang, '先把后台做成稳定、专业、易接手的运营台，再继续补更高级的安全策略与模板化体验。', 'Stabilize the admin into a professional, handoff-friendly workspace first, then layer in stronger security and richer templates.')}
+                {pick(lang, '受保护的管理员会话，8 小时滑动窗口。', 'Protected admin session with 8-hour sliding window.')}
               </p>
             </div>
           </div>
@@ -73,10 +52,6 @@ export function AdminShell({ children, title, subtitle, lang = 'zh', pendingCoun
 
               <div className="flex items-center gap-3">
                 <AdminLanguageSwitcher currentLang={lang} />
-                <div className="hidden rounded-2xl border border-stone-200 bg-white px-4 py-3 text-right shadow-sm sm:block">
-                  <p className="text-[11px] font-semibold uppercase tracking-[0.24em] text-stone-400">{pick(lang, '状态', 'Status')}</p>
-                  <p className="mt-1 text-sm font-medium text-stone-700">{pick(lang, '受保护的后台会话', 'Protected admin session')}</p>
-                </div>
                 <AdminLogoutButton lang={lang} />
               </div>
             </div>

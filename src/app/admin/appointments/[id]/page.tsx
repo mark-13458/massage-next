@@ -93,7 +93,7 @@ export default async function AppointmentDetailPage({ params }: { params: Promis
         aside={
           <>
             <AdminDetailBlock title={pick(lang, '快捷处理', 'Quick actions')}>
-              <AppointmentQuickActions id={appointment.id} lang={lang} />
+              <AppointmentQuickActions id={appointment.id} lang={lang} currentStatus={appointment.status} />
             </AdminDetailBlock>
 
             <AdminDetailBlock title={pick(lang, '状态操作', 'Status handling')}>

@@ -286,6 +286,18 @@
 
 ---
 
+## Phase 31 — 后台体验优化（2026-03-16）
+
+- `NoticePill`：成功消息 3 秒后自动消失，错误消息保持显示
+- `AdminShell` 侧边栏导航拆出 `AdminNav` client 组件，当前页高亮（active 状态 amber 色）
+- `AppointmentQuickActions`：加 `currentStatus` prop，当前状态按钮显示 ✓ 并禁用，其余按钮按状态着色（sky/emerald/rose/stone）
+- `AppointmentStatusControls`：保存按钮保存后显示 ✓ 已保存状态
+- `TestimonialControls`：修复 `adminRequest` 返回值处理错误（`res.json()` → 直接用返回值）
+- `AdminShell` 侧边栏文案精简，移除"当前重点"区块，改为会话信息
+- `npm run build` 验证通过 ✅
+
+---
+
 ## 当前状态（截至 2026-03-16）
 
 ### 已具备
