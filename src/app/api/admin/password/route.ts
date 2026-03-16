@@ -28,6 +28,10 @@ export async function POST(request: NextRequest) {
       return apiError('New password must be at least 8 characters', 400)
     }
 
+    if (!/[A-Z]/.test(newPassword) || !/[0-9]/.test(newPassword)) {
+      return apiError('New password must contain at least one uppercase letter and one number', 400)
+    }
+
     if (newPassword !== confirmPassword) {
       return apiError('New password and confirmation do not match', 400)
     }
@@ -50,6 +54,7 @@ export async function POST(request: NextRequest) {
 
     return apiOk()
   } catch (error) {
-    return apiError(error instanceof Error ? error.message : 'Unknown error', 500)
+    console.error('[admin/password] unexpected error:', error)
+    return apiError('Internal server error', 500)
   }
 }

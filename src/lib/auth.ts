@@ -5,7 +5,14 @@ import { prisma } from './prisma'
 const COOKIE_NAME = 'massage_admin_session'
 
 function getSecret() {
-  return process.env.SESSION_SECRET || 'dev-session-secret'
+  const secret = process.env.SESSION_SECRET
+  if (!secret) {
+    if (process.env.NODE_ENV === 'production') {
+      throw new Error('SESSION_SECRET env var is required in production')
+    }
+    return 'dev-session-secret'
+  }
+  return secret
 }
 
 function sign(value: string) {
@@ -44,10 +51,13 @@ export async function getCurrentAdmin() {
   if (!Number.isFinite(id) || !process.env.DATABASE_URL) return null
 
   try {
-    return await prisma.user.findUnique({
+    const user = await prisma.user.findUnique({
       where: { id },
       select: { id: true, email: true, name: true, role: true, isActive: true },
     })
+    // Reject sessions for deactivated accounts
+    if (!user?.isActive) return null
+    return user
   } catch {
     return null
   }

@@ -3,6 +3,7 @@ import { bookingSchema } from '../../../lib/validations/booking'
 import { verifyTurnstileToken } from '../../../lib/turnstile'
 import { createBooking } from '../../../server/services/booking.service'
 import { getSystemSettings } from '../../../server/services/site.service'
+import { getIpAddress } from '../../../lib/utils'
 
 const bookingRequestLog = new Map<string, number[]>()
 
@@ -23,8 +24,7 @@ export async function POST(request: NextRequest) {
       )
     }
 
-    const forwardedFor = request.headers.get('x-forwarded-for')
-    const remoteip = forwardedFor ? forwardedFor.split(',')[0]?.trim() : null
+    const remoteip = getIpAddress(request)
 
     if (systemSettings?.privacyConsentRequired !== false && !parsed.data.privacyConsent) {
       return NextResponse.json(
@@ -36,7 +36,7 @@ export async function POST(request: NextRequest) {
     const rateLimitWindowMin = systemSettings?.bookingRateLimitWindowMin || 15
     const rateLimitMaxRequests = systemSettings?.bookingRateLimitMaxRequests || 3
     const rateLimitWindowMs = rateLimitWindowMin * 60 * 1000
-    const bookingIdentifier = `${remoteip || 'unknown'}:${parsed.data.customerPhone}:${parsed.data.customerEmail || '-'}`
+    const bookingIdentifier = `${remoteip ?? 'anon'}:${parsed.data.customerPhone}:${parsed.data.customerEmail || '-'}`
     const now = Date.now()
     const previousAttempts = bookingRequestLog.get(bookingIdentifier) || []
     const recentAttempts = previousAttempts.filter((timestamp) => now - timestamp < rateLimitWindowMs)
@@ -94,11 +94,9 @@ export async function POST(request: NextRequest) {
       },
     })
   } catch (error) {
+    console.error('[api/booking] unexpected error:', error)
     return NextResponse.json(
-      {
-        status: 'error',
-        error: error instanceof Error ? error.message : 'Unknown error',
-      },
+      { status: 'error', error: 'Internal server error' },
       { status: 500 },
     )
   }
