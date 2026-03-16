@@ -267,6 +267,25 @@
 
 ---
 
+## Phase 30 — 服务页文案清理 + Testimonial 管理模块（2026-03-16）
+
+**Bug 修复**
+- `services/[id]/page.tsx` params 类型改为 `Promise<{ id: string }>`
+- `services/[id]/page.tsx` / `services/new/page.tsx` subtitle 清理开发阶段文案
+
+**新功能：Testimonial 管理**
+- 新增 `testimonial.repository.ts`：CRUD 完整封装
+- 新增 `admin-testimonial.service.ts`：service 层
+- 新增 `GET/POST /api/admin/testimonials`、`PATCH/DELETE /api/admin/testimonials/[id]`：完整 API，鉴权一致
+- 新增 `TestimonialControls.tsx`：行内编辑、一键发布/取消发布、删除（client 组件）
+- 新增 `TestimonialList.tsx`：client wrapper，管理列表状态（新增/删除实时更新）
+- 新增 `/admin/testimonials` 页面：完整管理工作台
+- `AdminShell` 侧边栏新增"客户评价"导航项
+- Dashboard 快速入口新增评价模块入口
+- `npm run build` 验证通过 ✅
+
+---
+
 ## 当前状态（截至 2026-03-16）
 
 ### 已具备

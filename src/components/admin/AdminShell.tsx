@@ -9,6 +9,7 @@ const navItems = [
   { href: '/admin/services', labelZh: '服务项目', labelEn: 'Services', descZh: '服务', descEn: 'Services', icon: '◇' },
   { href: '/admin/content', labelZh: '网站内容', labelEn: 'Content', descZh: '文案与资料', descEn: 'Content', icon: '◎' },
   { href: '/admin/gallery', labelZh: '图库管理', labelEn: 'Gallery', descZh: '图片资料', descEn: 'Media', icon: '▣' },
+  { href: '/admin/testimonials', labelZh: '客户评价', labelEn: 'Testimonials', descZh: '评价', descEn: 'Reviews', icon: '◉' },
   { href: '/admin/settings', labelZh: '系统设置', labelEn: 'Settings', descZh: '配置', descEn: 'Settings', icon: '✦' },
 ]
 

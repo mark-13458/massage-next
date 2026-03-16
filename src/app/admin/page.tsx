@@ -72,6 +72,12 @@ export default async function AdminPage() {
                     icon: '🖼️'
                   },
                   {
+                    title: pick(lang, '客户评价', 'Testimonials'),
+                    desc: pick(lang, '新增、编辑、发布/取消发布客户评价', 'Create, edit and publish customer testimonials.'),
+                    href: '/admin/testimonials',
+                    icon: '⭐'
+                  },
+                  {
                     title: pick(lang, '系统与安全', 'System & security'),
                     desc: pick(lang, '集中查看系统设置、验证码、防护与管理员安全入口', 'Review system settings, captcha protection and admin-security entry points in one place.'),
                     href: '/admin/settings',

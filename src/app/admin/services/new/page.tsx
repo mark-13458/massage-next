@@ -19,7 +19,7 @@ export default async function NewServicePage() {
     <AdminShell
       lang={lang}
       title={pick(lang, '新建服务', 'New service')}
-      subtitle={pick(lang, '现在服务管理已经进入表单阶段：可以直接创建双语服务条目。', 'Service management now has a full form workflow, so you can create bilingual service entries directly.')}
+      subtitle={pick(lang, '填写双语名称、摘要、描述、时长与价格，创建新的服务条目。', 'Fill in bilingual name, summary, description, duration and price to create a new service.')}
     >
       <AdminPageToolbar>
         <Link href="/admin/services" className="rounded-full border border-stone-300 bg-white px-4 py-2 text-sm font-medium text-stone-700 transition hover:border-stone-500">

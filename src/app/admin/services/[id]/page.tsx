@@ -11,12 +11,13 @@ import { getAdminServiceDetail } from '../../../../server/services/admin-service
 export const dynamic = 'force-dynamic'
 export const revalidate = 0
 
-export default async function EditServicePage({ params }: { params: { id: string } }) {
+export default async function EditServicePage({ params }: { params: Promise<{ id: string }> }) {
   const admin = await getCurrentAdmin()
   if (!admin) redirect('/admin/login')
 
   const lang = await getAdminLang()
-  const id = Number(params.id)
+  const { id: rawId } = await params
+  const id = Number(rawId)
   if (!Number.isFinite(id)) notFound()
 
   const service = await getAdminServiceDetail(id)
@@ -26,7 +27,7 @@ export default async function EditServicePage({ params }: { params: { id: string
     <AdminShell
       lang={lang}
       title={pick(lang, '编辑服务', 'Edit service')}
-      subtitle={pick(lang, '这一步已经不只是开关控制，而是可以直接维护服务的完整字段，并支持删除无关联预约的服务。', 'This page now goes beyond toggles: it supports editing the full service payload and deleting services with no related bookings.')}
+      subtitle={pick(lang, '编辑服务的双语文案、价格、时长、排序与上下架状态。', 'Edit bilingual copy, pricing, duration, sorting and publishing status.')}
     >
       <AdminPageToolbar>
         <Link href="/admin/services" className="rounded-full border border-stone-300 bg-white px-4 py-2 text-sm font-medium text-stone-700 transition hover:border-stone-500">
