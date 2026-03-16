@@ -66,7 +66,7 @@ export default async function BookingPage({ params }: { params: Promise<{ locale
       >
         <BookingForm
           locale={typedLocale}
-          services={services.map((service) => ({ ...service, price: service.price.toString() }))}
+          services={services.map((service) => ({ ...service, slug: service.slug, price: service.price.toString() }))}
           contact={contact}
           hours={hours}
           currency={settings?.currency || 'EUR'}

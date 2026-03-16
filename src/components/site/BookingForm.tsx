@@ -2,6 +2,7 @@
 
 import Script from 'next/script'
 import { useEffect, useMemo, useState } from 'react'
+import { useSearchParams } from 'next/navigation'
 import { Locale } from '../../lib/i18n'
 
 declare global {
@@ -18,6 +19,7 @@ type BookingFormProps = {
   locale: Locale
   services: Array<{
     id: number
+    slug?: string
     name: string
     summary?: string | null
     durationMin: number
@@ -48,6 +50,10 @@ type BookingFormProps = {
 }
 
 export function BookingForm({ locale, services, contact, hours = [], currency = 'EUR', turnstile, privacy }: BookingFormProps) {
+  const searchParams = useSearchParams()
+  const preselectedSlug = searchParams.get('service')
+  const preselectedService = preselectedSlug ? services.find((s) => s.slug === preselectedSlug) : null
+
   const [status, setStatus] = useState<'idle' | 'submitting' | 'success' | 'error'>('idle')
   const [message, setMessage] = useState('')
   const [turnstileToken, setTurnstileToken] = useState('')
@@ -214,7 +220,7 @@ export function BookingForm({ locale, services, contact, hours = [], currency = 
 
             <label className="flex flex-col gap-2 sm:col-span-2">
               <span className="text-sm font-medium text-brown-800">{labels.service}</span>
-              <select name="serviceId" required className="rounded-2xl border border-stone-200 px-4 py-3 outline-none ring-0 focus:border-brown-400">
+              <select name="serviceId" required defaultValue={preselectedService?.id ?? ''} className="rounded-2xl border border-stone-200 px-4 py-3 outline-none ring-0 focus:border-brown-400">
                 <option value="">—</option>
                 {services.map((service) => (
                   <option key={service.id} value={service.id}>

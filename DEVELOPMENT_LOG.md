@@ -230,6 +230,16 @@
 
 ---
 
+## Phase 27 — 前台细节完善（2026-03-16）
+- `HeroSection` 品牌名改为读 `siteName`，不再硬编码
+- 联系页电话/邮箱改为可点击 `tel:` / `mailto:` 链接
+- 联系页底部加 Google Maps 嵌入
+- 服务详情页预约 CTA 带上 `?service=slug`，跳转预约页自动预选对应服务
+- `BookingForm` 接入 `useSearchParams`，读取 `?service=slug` 预选服务下拉
+- `BookingManagePanel` 状态显示从英文枚举改为双语可读文案
+
+---
+
 ## 当前状态（截至 2026-03-16）
 
 ### 已具备

@@ -60,6 +60,10 @@ export function BookingManagePanel({ locale, token, booking }: BookingManagePane
         error: 'The action could not be completed. Please try again later.',
       }
 
+  const statusLabel: Record<string, string> = locale === 'de'
+    ? { PENDING: 'Ausstehend', CONFIRMED: 'Bestätigt', COMPLETED: 'Abgeschlossen', CANCELLED: 'Storniert', NO_SHOW: 'Nicht erschienen' }
+    : { PENDING: 'Pending', CONFIRMED: 'Confirmed', COMPLETED: 'Completed', CANCELLED: 'Cancelled', NO_SHOW: 'No show' }
+
   const isLocked = currentBooking.status === 'CANCELLED' || currentBooking.status === 'COMPLETED'
 
   function runAction(payload: Record<string, unknown>, successMessage: string) {
@@ -125,7 +129,7 @@ export function BookingManagePanel({ locale, token, booking }: BookingManagePane
           </div>
           <div className="flex items-center justify-between rounded-2xl border border-stone-200 px-4 py-3">
             <span>{t.status}</span>
-            <span className="font-medium text-stone-900">{currentBooking.status}</span>
+            <span className="font-medium text-stone-900">{statusLabel[currentBooking.status] ?? currentBooking.status}</span>
           </div>
         </div>
       </section>

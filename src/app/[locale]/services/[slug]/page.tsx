@@ -127,7 +127,7 @@ export default async function ServiceDetailPage({ params }: Props) {
 
           <div className="mt-10">
             <Link
-              href={`/${typedLocale}/booking`}
+              href={`/${typedLocale}/booking?service=${service.slug}`}
               className="inline-flex items-center rounded-full bg-amber-500 px-8 py-3 text-sm font-semibold text-white shadow-sm hover:bg-amber-600 transition-colors"
             >
               {bookingLabel}

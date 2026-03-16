@@ -1,11 +1,15 @@
 import Link from 'next/link'
 import { Locale } from '../../lib/i18n'
 import { getMessages } from '../../lib/copy'
-import { getHeroSettings } from '../../server/services/site.service'
+import { getHeroSettings, getSystemSettings } from '../../server/services/site.service'
 
 export async function HeroSection({ locale }: { locale: Locale }) {
   const t = getMessages(locale)
-  const hero = await getHeroSettings(locale).catch(() => null)
+  const [hero, settings] = await Promise.all([
+    getHeroSettings(locale).catch(() => null),
+    getSystemSettings().catch(() => null),
+  ])
+  const siteName = settings?.siteName || 'China TCM Massage'
 
   return (
     <section className="relative overflow-hidden border-b border-stone-200 bg-gradient-to-b from-[#f7efe4] via-cream to-white">
@@ -63,7 +67,7 @@ export async function HeroSection({ locale }: { locale: Locale }) {
           />
           <div className="absolute inset-0 bg-gradient-to-t from-stone-950/55 via-transparent to-transparent" />
           <div className="absolute bottom-0 left-0 right-0 p-6 text-white sm:p-8">
-            <p className="text-xs uppercase tracking-[0.28em] text-amber-200">China TCM Massage</p>
+            <p className="text-xs uppercase tracking-[0.28em] text-amber-200">{siteName}</p>
             <p className="mt-3 max-w-md text-sm leading-7 text-stone-100 sm:text-base">
               {typeof hero?.note === 'string' && hero.note
                 ? hero.note

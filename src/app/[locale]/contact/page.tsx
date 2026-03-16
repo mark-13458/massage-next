@@ -82,11 +82,15 @@ export default async function ContactPage({ params }: { params: Promise<{ locale
               </div>
               <div>
                 <p className="font-semibold text-white">{typedLocale === 'de' ? 'Telefon' : 'Phone'}</p>
-                <p className="mt-2">{contact?.phone ?? '015563 188800'}</p>
+                <a href={`tel:${(contact?.phone ?? '015563188800').replace(/\s/g, '')}`} className="mt-2 block hover:text-white transition">
+                  {contact?.phone ?? '015563 188800'}
+                </a>
               </div>
               <div>
                 <p className="font-semibold text-white">E-Mail</p>
-                <p className="mt-2">{contact?.email ?? 'chinesischemassage8@gmail.com'}</p>
+                <a href={`mailto:${contact?.email ?? 'chinesischemassage8@gmail.com'}`} className="mt-2 block hover:text-white transition">
+                  {contact?.email ?? 'chinesischemassage8@gmail.com'}
+                </a>
               </div>
             </div>
           </aside>
@@ -131,6 +135,24 @@ export default async function ContactPage({ params }: { params: Promise<{ locale
           </div>
         </div>
       </SectionShell>
+
+      <section className="py-8">
+        <div className="mx-auto max-w-6xl px-4 sm:px-6 lg:px-8">
+          <div className="overflow-hidden rounded-3xl border border-stone-200 shadow-sm">
+            <iframe
+              title={typedLocale === 'de' ? 'Standort auf der Karte' : 'Location on map'}
+              src="https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d2662.3!2d11.5364!3d48.1441!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x479e75f9b3b3b3b3%3A0x0!2sArnulfstra%C3%9Fe+104%2C+80636+M%C3%BCnchen!5e0!3m2!1sde!2sde!4v1"
+              width="100%"
+              height="360"
+              style={{ border: 0 }}
+              allowFullScreen
+              loading="lazy"
+              referrerPolicy="no-referrer-when-downgrade"
+            />
+          </div>
+        </div>
+      </section>
+
       <SiteFooter locale={typedLocale} />
     </main>
   )
