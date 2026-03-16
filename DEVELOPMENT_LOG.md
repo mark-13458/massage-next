@@ -491,6 +491,19 @@
 
 - `npm run build` 验证通过 ✅
 
+## Phase 53 — 升级 Next.js 15.5.10 修复剩余 CVE（2026-03-17）
+
+- `next` 14.2.35 → **15.5.10**：修复 2 个剩余 CVE
+  - `GHSA-9g9p-9gw9-jx7f`（moderate）：DoS via Image Optimizer remotePatterns，修复于 15.5.10
+  - `GHSA-h25m-26qc-wcjf`（high）：HTTP request deserialization DoS with insecure RSC，修复于 15.0.8+
+- `next-intl` 3.14.0 → **3.26.5**：支持 Next.js 15，peer dependency 兼容 React 18
+- `next.config.js`：`experimental.serverActions` 移至顶层 `serverActions`（Next.js 15 中 serverActions 已稳定）
+- `npm audit` 结果：**0 vulnerabilities** ✅
+- 无 breaking changes：`params`/`searchParams`/`cookies()`/`headers()` 均已在 Phase 48-51 按 Next.js 15 规范处理
+- `npm run build` 验证通过 ✅
+
+---
+
 ## Phase 52 — 依赖安全升级（2026-03-17）
 
 - `next` 14.1.0 → 14.2.35：修复 15 个 CVE（SSRF、Cache Poisoning、DoS、Authorization Bypass 等）

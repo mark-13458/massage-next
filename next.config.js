@@ -3,8 +3,8 @@ const nextConfig = {
   output: 'standalone',
   eslint: { ignoreDuringBuilds: true },
   typescript: { ignoreBuildErrors: true },
-  experimental: {
-    serverActions: { bodySizeLimit: '2mb' },
+  serverActions: {
+    bodySizeLimit: '2mb',
   },
   images: {
     formats: ['image/avif', 'image/webp'],
