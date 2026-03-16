@@ -1,5 +1,6 @@
 import nodemailer from 'nodemailer'
 import { prisma } from '../../lib/prisma'
+import { escapeHtml } from '../../lib/utils'
 
 /**
  * 邮件配置与发送器
@@ -147,10 +148,10 @@ export async function sendBookingConfirmationEmail(appointment: {
           </div>
 
           <div style="background: #f9f9f9; padding: 20px; border-radius: 8px; margin-bottom: 20px;">
-            <p><strong>${isGerman ? 'Leistung:' : 'Service:'}</strong> ${serviceName}</p>
+            <p><strong>${isGerman ? 'Leistung:' : 'Service:'}</strong> ${escapeHtml(serviceName)}</p>
             <p><strong>${isGerman ? 'Datum:' : 'Date:'}</strong> ${formattedDate}</p>
-            <p><strong>${isGerman ? 'Uhrzeit:' : 'Time:'}</strong> ${appointment.appointmentTime}</p>
-            <p><strong>${isGerman ? 'Name:' : 'Name:'}</strong> ${appointment.customerName}</p>
+            <p><strong>${isGerman ? 'Uhrzeit:' : 'Time:'}</strong> ${escapeHtml(appointment.appointmentTime)}</p>
+            <p><strong>${isGerman ? 'Name:' : 'Name:'}</strong> ${escapeHtml(appointment.customerName)}</p>
           </div>
 
           <div style="margin-bottom: 20px;">
@@ -234,9 +235,9 @@ export async function sendRescheduleNotificationEmail(appointment: {
             <h1>${isGerman ? 'Ihr Termin wurde verschoben' : 'Your appointment has been rescheduled'}</h1>
           </div>
 
-          <p>${isGerman ? 'Alter Termin:' : 'Old appointment:'} ${formattedOldDate} ${appointment.oldTime}</p>
-          <p>${isGerman ? 'Neuer Termin:' : 'New appointment:'} ${formattedNewDate} ${appointment.appointmentTime}</p>
-          <p>${isGerman ? 'Leistung:' : 'Service:'} ${serviceName}</p>
+          <p>${isGerman ? 'Alter Termin:' : 'Old appointment:'} ${formattedOldDate} ${escapeHtml(appointment.oldTime)}</p>
+          <p>${isGerman ? 'Neuer Termin:' : 'New appointment:'} ${formattedNewDate} ${escapeHtml(appointment.appointmentTime)}</p>
+          <p>${isGerman ? 'Leistung:' : 'Service:'} ${escapeHtml(serviceName)}</p>
 
           <p style="margin-top: 30px;">
             ${
@@ -299,10 +300,10 @@ export async function sendCancellationNotificationEmail(appointment: {
             <h1>${isGerman ? 'Ihr Termin wurde abgesagt' : 'Your appointment has been cancelled'}</h1>
           </div>
 
-          <p>${isGerman ? 'Termin:' : 'Appointment:'} ${formattedDate} ${appointment.appointmentTime}</p>
-          <p>${isGerman ? 'Leistung:' : 'Service:'} ${serviceName}</p>
+          <p>${isGerman ? 'Termin:' : 'Appointment:'} ${formattedDate} ${escapeHtml(appointment.appointmentTime)}</p>
+          <p>${isGerman ? 'Leistung:' : 'Service:'} ${escapeHtml(serviceName)}</p>
 
-          ${appointment.reason ? `<p>${isGerman ? 'Grund:' : 'Reason:'} ${appointment.reason}</p>` : ''}
+          ${appointment.reason ? `<p>${isGerman ? 'Grund:' : 'Reason:'} ${escapeHtml(appointment.reason)}</p>` : ''}
 
           <p style="margin-top: 30px; color: #666;">
             ${isGerman ? 'Kontaktieren Sie uns für einen neuen Termin.' : 'Please contact us to book a new appointment.'}

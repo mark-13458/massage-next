@@ -491,7 +491,33 @@
 
 - `npm run build` 验证通过 ✅
 
-## Phase 46 — unstable_cache 缓存优化 + revalidateTag（2026-03-16）
+## Phase 47 — 安全审查 + Bug 修复（2026-03-17）
+
+**审查范围**：邮件模板 XSS、错误信息泄露、输入验证、API 数据一致性
+
+**修复 1：邮件模板 XSS（高危）**
+- `src/lib/utils.ts`：新增 `escapeHtml()` 工具函数，转义 `& < > " '` 五个 HTML 特殊字符
+- `mail.service.ts`：`customerName`、`customerPhone`、`customerEmail`、`notes`、`serviceName`、`appointmentTime`、`siteName` 全部经 `escapeHtml()` 转义后再插入 HTML 模板
+- `email.service.ts`：同上，`customerName`、`serviceName`、`appointmentTime`、`reason`、`oldTime` 全部转义
+
+**修复 2：错误信息泄露（中）**
+- `api/appointment/cancel/[token]/route.ts`：POST 错误响应改为只在已知错误（"Invalid or expired cancel link"）时透传 message，其余统一返回 "Internal server error"
+- `api/appointment/reschedule/[token]/route.ts`：同上
+
+**修复 3：`booking/manage/[token]` serviceName 未按 locale 选择（Bug）**
+- GET 返回的 `serviceName` 改为按 `appointment.locale` 选择 `nameEn` / `nameDe`
+
+**修复 4：输入验证加强（中）**
+- `src/lib/validations/booking.ts`：
+  - `appointmentDate` 新增 `YYYY-MM-DD` 正则校验 + 未来日期校验（不允许提交过去日期）
+  - `appointmentTime` 新增 `HH:MM` 格式正则校验
+  - `bookingManageSchema` 同步加强日期/时间格式校验
+- `api/booking/manage/[token]/route.ts`：PATCH 改约/取消操作改为用 `bookingManageSchema` 验证 body，拒绝非法 payload
+- `api/appointment/reschedule/[token]/route.ts`：POST 补日期/时间格式正则校验 + `isNaN` 检查，使用已验证的 `parsedDate` 对象
+
+- `npm run build` 验证通过 ✅
+
+
 
 **缓存策略**：不引入 Redis（本地按摩店日访问量几十到几百次，无高并发场景，Redis 性价比极低）。改用 Next.js 内置 `unstable_cache`，零依赖，直接解决每次 SSR 打多个并行 DB 查询的问题。
 

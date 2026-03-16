@@ -1,6 +1,7 @@
 import { Appointment, Service } from '@prisma/client'
 import { createMailTransport } from '../../lib/mail'
 import { env } from '../../lib/env'
+import { escapeHtml } from '../../lib/utils'
 
 type BookingWithService = Appointment & {
   service: Service
@@ -65,19 +66,19 @@ export async function sendMerchantBookingNotification(booking: BookingWithServic
       <h2 style="color: #2e7d32;">收到新的预约请求</h2>
       
       <div style="background: #f5f5f5; padding: 15px; border-radius: 5px; margin: 20px 0;">
-        <p><strong>客户姓名：</strong> ${booking.customerName}</p>
-        <p><strong>联系电话：</strong> <a href="tel:${booking.customerPhone}">${booking.customerPhone}</a></p>
-        <p><strong>电子邮箱：</strong> ${booking.customerEmail || '未提供'}</p>
+        <p><strong>客户姓名：</strong> ${escapeHtml(booking.customerName)}</p>
+        <p><strong>联系电话：</strong> <a href="tel:${escapeHtml(booking.customerPhone)}">${escapeHtml(booking.customerPhone)}</a></p>
+        <p><strong>电子邮箱：</strong> ${escapeHtml(booking.customerEmail) || '未提供'}</p>
       </div>
 
       <div style="border: 1px solid #ddd; padding: 15px; border-radius: 5px; margin: 20px 0;">
         <h3 style="margin-top: 0;">预约详情</h3>
-        <p><strong>服务项目：</strong> ${booking.service.nameDe} / ${booking.service.nameEn}</p>
+        <p><strong>服务项目：</strong> ${escapeHtml(booking.service.nameDe)} / ${escapeHtml(booking.service.nameEn)}</p>
         <p><strong>预约日期：</strong> ${dateStr}</p>
-        <p><strong>预约时间：</strong> ${timeStr}</p>
+        <p><strong>预约时间：</strong> ${escapeHtml(timeStr)}</p>
         <p><strong>服务时长：</strong> ${booking.durationMin} 分钟</p>
         <p><strong>预计价格：</strong> €${booking.priceSnapshot}</p>
-        ${booking.notes ? `<p><strong>客户备注：</strong> ${booking.notes}</p>` : ''}
+        ${booking.notes ? `<p><strong>客户备注：</strong> ${escapeHtml(booking.notes)}</p>` : ''}
       </div>
 
       <p style="color: #666; font-size: 14px;">
@@ -130,9 +131,9 @@ export async function sendCustomerReceivedEmail(booking: BookingWithService) {
       
       <div style="border: 1px solid #ddd; padding: 20px; border-radius: 8px; margin: 20px 0;">
         <h3 style="margin-top: 0; border-bottom: 1px solid #eee; padding-bottom: 10px;">${detailsTitle}</h3>
-        <p><strong>${serviceLabel}:</strong> ${serviceName}</p>
+        <p><strong>${serviceLabel}:</strong> ${escapeHtml(serviceName)}</p>
         <p><strong>${dateLabel}:</strong> ${dateStr}</p>
-        <p><strong>${timeLabel}:</strong> ${booking.appointmentTime}</p>
+        <p><strong>${timeLabel}:</strong> ${escapeHtml(booking.appointmentTime)}</p>
         <p><strong>${durationLabel}:</strong> ${booking.durationMin} min</p>
         <p><strong>${priceLabel}:</strong> €${booking.priceSnapshot}</p>
       </div>
@@ -144,7 +145,7 @@ export async function sendCustomerReceivedEmail(booking: BookingWithService) {
       ` : ''}
 
       <p style="color: #666; font-size: 14px; margin-top: 30px;">
-        ${siteName}
+        ${escapeHtml(siteName)}
       </p>
     </div>
   `
@@ -192,9 +193,9 @@ export async function sendCustomerConfirmationEmail(booking: BookingWithService)
       
       <div style="border: 1px solid #ddd; padding: 20px; border-radius: 8px; margin: 20px 0; background-color: #f0fdf4;">
         <h3 style="margin-top: 0; border-bottom: 1px solid #dcfce7; padding-bottom: 10px; color: #166534;">${detailsTitle}</h3>
-        <p><strong>${serviceLabel}:</strong> ${serviceName}</p>
+        <p><strong>${serviceLabel}:</strong> ${escapeHtml(serviceName)}</p>
         <p><strong>${dateLabel}:</strong> ${dateStr}</p>
-        <p><strong>${timeLabel}:</strong> ${booking.appointmentTime}</p>
+        <p><strong>${timeLabel}:</strong> ${escapeHtml(booking.appointmentTime)}</p>
       </div>
 
       ${manageLink ? `
@@ -207,7 +208,7 @@ export async function sendCustomerConfirmationEmail(booking: BookingWithService)
       ` : ''}
 
       <p style="color: #666; font-size: 14px; margin-top: 30px;">
-        ${siteName}
+        ${escapeHtml(siteName)}
       </p>
     </div>
   `
@@ -252,13 +253,13 @@ export async function sendCustomerCancelledEmail(booking: BookingWithService) {
       
       <div style="border: 1px solid #ddd; padding: 20px; border-radius: 8px; margin: 20px 0; background-color: #fef2f2;">
         <h3 style="margin-top: 0; border-bottom: 1px solid #fee2e2; padding-bottom: 10px; color: #991b1b;">${detailsTitle}</h3>
-        <p><strong>${serviceLabel}:</strong> ${serviceName}</p>
+        <p><strong>${serviceLabel}:</strong> ${escapeHtml(serviceName)}</p>
         <p><strong>${dateLabel}:</strong> ${dateStr}</p>
-        <p><strong>${timeLabel}:</strong> ${booking.appointmentTime}</p>
+        <p><strong>${timeLabel}:</strong> ${escapeHtml(booking.appointmentTime)}</p>
       </div>
 
       <p style="color: #666; font-size: 14px; margin-top: 30px;">
-        ${siteName}
+        ${escapeHtml(siteName)}
       </p>
     </div>
   `

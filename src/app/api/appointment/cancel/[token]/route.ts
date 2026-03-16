@@ -88,9 +88,10 @@ export async function POST(
     })
   } catch (error: any) {
     console.error('[CANCEL_API] Error:', error)
+    const isKnown = error?.message === 'Invalid or expired cancel link'
     return NextResponse.json(
-      { success: false, error: error.message || 'Internal server error' },
-      { status: 500 }
+      { success: false, error: isKnown ? error.message : 'Internal server error' },
+      { status: isKnown ? 400 : 500 }
     )
   }
 }

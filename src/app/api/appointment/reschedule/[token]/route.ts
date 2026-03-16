@@ -66,6 +66,23 @@ export async function POST(
       )
     }
 
+    // 验证日期格式
+    const dateRegex = /^\d{4}-\d{2}-\d{2}$/
+    const timeRegex = /^\d{1,2}:\d{2}$/
+    if (!dateRegex.test(newDate) || !timeRegex.test(newTime)) {
+      return NextResponse.json(
+        { success: false, error: 'Invalid date or time format' },
+        { status: 400 }
+      )
+    }
+    const parsedDate = new Date(newDate)
+    if (isNaN(parsedDate.getTime())) {
+      return NextResponse.json(
+        { success: false, error: 'Invalid date' },
+        { status: 400 }
+      )
+    }
+
     // 获取请求上下文
     const headersList = await headers()
     const ipAddress = headersList.get('x-forwarded-for') || headersList.get('x-real-ip') || 'unknown'
@@ -79,7 +96,7 @@ export async function POST(
     // 执行改约
     const updated = await rescheduleAppointmentByToken(
       token,
-      new Date(newDate),
+      parsedDate,
       newTime,
       { ipAddress, userAgent }
     )
@@ -105,9 +122,10 @@ export async function POST(
     })
   } catch (error: any) {
     console.error('[RESCHEDULE_API] Error:', error)
+    const isKnown = error?.message === 'Invalid or expired reschedule link'
     return NextResponse.json(
-      { success: false, error: error.message || 'Internal server error' },
-      { status: 500 }
+      { success: false, error: isKnown ? error.message : 'Internal server error' },
+      { status: isKnown ? 400 : 500 }
     )
   }
 }

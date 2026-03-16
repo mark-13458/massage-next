@@ -2,6 +2,7 @@ import { NextRequest, NextResponse } from 'next/server'
 import { prisma } from '../../../../../lib/prisma'
 import { getSystemSettings } from '../../../../../server/services/site.service'
 import { createAuditLog } from '../../../../../server/services/audit.service'
+import { bookingManageSchema } from '../../../../../lib/validations/booking'
 import { headers } from 'next/headers'
 
 /**
@@ -32,7 +33,7 @@ export async function GET(
     data: {
       item: {
         customerName: appointment.customerName,
-        serviceName: appointment.service.nameDe,
+        serviceName: appointment.locale === 'en' ? appointment.service.nameEn : appointment.service.nameDe,
         appointmentDate: appointment.appointmentDate.toISOString(),
         appointmentTime: appointment.appointmentTime,
         status: appointment.status,
@@ -71,7 +72,11 @@ export async function PATCH(
   }
 
   const body = await request.json()
-  const { action, appointmentDate, appointmentTime, notes } = body
+  const parsed = bookingManageSchema.safeParse(body)
+  if (!parsed.success) {
+    return NextResponse.json({ error: 'Invalid request payload' }, { status: 400 })
+  }
+  const { action, appointmentDate, appointmentTime, notes } = parsed.data
 
   const headersList = await headers()
   const ipAddress = headersList.get('x-forwarded-for') || headersList.get('x-real-ip') || 'unknown'
