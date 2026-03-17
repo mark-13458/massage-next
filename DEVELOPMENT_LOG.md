@@ -843,3 +843,38 @@
 **构建验证**
 - `npm run build` 通过 ✓，22 页全部生成，0 错误
 
+
+## Phase 63 — 全站 UI/UX 升级（2026-03-17）
+
+基于 UI UX Pro Max 技能设计系统分析（Soft UI Evolution 风格，wellness/spa 行业规则）：
+
+**字体系统**
+- 引入 Lora（serif，标题）+ Raleway（sans，正文），通过 `next/font/google` 零 CLS 加载
+- `tailwind.config.js`：`font-serif` → Lora，`font-sans` → Raleway
+- `layout.tsx`：body 加 `font-sans`，CSS 变量注入
+- 所有 `h1-h6` 默认使用 `font-serif`（globals.css base layer）
+
+**设计 Token 升级**
+- 背景色从 `#f8f5f0` 升级为 `#fdfaf6`（更暖、更轻盈）
+- 新增 `warm-50/100/200` 色阶（section 背景渐变用）
+- `shadow-card` 优化为双层阴影（更自然的深度感）
+- `eyebrow` 组件类：tracking 改为 `widest2`（0.24em），更精致
+- focus 样式改为 amber-400 ring（品牌一致性）
+- 新增 `prefers-reduced-motion` 全局规则
+
+**组件升级**
+- `SiteHeader`：logo/品牌名 serif 字体，nav 链接 font-sans，cursor-pointer 补全
+- `HeroSection`：h1 serif，stats 卡片 serif 数字，圆角升级为 `rounded-[2.5rem]`，blob 优化
+- `SectionShell`：h2 serif，eyebrow 装饰点升级，间距微调
+- `ServiceCard`：h3 serif，价格 serif，hover 边框改为 amber-200，details 链接改为 amber-700
+- `SiteFooter`：品牌名 serif，所有链接补 cursor-pointer + duration-150
+- `FloatingActions`：hover 效果统一，cursor-pointer 补全
+
+**UX 规范合规**
+- 所有可点击元素补 `cursor-pointer`
+- hover 状态统一 150-200ms transition
+- focus-visible 全局 amber ring
+- `prefers-reduced-motion` 支持
+
+- `npm run build` 验证通过 ✓，22 页全部生成
+

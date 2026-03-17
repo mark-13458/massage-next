@@ -1,7 +1,22 @@
 import type { Viewport } from 'next'
 import { headers } from 'next/headers'
+import { Lora, Raleway } from 'next/font/google'
 import './globals.css'
 import { defaultSiteMetadata } from '../lib/seo'
+
+const lora = Lora({
+  subsets: ['latin'],
+  weight: ['400', '500', '600', '700'],
+  variable: '--font-lora',
+  display: 'swap',
+})
+
+const raleway = Raleway({
+  subsets: ['latin'],
+  weight: ['300', '400', '500', '600', '700'],
+  variable: '--font-raleway',
+  display: 'swap',
+})
 
 export const metadata = defaultSiteMetadata
 
@@ -21,14 +36,13 @@ export default async function RootLayout({ children }: { children: React.ReactNo
   const nonce = headersList.get('x-nonce') ?? ''
 
   return (
-    <html lang={lang}>
+    <html lang={lang} className={`${lora.variable} ${raleway.variable}`}>
       <head>
         {nonce && (
-          // Expose nonce for inline scripts (Next.js uses this automatically)
           <meta name="csp-nonce" content={nonce} />
         )}
       </head>
-      <body>{children}</body>
+      <body className="font-sans">{children}</body>
     </html>
   )
 }
