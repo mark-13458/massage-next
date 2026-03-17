@@ -732,3 +732,23 @@
 - FAQ 区块：Q 标签 badge，hover 边框高亮，文字层级优化
 
 - `npm run build` 验证通过 ✅
+
+---
+
+## Phase 59 — 后台 UI 优化 + 登录页数学验证码（2026-03-17）
+
+**数学验证码（Math CAPTCHA）**
+- 新增 `src/components/admin/MathCaptcha.tsx`：纯客户端数学题验证（`a + b = ?`，a/b 各 1-9），答案正确后生成 base64 token（含题目参数 + 时间戳 + nonce），10 分钟有效期，答错可换题
+- `AdminLoginForm`：集成 Math CAPTCHA，当 Turnstile 未配置时自动显示数学验证；登录按钮在验证通过前禁用；登录失败后自动重置验证码
+- `api/admin/login/route.ts`：新增 `verifyMathToken()` 服务端验证函数（base64 解码 → 验证答案 + 时间戳），有 Turnstile secret 时走 Turnstile，否则强制要求 math token
+
+**登录页视觉升级**
+- `AdminLoginPage`：深色背景（`#1f1a17`）+ 双层 radial gradient 装饰，品牌区域居中，登录卡片改为半透明深色玻璃风格（`bg-white/5 border-white/10 backdrop-blur-sm`）
+- `AdminLoginForm`：输入框改为深色风格（`border-white/15 bg-white/8 text-white`），focus 改为 amber-400，提交按钮改为 amber-500（深色背景上更醒目），错误提示改为 `text-rose-400`
+
+**后台共享组件优化**
+- `AdminShell`：顶部工作区头部 eyebrow 前加 amber 装饰点，subtitle 颜色从 `stone-600` 改为 `stone-500`，backdrop-blur 升级为 `backdrop-blur-sm`
+- `AdminStatGrid`：统计卡片 padding 从 `p-4` 升级为 `p-5`，加 hover 效果（light: `hover:border-stone-200 hover:shadow`，dark: `hover:bg-white/8`），数字加 `tabular-nums`
+- `AdminPageToolbar`：阴影从 `shadow-[0_18px_60px_...]` 改为更轻量的 `shadow-[0_4px_24px_...]`，border 改为 `border-stone-200/80`
+
+- `npm run build` 验证通过 ✅

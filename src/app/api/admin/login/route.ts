@@ -71,6 +71,30 @@ async function verifyTurnstile(token: string | undefined, ip: string): Promise<s
   }
 }
 
+// Math CAPTCHA token format: base64(a:b:answer:timestamp:nonce)
+// Valid window: 10 minutes
+const MATH_TOKEN_TTL_MS = 10 * 60 * 1000
+
+function verifyMathToken(token: string | undefined): string | null {
+  if (!token) return 'Math captcha token missing'
+  try {
+    const decoded = Buffer.from(token, 'base64').toString('utf-8')
+    const parts = decoded.split(':')
+    if (parts.length !== 5) return 'Invalid captcha token'
+    const [aStr, bStr, answerStr, tsStr] = parts
+    const a = parseInt(aStr, 10)
+    const b = parseInt(bStr, 10)
+    const answer = parseInt(answerStr, 10)
+    const ts = parseInt(tsStr, 10)
+    if (isNaN(a) || isNaN(b) || isNaN(answer) || isNaN(ts)) return 'Invalid captcha token'
+    if (Date.now() - ts > MATH_TOKEN_TTL_MS) return 'Captcha expired, please refresh'
+    if (answer !== a + b) return 'Captcha answer incorrect'
+    return null
+  } catch {
+    return 'Invalid captcha token'
+  }
+}
+
 export async function POST(request: NextRequest) {
   if (!process.env.DATABASE_URL) {
     return apiError('DATABASE_URL is not configured', 500)
@@ -89,6 +113,7 @@ export async function POST(request: NextRequest) {
     const email = String(json.email ?? '').trim().toLowerCase()
     const password = String(json.password ?? '')
     const turnstileToken = typeof json.turnstileToken === 'string' ? json.turnstileToken : undefined
+    const mathToken = typeof json.mathToken === 'string' ? json.mathToken : undefined
 
     if (!email || !password) {
       return apiError('Email and password are required', 400)
@@ -100,10 +125,16 @@ export async function POST(request: NextRequest) {
       return apiError('Too many failed attempts. Please try again later.', 429)
     }
 
-    // Turnstile check (only when secret key is configured)
-    const captchaError = await verifyTurnstile(turnstileToken, ip)
-    if (captchaError) {
-      return apiError(captchaError, 400)
+    const hasTurnstileSecret = Boolean(env.adminTurnstile.secretKey)
+
+    if (hasTurnstileSecret) {
+      // Turnstile configured — verify Turnstile token
+      const captchaError = await verifyTurnstile(turnstileToken, ip)
+      if (captchaError) return apiError(captchaError, 400)
+    } else {
+      // No Turnstile — require math captcha
+      const mathError = verifyMathToken(mathToken)
+      if (mathError) return apiError(mathError, 400)
     }
 
     const user = await prisma.user.findUnique({ where: { email } })

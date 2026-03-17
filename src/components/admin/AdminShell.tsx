@@ -42,12 +42,15 @@ export function AdminShell({
         </aside>
 
         <main className="min-w-0">
-          <div className="border-b border-stone-200 bg-[#f8f3eb]/90 backdrop-blur">
-            <div className="mx-auto flex max-w-7xl flex-wrap items-center justify-between gap-4 px-4 py-5 sm:px-6 lg:px-10">
+          <div className="border-b border-stone-200/80 bg-[#f8f3eb]/95 backdrop-blur-sm">
+            <div className="mx-auto flex max-w-7xl flex-wrap items-center justify-between gap-4 px-4 py-6 sm:px-6 lg:px-10">
               <div>
-                <p className="text-xs font-semibold uppercase tracking-[0.28em] text-amber-700">{pick(lang, '后台工作台', 'Admin Workspace')}</p>
+                <div className="flex items-center gap-2">
+                  <span className="inline-block h-1.5 w-1.5 rounded-full bg-amber-500" />
+                  <p className="text-[11px] font-semibold uppercase tracking-[0.28em] text-amber-700">{pick(lang, '后台工作台', 'Admin Workspace')}</p>
+                </div>
                 <h2 className="mt-2 text-2xl font-semibold tracking-tight text-stone-900">{title}</h2>
-                {subtitle ? <p className="mt-2 max-w-3xl text-sm leading-6 text-stone-600">{subtitle}</p> : null}
+                {subtitle ? <p className="mt-2 max-w-3xl text-sm leading-6 text-stone-500">{subtitle}</p> : null}
               </div>
 
               <div className="flex items-center gap-3">
