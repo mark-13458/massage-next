@@ -908,3 +908,16 @@
 - `src/app/[locale]/services/[slug]/page.tsx`：加 `export const dynamic = 'force-dynamic'`
 - `npm run build` 验证通过 ✓，所有页面标记为 `ƒ (Dynamic)`
 - Docker 镜像完全重建部署
+
+## Phase 8b — 修复 React #418 hydration mismatch 根因（2026-03-17）
+
+**根因**
+- `layout.tsx` 的 `<head>` 里有 `{nonce && <meta name="csp-nonce" content={nonce} />}`
+- `nonce` 是每次请求随机生成的值，服务端渲染时存在，客户端 hydration 时无法获取
+- 导致服务端渲染了 `<meta>` 节点，客户端期望空，React #418 text node mismatch
+
+**修复**
+- 移除 `<head>` 里的 nonce meta 标签（CSP nonce 已通过 HTTP header 传递，不需要 meta 标签）
+- 移除多余的 `<head>` 标签（Next.js 自动管理）
+- 在 `<html>` 上加 `suppressHydrationWarning`（`lang` 属性服务端/客户端可能有微小差异）
+- `npm run build` 验证通过 ✓

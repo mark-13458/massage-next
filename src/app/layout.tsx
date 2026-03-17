@@ -30,20 +30,13 @@ export const viewport: Viewport = {
 }
 
 export default async function RootLayout({ children }: { children: React.ReactNode }) {
-  // 从请求路径中提取 locale（/de/... 或 /en/...）
   const headersList = await headers()
-  const pathname = headersList.get('x-pathname') ?? headersList.get('x-forwarded-uri') ?? ''
+  const pathname = headersList.get('x-pathname') ?? ''
   const localeMatch = pathname.match(/^\/(de|en)(\/|$)/)
   const lang = localeMatch ? localeMatch[1] : 'de'
-  const nonce = headersList.get('x-nonce') ?? ''
 
   return (
-    <html lang={lang} className={`${lora.variable} ${raleway.variable}`}>
-      <head>
-        {nonce && (
-          <meta name="csp-nonce" content={nonce} />
-        )}
-      </head>
+    <html lang={lang} className={`${lora.variable} ${raleway.variable}`} suppressHydrationWarning>
       <body className="font-sans">{children}</body>
     </html>
   )
