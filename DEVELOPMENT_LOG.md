@@ -892,3 +892,19 @@
 
 - `npm run build` 验证通过 ✓，Exit Code: 0
 
+
+## Phase 8 — React Hydration 修复 + DYNAMIC_SERVER_USAGE 修复（2026-03-17）
+
+**根因分析**
+- React error #418（hydration mismatch）+ 所有页面 `DYNAMIC_SERVER_USAGE` 错误
+- `layout.tsx` 使用 `await headers()`（动态 API），但未声明 `dynamic = 'force-dynamic'`
+- Next.js 在 production build 时尝试静态预渲染，遇到动态 API 就崩溃
+- `src/app/page.tsx` 根页面调用 `getSystemSettings()`（数据库），同样缺少 `force-dynamic`
+- `services/[slug]/page.tsx` 有 `generateStaticParams` 但 build 时数据库不可用，运行时 500
+
+**修复**
+- `src/app/layout.tsx`：加 `export const dynamic = 'force-dynamic'`
+- `src/app/page.tsx`：加 `export const dynamic = 'force-dynamic'`
+- `src/app/[locale]/services/[slug]/page.tsx`：加 `export const dynamic = 'force-dynamic'`
+- `npm run build` 验证通过 ✓，所有页面标记为 `ƒ (Dynamic)`
+- Docker 镜像完全重建部署

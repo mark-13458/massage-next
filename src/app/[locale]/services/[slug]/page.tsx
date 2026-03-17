@@ -36,8 +36,8 @@ async function getRelatedServices(slug: string, locale: string) {
   }))
 }
 
+export const dynamic = 'force-dynamic'
 export const dynamicParams = true
-
 
 export async function generateStaticParams() {
   try {

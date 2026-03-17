@@ -18,6 +18,8 @@ const raleway = Raleway({
   display: 'swap',
 })
 
+export const dynamic = 'force-dynamic'
+
 export const metadata = defaultSiteMetadata
 
 export const viewport: Viewport = {
