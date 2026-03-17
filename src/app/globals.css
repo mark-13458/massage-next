@@ -122,6 +122,11 @@ body {
 }
 
 @layer utilities {
+  /* Prevent FloatingActions from overlapping bottom content on mobile */
+  main {
+    @apply pb-24 sm:pb-0;
+  }
+
   .scroll-snap-x {
     scroll-snap-type: x mandatory;
     -webkit-overflow-scrolling: touch;

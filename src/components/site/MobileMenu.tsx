@@ -62,7 +62,7 @@ export function MobileMenu({ locale, navLinks, bookingLabel }: Props) {
       {/* Backdrop */}
       {open && (
         <div
-          className="fixed inset-0 top-16 z-40 bg-stone-950/30 backdrop-blur-sm"
+          className="fixed inset-0 top-14 z-40 bg-stone-950/30 backdrop-blur-sm"
           onClick={() => setOpen(false)}
           aria-hidden="true"
         />
@@ -74,7 +74,7 @@ export function MobileMenu({ locale, navLinks, bookingLabel }: Props) {
         role="dialog"
         aria-modal="true"
         aria-label="Navigation"
-        className={`fixed left-0 right-0 top-16 z-50 border-b border-stone-200 bg-white px-4 py-4 shadow-xl transition-all duration-200 ${
+        className={`fixed left-0 right-0 top-14 z-50 border-b border-stone-200 bg-white px-4 py-4 shadow-xl transition-all duration-200 ${
           open ? 'translate-y-0 opacity-100' : 'pointer-events-none -translate-y-2 opacity-0'
         }`}
       >

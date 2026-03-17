@@ -90,7 +90,7 @@ export default async function GalleryPage({ params }: { params: Promise<{ locale
   )
 
   return (
-    <main>
+    <main className="pb-24 sm:pb-0">
       {imageGalleryJsonLd && (
         <script
           type="application/ld+json"
@@ -113,7 +113,7 @@ export default async function GalleryPage({ params }: { params: Promise<{ locale
               key={item.id}
               className={`group overflow-hidden rounded-[2rem] border border-stone-200 bg-white shadow-soft ${index % 3 === 0 ? 'xl:translate-y-6' : ''}`}
             >
-              <div className="relative aspect-[4/5] overflow-hidden">
+              <div className="relative aspect-[3/4] overflow-hidden">
                 <Image
                   src={item.image}
                   alt={item.title}

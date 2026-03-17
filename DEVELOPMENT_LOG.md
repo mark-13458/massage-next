@@ -878,3 +878,17 @@
 
 - `npm run build` 验证通过 ✓，22 页全部生成
 
+
+## Phase 7 — 移动端体验修复（2026-03-17）
+
+**问题修复**
+- `MobileMenu`：drawer/backdrop `top-16` → `top-14`，与移动端 header `h-14` 对齐，消除 8px 间隙
+- `FloatingActions`：无效类 `sm:h-13 sm:w-13` → `sm:h-14 sm:w-14`（Tailwind 无 13 单位）
+- `HeroSection`：移动端图片 `aspect-[4/3]` → `aspect-[16/9]`，减少图片占屏高度，文字内容更易触达
+- `BookingForm`：aside 联系信息加 `order-1 lg:order-2`，表单加 `order-2 lg:order-1`，移动端联系信息显示在表单上方
+- `SiteFooter`：`grid-cols-2` → `grid-cols-1 sm:grid-cols-2 lg:grid-cols-4`，小屏单列避免拥挤；brand 列 `col-span-2 lg:col-span-1` → `col-span-1 sm:col-span-2 lg:col-span-1`
+- `gallery/page.tsx`：图片 `aspect-[4/5]` → `aspect-[3/4]`，移动端单列时减少每张图片高度
+- `globals.css`：全局 `main { pb-24 sm:pb-0 }`，防止 FloatingActions 遮挡所有页面底部内容
+
+- `npm run build` 验证通过 ✓，Exit Code: 0
+

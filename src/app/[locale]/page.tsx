@@ -91,7 +91,7 @@ export default async function LocaleHome({ params }: { params: Promise<{ locale:
   const faqJsonLd = buildFaqPageJsonLd(faqs)
 
   return (
-    <main>
+    <main className="pb-24 sm:pb-0">
       <script
         type="application/ld+json"
         dangerouslySetInnerHTML={{ __html: JSON.stringify(localBusinessJsonLd) }}

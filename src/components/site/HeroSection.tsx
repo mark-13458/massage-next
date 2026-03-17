@@ -73,7 +73,7 @@ export async function HeroSection({ locale }: { locale: Locale }) {
 
           {/* Image column */}
           <div className="relative overflow-hidden rounded-[2.5rem] border border-amber-100/60 bg-white shadow-[0_32px_80px_rgba(121,85,72,0.18)]">
-            <div className="relative aspect-[4/3] w-full sm:aspect-[3/4] md:aspect-[4/5]">
+            <div className="relative aspect-[16/9] w-full sm:aspect-[3/4] md:aspect-[4/5]">
               <Image
                 src={imageUrl}
                 alt={locale === 'de' ? 'Entspannende Massageatmosphäre' : 'Relaxing massage atmosphere'}

@@ -212,7 +212,7 @@ export function BookingForm({ locale, services, contact, hours = [], currency = 
       ) : null}
 
       <div className="grid gap-8 lg:grid-cols-[1.15fr_0.85fr]">
-        <form action={onSubmit} ref={formRef} className="rounded-3xl border border-stone-200 bg-white p-6 shadow-card sm:p-8">
+        <form action={onSubmit} ref={formRef} className="rounded-3xl border border-stone-200 bg-white p-6 shadow-card sm:p-8 order-2 lg:order-1">
           <div className="grid gap-5 sm:grid-cols-2">
             <label className="flex flex-col gap-1.5 sm:col-span-2">
               <span className="text-sm font-medium text-brown-800">{labels.name}</span>
@@ -305,7 +305,7 @@ export function BookingForm({ locale, services, contact, hours = [], currency = 
           </div>
         </form>
 
-        <aside className="rounded-3xl border border-stone-200 bg-stone-950 p-6 text-stone-100 shadow-sm sm:p-8">
+        <aside className="rounded-3xl border border-stone-200 bg-stone-950 p-6 text-stone-100 shadow-sm sm:p-8 order-1 lg:order-2">
           <h3 className="text-2xl font-semibold text-white">{labels.title}</h3>
           <p className="mt-4 text-sm leading-7 text-stone-300">{labels.subtitle}</p>
 

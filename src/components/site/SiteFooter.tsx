@@ -14,9 +14,9 @@ export async function SiteFooter({ locale }: { locale: Locale }) {
   return (
     <footer className="border-t border-stone-200 bg-stone-950 text-stone-200">
       <div className="mx-auto max-w-6xl px-4 py-12 sm:px-6 sm:py-14 lg:px-8">
-        <div className="grid grid-cols-2 gap-8 lg:grid-cols-4">
+        <div className="grid grid-cols-1 gap-8 sm:grid-cols-2 lg:grid-cols-4">
           {/* Brand */}
-          <div className="col-span-2 lg:col-span-1">
+          <div className="col-span-1 sm:col-span-2 lg:col-span-1">
             <p className="font-serif text-base font-semibold text-white">{siteName}</p>
             <p className="mt-2.5 font-sans text-sm leading-6 text-stone-400">
               {locale === 'de'
