@@ -491,6 +491,26 @@
 
 - `npm run build` 验证通过 ✅
 
+## Phase 56 — 死代码清理 + 错误处理修复（2026-03-17）
+
+**Bug 修复**
+- `api/booking/route.ts`：频率限制错误现在正确返回 429（之前被 catch 块统一返回 500），前端可以正确显示限流提示；移除 validation 失败时的 `details` 字段（泄露内部 schema 结构）
+- `server/services/booking.service.ts`：新增 `RateLimitError` 自定义错误类，让 route 层能区分频率限制错误和其他错误
+- `api/appointment/cancel/[token]/route.ts`：邮件发送从 `email.service` 迁移到 `mail.service`（`sendCustomerCancelledEmail`），消除对死代码的依赖
+- `api/appointment/reschedule/[token]/route.ts`：同上，迁移到 `mail.service`（新增 `sendCustomerRescheduledEmail`）
+
+**死代码清理**
+- 删除 `server/services/admin-auth.service.ts`：从未被调用，包含错误的 session 机制（`admin_session` cookie，无签名），与实际使用的 HMAC-SHA256 session 完全不同，存在安全隐患
+- 删除 `server/services/email.service.ts`：从未被调用，实际邮件发送全部通过 `mail.service.ts` 完成；将其中 `sendCancellationNotificationEmail` / `sendRescheduleNotificationEmail` 的功能迁移到 `mail.service.ts`
+
+**代码质量**
+- `server/services/appointment-reschedule.service.ts`：`process.env.APP_URL` 改为 `env.appUrl`（统一使用 env 模块），移除未使用的 `logBookingAction` import
+- `server/services/mail.service.ts`：新增 `sendCustomerRescheduledEmail`，统一改约邮件通知
+
+- `npm run build` 验证通过 ✅
+
+---
+
 ## Phase 55 — 安全修复 + 代码质量（2026-03-17）
 
 **安全修复**

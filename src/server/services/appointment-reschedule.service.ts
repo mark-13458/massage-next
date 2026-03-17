@@ -1,6 +1,7 @@
 import { randomUUID } from 'crypto'
 import { prisma } from '../../lib/prisma'
-import { createAuditLog, logBookingAction } from './audit.service'
+import { env } from '../../lib/env'
+import { createAuditLog } from './audit.service'
 
 /**
  * 改约/取消 token 配置
@@ -30,7 +31,7 @@ export async function generateRescheduleToken(appointmentId: number) {
     return {
       token,
       expiresAt,
-      url: `${process.env.APP_URL || 'http://localhost:3000'}/appointment/reschedule/${token}`,
+      url: `${env.appUrl}/appointment/reschedule/${token}`,
     }
   } catch (error) {
     console.error('[RESCHEDULE_TOKEN] Error generating reschedule token:', error)
@@ -57,7 +58,7 @@ export async function generateCancelToken(appointmentId: number) {
     return {
       token,
       expiresAt,
-      url: `${process.env.APP_URL || 'http://localhost:3000'}/appointment/cancel/${token}`,
+      url: `${env.appUrl}/appointment/cancel/${token}`,
     }
   } catch (error) {
     console.error('[CANCEL_TOKEN] Error generating cancel token:', error)

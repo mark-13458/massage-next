@@ -1,6 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { validateRescheduleToken, rescheduleAppointmentByToken } from '@/server/services/appointment-reschedule.service'
-import { sendRescheduleNotificationEmail } from '@/server/services/email.service'
+import { sendCustomerRescheduledEmail } from '@/server/services/mail.service'
 import { headers } from 'next/headers'
 
 /**
@@ -110,16 +110,10 @@ export async function POST(
 
     // 发送通知邮件
     if (updated.customerEmail) {
-      await sendRescheduleNotificationEmail({
-        customerName: updated.customerName,
-        customerEmail: updated.customerEmail,
-        appointmentDate: updated.appointmentDate,
-        appointmentTime: newTime,
-        service: updated.service,
-        locale: updated.locale,
+      await sendCustomerRescheduledEmail({
+        ...updated,
         oldDate,
         oldTime,
-        rescheduleToken: undefined,
       })
     }
 

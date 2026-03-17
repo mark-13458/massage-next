@@ -5,6 +5,13 @@ import { BookingInput } from '../../lib/validations/booking'
 import { checkBookingFrequencyLimit } from './booking-protection.service'
 import { createAuditLog } from './audit.service'
 
+export class RateLimitError extends Error {
+  constructor(message: string) {
+    super(message)
+    this.name = 'RateLimitError'
+  }
+}
+
 export async function createBooking(input: BookingInput, context?: {
   ipAddress?: string
   userAgent?: string
@@ -24,7 +31,7 @@ export async function createBooking(input: BookingInput, context?: {
     })
 
     if (!phoneCheck.allowed) {
-      throw new Error(phoneCheck.reason || 'Too many booking attempts')
+      throw new RateLimitError(phoneCheck.reason || 'Too many booking attempts')
     }
   }
 
@@ -36,7 +43,7 @@ export async function createBooking(input: BookingInput, context?: {
     })
 
     if (!emailCheck.allowed) {
-      throw new Error(emailCheck.reason || 'Too many booking attempts')
+      throw new RateLimitError(emailCheck.reason || 'Too many booking attempts')
     }
   }
 

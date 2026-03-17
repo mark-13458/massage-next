@@ -1,7 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { bookingSchema } from '../../../lib/validations/booking'
 import { verifyTurnstileToken } from '../../../lib/turnstile'
-import { createBooking } from '../../../server/services/booking.service'
+import { createBooking, RateLimitError } from '../../../server/services/booking.service'
 import { getSystemSettings } from '../../../server/services/site.service'
 import { getIpAddress } from '../../../lib/utils'
 
@@ -17,7 +17,7 @@ export async function POST(request: NextRequest) {
 
     if (!parsed.success) {
       return NextResponse.json(
-        { status: 'error', error: 'Invalid booking payload', details: parsed.error.flatten() },
+        { status: 'error', error: 'Invalid booking payload' },
         { status: 400 },
       )
     }
@@ -66,6 +66,12 @@ export async function POST(request: NextRequest) {
       },
     })
   } catch (error) {
+    if (error instanceof RateLimitError) {
+      return NextResponse.json(
+        { status: 'error', error: error.message },
+        { status: 429 },
+      )
+    }
     console.error('[api/booking] unexpected error:', error)
     return NextResponse.json(
       { status: 'error', error: 'Internal server error' },

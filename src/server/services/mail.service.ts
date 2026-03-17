@@ -275,3 +275,50 @@ export async function sendCustomerCancelledEmail(booking: BookingWithService) {
   }
   return success
 }
+
+// 客户通知：预约已改约（Rescheduled）
+export async function sendCustomerRescheduledEmail(booking: BookingWithService & {
+  oldDate: Date
+  oldTime: string
+}) {
+  if (!booking.customerEmail) return false
+
+  const locale = booking.locale || 'de'
+  const newDateStr = getFormattedDate(booking.appointmentDate, locale)
+  const oldDateStr = getFormattedDate(booking.oldDate, locale)
+  const siteName = env.siteName || 'Massage Service'
+
+  const subject = t(locale,
+    `Terminänderung bestätigt - ${siteName}`,
+    `Appointment Rescheduled - ${siteName}`
+  )
+
+  const title = t(locale, 'Ihr Termin wurde geändert', 'Your appointment has been rescheduled')
+  const oldLabel = t(locale, 'Alter Termin', 'Previous appointment')
+  const newLabel = t(locale, 'Neuer Termin', 'New appointment')
+  const serviceLabel = t(locale, 'Service', 'Service')
+
+  const serviceName = locale === 'en' ? booking.service.nameEn : booking.service.nameDe
+
+  const html = `
+    <div style="font-family: sans-serif; max-width: 600px; margin: 0 auto; color: #333;">
+      <h2 style="color: #2563eb;">${title}</h2>
+
+      <div style="border: 1px solid #ddd; padding: 20px; border-radius: 8px; margin: 20px 0; background-color: #eff6ff;">
+        <p><strong>${serviceLabel}:</strong> ${escapeHtml(serviceName)}</p>
+        <p style="color: #6b7280;"><strong>${oldLabel}:</strong> ${oldDateStr} ${escapeHtml(booking.oldTime)}</p>
+        <p><strong>${newLabel}:</strong> ${newDateStr} ${escapeHtml(booking.appointmentTime)}</p>
+      </div>
+
+      <p style="color: #666; font-size: 14px; margin-top: 30px;">
+        ${escapeHtml(siteName)}
+      </p>
+    </div>
+  `
+
+  const success = await sendEmail(booking.customerEmail, subject, html)
+  if (success) {
+    console.log(`📧 Customer rescheduled email sent for booking ${booking.uuid}`)
+  }
+  return success
+}

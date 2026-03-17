@@ -1,6 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { validateCancelToken, cancelAppointmentByToken } from '@/server/services/appointment-reschedule.service'
-import { sendCancellationNotificationEmail } from '@/server/services/email.service'
+import { sendCustomerCancelledEmail } from '@/server/services/mail.service'
 import { headers } from 'next/headers'
 
 /**
@@ -71,15 +71,7 @@ export async function POST(
 
     // 发送通知邮件
     if (cancelled.customerEmail) {
-      await sendCancellationNotificationEmail({
-        customerName: cancelled.customerName,
-        customerEmail: cancelled.customerEmail,
-        appointmentDate: cancelled.appointmentDate,
-        appointmentTime: cancelled.appointmentTime,
-        service: cancelled.service,
-        locale: cancelled.locale,
-        reason: reason || undefined,
-      })
+      await sendCustomerCancelledEmail(cancelled)
     }
 
     return NextResponse.json({
