@@ -802,10 +802,18 @@
 
 ---
 
-## Phase 61 — SEO 深化 + 安全加固（2026-03-17）
+## Phase 62 — 验证码刷新 Bug 修复 + 登录输入框 Autofill 白字修复（2026-03-17）
 
-**安全：Math CAPTCHA HMAC 签名**
-- 新增 `GET /api/admin/captcha`：服务端生成数学题，用 `SESSION_SECRET` 做 HMAC-SHA256 签名，返回 `{ challenge, question }`；challenge 格式 `base64(a:b:ts:hmac_sig)`，防止客户端伪造
+**Bug 1：验证码每次输入都会刷新**
+- 根因：`MathCaptcha` 的 `refresh` useCallback 依赖 `[onVerified]`，而 `AdminLoginForm` 每次渲染（输入邮箱/密码时 setState）都会创建新的内联箭头函数引用，导致 `refresh` 重新创建 → `useEffect([refresh])` 重新执行 → 重新 fetch 新验证码
+- 修复：`MathCaptcha.tsx` 用 `useRef` 存储 `onVerified`，`refresh` 的 `useCallback` 依赖改为 `[]`（只在 mount 时执行一次）；`handleChange` 里也改为调用 `onVerifiedRef.current`
+- 双重保险：`AdminLoginForm.tsx` 用 `useCallback` 包裹传给 `MathCaptcha` 的 `handleCaptchaVerified`，引用稳定
+
+**Bug 2：登录输入框 Autofill 白字（浏览器自动填充覆盖背景色）**
+- 根因：浏览器 autofill 会用系统颜色覆盖 `bg-white/[0.08]` 背景，导致深色背景上白字不可见
+- 修复：`globals.css` 新增 `.admin-input:-webkit-autofill` 规则，强制 `-webkit-text-fill-color: white`，用 `box-shadow inset` 模拟深色背景；`AdminLoginForm.tsx` 两个输入框加 `admin-input` class
+
+- `npm run build` 验证通过 ✅A256 签名，返回 `{ challenge, question }`；challenge 格式 `base64(a:b:ts:hmac_sig)`，防止客户端伪造
 - `MathCaptcha.tsx`：重写为从服务端获取 challenge，提交时传 `captchaChallenge + captchaAnswer`（不再在客户端生成 token）
 - `AdminLoginForm.tsx`：适配新 API，state 改为 `captchaChallenge / captchaAnswer`
 - `api/admin/login/route.ts`：移除旧的 `verifyMathToken()`，改为调用 `verifyCaptchaToken(challenge, answer)`（HMAC 验证）；移除旧的 `mathToken` 字段

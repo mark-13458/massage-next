@@ -1,6 +1,6 @@
 'use client'
 
-import { useState, useEffect, useRef, useTransition } from 'react'
+import { useState, useEffect, useRef, useTransition, useCallback } from 'react'
 import { useRouter } from 'next/navigation'
 import Script from 'next/script'
 import { adminRequest } from '../../lib/admin-request'
@@ -98,6 +98,11 @@ export function AdminLoginForm({ lang = 'zh', turnstileSiteKey }: Props) {
 
   const captchaReady = hasTurnstile ? Boolean(turnstileToken) : Boolean(captchaChallenge && captchaAnswer)
 
+  const handleCaptchaVerified = useCallback((ch: string, ans: string) => {
+    setCaptchaChallenge(ch)
+    setCaptchaAnswer(ans)
+  }, [])
+
   return (
     <>
       {hasTurnstile && (
@@ -117,7 +122,7 @@ export function AdminLoginForm({ lang = 'zh', turnstileSiteKey }: Props) {
             value={email}
             onChange={(e) => setEmail(e.target.value)}
             onKeyDown={handleKeyDown}
-            className="rounded-2xl border border-white/15 bg-white/[0.08] px-4 py-3 text-white outline-none placeholder:text-stone-500 transition focus:border-amber-400 focus:ring-2 focus:ring-amber-400/20"
+            className="admin-input rounded-2xl border border-white/15 bg-white/[0.08] px-4 py-3 text-white outline-none placeholder:text-stone-500 transition focus:border-amber-400 focus:ring-2 focus:ring-amber-400/20"
           />
         </label>
         <label className="flex flex-col gap-2 text-sm font-medium text-stone-300">
@@ -128,7 +133,7 @@ export function AdminLoginForm({ lang = 'zh', turnstileSiteKey }: Props) {
             value={password}
             onChange={(e) => setPassword(e.target.value)}
             onKeyDown={handleKeyDown}
-            className="rounded-2xl border border-white/15 bg-white/[0.08] px-4 py-3 text-white outline-none placeholder:text-stone-500 transition focus:border-amber-400 focus:ring-2 focus:ring-amber-400/20"
+            className="admin-input rounded-2xl border border-white/15 bg-white/[0.08] px-4 py-3 text-white outline-none placeholder:text-stone-500 transition focus:border-amber-400 focus:ring-2 focus:ring-amber-400/20"
           />
         </label>
 
@@ -144,7 +149,7 @@ export function AdminLoginForm({ lang = 'zh', turnstileSiteKey }: Props) {
         {useMathCaptcha && (
           <div className="flex flex-col gap-2">
             <span className="text-sm font-medium text-stone-300">{t(lang, '安全验证', 'Security check')}</span>
-            <MathCaptcha lang={lang} onVerified={(ch, ans) => { setCaptchaChallenge(ch); setCaptchaAnswer(ans) }} />
+            <MathCaptcha lang={lang} onVerified={handleCaptchaVerified} />
           </div>
         )}
       </div>

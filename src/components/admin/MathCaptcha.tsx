@@ -1,6 +1,6 @@
 'use client'
 
-import { useEffect, useState, useCallback } from 'react'
+import { useEffect, useState, useCallback, useRef } from 'react'
 
 interface Props {
   lang?: 'zh' | 'en'
@@ -20,12 +20,16 @@ export function MathCaptcha({ lang = 'zh', onVerified }: Props) {
   const [verified, setVerified] = useState(false)
   const [loading, setLoading] = useState(false)
 
+  // 用 ref 存 onVerified，避免父组件每次渲染传入新引用时触发 refresh
+  const onVerifiedRef = useRef(onVerified)
+  useEffect(() => { onVerifiedRef.current = onVerified }, [onVerified])
+
   const refresh = useCallback(async () => {
     setLoading(true)
     setInput('')
     setError(false)
     setVerified(false)
-    onVerified('', '')
+    onVerifiedRef.current('', '')
     try {
       const res = await fetch('/api/admin/captcha')
       const json = await res.json() as { data?: { challenge: string; question: string } }
@@ -38,7 +42,7 @@ export function MathCaptcha({ lang = 'zh', onVerified }: Props) {
     } finally {
       setLoading(false)
     }
-  }, [onVerified])
+  }, []) // 依赖为空，只在 mount 时执行一次
 
   useEffect(() => { refresh() }, [refresh])
 
@@ -50,10 +54,10 @@ export function MathCaptcha({ lang = 'zh', onVerified }: Props) {
       // Optimistically mark verified — server will do final check on submit
       // We just need a non-empty answer to enable the submit button
       setVerified(true)
-      onVerified(challenge, String(num))
+      onVerifiedRef.current(challenge, String(num))
     } else {
       setVerified(false)
-      onVerified('', '')
+      onVerifiedRef.current('', '')
     }
   }
 

@@ -162,3 +162,15 @@ body {
     @apply animate-shimmer;
   }
 }
+
+/* ── Admin login: override browser autofill styles ── */
+.admin-input:-webkit-autofill,
+.admin-input:-webkit-autofill:hover,
+.admin-input:-webkit-autofill:focus,
+.admin-input:-webkit-autofill:active {
+  -webkit-text-fill-color: #ffffff !important;
+  -webkit-box-shadow: 0 0 0 1000px rgba(255, 255, 255, 0.08) inset !important;
+  box-shadow: 0 0 0 1000px rgba(255, 255, 255, 0.08) inset !important;
+  caret-color: #ffffff;
+  transition: background-color 9999s ease-in-out 0s;
+}
