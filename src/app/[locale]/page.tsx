@@ -11,7 +11,7 @@ import { SiteHeader } from '../../components/site/SiteHeader'
 import { getMessages } from '../../lib/copy'
 import { isLocale, Locale } from '../../lib/i18n'
 import { createPageMetadata, getBaseUrl } from '../../lib/seo'
-import { buildLocalBusinessJsonLd } from '../../lib/structured-data'
+import { buildLocalBusinessJsonLd, buildWebSiteJsonLd, buildFaqPageJsonLd } from '../../lib/structured-data'
 import {
   getActiveFaqs,
   getActiveServices,
@@ -70,13 +70,25 @@ export default async function LocaleHome({ params }: { params: Promise<{ locale:
     getSystemSettings().catch(() => null),
   ])
 
+  const baseUrl = getBaseUrl().toString().replace(/\/$/, '')
+
   const localBusinessJsonLd = buildLocalBusinessJsonLd({
     locale: typedLocale,
     contact,
     hours,
     settings,
-    url: new URL(`/${typedLocale}`, getBaseUrl()).toString(),
+    url: `${baseUrl}/${typedLocale}`,
   })
+
+  const webSiteJsonLd = buildWebSiteJsonLd({
+    url: baseUrl,
+    name: settings?.siteName || 'China TCM Massage',
+    description: typedLocale === 'de'
+      ? 'Traditionelle Chinesische Massage in München'
+      : 'Traditional Chinese Massage in Munich',
+  })
+
+  const faqJsonLd = buildFaqPageJsonLd(faqs)
 
   return (
     <main>
@@ -84,6 +96,16 @@ export default async function LocaleHome({ params }: { params: Promise<{ locale:
         type="application/ld+json"
         dangerouslySetInnerHTML={{ __html: JSON.stringify(localBusinessJsonLd) }}
       />
+      <script
+        type="application/ld+json"
+        dangerouslySetInnerHTML={{ __html: JSON.stringify(webSiteJsonLd) }}
+      />
+      {faqJsonLd && (
+        <script
+          type="application/ld+json"
+          dangerouslySetInnerHTML={{ __html: JSON.stringify(faqJsonLd) }}
+        />
+      )}
       <SiteHeader locale={typedLocale} />
       <HeroSection locale={typedLocale} />
 

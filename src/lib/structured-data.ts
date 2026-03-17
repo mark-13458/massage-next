@@ -43,26 +43,113 @@ export function buildLocalBusinessJsonLd({
   settings?: SystemSettingsView
   url: string
 }) {
-  const siteName = settings?.siteName || 'China TCM Massage'
+  const name = settings?.siteName || 'China TCM Massage'
 
   return {
     '@context': 'https://schema.org',
     '@type': ['HealthAndBeautyBusiness', 'LocalBusiness'],
     '@id': url,
-    name: siteName,
+    name,
     url,
+    image: `${url}/og-image.jpg`,
     telephone: contact?.phone || undefined,
     email: contact?.email || undefined,
-    address: contact?.address
-      ? {
-          '@type': 'PostalAddress',
-          streetAddress: contact.address,
-          addressLocality: 'München',
-          addressCountry: 'DE',
-        }
-      : undefined,
+    priceRange: '€€',
+    currenciesAccepted: 'EUR',
+    paymentAccepted: 'Cash, Credit Card',
+    address: {
+      '@type': 'PostalAddress',
+      streetAddress: contact?.address ?? 'Arnulfstraße 104',
+      addressLocality: 'München',
+      postalCode: '80636',
+      addressCountry: 'DE',
+    },
+    geo: {
+      '@type': 'GeoCoordinates',
+      latitude: 48.1441,
+      longitude: 11.5389,
+    },
     areaServed: 'Munich',
     availableLanguage: locale === 'de' ? ['de', 'en'] : ['en', 'de'],
     openingHoursSpecification: toOpeningHoursSpecification(hours),
+  }
+}
+
+export function buildServiceJsonLd({
+  name,
+  description,
+  price,
+  currency,
+  url,
+  providerName,
+  providerUrl,
+}: {
+  name: string
+  description?: string
+  price: string | number
+  currency: string
+  url: string
+  providerName: string
+  providerUrl: string
+}) {
+  return {
+    '@context': 'https://schema.org',
+    '@type': 'Service',
+    name,
+    description: description || undefined,
+    url,
+    provider: {
+      '@type': 'LocalBusiness',
+      name: providerName,
+      url: providerUrl,
+    },
+    offers: {
+      '@type': 'Offer',
+      price: String(price),
+      priceCurrency: currency,
+      availability: 'https://schema.org/InStock',
+    },
+  }
+}
+
+export function buildWebSiteJsonLd({
+  url,
+  name,
+  description,
+}: {
+  url: string
+  name: string
+  description?: string
+}) {
+  return {
+    '@context': 'https://schema.org',
+    '@type': 'WebSite',
+    url,
+    name,
+    description: description || undefined,
+    potentialAction: {
+      '@type': 'SearchAction',
+      target: {
+        '@type': 'EntryPoint',
+        urlTemplate: `${url}/services?q={search_term_string}`,
+      },
+      'query-input': 'required name=search_term_string',
+    },
+  }
+}
+
+export function buildFaqPageJsonLd(faqs: { question: string; answer: string }[]) {
+  if (faqs.length === 0) return null
+  return {
+    '@context': 'https://schema.org',
+    '@type': 'FAQPage',
+    mainEntity: faqs.map((faq) => ({
+      '@type': 'Question',
+      name: faq.question,
+      acceptedAnswer: {
+        '@type': 'Answer',
+        text: faq.answer,
+      },
+    })),
   }
 }

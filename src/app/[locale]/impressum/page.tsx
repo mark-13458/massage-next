@@ -6,6 +6,7 @@ import { FloatingActions } from '../../../components/site/FloatingActions'
 import { SectionShell } from '../../../components/site/SectionShell'
 import { getContactSettings } from '../../../server/services/site.service'
 import { notFound } from 'next/navigation'
+import { createPageMetadata } from '../../../lib/seo'
 
 type Props = {
   params: Promise<{ locale: string }>
@@ -15,8 +16,13 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
   const { locale } = await params
   if (!isLocale(locale)) return {}
   return {
-    title: locale === 'de' ? 'Impressum | China TCM Massage' : 'Imprint | China TCM Massage',
-    description: locale === 'de' ? 'Impressum und rechtliche Hinweise.' : 'Imprint and legal information.',
+    ...createPageMetadata({
+      locale,
+      pathname: '/impressum',
+      title: locale === 'de' ? 'Impressum' : 'Imprint',
+      description: locale === 'de' ? 'Impressum und rechtliche Hinweise.' : 'Imprint and legal information.',
+    }),
+    robots: { index: false, follow: false },
   }
 }
 

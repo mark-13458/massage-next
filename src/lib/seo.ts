@@ -26,12 +26,14 @@ function normalizePathname(pathname: string) {
 
 export function getLocaleAlternates(pathname: string) {
   const normalized = normalizePathname(pathname)
+  const base = getBaseUrl().toString().replace(/\/$/, '')
 
   return {
-    canonical: `/de${normalized}`,
+    canonical: `${base}/de${normalized}`,
     languages: {
-      de: `/de${normalized}`,
-      en: `/en${normalized}`,
+      de: `${base}/de${normalized}`,
+      en: `${base}/en${normalized}`,
+      'x-default': `${base}/de${normalized}`,
     },
   }
 }
@@ -58,16 +60,27 @@ export function createPageMetadata({
     ? titleTemplate.replace('{page}', pageTitle)
     : `${pageTitle} | ${resolvedSiteName}`
 
+  const base = getBaseUrl().toString().replace(/\/$/, '')
+  const normalized = normalizePathname(pathname)
+
   return {
     title: resolvedTitle,
     description: pageDescription,
-    alternates: getLocaleAlternates(pathname),
+    alternates: {
+      canonical: `${base}/${locale}${normalized}`,
+      languages: {
+        de: `${base}/de${normalized}`,
+        en: `${base}/en${normalized}`,
+        'x-default': `${base}/de${normalized}`,
+      },
+    },
     openGraph: {
       title: resolvedTitle,
       description: pageDescription,
-      url: `/${locale}${normalizePathname(pathname)}`,
+      url: `${base}/${locale}${normalized}`,
       siteName: resolvedSiteName,
       locale: locale === 'de' ? 'de_DE' : 'en_US',
+      alternateLocale: locale === 'de' ? 'en_US' : 'de_DE',
       type: 'website',
     },
     twitter: {

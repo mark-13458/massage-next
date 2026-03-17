@@ -8,6 +8,7 @@ import { SectionShell } from '../../../components/site/SectionShell'
 import { isLocale, Locale } from '../../../lib/i18n'
 import { getMessages } from '../../../lib/copy'
 import { createPageMetadata } from '../../../lib/seo'
+import { buildFaqPageJsonLd } from '../../../lib/structured-data'
 import { getActiveFaqs, getPublishedTestimonials, getSystemSettings } from '../../../server/services/site.service'
 
 export async function generateMetadata({ params }: { params: Promise<{ locale: string }> }): Promise<Metadata> {
@@ -46,8 +47,16 @@ export default async function AboutPage({ params }: { params: Promise<{ locale: 
     getPublishedTestimonials(typedLocale).catch(() => []),
   ])
 
+  const faqJsonLd = buildFaqPageJsonLd(faqs)
+
   return (
     <main>
+      {faqJsonLd && (
+        <script
+          type="application/ld+json"
+          dangerouslySetInnerHTML={{ __html: JSON.stringify(faqJsonLd) }}
+        />
+      )}
       <SiteHeader locale={typedLocale} />
 
       <SectionShell

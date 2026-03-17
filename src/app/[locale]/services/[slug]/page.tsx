@@ -6,7 +6,8 @@ import { SiteFooter } from '../../../../components/site/SiteFooter'
 import { FloatingActions } from '../../../../components/site/FloatingActions'
 import { ServiceCard } from '../../../../components/site/ServiceCard'
 import { isLocale, Locale } from '../../../../lib/i18n'
-import { createPageMetadata } from '../../../../lib/seo'
+import { createPageMetadata, getBaseUrl } from '../../../../lib/seo'
+import { buildServiceJsonLd } from '../../../../lib/structured-data'
 import { getSystemSettings } from '../../../../server/services/site.service'
 import { prisma } from '../../../../lib/prisma'
 
@@ -102,6 +103,7 @@ export default async function ServiceDetailPage({ params }: Props) {
   const priceLabel = typedLocale === 'de' ? 'Preis' : 'Price'
   const minLabel = typedLocale === 'de' ? 'Min.' : 'min'
 
+  const siteBaseUrl = getBaseUrl().toString().replace(/\/$/, '')
   const baseUrl = process.env.APP_URL || 'https://example.com'
   const breadcrumbJsonLd = {
     '@context': 'https://schema.org',
@@ -113,11 +115,25 @@ export default async function ServiceDetailPage({ params }: Props) {
     ],
   }
 
+  const serviceJsonLd = buildServiceJsonLd({
+    name,
+    description: (summary || description) ?? undefined,
+    price: Number(service.price).toFixed(2),
+    currency,
+    url: `${siteBaseUrl}/${typedLocale}/services/${service.slug}`,
+    providerName: settings?.siteName || 'China TCM Massage',
+    providerUrl: `${siteBaseUrl}/${typedLocale}`,
+  })
+
   return (
     <main>
       <script
         type="application/ld+json"
         dangerouslySetInnerHTML={{ __html: JSON.stringify(breadcrumbJsonLd) }}
+      />
+      <script
+        type="application/ld+json"
+        dangerouslySetInnerHTML={{ __html: JSON.stringify(serviceJsonLd) }}
       />
       <SiteHeader locale={typedLocale} />
 

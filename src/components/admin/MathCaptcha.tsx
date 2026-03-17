@@ -66,7 +66,7 @@ export function MathCaptcha({ lang = 'zh', onToken }: Props) {
 
   return (
     <div className="flex items-center gap-3">
-      <span className="select-none rounded-xl border border-white/20 bg-white/[0.08] px-4 py-2.5 font-mono text-base font-semibold text-stone-200 tracking-wider">
+      <span className="select-none rounded-xl border border-stone-200 bg-stone-50 px-4 py-2.5 font-mono text-base font-semibold text-stone-800 tracking-wider">
         {a} + {b} = ?
       </span>
       <input
@@ -77,15 +77,15 @@ export function MathCaptcha({ lang = 'zh', onToken }: Props) {
         onBlur={handleBlur}
         placeholder={t(lang, '答案', 'Answer')}
         className={`w-20 rounded-xl border px-3 py-2.5 text-center text-base outline-none transition
-          ${verified ? 'border-emerald-400 bg-emerald-400/10 text-emerald-300' : error ? 'border-rose-400 bg-rose-400/10 text-rose-300' : 'border-white/20 bg-white/[0.08] text-white focus:border-amber-400'}`}
+          ${verified ? 'border-emerald-400 bg-emerald-50 text-emerald-700' : error ? 'border-rose-400 bg-rose-50 text-rose-700' : 'border-stone-200 bg-white text-stone-900 focus:border-amber-500'}`}
       />
       {verified && (
-        <span className="text-sm font-medium text-emerald-400">
+        <span className="text-sm font-medium text-emerald-600">
           {t(lang, '✓ 验证通过', '✓ Verified')}
         </span>
       )}
       {error && (
-        <button type="button" onClick={refresh} className="text-xs text-stone-400 underline hover:text-stone-200">
+        <button type="button" onClick={refresh} className="text-xs text-stone-400 underline hover:text-stone-600">
           {t(lang, '换一题', 'Refresh')}
         </button>
       )}

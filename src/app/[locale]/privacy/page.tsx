@@ -6,6 +6,7 @@ import { FloatingActions } from '../../../components/site/FloatingActions'
 import { SectionShell } from '../../../components/site/SectionShell'
 import { getContactSettings } from '../../../server/services/site.service'
 import { notFound } from 'next/navigation'
+import { createPageMetadata } from '../../../lib/seo'
 
 type Props = {
   params: Promise<{ locale: string }>
@@ -15,8 +16,13 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
   const { locale } = await params
   if (!isLocale(locale)) return {}
   return {
-    title: locale === 'de' ? 'Datenschutzerklärung | China TCM Massage' : 'Privacy Policy | China TCM Massage',
-    description: locale === 'de' ? 'Datenschutzerklärung und Informationen zum Datenschutz.' : 'Privacy policy and data protection information.',
+    ...createPageMetadata({
+      locale,
+      pathname: '/privacy',
+      title: locale === 'de' ? 'Datenschutzerklärung' : 'Privacy Policy',
+      description: locale === 'de' ? 'Datenschutzerklärung und Informationen zum Datenschutz.' : 'Privacy policy and data protection information.',
+    }),
+    robots: { index: false, follow: false },
   }
 }
 

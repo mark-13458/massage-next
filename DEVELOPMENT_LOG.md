@@ -752,3 +752,34 @@
 - `AdminPageToolbar`：阴影从 `shadow-[0_18px_60px_...]` 改为更轻量的 `shadow-[0_4px_24px_...]`，border 改为 `border-stone-200/80`
 
 - `npm run build` 验证通过 ✅
+
+---
+
+## Phase 60 — SEO 全面优化（2026-03-17）
+
+**structured-data.ts 升级**
+- `buildLocalBusinessJsonLd`：补 `image`、`priceRange: '€€'`、`currenciesAccepted`、`paymentAccepted`、`geo`（慕尼黑 Arnulfstraße 104 坐标 48.1441/11.5389）、`postalCode`；address 改为始终输出（有 DB 值用 DB，否则用 fallback）
+- 新增 `buildServiceJsonLd()`：`@type: Service`，含 name/description/offers（price+currency）/provider
+- 新增 `buildWebSiteJsonLd()`：`@type: WebSite`，含 `potentialAction: SearchAction`（sitelinks searchbox）
+- 新增 `buildFaqPageJsonLd()`：`@type: FAQPage`，faqs 为空时返回 null
+
+**页面 JSON-LD 补全**
+- 首页：新增 `WebSite` schema + `FAQPage` schema（faqs 有数据时输出）
+- about 页：新增 `FAQPage` schema（faqs 有数据时输出）
+- 服务详情页：新增 `Service` schema（含 offers/provider）
+
+**法律页面 SEO 修正**
+- `impressum/page.tsx`：metadata 改用 `createPageMetadata`（补 canonical/hreflang/OG），新增 `robots: { index: false, follow: false }`
+- `privacy/page.tsx`：同上
+
+**sitemap.ts 升级**
+- 移除法律页面（impressum/privacy）收录（已设 noindex）
+- 每条 URL 补 `alternates.languages`（de/en hreflang 对）
+
+**robots.ts 升级**
+- `disallow` 新增 `/*/booking/confirm`（token 确认页不应被索引）
+
+**根 layout.tsx 动态 lang**
+- `RootLayout` 改为 async，通过 `headers()` 解析请求路径中的 locale（`/de/` 或 `/en/`），动态设置 `<html lang>`，不再硬编码 `lang="de"`
+
+- `npm run build` 验证通过 ✅
