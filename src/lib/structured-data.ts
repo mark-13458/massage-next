@@ -167,3 +167,28 @@ export function buildItemListJsonLd(items: { name: string; url: string }[]) {
     })),
   }
 }
+
+export function buildImageGalleryJsonLd(
+  images: { url: string; name: string; description?: string }[],
+  providerName: string,
+  providerUrl: string,
+) {
+  if (images.length === 0) return null
+  return {
+    '@context': 'https://schema.org',
+    '@type': 'ImageGallery',
+    name: providerName,
+    url: providerUrl,
+    associatedMedia: images.map((img) => ({
+      '@type': 'ImageObject',
+      contentUrl: img.url,
+      name: img.name,
+      description: img.description || img.name,
+      author: {
+        '@type': 'Organization',
+        name: providerName,
+        url: providerUrl,
+      },
+    })),
+  }
+}

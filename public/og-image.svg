@@ -1,13 +1,43 @@
 ﻿<svg xmlns="http://www.w3.org/2000/svg" width="1200" height="630" viewBox="0 0 1200 630">
-  <rect width="1200" height="630" fill="#1f1a17"/>
-  <rect x="0" y="0" width="1200" height="630" fill="url(#grad)"/>
   <defs>
-    <radialGradient id="grad" cx="30%" cy="40%" r="70%">
-      <stop offset="0%" stop-color="#3d2e1e" stop-opacity="1"/>
-      <stop offset="100%" stop-color="#1f1a17" stop-opacity="1"/>
-    </radialGradient>
+    <linearGradient id="bg" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" style="stop-color:#1c1917;stop-opacity:1" />
+      <stop offset="60%" style="stop-color:#292524;stop-opacity:1" />
+      <stop offset="100%" style="stop-color:#44403c;stop-opacity:1" />
+    </linearGradient>
+    <linearGradient id="accent" x1="0%" y1="0%" x2="100%" y2="0%">
+      <stop offset="0%" style="stop-color:#d97706;stop-opacity:1" />
+      <stop offset="100%" style="stop-color:#f59e0b;stop-opacity:1" />
+    </linearGradient>
   </defs>
-  <text x="600" y="280" font-family="Georgia, serif" font-size="56" fill="#f5e6d0" text-anchor="middle" font-weight="bold">China TCM Massage</text>
-  <text x="600" y="360" font-family="Georgia, serif" font-size="28" fill="#c9a87c" text-anchor="middle">Traditionelle Chinesische Massage · München</text>
-  <text x="600" y="430" font-family="Georgia, serif" font-size="22" fill="#8a7060" text-anchor="middle">Arnulfstraße 104 · 80636 München</text>
+
+  <!-- Background -->
+  <rect width="1200" height="630" fill="url(#bg)" />
+
+  <!-- Decorative circle top-right -->
+  <circle cx="1050" cy="120" r="280" fill="#78716c" fill-opacity="0.08" />
+  <circle cx="1050" cy="120" r="180" fill="#78716c" fill-opacity="0.06" />
+
+  <!-- Decorative circle bottom-left -->
+  <circle cx="150" cy="520" r="200" fill="#78716c" fill-opacity="0.06" />
+
+  <!-- Amber accent line -->
+  <rect x="80" y="280" width="60" height="4" rx="2" fill="url(#accent)" />
+
+  <!-- Main title -->
+  <text x="80" y="240" font-family="Georgia, 'Times New Roman', serif" font-size="72" font-weight="700" fill="#fafaf9" letter-spacing="-1">China TCM Massage</text>
+
+  <!-- Subtitle -->
+  <text x="80" y="320" font-family="Georgia, 'Times New Roman', serif" font-size="32" fill="#d6d3d1" letter-spacing="1">Traditionelle Chinesische Massage · München</text>
+
+  <!-- Description -->
+  <text x="80" y="390" font-family="-apple-system, Arial, sans-serif" font-size="22" fill="#a8a29e">Entspannung, Wohlbefinden &amp; TCM-Behandlungen im Herzen Münchens</text>
+
+  <!-- Bottom domain -->
+  <text x="80" y="560" font-family="-apple-system, Arial, sans-serif" font-size="18" fill="#78716c" letter-spacing="2">chinatcmmassage.de</text>
+
+  <!-- Decorative dots -->
+  <circle cx="80" cy="460" r="4" fill="#d97706" fill-opacity="0.6" />
+  <circle cx="100" cy="460" r="4" fill="#d97706" fill-opacity="0.4" />
+  <circle cx="120" cy="460" r="4" fill="#d97706" fill-opacity="0.2" />
 </svg>

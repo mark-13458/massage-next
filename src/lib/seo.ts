@@ -24,20 +24,6 @@ function normalizePathname(pathname: string) {
   return pathname === '/' ? '' : pathname
 }
 
-export function getLocaleAlternates(pathname: string) {
-  const normalized = normalizePathname(pathname)
-  const base = getBaseUrl().toString().replace(/\/$/, '')
-
-  return {
-    canonical: `${base}/de${normalized}`,
-    languages: {
-      de: `${base}/de${normalized}`,
-      en: `${base}/en${normalized}`,
-      'x-default': `${base}/de${normalized}`,
-    },
-  }
-}
-
 export function createPageMetadata({
   locale,
   pathname,

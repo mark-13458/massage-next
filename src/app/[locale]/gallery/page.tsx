@@ -8,7 +8,8 @@ import { FloatingActions } from '../../../components/site/FloatingActions'
 import { SectionShell } from '../../../components/site/SectionShell'
 import { isLocale, Locale } from '../../../lib/i18n'
 import { getMessages } from '../../../lib/copy'
-import { createPageMetadata } from '../../../lib/seo'
+import { createPageMetadata, getBaseUrl } from '../../../lib/seo'
+import { buildImageGalleryJsonLd } from '../../../lib/structured-data'
 import { getActiveGallery, getSystemSettings } from '../../../server/services/site.service'
 
 const fallbackGallery = [
@@ -80,8 +81,22 @@ export default async function GalleryPage({ params }: { params: Promise<{ locale
     ? gallery.map((item) => ({ id: item.id, title: item.title || 'Gallery', image: item.imageUrl }))
     : fallbackGallery.map((item) => ({ id: item.id, title: item.title[typedLocale], image: item.image }))
 
+  const baseUrl = getBaseUrl().toString().replace(/\/$/, '')
+  const providerUrl = `${baseUrl}/de`
+  const imageGalleryJsonLd = buildImageGalleryJsonLd(
+    items.map((item) => ({ url: item.image, name: item.title })),
+    'China TCM Massage',
+    providerUrl,
+  )
+
   return (
     <main>
+      {imageGalleryJsonLd && (
+        <script
+          type="application/ld+json"
+          dangerouslySetInnerHTML={{ __html: JSON.stringify(imageGalleryJsonLd) }}
+        />
+      )}
       <SiteHeader locale={typedLocale} />
       <SectionShell
         eyebrow={typedLocale === 'de' ? 'Studio Galerie' : 'Studio gallery'}

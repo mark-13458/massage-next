@@ -49,12 +49,13 @@ export default async function ContactPage({ params }: { params: Promise<{ locale
   ])
 
   const baseUrl = getBaseUrl().toString().replace(/\/$/, '')
+  // @id should point to the homepage (canonical business entity URL), not the contact page
   const localBusinessJsonLd = buildLocalBusinessJsonLd({
     locale: typedLocale,
     contact,
     hours,
     settings,
-    url: `${baseUrl}/${typedLocale}/contact`,
+    url: `${baseUrl}/de`,
   })
 
   return (

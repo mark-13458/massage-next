@@ -824,3 +824,22 @@
 - `sitemap.ts`：移除 `/booking` 路径（noindex 页面不收录）
 
 - `npm run build` 验证通过 ✅
+
+## Phase 62 — SEO 收尾 + OG 图片 + 安全审计（2026-03-17）
+
+**SEO 修复**
+- `contact/page.tsx`：`buildLocalBusinessJsonLd` 的 `@id` 改为指向首页 `${baseUrl}/de`（规范的 LocalBusiness 实体 URL，不应指向联系页）
+- `gallery/page.tsx`：新增 `ImageGallery` + `ImageObject` schema，每张图片标记 `contentUrl / name / author`
+- `structured-data.ts`：新增 `buildImageGalleryJsonLd()` 函数
+- `seo.ts`：删除已无用的 `getLocaleAlternates()` 函数（`createPageMetadata` 已内联处理 hreflang）
+
+**OG 图片**
+- `public/og-image.svg`：新建品牌风格 SVG（深色背景 + 琥珀色 accent，1200×630）
+- `public/og-image.jpg`：用 sharp 从 SVG 生成 JPEG（quality 90，45KB）
+
+**安全审计**
+- `npm audit --audit-level=high`：0 漏洞
+
+**构建验证**
+- `npm run build` 通过 ✓，22 页全部生成，0 错误
+
