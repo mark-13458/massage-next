@@ -212,26 +212,26 @@ export function BookingForm({ locale, services, contact, hours = [], currency = 
       ) : null}
 
       <div className="grid gap-8 lg:grid-cols-[1.15fr_0.85fr]">
-        <form action={onSubmit} ref={formRef} className="rounded-3xl border border-stone-200 bg-white p-6 shadow-sm sm:p-8">
+        <form action={onSubmit} ref={formRef} className="rounded-3xl border border-stone-200 bg-white p-6 shadow-card sm:p-8">
           <div className="grid gap-5 sm:grid-cols-2">
-            <label className="flex flex-col gap-2 sm:col-span-2">
+            <label className="flex flex-col gap-1.5 sm:col-span-2">
               <span className="text-sm font-medium text-brown-800">{labels.name}</span>
-              <input name="customerName" required className="rounded-2xl border border-stone-200 px-4 py-3 outline-none ring-0 focus:border-brown-400" />
+              <input name="customerName" required className="form-input" />
             </label>
 
-            <label className="flex flex-col gap-2">
+            <label className="flex flex-col gap-1.5">
               <span className="text-sm font-medium text-brown-800">{labels.phone}</span>
-              <input name="customerPhone" required className="rounded-2xl border border-stone-200 px-4 py-3 outline-none ring-0 focus:border-brown-400" />
+              <input name="customerPhone" required className="form-input" />
             </label>
 
-            <label className="flex flex-col gap-2">
+            <label className="flex flex-col gap-1.5">
               <span className="text-sm font-medium text-brown-800">{labels.email}</span>
-              <input type="email" name="customerEmail" className="rounded-2xl border border-stone-200 px-4 py-3 outline-none ring-0 focus:border-brown-400" />
+              <input type="email" name="customerEmail" className="form-input" />
             </label>
 
-            <label className="flex flex-col gap-2 sm:col-span-2">
+            <label className="flex flex-col gap-1.5 sm:col-span-2">
               <span className="text-sm font-medium text-brown-800">{labels.service}</span>
-              <select name="serviceId" required defaultValue={preselectedService?.id ?? ''} className="rounded-2xl border border-stone-200 px-4 py-3 outline-none ring-0 focus:border-brown-400">
+              <select name="serviceId" required defaultValue={preselectedService?.id ?? ''} className="form-input">
                 <option value="">—</option>
                 {services.map((service) => (
                   <option key={service.id} value={service.id}>
@@ -241,19 +241,19 @@ export function BookingForm({ locale, services, contact, hours = [], currency = 
               </select>
             </label>
 
-            <label className="flex flex-col gap-2">
+            <label className="flex flex-col gap-1.5">
               <span className="text-sm font-medium text-brown-800">{labels.date}</span>
-              <input type="date" name="appointmentDate" required min={new Date().toISOString().slice(0, 10)} className="rounded-2xl border border-stone-200 px-4 py-3 outline-none ring-0 focus:border-brown-400" />
+              <input type="date" name="appointmentDate" required min={new Date().toISOString().slice(0, 10)} className="form-input" />
             </label>
 
-            <label className="flex flex-col gap-2">
+            <label className="flex flex-col gap-1.5">
               <span className="text-sm font-medium text-brown-800">{labels.time}</span>
-              <input type="time" name="appointmentTime" required className="rounded-2xl border border-stone-200 px-4 py-3 outline-none ring-0 focus:border-brown-400" />
+              <input type="time" name="appointmentTime" required className="form-input" />
             </label>
 
-            <label className="flex flex-col gap-2 sm:col-span-2">
+            <label className="flex flex-col gap-1.5 sm:col-span-2">
               <span className="text-sm font-medium text-brown-800">{labels.notes}</span>
-              <textarea name="notes" rows={5} className="rounded-2xl border border-stone-200 px-4 py-3 outline-none ring-0 focus:border-brown-400" />
+              <textarea name="notes" rows={4} className="form-input resize-none" />
             </label>
 
             {privacy?.consentRequired ? (
@@ -289,15 +289,19 @@ export function BookingForm({ locale, services, contact, hours = [], currency = 
             ) : null}
           </div>
 
-          <div className="mt-6 flex items-center justify-between gap-4">
+          <div className="mt-6 flex flex-wrap items-center gap-4">
             <button
               type="submit"
               disabled={status === 'submitting'}
-              className="rounded-full bg-brown-800 px-5 py-3 text-sm font-semibold text-white transition hover:bg-brown-700 disabled:cursor-not-allowed disabled:opacity-70"
+              className="btn-primary"
             >
               {status === 'submitting' ? labels.loading : labels.submit}
             </button>
-            {message ? <p className={`text-sm ${status === 'success' ? 'text-emerald-700' : 'text-rose-700'}`}>{message}</p> : null}
+            {message ? (
+              <p className={`text-sm ${status === 'success' ? 'text-emerald-700' : 'text-rose-700'}`}>
+                {message}
+              </p>
+            ) : null}
           </div>
         </form>
 

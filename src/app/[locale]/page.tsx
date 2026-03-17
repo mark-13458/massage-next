@@ -129,10 +129,7 @@ export default async function LocaleHome({ params }: { params: Promise<{ locale:
         </div>
         {services.length > 0 && (
           <div className="mt-8 text-center">
-            <Link
-              href={`/${typedLocale}/services`}
-              className="inline-flex rounded-full border border-brown-300 bg-white px-5 py-3 text-sm font-medium text-brown-800 transition hover:border-brown-500"
-            >
+            <Link href={`/${typedLocale}/services`} className="btn-ghost">
               {typedLocale === 'de' ? 'Alle Behandlungen ansehen' : 'View all treatments'}
             </Link>
           </div>
@@ -148,31 +145,30 @@ export default async function LocaleHome({ params }: { params: Promise<{ locale:
             ? 'Wärme, Ruhe und Vertrauen – das Studio ist ein Ort, an dem Gäste sich sofort wohlfühlen sollen.'
             : 'Warmth, calm and trust – the studio is designed to make guests feel at ease from the very first moment.'
         }
+        className="bg-gradient-to-b from-white to-[#f7efe4]/40"
       >
         <div className="grid gap-5 md:grid-cols-3">
           {homeGallery.map((image, index) => (
             <div
               key={image}
-              className={`overflow-hidden rounded-[2rem] border border-stone-200 bg-white shadow-soft ${index === 1 ? 'md:translate-y-8' : ''}`}
+              className={`group overflow-hidden rounded-[2rem] border border-stone-200 bg-white shadow-card transition-all duration-500 hover:shadow-card-hover ${index === 1 ? 'md:translate-y-8' : ''}`}
             >
-              <div className="relative aspect-[4/5] w-full">
+              <div className="relative aspect-[4/5] w-full overflow-hidden">
                 <Image
                   src={image}
                   alt={typedLocale === 'de' ? 'Studio-Atmosphäre' : 'Studio atmosphere'}
                   fill
                   sizes="(max-width: 768px) 100vw, 33vw"
-                  className="object-cover"
+                  className="object-cover transition-transform duration-700 group-hover:scale-105"
                   loading="lazy"
                 />
+                <div className="absolute inset-0 bg-gradient-to-t from-stone-950/30 to-transparent opacity-0 transition-opacity duration-300 group-hover:opacity-100" />
               </div>
             </div>
           ))}
         </div>
         <div className="mt-8">
-          <Link
-            href={`/${typedLocale}/gallery`}
-            className="inline-flex rounded-full border border-brown-300 bg-white px-5 py-3 text-sm font-medium text-brown-800 transition hover:border-brown-500"
-          >
+          <Link href={`/${typedLocale}/gallery`} className="btn-ghost">
             {typedLocale === 'de' ? 'Zur Galerie' : 'View gallery'}
           </Link>
         </div>
@@ -190,25 +186,34 @@ export default async function LocaleHome({ params }: { params: Promise<{ locale:
       >
         <div className="grid gap-6 lg:grid-cols-3">
           {testimonials.map((item) => (
-            <article key={item.id} className="rounded-[2rem] border border-stone-200 bg-white p-6 shadow-soft">
+            <article key={item.id} className="flex flex-col rounded-[2rem] border border-stone-200 bg-white p-6 shadow-card transition-all duration-300 hover:-translate-y-1 hover:shadow-card-hover sm:p-7">
               {item.rating != null && item.rating > 0 && (
-                <div className="mb-3 flex gap-0.5">
+                <div className="mb-4 flex gap-0.5">
                   {Array.from({ length: 5 }).map((_, i) => (
-                    <span key={i} className={i < item.rating! ? 'text-amber-400' : 'text-stone-200'}>
+                    <span key={i} className={`text-lg ${i < item.rating! ? 'text-amber-400' : 'text-stone-200'}`}>
                       {'★'}
                     </span>
                   ))}
                 </div>
               )}
-              <p className="text-base leading-7 text-brown-800">{'"'}{item.content}{'"'}</p>
-              <p className="mt-4 text-sm font-semibold text-brown-600">{'— '}{item.customerName}</p>
+              <p className="flex-1 text-base leading-7 text-brown-700">
+                <span className="mr-0.5 text-2xl leading-none text-amber-300">"</span>
+                {item.content}
+                <span className="ml-0.5 text-2xl leading-none text-amber-300">"</span>
+              </p>
+              <div className="mt-5 flex items-center gap-3 border-t border-stone-100 pt-4">
+                <div className="flex h-8 w-8 items-center justify-center rounded-full bg-amber-50 text-sm font-semibold text-amber-900">
+                  {item.customerName.charAt(0).toUpperCase()}
+                </div>
+                <p className="text-sm font-semibold text-brown-700">{item.customerName}</p>
+              </div>
             </article>
           ))}
           {testimonials.length === 0 && (
-            <div className="col-span-full rounded-[2rem] border border-stone-200 bg-white p-10 text-center shadow-soft">
+            <div className="col-span-full rounded-[2rem] border border-stone-200 bg-white p-10 text-center shadow-card">
               <div className="mb-3 flex justify-center gap-0.5">
                 {Array.from({ length: 5 }).map((_, i) => (
-                  <span key={i} className="text-amber-400">{'★'}</span>
+                  <span key={i} className="text-xl text-amber-400">{'★'}</span>
                 ))}
               </div>
               <p className="text-sm text-brown-600">
@@ -230,17 +235,20 @@ export default async function LocaleHome({ params }: { params: Promise<{ locale:
             ? 'Öffnungszeiten und Kontaktinfos direkt auf der Startseite – damit Gäste schnell eine Entscheidung treffen können.'
             : 'Opening hours and contact details right on the homepage – so guests can decide quickly and easily.'
         }
+        className="bg-gradient-to-b from-[#f7efe4]/30 to-white"
       >
         <div className="grid gap-6 lg:grid-cols-[1.1fr_0.9fr]">
-          <article className="rounded-[2rem] border border-stone-200 bg-white p-6 shadow-soft sm:p-8">
-            <h3 className="text-2xl font-semibold text-brown-900">
+          <article className="rounded-[2rem] border border-stone-200 bg-white p-6 shadow-card sm:p-8">
+            <h3 className="text-xl font-semibold text-brown-900">
               {typedLocale === 'de' ? 'Öffnungszeiten' : 'Opening hours'}
             </h3>
             <div className="mt-5 divide-y divide-stone-100">
-              {hours.length > 0 ? hours.map((item) => (
-                <div key={item.weekday} className="flex items-center justify-between py-3 text-sm text-brown-700">
+              {hours.length > 0 ? hours.map((item: { weekday: number; label: string; isClosed: boolean; openTime?: string | null; closeTime?: string | null }) => (
+                <div key={item.weekday} className="flex items-center justify-between py-3 text-sm">
                   <span className="font-medium text-brown-900">{item.label}</span>
-                  <span>{item.isClosed ? (typedLocale === 'de' ? 'Geschlossen' : 'Closed') : `${item.openTime} – ${item.closeTime}`}</span>
+                  <span className={item.isClosed ? 'text-stone-400' : 'text-brown-700'}>
+                    {item.isClosed ? (typedLocale === 'de' ? 'Geschlossen' : 'Closed') : `${item.openTime} – ${item.closeTime}`}
+                  </span>
                 </div>
               )) : (
                 <p className="py-4 text-sm text-brown-600">
@@ -250,43 +258,34 @@ export default async function LocaleHome({ params }: { params: Promise<{ locale:
             </div>
           </article>
 
-          <article className="rounded-[2rem] border border-stone-200 bg-stone-950 p-6 text-stone-100 shadow-soft sm:p-8">
-            <h3 className="text-2xl font-semibold text-white">
+          <article className="rounded-[2rem] border border-stone-200 bg-stone-950 p-6 text-stone-100 shadow-card sm:p-8">
+            <h3 className="text-xl font-semibold text-white">
               {typedLocale === 'de' ? 'Kontakt' : 'Contact'}
             </h3>
             <div className="mt-5 space-y-4 text-sm leading-7 text-stone-300">
-              <p>
-                <span className="font-semibold text-white">{typedLocale === 'de' ? 'Adresse' : 'Address'}:</span>{' '}
-                {contact?.address ?? 'Arnulfstraße 104, 80636 München'}
-              </p>
-              <p>
-                <span className="font-semibold text-white">{typedLocale === 'de' ? 'Telefon' : 'Phone'}:</span>{' '}
-                <a
-                  href={`tel:${(contact?.phone ?? '015563188800').replace(/\s/g, '')}`}
-                  className="hover:text-white transition"
-                >
+              <div>
+                <p className="text-xs font-semibold uppercase tracking-[0.18em] text-stone-500">{typedLocale === 'de' ? 'Adresse' : 'Address'}</p>
+                <p className="mt-1">{contact?.address ?? 'Arnulfstraße 104, 80636 München'}</p>
+              </div>
+              <div>
+                <p className="text-xs font-semibold uppercase tracking-[0.18em] text-stone-500">{typedLocale === 'de' ? 'Telefon' : 'Phone'}</p>
+                <a href={`tel:${(contact?.phone ?? '015563188800').replace(/\s/g, '')}`} className="mt-1 block hover:text-white transition">
                   {contact?.phone ?? '015563 188800'}
                 </a>
-              </p>
-              <p>
-                <span className="font-semibold text-white">E-Mail:</span>{' '}
-                <a
-                  href={`mailto:${contact?.email ?? 'chinesischemassage8@gmail.com'}`}
-                  className="hover:text-white transition"
-                >
+              </div>
+              <div>
+                <p className="text-xs font-semibold uppercase tracking-[0.18em] text-stone-500">E-Mail</p>
+                <a href={`mailto:${contact?.email ?? 'chinesischemassage8@gmail.com'}`} className="mt-1 block hover:text-white transition break-all">
                   {contact?.email ?? 'chinesischemassage8@gmail.com'}
                 </a>
-              </p>
-              <p>
-                <span className="font-semibold text-white">{typedLocale === 'de' ? 'Sprachen' : 'Languages'}:</span>{' '}
-                {typedLocale === 'de' ? 'Deutsch · Englisch · Chinesisch' : 'German · English · Chinese'}
-              </p>
+              </div>
+              <div>
+                <p className="text-xs font-semibold uppercase tracking-[0.18em] text-stone-500">{typedLocale === 'de' ? 'Sprachen' : 'Languages'}</p>
+                <p className="mt-1">{typedLocale === 'de' ? 'Deutsch · Englisch · Chinesisch' : 'German · English · Chinese'}</p>
+              </div>
             </div>
             <div className="mt-6">
-              <Link
-                href={`/${typedLocale}/booking`}
-                className="inline-flex rounded-full bg-white px-5 py-3 text-sm font-medium text-brown-900 transition hover:bg-stone-100"
-              >
+              <Link href={`/${typedLocale}/booking`} className="inline-flex rounded-full bg-white px-5 py-2.5 text-sm font-medium text-brown-900 transition hover:bg-stone-100">
                 {typedLocale === 'de' ? 'Termin anfragen' : 'Request appointment'}
               </Link>
             </div>
@@ -305,18 +304,24 @@ export default async function LocaleHome({ params }: { params: Promise<{ locale:
         }
       >
         <div className="grid gap-4 lg:grid-cols-2">
-          {faqs.map((faq) => (
-            <article key={faq.id} className="rounded-[2rem] border border-stone-200 bg-white p-6 shadow-soft">
-              <h3 className="text-lg font-semibold text-brown-900">{faq.question}</h3>
-              <p className="mt-3 text-sm leading-7 text-brown-700">{faq.answer}</p>
+          {faqs.map((faq: { id: number; question: string; answer: string }) => (
+            <article key={faq.id} className="rounded-[2rem] border border-stone-200 bg-white p-6 shadow-card transition-all duration-200 hover:border-brown-200 hover:shadow-card-hover">
+              <div className="flex items-start gap-3">
+                <span className="mt-0.5 flex h-6 w-6 flex-shrink-0 items-center justify-center rounded-full bg-amber-50 text-xs font-bold text-amber-700">Q</span>
+                <h3 className="text-base font-semibold text-brown-900">{faq.question}</h3>
+              </div>
+              <p className="mt-3 pl-9 text-sm leading-7 text-brown-600">{faq.answer}</p>
             </article>
           ))}
           {faqs.length === 0 && (
-            <div className="col-span-full rounded-[2rem] border border-stone-200 bg-white p-8 shadow-soft">
-              <h3 className="text-lg font-semibold text-brown-900">
-                {typedLocale === 'de' ? 'Wie läuft eine Terminanfrage ab?' : 'How does the booking request work?'}
-              </h3>
-              <p className="mt-3 text-sm leading-7 text-brown-700">
+            <div className="col-span-full rounded-[2rem] border border-stone-200 bg-white p-8 shadow-card">
+              <div className="flex items-start gap-3">
+                <span className="mt-0.5 flex h-6 w-6 flex-shrink-0 items-center justify-center rounded-full bg-amber-50 text-xs font-bold text-amber-700">Q</span>
+                <h3 className="text-base font-semibold text-brown-900">
+                  {typedLocale === 'de' ? 'Wie läuft eine Terminanfrage ab?' : 'How does the booking request work?'}
+                </h3>
+              </div>
+              <p className="mt-3 pl-9 text-sm leading-7 text-brown-600">
                 {typedLocale === 'de'
                   ? 'Füllen Sie das Formular auf der Buchungsseite aus und wählen Sie Ihre Wunschbehandlung. Das Studio meldet sich zur Bestätigung der Verfügbarkeit.'
                   : 'Fill in the form on the booking page and select your preferred treatment. The studio will follow up to confirm availability.'}

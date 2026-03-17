@@ -709,3 +709,26 @@
 - `contact/page.tsx`：营业时间区块补 fallback（数据库空时显示默认时间文案）
 - `BookingForm`：成功提交后调用 `formRef.current?.reset()` 重置所有表单字段，同时重置 `privacyConsent` 状态
 - `npm run build` 验证通过 ✅
+
+---
+
+## Phase 58 — 前台页面体验、样式、布局全面优化（2026-03-17）
+
+**基础层**
+- `globals.css`：新增 `.form-input`、`.btn-primary`、`.btn-ghost`、`.card`、`.eyebrow` 组件类，补充 `:focus-visible` 全局 focus 样式
+- `tailwind.config.js`：新增 `shadow-card`、`shadow-card-hover`、`shadow-inner-sm`；新增 `rounded-5xl`；新增 `transitionTimingFunction.spring`；新增 `fade-up` / `fade-in` keyframes + animation
+
+**组件优化**
+- `SectionShell`：eyebrow 标签新增小装饰点，间距调整（py-14/20/24），支持 `className` prop 传入背景色
+- `ServiceCard`：顶部 hover 渐变线条动画，featured badge 加装饰点，底部新增"查看详情"箭头提示，时长图标化，整体 hover 效果升级（`shadow-card-hover`）
+- `HeroSection`：eyebrow 使用 `.eyebrow` 组件类，CTA 按钮改用 `.btn-primary` / `.btn-ghost`，stats 卡片改用 `shadow-card`，装饰 blob 优化
+- `SiteHeader`：导航链接改为 pill 形 hover 效果，logo hover 透明度过渡，预约按钮加 `-translate-y-0.5` hover 效果，分隔线优化
+- `BookingForm`：所有输入框改用 `.form-input`（含 focus ring），提交按钮改用 `.btn-primary`，textarea 禁止 resize
+
+**首页区块**
+- 图库预览：图片 hover 时 scale-105 + 渐变遮罩，卡片 hover 阴影升级，背景加渐变
+- 评价卡片：引号装饰（amber 色大引号），头像首字母 avatar，底部分隔线 + 作者信息，hover 效果
+- 营业时间/联系区块：联系信息改为分组标签式布局，背景加渐变
+- FAQ 区块：Q 标签 badge，hover 边框高亮，文字层级优化
+
+- `npm run build` 验证通过 ✅

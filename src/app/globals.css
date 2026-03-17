@@ -5,18 +5,19 @@
 :root {
   --bg: #f8f5f0;
   --fg: #3e2723;
+  --brown-50: #efebe9;
+  --brown-900: #3e2723;
+  --amber-200: #ffe082;
 }
 
 html {
   scroll-behavior: smooth;
-  /* Prevent layout shift from scrollbar appearing */
   scrollbar-gutter: stable;
 }
 
 body {
   background: var(--bg);
   color: var(--fg);
-  /* Improve text rendering on mobile */
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
   text-rendering: optimizeLegibility;
@@ -25,7 +26,6 @@ body {
 @layer base {
   * {
     @apply border-stone-200;
-    /* Prevent tap highlight on mobile */
     -webkit-tap-highlight-color: transparent;
   }
 
@@ -37,24 +37,74 @@ body {
     @apply transition-colors;
   }
 
-  /* Improve touch targets on mobile */
   button, a {
     touch-action: manipulation;
   }
 
-  /* Prevent horizontal overflow on mobile */
   img, video {
     max-width: 100%;
+  }
+
+  /* Focus styles */
+  :focus-visible {
+    @apply outline-2 outline-offset-2 outline-brown-500;
+  }
+}
+
+@layer components {
+  /* Input / select / textarea base */
+  .form-input {
+    @apply w-full rounded-2xl border border-stone-200 bg-white px-4 py-3 text-sm text-brown-900 placeholder-stone-400
+           transition-all duration-150
+           focus:border-brown-400 focus:outline-none focus:ring-2 focus:ring-brown-200
+           hover:border-stone-300;
+  }
+
+  /* Primary button */
+  .btn-primary {
+    @apply inline-flex items-center justify-center rounded-full bg-brown-900 px-6 py-3 text-sm font-semibold text-white
+           shadow-sm transition-all duration-200
+           hover:-translate-y-0.5 hover:bg-brown-800 hover:shadow-md
+           active:translate-y-0 active:shadow-sm
+           disabled:cursor-not-allowed disabled:opacity-60;
+  }
+
+  /* Ghost button */
+  .btn-ghost {
+    @apply inline-flex items-center justify-center rounded-full border border-brown-300 bg-white px-6 py-3 text-sm font-medium text-brown-800
+           transition-all duration-200
+           hover:border-brown-500 hover:bg-brown-50
+           active:bg-brown-100;
+  }
+
+  /* Card base */
+  .card {
+    @apply rounded-[2rem] border border-stone-200 bg-white shadow-soft;
+  }
+
+  /* Section eyebrow label */
+  .eyebrow {
+    @apply inline-flex items-center gap-1.5 rounded-full border border-amber-200 bg-amber-50 px-4 py-1
+           text-xs font-semibold uppercase tracking-[0.24em] text-amber-900;
   }
 }
 
 @layer utilities {
-  /* Smooth horizontal scroll for mobile carousels */
   .scroll-snap-x {
     scroll-snap-type: x mandatory;
     -webkit-overflow-scrolling: touch;
   }
   .scroll-snap-start {
     scroll-snap-align: start;
+  }
+
+  /* Gradient text */
+  .text-gradient {
+    @apply bg-gradient-to-r from-brown-800 to-brown-600 bg-clip-text text-transparent;
+  }
+
+  /* Subtle section divider */
+  .section-divider {
+    @apply border-t border-stone-100;
   }
 }
