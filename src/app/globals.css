@@ -64,6 +64,16 @@ body {
       transition-duration: 0.01ms !important;
     }
   }
+
+  /* Prevent FloatingActions from overlapping bottom content on mobile */
+  main {
+    padding-bottom: 6rem; /* pb-24 */
+  }
+  @media (min-width: 640px) {
+    main {
+      padding-bottom: 0;
+    }
+  }
 }
 
 @layer components {
@@ -122,11 +132,6 @@ body {
 }
 
 @layer utilities {
-  /* Prevent FloatingActions from overlapping bottom content on mobile */
-  main {
-    @apply pb-24 sm:pb-0;
-  }
-
   .scroll-snap-x {
     scroll-snap-type: x mandatory;
     -webkit-overflow-scrolling: touch;
