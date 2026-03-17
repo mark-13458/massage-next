@@ -8,6 +8,7 @@ import { ServiceCard } from '../../components/site/ServiceCard'
 import { FloatingActions } from '../../components/site/FloatingActions'
 import { SiteFooter } from '../../components/site/SiteFooter'
 import { SiteHeader } from '../../components/site/SiteHeader'
+import { ZenHomePage } from '../../components/site/zen/ZenHomePage'
 import { getMessages } from '../../lib/copy'
 import { isLocale, Locale } from '../../lib/i18n'
 import { createPageMetadata, getBaseUrl } from '../../lib/seo'
@@ -60,14 +61,20 @@ export default async function LocaleHome({ params }: { params: Promise<{ locale:
   }
 
   const typedLocale = locale as Locale
+  const settings = await getSystemSettings().catch(() => null)
+
+  // Zen theme: render the alternative theme layout
+  if (settings?.frontendTheme === 'zen') {
+    return <ZenHomePage locale={typedLocale} />
+  }
+
   const t = getMessages(typedLocale)
-  const [services, testimonials, faqs, hours, contact, settings] = await Promise.all([
+  const [services, testimonials, faqs, hours, contact] = await Promise.all([
     getActiveServices(typedLocale).catch(() => []),
     getPublishedTestimonials(typedLocale).catch(() => []),
     getActiveFaqs(typedLocale).catch(() => []),
     getBusinessHours(typedLocale).catch(() => []),
     getContactSettings().catch(() => null),
-    getSystemSettings().catch(() => null),
   ])
 
   const baseUrl = getBaseUrl().toString().replace(/\/$/, '')

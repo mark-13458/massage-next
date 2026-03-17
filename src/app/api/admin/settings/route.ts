@@ -74,6 +74,7 @@ export async function PATCH(request: NextRequest) {
           ? Math.max(1, Math.min(3650, Math.floor(json.bookingRetentionDays)))
           : 180,
       allowDeletionRequests: Boolean(json.allowDeletionRequests),
+      frontendTheme: json.frontendTheme === 'zen' ? 'zen' : 'classic',
     }
 
     await prisma.siteSetting.upsert({

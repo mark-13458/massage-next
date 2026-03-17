@@ -30,6 +30,7 @@ type Settings = {
   privacyConsentRequired: boolean
   bookingRetentionDays: number
   allowDeletionRequests: boolean
+  frontendTheme: 'classic' | 'zen'
 }
 
 type NoticeTone = 'success' | 'error'
@@ -63,6 +64,7 @@ export function AdminSettingsForm({ lang, initialSettings }: { lang: AdminLang; 
     privacyConsentRequired: initialSettings?.privacyConsentRequired !== false,
     bookingRetentionDays: Number(initialSettings?.bookingRetentionDays) || 180,
     allowDeletionRequests: Boolean(initialSettings?.allowDeletionRequests),
+    frontendTheme: (initialSettings as Record<string, unknown>)?.frontendTheme === 'zen' ? 'zen' : 'classic',
   })
   const [message, setMessage] = useState('')
   const [messageTone, setMessageTone] = useState<NoticeTone>('success')
@@ -164,6 +166,50 @@ export function AdminSettingsForm({ lang, initialSettings }: { lang: AdminLang; 
           <label className="flex flex-col gap-2 text-sm text-stone-700">
             <span>{t(lang, '货币', 'Currency')}</span>
             <input value={form.currency} onChange={(e) => setForm({ ...form, currency: e.target.value })} className="rounded-2xl border border-stone-200 px-4 py-3 outline-none focus:border-amber-500" />
+          </label>
+        </div>
+      </section>
+
+      <section className="rounded-3xl border border-stone-200 bg-white p-5">
+        <div className="mb-4">
+          <h3 className="text-base font-semibold text-stone-900">{t(lang, '前台主题', 'Frontend theme')}</h3>
+          <p className="mt-1 text-sm text-stone-600">{t(lang, '选择前台网站的视觉风格。切换后前台首页立即生效。', 'Choose the visual style for the frontend website. Changes take effect immediately on the homepage.')}</p>
+        </div>
+        <div className="grid gap-4 sm:grid-cols-2">
+          <label className={`flex cursor-pointer flex-col gap-3 rounded-2xl border-2 p-4 transition ${form.frontendTheme === 'classic' ? 'border-amber-500 bg-amber-50' : 'border-stone-200 bg-white hover:border-stone-300'}`}>
+            <input type="radio" name="frontendTheme" value="classic" checked={form.frontendTheme === 'classic'} onChange={() => setForm({ ...form, frontendTheme: 'classic' })} className="sr-only" />
+            <div className="flex items-center gap-3">
+              <div className="flex h-10 w-10 flex-shrink-0 items-center justify-center rounded-full bg-[#3e2723]">
+                <span className="text-sm font-bold text-amber-300">C</span>
+              </div>
+              <div>
+                <p className="font-semibold text-stone-900">{t(lang, 'Classic（暖棕色）', 'Classic (Warm Brown)')}</p>
+                <p className="text-xs text-stone-500">{t(lang, '当前主题，暖棕色调，衬线字体，卡片式布局', 'Current theme, warm brown tones, serif font, card layout')}</p>
+              </div>
+            </div>
+            <div className="flex gap-1.5">
+              <span className="h-4 w-4 rounded-full bg-[#3e2723]" title="#3e2723" />
+              <span className="h-4 w-4 rounded-full bg-[#fdfaf6]" title="#fdfaf6" />
+              <span className="h-4 w-4 rounded-full bg-[#f59e0b]" title="amber" />
+            </div>
+          </label>
+
+          <label className={`flex cursor-pointer flex-col gap-3 rounded-2xl border-2 p-4 transition ${form.frontendTheme === 'zen' ? 'border-amber-500 bg-amber-50' : 'border-stone-200 bg-white hover:border-stone-300'}`}>
+            <input type="radio" name="frontendTheme" value="zen" checked={form.frontendTheme === 'zen'} onChange={() => setForm({ ...form, frontendTheme: 'zen' })} className="sr-only" />
+            <div className="flex items-center gap-3">
+              <div className="flex h-10 w-10 flex-shrink-0 items-center justify-center rounded-full bg-[#9B7E5C]">
+                <span className="text-sm font-bold text-white">Z</span>
+              </div>
+              <div>
+                <p className="font-semibold text-stone-900">{t(lang, 'Zen Oase（米色简约）', 'Zen Oase (Minimal Beige)')}</p>
+                <p className="text-xs text-stone-500">{t(lang, '全屏 Hero 图片，米色背景，无衬线字体，简约风格', 'Full-screen hero image, beige background, sans-serif, minimal style')}</p>
+              </div>
+            </div>
+            <div className="flex gap-1.5">
+              <span className="h-4 w-4 rounded-full bg-[#9B7E5C]" title="#9B7E5C" />
+              <span className="h-4 w-4 rounded-full bg-[#FAF8F5]" title="#FAF8F5" />
+              <span className="h-4 w-4 rounded-full bg-[#E8DFD4]" title="#E8DFD4" />
+            </div>
           </label>
         </div>
       </section>

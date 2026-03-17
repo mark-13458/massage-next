@@ -939,3 +939,31 @@
 **修复**
 - `bg-white/8` → `bg-white/[0.08]`（Tailwind 任意值语法，强制生成 8% 透明度）
 - 两个输入框（邮箱、密码）均已修复
+
+---
+
+## Phase 63 — 前台主题切换：Zen Oase 主题（2026-03-17）
+
+**功能概述**
+- 后台系统设置新增"前台主题"选项，支持在 Classic（暖棕色）和 Zen Oase（米色简约）之间切换
+- 切换后前台首页立即生效（`unstable_cache` revalidate 5 分钟内生效）
+
+**新增文件**
+- `src/components/site/zen/ZenHeader.tsx`：Zen 主题导航栏（client 组件，含语言切换、移动端菜单）
+- `src/components/site/zen/ZenHero.tsx`：Zen 主题 Hero 区块（全屏图片 + 渐变遮罩，读取 DB hero 设置）
+- `src/components/site/zen/ZenFooter.tsx`：Zen 主题页脚（米色背景，棕色主色）
+- `src/components/site/zen/ZenHomePage.tsx`：Zen 主题完整首页（含 Trust Features / 服务卡片 / 评价 / 营业时间 / FAQ / CTA）
+
+**改动文件**
+- `src/server/services/site.service.ts`：`getSystemSettings` 新增 `frontendTheme: 'classic' | 'zen'` 字段
+- `src/app/api/admin/settings/route.ts`：PATCH 接口新增 `frontendTheme` 字段持久化
+- `src/components/admin/AdminSettingsForm.tsx`：设置表单新增"前台主题"区块，两个主题卡片式选择器（含配色预览）
+- `src/app/[locale]/page.tsx`：首页根据 `settings.frontendTheme` 决定渲染 Classic 或 Zen 主题
+
+**Zen 主题设计特点**（来源：Figma Make 导出的 Bilingualwellnessstudiowebsite）
+- 配色：`#FAF8F5` 米色背景、`#9B7E5C` 棕色主色、`#3D3630` 深棕文字、`#8C7D6F` 次要文字
+- 布局：全屏 Hero 图片 + 渐变遮罩，`rounded-md` 小圆角，无大量装饰
+- 字体：`font-light` 轻量无衬线，标题 `font-light`
+- 区块：Trust Features 4 列图标、服务卡片 3 列、评价卡片、营业时间/联系双栏、FAQ、CTA
+
+- `npm run build` 验证通过 ✅
