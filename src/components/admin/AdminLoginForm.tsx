@@ -114,7 +114,7 @@ export function AdminLoginForm({ lang = 'zh', turnstileSiteKey }: Props) {
             value={email}
             onChange={(e) => setEmail(e.target.value)}
             onKeyDown={handleKeyDown}
-            className="rounded-2xl border border-white/15 bg-white/8 px-4 py-3 text-white outline-none placeholder:text-stone-500 transition focus:border-amber-400 focus:ring-2 focus:ring-amber-400/20"
+            className="rounded-2xl border border-white/15 bg-white/[0.08] px-4 py-3 text-white outline-none placeholder:text-stone-500 transition focus:border-amber-400 focus:ring-2 focus:ring-amber-400/20"
           />
         </label>
         <label className="flex flex-col gap-2 text-sm font-medium text-stone-300">
@@ -125,7 +125,7 @@ export function AdminLoginForm({ lang = 'zh', turnstileSiteKey }: Props) {
             value={password}
             onChange={(e) => setPassword(e.target.value)}
             onKeyDown={handleKeyDown}
-            className="rounded-2xl border border-white/15 bg-white/8 px-4 py-3 text-white outline-none placeholder:text-stone-500 transition focus:border-amber-400 focus:ring-2 focus:ring-amber-400/20"
+            className="rounded-2xl border border-white/15 bg-white/[0.08] px-4 py-3 text-white outline-none placeholder:text-stone-500 transition focus:border-amber-400 focus:ring-2 focus:ring-amber-400/20"
           />
         </label>
 
