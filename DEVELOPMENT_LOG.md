@@ -921,3 +921,13 @@
 - 移除多余的 `<head>` 标签（Next.js 自动管理）
 - 在 `<html>` 上加 `suppressHydrationWarning`（`lang` 属性服务端/客户端可能有微小差异）
 - `npm run build` 验证通过 ✓
+
+## Phase 9 — 修复后台登录输入框文字白色（2026-03-17）
+
+**根因**
+- `AdminLoginForm.tsx` 输入框用了 `bg-white/8`，Tailwind 默认 opacity 刻度没有 8（有 5、10、15...）
+- CSS 未生成该类，输入框背景 fallback 为透明，在白色背景下变成白底白字
+
+**修复**
+- `bg-white/8` → `bg-white/[0.08]`（Tailwind 任意值语法，强制生成 8% 透明度）
+- 两个输入框（邮箱、密码）均已修复
