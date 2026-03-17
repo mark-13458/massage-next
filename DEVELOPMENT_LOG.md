@@ -491,6 +491,19 @@
 
 - `npm run build` 验证通过 ✅
 
+## Phase 57 — Docker 启动修复：数据库初始化链路（2026-03-17）
+
+**根因**：standalone 模式下容器内无 `prisma` CLI，数据库表从未创建（`User` 表不存在），导致登录接口 500。
+
+**修复**
+- `Dockerfile`：新增 `prisma-cli` 构建阶段，单独安装 `prisma@5.9.1`，复制到 `run` 阶段；同时从 `deps` 阶段复制 `bcryptjs`（seed 依赖）
+- 新增 `docker-entrypoint.sh`：容器启动时先执行 `prisma db push --skip-generate`（同步 schema），再检查 `User` 表是否为空，为空则运行 `seed.js`，最后启动 `node server.js`
+- `prisma/migrations/phase_16_security_audit/migration.sql`：删除 PostgreSQL 专属的 `CREATE TYPE` 语句（MySQL 不支持），修复历史迁移文件语法错误
+
+**验证**：`docker compose up -d` 后 `massage-web Healthy`，`POST /api/admin/login` 返回 200 ✅
+
+---
+
 ## Phase 56 — 死代码清理 + 错误处理修复（2026-03-17）
 
 **Bug 修复**
