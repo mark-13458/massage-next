@@ -49,8 +49,9 @@ export async function POST(request: NextRequest) {
 
     return NextResponse.json({ success: true, message: 'Test email sent.' })
   } catch (error) {
+    console.error('[admin/system/email-config] send test email error:', error)
     return NextResponse.json(
-      { success: false, error: error instanceof Error ? error.message : 'Unknown error' },
+      { success: false, error: 'Failed to send test email' },
       { status: 500 },
     )
   }

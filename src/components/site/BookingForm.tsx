@@ -174,6 +174,14 @@ export function BookingForm({ locale, services, contact, hours = [], currency = 
       })
 
       if (!response.ok) {
+        const data = await response.json().catch(() => null)
+        const serverError = data?.error
+        // 频率限制或已知错误，显示服务器返回的消息
+        if (response.status === 429 || response.status === 400) {
+          setStatus('error')
+          setMessage(serverError || labels.error)
+          return
+        }
         throw new Error('Booking request failed')
       }
 
@@ -256,11 +264,11 @@ export function BookingForm({ locale, services, contact, hours = [], currency = 
                     <span className="font-medium text-brown-800">
                       {locale === 'de' ? (
                         <>
-                          Ich stimme der Verarbeitung meiner Angaben zu (<a href="/de/privacy" target="_blank" className="underline hover:text-brown-600">Datenschutzerklärung</a>).
+                          Ich stimme der Verarbeitung meiner Angaben zu (<a href={`/${locale}/privacy`} target="_blank" className="underline hover:text-brown-600">Datenschutzerklärung</a>).
                         </>
                       ) : (
                         <>
-                          I agree to the processing of my data (<a href="/en/privacy" target="_blank" className="underline hover:text-brown-600">Privacy Policy</a>).
+                          I agree to the processing of my data (<a href={`/${locale}/privacy`} target="_blank" className="underline hover:text-brown-600">Privacy Policy</a>).
                         </>
                       )}
                     </span>

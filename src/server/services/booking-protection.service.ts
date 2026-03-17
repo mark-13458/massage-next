@@ -86,7 +86,7 @@ export async function checkBookingFrequencyLimit(input: FrequencyLimitInput): Pr
   } catch (error) {
     // P2002 = Prisma unique constraint violation (concurrent request race)
     // In that case the record was already created by the concurrent request — allow
-    const isUniqueConflict = (error as any)?.code === 'P2002'
+    const isUniqueConflict = typeof error === 'object' && error !== null && (error as { code?: string }).code === 'P2002'
     if (!isUniqueConflict) {
       console.error('[BOOKING_PROTECTION] Error checking frequency limit:', error)
     }

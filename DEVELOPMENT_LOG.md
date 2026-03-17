@@ -491,6 +491,23 @@
 
 - `npm run build` 验证通过 ✅
 
+## Phase 55 — 安全修复 + 代码质量（2026-03-17）
+
+**安全修复**
+- `api/admin/system/cleanup/route.ts`：重写 — 修复 `settings` 可能为 null 的崩溃（`?? 180`），改为调用 `runDataMaintenanceTask()` 确保审计日志和 GDPR 合规，额外硬删除已匿名化且超过保留期的记录，catch 块统一返回 "Internal server error"
+- `api/admin/system/email-config/route.ts`：POST catch 块改为统一返回 "Failed to send test email"，不透传内部错误
+- `api/admin/settings/test-email/route.ts`：移除 `error: any` 类型断言，catch 块统一返回 "Failed to send test email"
+
+**代码质量**
+- `components/site/BookingForm.tsx`：隐私链接从硬编码 `/de/privacy` / `/en/privacy` 改为动态 `/${locale}/privacy`；`onSubmit` 错误处理改进，400/429 响应显示服务器返回的具体错误消息
+- `server/services/booking-protection.service.ts`：移除 `(error as any)?.code` 类型断言，改为类型安全写法 `(error as { code?: string }).code`
+- `server/services/audit.service.ts`：`AuditLogInput` 接口的 `any` 类型改为 `unknown`
+- `next.config.js`：移除无效的顶层 `serverActions` 配置（消除 Next.js 15 build 警告）
+
+- `npm run build` 验证通过 ✅
+
+---
+
 ## Phase 54 — 代码质量优化（2026-03-17）
 
 **Bug 修复**

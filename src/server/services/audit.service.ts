@@ -5,11 +5,11 @@ export interface AuditLogInput {
   entityType: string
   entityId?: number | null
   changedBy?: number | null
-  oldValue?: any
-  newValue?: any
+  oldValue?: unknown
+  newValue?: unknown
   ipAddress?: string
   userAgent?: string
-  additionalInfo?: any
+  additionalInfo?: unknown
 }
 
 /**

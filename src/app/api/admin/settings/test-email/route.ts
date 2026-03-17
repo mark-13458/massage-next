@@ -39,10 +39,10 @@ export async function POST() {
       message: `Test email sent to ${admin.email}`,
       messageId: info.messageId 
     })
-  } catch (error: any) {
-    console.error('Test email failed:', error)
+  } catch (error) {
+    console.error('[admin/settings/test-email] send failed:', error)
     return NextResponse.json(
-      { error: error instanceof Error ? error.message : 'Failed to send test email' },
+      { error: 'Failed to send test email' },
       { status: 500 }
     )
   }
