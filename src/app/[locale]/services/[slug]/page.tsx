@@ -104,14 +104,13 @@ export default async function ServiceDetailPage({ params }: Props) {
   const minLabel = typedLocale === 'de' ? 'Min.' : 'min'
 
   const siteBaseUrl = getBaseUrl().toString().replace(/\/$/, '')
-  const baseUrl = process.env.APP_URL || 'https://example.com'
   const breadcrumbJsonLd = {
     '@context': 'https://schema.org',
     '@type': 'BreadcrumbList',
     itemListElement: [
-      { '@type': 'ListItem', position: 1, name: typedLocale === 'de' ? 'Startseite' : 'Home', item: `${baseUrl}/${typedLocale}` },
-      { '@type': 'ListItem', position: 2, name: typedLocale === 'de' ? 'Leistungen' : 'Services', item: `${baseUrl}/${typedLocale}/services` },
-      { '@type': 'ListItem', position: 3, name, item: `${baseUrl}/${typedLocale}/services/${service.slug}` },
+      { '@type': 'ListItem', position: 1, name: typedLocale === 'de' ? 'Startseite' : 'Home', item: `${siteBaseUrl}/${typedLocale}` },
+      { '@type': 'ListItem', position: 2, name: typedLocale === 'de' ? 'Leistungen' : 'Services', item: `${siteBaseUrl}/${typedLocale}/services` },
+      { '@type': 'ListItem', position: 3, name, item: `${siteBaseUrl}/${typedLocale}/services/${service.slug}` },
     ],
   }
 

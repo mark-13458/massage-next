@@ -82,11 +82,20 @@ export function createPageMetadata({
       locale: locale === 'de' ? 'de_DE' : 'en_US',
       alternateLocale: locale === 'de' ? 'en_US' : 'de_DE',
       type: 'website',
+      images: [
+        {
+          url: `${base}/og-image.jpg`,
+          width: 1200,
+          height: 630,
+          alt: resolvedSiteName,
+        },
+      ],
     },
     twitter: {
       card: 'summary_large_image',
       title: resolvedTitle,
       description: pageDescription,
+      images: [`${base}/og-image.jpg`],
     },
   }
 }
@@ -95,4 +104,7 @@ export const defaultSiteMetadata: Metadata = {
   metadataBase: getBaseUrl(),
   title: `${siteName}`,
   description: defaultDescription.de,
+  openGraph: {
+    images: ['/og-image.jpg'],
+  },
 }

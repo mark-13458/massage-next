@@ -1,0 +1,13 @@
+﻿<svg xmlns="http://www.w3.org/2000/svg" width="1200" height="630" viewBox="0 0 1200 630">
+  <rect width="1200" height="630" fill="#1f1a17"/>
+  <rect x="0" y="0" width="1200" height="630" fill="url(#grad)"/>
+  <defs>
+    <radialGradient id="grad" cx="30%" cy="40%" r="70%">
+      <stop offset="0%" stop-color="#3d2e1e" stop-opacity="1"/>
+      <stop offset="100%" stop-color="#1f1a17" stop-opacity="1"/>
+    </radialGradient>
+  </defs>
+  <text x="600" y="280" font-family="Georgia, serif" font-size="56" fill="#f5e6d0" text-anchor="middle" font-weight="bold">China TCM Massage</text>
+  <text x="600" y="360" font-family="Georgia, serif" font-size="28" fill="#c9a87c" text-anchor="middle">Traditionelle Chinesische Massage · München</text>
+  <text x="600" y="430" font-family="Georgia, serif" font-size="22" fill="#8a7060" text-anchor="middle">Arnulfstraße 104 · 80636 München</text>
+</svg>

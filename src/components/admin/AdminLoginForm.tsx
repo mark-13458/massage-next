@@ -22,7 +22,8 @@ export function AdminLoginForm({ lang = 'zh', turnstileSiteKey }: Props) {
   const [message, setMessage] = useState('')
   const [isPending, startTransition] = useTransition()
   const [turnstileToken, setTurnstileToken] = useState('')
-  const [mathToken, setMathToken] = useState('')
+  const [captchaChallenge, setCaptchaChallenge] = useState('')
+  const [captchaAnswer, setCaptchaAnswer] = useState('')
   const [scriptReady, setScriptReady] = useState(false)
   const widgetContainerRef = useRef<HTMLDivElement>(null)
   const widgetIdRef = useRef<string | null>(null)
@@ -59,7 +60,7 @@ export function AdminLoginForm({ lang = 'zh', turnstileSiteKey }: Props) {
       setMessage(t(lang, '请先完成验证码', 'Please complete the captcha'))
       return
     }
-    if (useMathCaptcha && !mathToken) {
+    if (useMathCaptcha && !captchaChallenge) {
       setMessage(t(lang, '请先完成数学验证', 'Please complete the math verification'))
       return
     }
@@ -73,7 +74,8 @@ export function AdminLoginForm({ lang = 'zh', turnstileSiteKey }: Props) {
             email,
             password,
             turnstileToken: turnstileToken || undefined,
-            mathToken: mathToken || undefined,
+            captchaChallenge: captchaChallenge || undefined,
+            captchaAnswer: captchaAnswer || undefined,
           }),
         })
         router.push('/admin')
@@ -84,7 +86,8 @@ export function AdminLoginForm({ lang = 'zh', turnstileSiteKey }: Props) {
           try { window.turnstile.reset(widgetIdRef.current) } catch {}
         }
         setTurnstileToken('')
-        setMathToken('')
+        setCaptchaChallenge('')
+        setCaptchaAnswer('')
       }
     })
   }
@@ -93,7 +96,7 @@ export function AdminLoginForm({ lang = 'zh', turnstileSiteKey }: Props) {
     if (e.key === 'Enter' && !isPending) submit()
   }
 
-  const captchaReady = hasTurnstile ? Boolean(turnstileToken) : Boolean(mathToken)
+  const captchaReady = hasTurnstile ? Boolean(turnstileToken) : Boolean(captchaChallenge && captchaAnswer)
 
   return (
     <>
@@ -141,7 +144,7 @@ export function AdminLoginForm({ lang = 'zh', turnstileSiteKey }: Props) {
         {useMathCaptcha && (
           <div className="flex flex-col gap-2">
             <span className="text-sm font-medium text-stone-300">{t(lang, '安全验证', 'Security check')}</span>
-            <MathCaptcha lang={lang} onToken={setMathToken} />
+            <MathCaptcha lang={lang} onVerified={(ch, ans) => { setCaptchaChallenge(ch); setCaptchaAnswer(ans) }} />
           </div>
         )}
       </div>

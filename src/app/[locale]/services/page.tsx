@@ -8,7 +8,8 @@ import { SectionShell } from '../../../components/site/SectionShell'
 import { ServiceCard } from '../../../components/site/ServiceCard'
 import { getMessages } from '../../../lib/copy'
 import { isLocale, Locale } from '../../../lib/i18n'
-import { createPageMetadata } from '../../../lib/seo'
+import { createPageMetadata, getBaseUrl } from '../../../lib/seo'
+import { buildItemListJsonLd } from '../../../lib/structured-data'
 import { getActiveServices, getSystemSettings } from '../../../server/services/site.service'
 
 export async function generateMetadata({ params }: { params: Promise<{ locale: string }> }): Promise<Metadata> {
@@ -47,8 +48,22 @@ export default async function ServicesPage({ params }: { params: Promise<{ local
     getSystemSettings().catch(() => null),
   ])
 
+  const baseUrl = getBaseUrl().toString().replace(/\/$/, '')
+  const itemListJsonLd = buildItemListJsonLd(
+    services.map((s) => ({
+      name: s.name,
+      url: `${baseUrl}/${typedLocale}/services/${s.slug}`,
+    }))
+  )
+
   return (
     <main>
+      {itemListJsonLd && (
+        <script
+          type="application/ld+json"
+          dangerouslySetInnerHTML={{ __html: JSON.stringify(itemListJsonLd) }}
+        />
+      )}
       <SiteHeader locale={typedLocale} />
       <SectionShell
         eyebrow={typedLocale === 'de' ? 'Leistungen' : 'Treatments'}

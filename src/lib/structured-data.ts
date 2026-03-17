@@ -153,3 +153,17 @@ export function buildFaqPageJsonLd(faqs: { question: string; answer: string }[])
     })),
   }
 }
+
+export function buildItemListJsonLd(items: { name: string; url: string }[]) {
+  if (items.length === 0) return null
+  return {
+    '@context': 'https://schema.org',
+    '@type': 'ItemList',
+    itemListElement: items.map((item, index) => ({
+      '@type': 'ListItem',
+      position: index + 1,
+      name: item.name,
+      url: item.url,
+    })),
+  }
+}

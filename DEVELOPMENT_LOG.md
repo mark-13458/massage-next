@@ -783,3 +783,44 @@
 - `RootLayout` 改为 async，通过 `headers()` 解析请求路径中的 locale（`/de/` 或 `/en/`），动态设置 `<html lang>`，不再硬编码 `lang="de"`
 
 - `npm run build` 验证通过 ✅
+
+---
+
+## Phase 61 — SEO + 安全加固（2026-03-17）
+
+**SEO 修复**
+- `seo.ts`：`createPageMetadata` 补 `openGraph.images`（`og-image.jpg` 1200×630）和 `twitter.images`，所有页面分享时有预览图；`defaultSiteMetadata` 同步补 OG 图片
+- `public/og-image.jpg`：用 sharp 生成 1200×630 占位 OG 图片（深色品牌风格），部署时替换为真实图片
+- `services/[slug]/page.tsx`：breadcrumb JSON-LD 统一改用 `getBaseUrl()`，消除与 `process.env.APP_URL` 的不一致
+- `contact/page.tsx`：`buildLocalBusinessJsonLd` 改用 `baseUrl` 字符串拼接，与首页写法一致
+
+**安全加固**
+- `next.config.js`：新增 `Content-Security-Policy` 响应头，允许 self / Cloudflare Turnstile / Google Maps iframe / Pexels 图片，禁止 object-src，限制 form-action 为 self
+- `middleware.ts`：所有请求注入 `x-pathname` header（供根 layout 读取 locale 动态设置 `<html lang>`）；matcher 扩展为覆盖所有路径（排除静态资源），确保前台页面也能注入 header；admin 鉴权逻辑不变
+
+- `npm run build` 验证通过 ✅
+
+---
+
+## Phase 61 — SEO 深化 + 安全加固（2026-03-17）
+
+**安全：Math CAPTCHA HMAC 签名**
+- 新增 `GET /api/admin/captcha`：服务端生成数学题，用 `SESSION_SECRET` 做 HMAC-SHA256 签名，返回 `{ challenge, question }`；challenge 格式 `base64(a:b:ts:hmac_sig)`，防止客户端伪造
+- `MathCaptcha.tsx`：重写为从服务端获取 challenge，提交时传 `captchaChallenge + captchaAnswer`（不再在客户端生成 token）
+- `AdminLoginForm.tsx`：适配新 API，state 改为 `captchaChallenge / captchaAnswer`
+- `api/admin/login/route.ts`：移除旧的 `verifyMathToken()`，改为调用 `verifyCaptchaToken(challenge, answer)`（HMAC 验证）；移除旧的 `mathToken` 字段
+
+**安全：CSP nonce 替换 unsafe-inline**
+- `middleware.ts`：每次请求生成随机 nonce（`randomBytes(16).toString('base64')`），注入 `x-nonce` header；CSP 改为 `script-src 'self' 'nonce-{nonce}' https://challenges.cloudflare.com`，消除 `unsafe-inline`；CSP header 直接在 middleware response 上设置（动态 per-request）
+- `next.config.js`：移除静态 CSP header（改由 middleware 动态设置），保留其他安全 headers（HSTS/X-Frame-Options/Referrer-Policy 等）
+- `src/app/layout.tsx`：读取 `x-nonce` header，通过 `<meta name="csp-nonce">` 暴露给 Next.js 内联脚本
+
+**SEO：服务列表页 ItemList schema**
+- `structured-data.ts`：新增 `buildItemListJsonLd()`，生成 `@type: ItemList`
+- `services/page.tsx`：输出 `ItemList` JSON-LD（每个服务含 name + url）
+
+**SEO：booking 页 noindex**
+- `booking/page.tsx`：metadata 加 `robots: { index: false, follow: true }`（预约表单页不应被索引）
+- `sitemap.ts`：移除 `/booking` 路径（noindex 页面不收录）
+
+- `npm run build` 验证通过 ✅

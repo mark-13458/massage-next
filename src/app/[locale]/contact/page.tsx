@@ -48,12 +48,13 @@ export default async function ContactPage({ params }: { params: Promise<{ locale
     getSystemSettings().catch(() => null),
   ])
 
+  const baseUrl = getBaseUrl().toString().replace(/\/$/, '')
   const localBusinessJsonLd = buildLocalBusinessJsonLd({
     locale: typedLocale,
     contact,
     hours,
     settings,
-    url: new URL(`/${typedLocale}/contact`, getBaseUrl()).toString(),
+    url: `${baseUrl}/${typedLocale}/contact`,
   })
 
   return (

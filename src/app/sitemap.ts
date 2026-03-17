@@ -4,7 +4,8 @@ import { prisma } from '../lib/prisma'
 const baseUrl = (process.env.APP_URL ?? 'http://localhost:3000').replace(/\/$/, '')
 const locales = ['de', 'en']
 // 法律页面（impressum/privacy）设置了 noindex，不收录进 sitemap
-const staticRoutes = ['', '/services', '/booking', '/about', '/contact', '/gallery']
+// booking 页设置了 noindex（表单页），不收录
+const staticRoutes = ['', '/services', '/about', '/contact', '/gallery']
 
 function buildAlternates(route: string) {
   return {
