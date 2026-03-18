@@ -3,6 +3,7 @@ import Link from 'next/link'
 import { Locale } from '../../lib/i18n'
 import { getMessages } from '../../lib/copy'
 import { getSystemSettings } from '../../server/services/site.service'
+import { prisma } from '../../lib/prisma'
 import { MobileMenu } from './MobileMenu'
 import { LangSwitcher } from './LangSwitcher'
 
@@ -10,6 +11,17 @@ export async function SiteHeader({ locale }: { locale: Locale }) {
   const t = getMessages(locale)
   const settings = await getSystemSettings().catch(() => null)
   const siteName = settings?.siteName || t.brand
+
+  let logoSrc = '/logo.svg'
+  if (settings?.logoFileId) {
+    const logoFile = await prisma.file.findUnique({
+      where: { id: settings.logoFileId },
+      select: { filePath: true },
+    }).catch(() => null)
+    if (logoFile?.filePath) {
+      logoSrc = logoFile.filePath
+    }
+  }
 
   const navLinks = [
     { href: `/${locale}`, label: t.nav.home },
@@ -28,12 +40,13 @@ export async function SiteHeader({ locale }: { locale: Locale }) {
           className="group flex min-w-0 items-center gap-2.5 sm:gap-3 cursor-pointer"
         >
           <Image
-            src="/logo.svg"
+            src={logoSrc}
             alt={siteName}
             width={32}
             height={32}
             className="h-7 w-auto flex-shrink-0 transition-opacity duration-200 group-hover:opacity-75 sm:h-8"
             priority
+            unoptimized={logoSrc !== '/logo.svg'}
           />
           <span className="truncate font-serif text-sm font-semibold tracking-wide text-brown-800 transition-colors duration-200 group-hover:text-brown-600 sm:text-base">
             {siteName}

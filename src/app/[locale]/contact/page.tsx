@@ -5,11 +5,13 @@ import { SiteHeader } from '../../../components/site/SiteHeader'
 import { SiteFooter } from '../../../components/site/SiteFooter'
 import { FloatingActions } from '../../../components/site/FloatingActions'
 import { SectionShell } from '../../../components/site/SectionShell'
+import { ZenContactPage } from '../../../components/site/zen/ZenContactPage'
 import { isLocale, Locale } from '../../../lib/i18n'
 import { getMessages } from '../../../lib/copy'
 import { createPageMetadata, getBaseUrl } from '../../../lib/seo'
 import { buildLocalBusinessJsonLd } from '../../../lib/structured-data'
 import { getBusinessHours, getContactSettings, getSystemSettings } from '../../../server/services/site.service'
+import { MapEmbed } from '../../../components/site/MapEmbed'
 
 export async function generateMetadata({ params }: { params: Promise<{ locale: string }> }): Promise<Metadata> {
   const { locale } = await params
@@ -47,6 +49,10 @@ export default async function ContactPage({ params }: { params: Promise<{ locale
     getContactSettings().catch(() => null),
     getSystemSettings().catch(() => null),
   ])
+
+  if (settings?.frontendTheme === 'zen') {
+    return <ZenContactPage locale={typedLocale} />
+  }
 
   const baseUrl = getBaseUrl().toString().replace(/\/$/, '')
   // @id should point to the homepage (canonical business entity URL), not the contact page
@@ -147,16 +153,7 @@ export default async function ContactPage({ params }: { params: Promise<{ locale
       <section className="py-8">
         <div className="mx-auto max-w-6xl px-4 sm:px-6 lg:px-8">
           <div className="overflow-hidden rounded-3xl border border-stone-200 shadow-sm">
-            <iframe
-              title={typedLocale === 'de' ? 'Standort auf der Karte' : 'Location on map'}
-              src="https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d2662.0!2d11.5364!3d48.1441!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x479e75e9b5f5f5f5%3A0x1234567890abcdef!2sArnulfstra%C3%9Fe+104%2C+80636+M%C3%BCnchen%2C+Germany!5e0!3m2!1sde!2sde!4v1710000000000!5m2!1sde!2sde"
-              width="100%"
-              height="360"
-              style={{ border: 0 }}
-              allowFullScreen
-              loading="lazy"
-              referrerPolicy="no-referrer-when-downgrade"
-            />
+            <MapEmbed address={contact?.address ?? ''} height={360} locale={typedLocale} />
           </div>
         </div>
       </section>

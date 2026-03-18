@@ -9,14 +9,17 @@ import { prisma } from '../../../../lib/prisma'
 import { env } from '../../../../lib/env'
 
 const MAX_FILE_SIZE = 10 * 1024 * 1024
-const ALLOWED_IMAGE_TYPES = new Set(['image/jpeg', 'image/png', 'image/webp', 'image/gif'])
-const ALLOWED_USAGES = new Set(['hero', 'gallery'])
-const MIN_DIMENSIONS = {
+const ALLOWED_IMAGE_TYPES = new Set(['image/jpeg', 'image/png', 'image/webp', 'image/gif', 'image/x-icon', 'image/vnd.microsoft.icon'])
+const ALLOWED_USAGES = new Set(['hero', 'gallery', 'service-cover', 'logo', 'favicon'])
+const MIN_DIMENSIONS: Record<string, { width: number; height: number } | null> = {
   hero: { width: 1200, height: 600 },
   gallery: { width: 600, height: 400 },
-} as const
+  'service-cover': { width: 600, height: 400 },
+  logo: null,
+  favicon: null,
+}
 
-// GIF 不转 WebP，其余统一转 WebP
+// GIF 和 ICO 不转 WebP，其余统一转 WebP
 async function processImage(buffer: Buffer, mimeType: string): Promise<{
   data: Buffer
   width: number
@@ -35,8 +38,17 @@ async function processImage(buffer: Buffer, mimeType: string): Promise<{
     }
   }
 
+  if (mimeType === 'image/x-icon' || mimeType === 'image/vnd.microsoft.icon') {
+    return {
+      data: buffer,
+      width: 0,
+      height: 0,
+      outputMime: 'image/x-icon',
+      extension: '.ico',
+    }
+  }
+
   const image = sharp(buffer)
-  const meta = await image.metadata()
 
   const output = await image
     .webp({ quality: 85 })
@@ -102,11 +114,14 @@ export async function POST(request: NextRequest) {
     const { data, width, height, outputMime, extension } = processed
 
     if (width === 0 || height === 0) {
-      return apiError('Unable to read image dimensions', 400)
+      // ICO files have 0 dimensions (not processed by sharp) — skip dimension check
+      if (outputMime !== 'image/x-icon') {
+        return apiError('Unable to read image dimensions', 400)
+      }
     }
 
     const minDimensions = MIN_DIMENSIONS[usage as keyof typeof MIN_DIMENSIONS]
-    if (width < minDimensions.width || height < minDimensions.height) {
+    if (minDimensions && (width < minDimensions.width || height < minDimensions.height)) {
       return apiError(
         `${usage === 'hero' ? 'Hero' : 'Gallery'} image must be at least ${minDimensions.width}×${minDimensions.height}px`,
         400,
@@ -125,6 +140,33 @@ export async function POST(request: NextRequest) {
     if (usage === 'hero') {
       return apiOk({
         item: {
+          imageUrl: publicPath,
+          width,
+          height,
+        },
+      })
+    }
+
+    // For file-only usages (service-cover, logo, favicon): create File record and return it
+    if (usage === 'service-cover' || usage === 'logo' || usage === 'favicon') {
+      const createdFile = await prisma.file.create({
+        data: {
+          originalFilename: file.name,
+          storedFilename,
+          filePath: publicPath,
+          fileSize: data.length,
+          mimeType: outputMime,
+          kind: 'IMAGE',
+          altText: altDe || altEn || null,
+          width,
+          height,
+          isPublic: true,
+          uploadedById: admin.id,
+        },
+      })
+      return apiOk({
+        item: {
+          id: createdFile.id,
           imageUrl: publicPath,
           width,
           height,

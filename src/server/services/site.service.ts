@@ -19,6 +19,7 @@ export const getActiveServices = unstable_cache(
   async function getActiveServices(locale: Locale) {
     const services = await prisma.service.findMany({
       where: { isActive: true },
+      include: { coverImage: { select: { filePath: true } } },
       orderBy: [{ sortOrder: 'asc' }, { createdAt: 'asc' }],
     })
 
@@ -31,6 +32,7 @@ export const getActiveServices = unstable_cache(
       durationMin: service.durationMin,
       price: service.price,
       isFeatured: service.isFeatured,
+      coverImageFilePath: service.coverImage?.filePath ?? null,
     }))
   },
   ['site-services'],
@@ -210,5 +212,8 @@ export const getSystemSettings = cache(async function getSystemSettings() {
     seoMetaDescriptionDe: typeof record.seoMetaDescriptionDe === 'string' ? record.seoMetaDescriptionDe : '',
     seoMetaDescriptionEn: typeof record.seoMetaDescriptionEn === 'string' ? record.seoMetaDescriptionEn : '',
     frontendTheme: record.frontendTheme === 'zen' ? 'zen' : 'classic',
+    logoFileId: typeof record.logoFileId === 'number' && Number.isFinite(record.logoFileId) ? record.logoFileId : null,
+    faviconFileId:
+      typeof record.faviconFileId === 'number' && Number.isFinite(record.faviconFileId) ? record.faviconFileId : null,
   } as const
 })

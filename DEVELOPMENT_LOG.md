@@ -967,3 +967,37 @@
 - 区块：Trust Features 4 列图标、服务卡片 3 列、评价卡片、营业时间/联系双栏、FAQ、CTA
 
 - `npm run build` 验证通过 ✅
+
+---
+
+## Phase 64 — 前端 UI 增强：服务封面图 + 谷歌地图 + 动态 Logo/Favicon（2026-03-18）
+
+**服务封面图**
+- `prisma/schema.prisma`：`Service` 模型新增 `coverImage File? @relation("ServiceCoverImage")`，`File` 模型新增反向关联 `serviceCoverImages`
+- `site.service.ts`：`getActiveServices` 的 `include` 加入 `coverImage`，返回值新增 `coverImageFilePath`
+- `ServiceCard`：新增 `coverImageUrl` prop；有图时渲染 `aspect-[16/9]` 懒加载 `Image`，无图时渲染暖色渐变占位区域 + 装饰图标；`isFeatured` 徽章叠加在图片区域右上角
+- `services/[slug]/page.tsx`：详情页在标题上方渲染封面图（最大高度 480px，`priority`），无图时布局正常
+- `ServiceForm.tsx`：后台服务表单新增封面图管理区块，支持上传/更换/移除，上传失败显示 `NoticePill` 错误提示，`coverImageId` 随表单保存
+- `api/admin/services/[id]/route.ts`：PATCH 接口新增 `coverImageId` 字段支持
+- `api/admin/upload/route.ts`：`ALLOWED_USAGES` 新增 `service-cover`、`logo`、`favicon` 三种用途
+
+**谷歌地图嵌入（免费 iframe，无需 API Key）**
+- 新增 `MapEmbed` 组件（`src/components/site/MapEmbed.tsx`）：`buildMapEmbedUrl()` 纯函数生成 embed URL，地址为空时 fallback 到 `Arnulfstraße 104, 80636 München`，iframe `loading="lazy"`，移动端高度 220px
+- `page.tsx`（首页 Classic 主题）：联系区块下方嵌入 `MapEmbed`
+- `ZenHomePage.tsx`（Zen 主题首页）：联系区块嵌入 `MapEmbed`
+- `contact/page.tsx`：替换硬编码地图 URL，改用 `MapEmbed` 组件（`height={360}`，动态读取 `contact.address`）
+
+**动态 Logo 与 Favicon**
+- `site.service.ts`：`getSystemSettings` 新增 `logoFileId` / `faviconFileId` 字段解析
+- `api/admin/settings/route.ts`：PATCH 接口新增 `logoFileId` / `faviconFileId` 字段，写入 `adminSystemSettings` JSON
+- 新增 `AdminLogoForm` 组件（`src/components/admin/AdminLogoForm.tsx`）：Logo 和 Favicon 独立上传区，有图时展示缩略图 + 更换/移除按钮，上传失败不改变当前状态
+- `admin/settings/page.tsx`：新增"品牌形象"卡片，嵌入 `AdminLogoForm`，从 DB 读取初始 URL
+- `SiteHeader.tsx`：读取 `logoFileId` 对应 `filePath`，有图时渲染动态 Logo，无图时 fallback 到 `/logo.svg`
+- `ZenHeader.tsx`：同上，有图时替换字母 Logo 为动态图片
+- 新增动态 favicon 路由 `src/app/favicon.ico/route.ts`：优先级 `faviconFileId` → `logoFileId` → 静态 `/favicon.ico`，全链路 try/catch 容错
+- `seo.ts`：`defaultSiteMetadata` 补 `icons: { icon: '/favicon.ico' }`
+
+**服务列表页视觉优化**
+- `services/page.tsx`：顶部新增 Hero 区块（eyebrow/title/description 三层结构），空状态改为带视觉占位图的提示，`ServiceCard` 补传 `coverImageUrl`
+
+- `npm run build` 验证通过 ✅

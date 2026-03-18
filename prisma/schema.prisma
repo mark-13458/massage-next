@@ -64,6 +64,7 @@ model Service {
   isFeatured       Boolean       @default(false)
   isActive         Boolean       @default(true)
   coverImageId     Int?
+  coverImage       File?         @relation("ServiceCoverImage", fields: [coverImageId], references: [id])
   createdAt        DateTime      @default(now())
   updatedAt        DateTime      @updatedAt
   appointments     Appointment[]
@@ -134,7 +135,8 @@ model File {
   uploadedBy       User?      @relation(fields: [uploadedById], references: [id])
   createdAt        DateTime   @default(now())
   updatedAt        DateTime   @updatedAt
-  galleryImages    GalleryImage[]
+  galleryImages      GalleryImage[]
+  serviceCoverImages Service[]      @relation("ServiceCoverImage")
 }
 
 model SiteSetting {

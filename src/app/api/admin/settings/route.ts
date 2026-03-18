@@ -75,6 +75,18 @@ export async function PATCH(request: NextRequest) {
           : 180,
       allowDeletionRequests: Boolean(json.allowDeletionRequests),
       frontendTheme: json.frontendTheme === 'zen' ? 'zen' : 'classic',
+      logoFileId:
+        json.logoFileId === null
+          ? null
+          : typeof json.logoFileId === 'number' && Number.isFinite(json.logoFileId)
+            ? json.logoFileId
+            : undefined,
+      faviconFileId:
+        json.faviconFileId === null
+          ? null
+          : typeof json.faviconFileId === 'number' && Number.isFinite(json.faviconFileId)
+            ? json.faviconFileId
+            : undefined,
     }
 
     await prisma.siteSetting.upsert({

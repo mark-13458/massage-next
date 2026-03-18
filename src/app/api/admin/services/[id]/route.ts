@@ -24,6 +24,14 @@ export async function PATCH(request: NextRequest, { params }: { params: Promise<
       return apiError('Invalid service id', 400)
     }
 
+    // coverImageId: accept number (set), null (clear), or undefined (no change)
+    const coverImageId =
+      json.coverImageId === null
+        ? null
+        : typeof json.coverImageId === 'number' && Number.isFinite(json.coverImageId)
+          ? json.coverImageId
+          : undefined
+
     const item = await prisma.service.update({
       where: { id },
       data: {
@@ -39,6 +47,7 @@ export async function PATCH(request: NextRequest, { params }: { params: Promise<
         sortOrder: typeof json.sortOrder === 'number' ? json.sortOrder : undefined,
         isActive: typeof json.isActive === 'boolean' ? json.isActive : undefined,
         isFeatured: typeof json.isFeatured === 'boolean' ? json.isFeatured : undefined,
+        coverImageId,
       },
     })
 

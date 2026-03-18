@@ -1,6 +1,7 @@
 'use client'
 
 import { useState } from 'react'
+import Image from 'next/image'
 import Link from 'next/link'
 import { Menu, X, Globe } from 'lucide-react'
 import { usePathname, useRouter } from 'next/navigation'
@@ -11,9 +12,10 @@ interface Props {
   siteName: string
   navLinks: { href: string; label: string }[]
   bookingLabel: string
+  logoUrl?: string | null
 }
 
-export function ZenHeader({ locale, siteName, navLinks, bookingLabel }: Props) {
+export function ZenHeader({ locale, siteName, navLinks, bookingLabel, logoUrl }: Props) {
   const [isOpen, setIsOpen] = useState(false)
   const pathname = usePathname()
   const router = useRouter()
@@ -32,9 +34,20 @@ export function ZenHeader({ locale, siteName, navLinks, bookingLabel }: Props) {
         <div className="flex h-20 items-center justify-between">
           {/* Logo */}
           <Link href={`/${locale}`} className="flex items-center space-x-2">
-            <div className="flex h-10 w-10 items-center justify-center rounded-full bg-[#9B7E5C]">
-              <span className="text-lg font-semibold text-white">Z</span>
-            </div>
+            {logoUrl ? (
+              <Image
+                src={logoUrl}
+                alt={siteName}
+                width={40}
+                height={40}
+                className="h-10 w-10 rounded-full object-cover"
+                unoptimized
+              />
+            ) : (
+              <div className="flex h-10 w-10 items-center justify-center rounded-full bg-[#9B7E5C]">
+                <span className="text-lg font-semibold text-white">Z</span>
+              </div>
+            )}
             <div className="flex flex-col">
               <span className="text-lg font-semibold tracking-tight text-[#3D3630]">{siteName}</span>
               <span className="text-xs tracking-wide text-[#8C7D6F]">WELLNESS STUDIO</span>

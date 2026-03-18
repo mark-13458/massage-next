@@ -1,6 +1,7 @@
 'use client'
 
-import { useEffect, useMemo, useState, useTransition } from 'react'
+import Image from 'next/image'
+import { useEffect, useMemo, useRef, useState, useTransition } from 'react'
 import { adminRequest } from '../../lib/admin-request'
 import { NoticePill } from './NoticePill'
 
@@ -25,6 +26,8 @@ type ServiceFormProps = {
     sortOrder: number
     isFeatured: boolean
     isActive: boolean
+    coverImageId?: number | null
+    coverImageUrl?: string | null
   }
 }
 
@@ -56,7 +59,11 @@ export function ServiceForm({ mode, service, lang = 'zh' }: ServiceFormProps) {
     sortOrder: String(service?.sortOrder ?? 0),
     isFeatured: service?.isFeatured ?? false,
     isActive: service?.isActive ?? true,
+    coverImageId: service?.coverImageId ?? null as number | null,
   })
+  const [coverImageUrl, setCoverImageUrl] = useState<string | null>(service?.coverImageUrl ?? null)
+  const [coverImageUploading, startCoverImageTransition] = useTransition()
+  const coverImageRef = useRef<HTMLInputElement>(null)
   const [message, setMessage] = useState('')
   const [messageTone, setMessageTone] = useState<NoticeTone>('success')
   const [slugTouched, setSlugTouched] = useState(Boolean(service?.slug))
@@ -93,6 +100,7 @@ export function ServiceForm({ mode, service, lang = 'zh' }: ServiceFormProps) {
             durationMin: Number(form.durationMin) || 60,
             price: Number(form.price) || 0,
             sortOrder: Number(form.sortOrder) || 0,
+            coverImageId: form.coverImageId,
           }),
         })
 
@@ -163,6 +171,89 @@ export function ServiceForm({ mode, service, lang = 'zh' }: ServiceFormProps) {
         <label className="flex items-center gap-2 text-sm text-stone-700">
           <input type="checkbox" checked={form.isActive} onChange={(e) => setForm({ ...form, isActive: e.target.checked })} />{t(lang, '上架显示', 'Published')}
         </label>
+      </div>
+
+      {/* Cover image section */}
+      <div className="mt-8 flex flex-col gap-4">
+        <div>
+          <p className="text-[11px] font-semibold uppercase tracking-[0.24em] text-stone-400">
+            {t(lang, '封面图', 'Cover image')}
+          </p>
+        </div>
+
+        {coverImageUrl ? (
+          <div className="flex flex-col gap-3">
+            <div className="relative aspect-[16/9] w-full max-w-sm overflow-hidden rounded-2xl border border-stone-200 bg-stone-50">
+              <Image
+                src={coverImageUrl}
+                alt={t(lang, '封面图预览', 'Cover image preview')}
+                fill
+                className="object-cover"
+                unoptimized
+              />
+            </div>
+            <div className="flex flex-wrap gap-2">
+              <button
+                type="button"
+                onClick={() => coverImageRef.current?.click()}
+                disabled={coverImageUploading}
+                className="rounded-full border border-stone-200 px-4 py-2 text-sm text-stone-700 transition hover:border-stone-400 disabled:opacity-60"
+              >
+                {coverImageUploading ? t(lang, '上传中…', 'Uploading...') : t(lang, '更换图片', 'Replace image')}
+              </button>
+              <button
+                type="button"
+                onClick={() => {
+                  setForm((f) => ({ ...f, coverImageId: null }))
+                  setCoverImageUrl(null)
+                }}
+                disabled={coverImageUploading}
+                className="rounded-full border border-rose-100 px-4 py-2 text-sm text-rose-600 transition hover:border-rose-300 disabled:opacity-60"
+              >
+                {t(lang, '移除图片', 'Remove image')}
+              </button>
+            </div>
+          </div>
+        ) : (
+          <button
+            type="button"
+            onClick={() => coverImageRef.current?.click()}
+            disabled={coverImageUploading}
+            className="flex h-24 w-full items-center justify-center rounded-2xl border-2 border-dashed border-stone-200 text-sm text-stone-400 transition hover:border-amber-400 hover:text-amber-500 disabled:opacity-60"
+          >
+            {coverImageUploading ? t(lang, '上传中…', 'Uploading...') : t(lang, '点击上传封面图', 'Click to upload cover image')}
+          </button>
+        )}
+
+        <input
+          ref={coverImageRef}
+          type="file"
+          accept="image/jpeg,image/png,image/webp"
+          className="hidden"
+          onChange={(e) => {
+            const file = e.target.files?.[0]
+            if (!file) return
+            e.target.value = ''
+            startCoverImageTransition(async () => {
+              try {
+                const fd = new FormData()
+                fd.append('file', file)
+                fd.append('usage', 'service-cover')
+                const result = await adminRequest<{ item: { id: number; imageUrl: string } }>('/api/admin/upload', {
+                  method: 'POST',
+                  body: fd,
+                })
+                const uploaded = result?.item
+                if (!uploaded) throw new Error('Upload returned no data')
+                setForm((f) => ({ ...f, coverImageId: uploaded.id }))
+                setCoverImageUrl(uploaded.imageUrl)
+              } catch {
+                setMessage(t(lang, '封面图上传失败，请重试', 'Cover image upload failed, please try again'))
+                setMessageTone('error')
+              }
+            })
+          }}
+        />
       </div>
 
       <div className="mt-6 flex flex-wrap items-center gap-4">

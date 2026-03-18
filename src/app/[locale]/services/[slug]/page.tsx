@@ -1,10 +1,12 @@
 import type { Metadata } from 'next'
 import { notFound } from 'next/navigation'
 import Link from 'next/link'
+import Image from 'next/image'
 import { SiteHeader } from '../../../../components/site/SiteHeader'
 import { SiteFooter } from '../../../../components/site/SiteFooter'
 import { FloatingActions } from '../../../../components/site/FloatingActions'
 import { ServiceCard } from '../../../../components/site/ServiceCard'
+import { ZenServiceDetailPage } from '../../../../components/site/zen/ZenServiceDetailPage'
 import { isLocale, Locale } from '../../../../lib/i18n'
 import { createPageMetadata, getBaseUrl } from '../../../../lib/seo'
 import { buildServiceJsonLd } from '../../../../lib/structured-data'
@@ -16,6 +18,7 @@ type Props = { params: Promise<{ locale: string; slug: string }> }
 async function getService(slug: string) {
   return prisma.service.findUnique({
     where: { slug, isActive: true },
+    include: { coverImage: { select: { filePath: true } } },
   })
 }
 
@@ -24,6 +27,7 @@ async function getRelatedServices(slug: string, locale: string) {
     where: { isActive: true, slug: { not: slug } },
     orderBy: [{ isFeatured: 'desc' }, { sortOrder: 'asc' }],
     take: 3,
+    include: { coverImage: { select: { filePath: true } } },
   })
   return services.map((s) => ({
     id: s.id,
@@ -33,6 +37,7 @@ async function getRelatedServices(slug: string, locale: string) {
     durationMin: s.durationMin,
     price: s.price.toString(),
     isFeatured: s.isFeatured,
+    coverImageFilePath: s.coverImage?.filePath ?? null,
   }))
 }
 
@@ -91,6 +96,16 @@ export default async function ServiceDetailPage({ params }: Props) {
 
   if (!service) notFound()
 
+  if (settings?.frontendTheme === 'zen') {
+    return (
+      <ZenServiceDetailPage
+        locale={typedLocale}
+        service={service}
+        relatedServices={relatedServices}
+      />
+    )
+  }
+
   const name = typedLocale === 'de' ? service.nameDe : service.nameEn
   const summary = typedLocale === 'de' ? service.summaryDe : service.summaryEn
   const description = typedLocale === 'de' ? service.descriptionDe : service.descriptionEn
@@ -144,6 +159,21 @@ export default async function ServiceDetailPage({ params }: Props) {
           >
             {backLabel}
           </Link>
+
+          {service.coverImage?.filePath && (
+            <div
+              className="relative w-full overflow-hidden rounded-3xl mt-6"
+              style={{ aspectRatio: '16/9', maxHeight: '480px' }}
+            >
+              <Image
+                src={service.coverImage.filePath}
+                alt={name}
+                fill
+                priority
+                className="object-cover"
+              />
+            </div>
+          )}
 
           <div className="mt-6">
             {service.isFeatured && (
@@ -208,6 +238,7 @@ export default async function ServiceDetailPage({ params }: Props) {
                   currency={currency}
                   locale={typedLocale}
                   slug={s.slug}
+                  coverImageUrl={s.coverImageFilePath}
                 />
               ))}
             </div>

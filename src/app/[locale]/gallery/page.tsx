@@ -6,6 +6,7 @@ import { SiteHeader } from '../../../components/site/SiteHeader'
 import { SiteFooter } from '../../../components/site/SiteFooter'
 import { FloatingActions } from '../../../components/site/FloatingActions'
 import { SectionShell } from '../../../components/site/SectionShell'
+import { ZenGalleryPage } from '../../../components/site/zen/ZenGalleryPage'
 import { isLocale, Locale } from '../../../lib/i18n'
 import { getMessages } from '../../../lib/copy'
 import { createPageMetadata, getBaseUrl } from '../../../lib/seo'
@@ -77,6 +78,12 @@ export default async function GalleryPage({ params }: { params: Promise<{ locale
   const typedLocale = locale as Locale
   const t = getMessages(typedLocale)
   const gallery = await getActiveGallery(typedLocale).catch(() => [])
+  const settings = await getSystemSettings().catch(() => null)
+
+  if (settings?.frontendTheme === 'zen') {
+    return <ZenGalleryPage locale={typedLocale} />
+  }
+
   const items = gallery.length > 0
     ? gallery.map((item) => ({ id: item.id, title: item.title || 'Gallery', image: item.imageUrl }))
     : fallbackGallery.map((item) => ({ id: item.id, title: item.title[typedLocale], image: item.image }))

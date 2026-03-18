@@ -5,6 +5,7 @@ import { SiteHeader } from '../../../components/site/SiteHeader'
 import { SiteFooter } from '../../../components/site/SiteFooter'
 import { FloatingActions } from '../../../components/site/FloatingActions'
 import { SectionShell } from '../../../components/site/SectionShell'
+import { ZenAboutPage } from '../../../components/site/zen/ZenAboutPage'
 import { isLocale, Locale } from '../../../lib/i18n'
 import { getMessages } from '../../../lib/copy'
 import { createPageMetadata } from '../../../lib/seo'
@@ -46,6 +47,11 @@ export default async function AboutPage({ params }: { params: Promise<{ locale: 
     getActiveFaqs(typedLocale).catch(() => []),
     getPublishedTestimonials(typedLocale).catch(() => []),
   ])
+
+  const settings = await getSystemSettings().catch(() => null)
+  if (settings?.frontendTheme === 'zen') {
+    return <ZenAboutPage locale={typedLocale} />
+  }
 
   const faqJsonLd = buildFaqPageJsonLd(faqs)
 

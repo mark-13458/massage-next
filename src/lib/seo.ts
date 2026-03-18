@@ -93,4 +93,7 @@ export const defaultSiteMetadata: Metadata = {
   openGraph: {
     images: ['/og-image.jpg'],
   },
+  icons: {
+    icon: '/favicon.ico',
+  },
 }

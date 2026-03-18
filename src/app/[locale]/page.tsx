@@ -9,6 +9,7 @@ import { FloatingActions } from '../../components/site/FloatingActions'
 import { SiteFooter } from '../../components/site/SiteFooter'
 import { SiteHeader } from '../../components/site/SiteHeader'
 import { ZenHomePage } from '../../components/site/zen/ZenHomePage'
+import { MapEmbed } from '../../components/site/MapEmbed'
 import { getMessages } from '../../lib/copy'
 import { isLocale, Locale } from '../../lib/i18n'
 import { createPageMetadata, getBaseUrl } from '../../lib/seo'
@@ -319,6 +320,9 @@ export default async function LocaleHome({ params }: { params: Promise<{ locale:
               </Link>
             </div>
           </article>
+        </div>
+        <div className="mt-6 overflow-hidden rounded-3xl border border-stone-200 shadow-sm">
+          <MapEmbed address={contact?.address ?? ''} locale={typedLocale} />
         </div>
       </SectionShell>
 

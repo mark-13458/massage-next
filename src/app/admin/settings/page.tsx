@@ -1,6 +1,7 @@
 import { redirect } from 'next/navigation'
 import Link from 'next/link'
 import { AdminInfoList } from '../../../components/admin/AdminInfoList'
+import { AdminLogoForm } from '../../../components/admin/AdminLogoForm'
 import { AdminPasswordForm } from '../../../components/admin/AdminPasswordForm'
 import { AdminSectionCard } from '../../../components/admin/AdminSectionCard'
 import { AdminSettingsForm } from '../../../components/admin/AdminSettingsForm'
@@ -9,6 +10,7 @@ import { AdminWorkspaceLayout } from '../../../components/admin/AdminWorkspaceLa
 import { getCurrentAdmin } from '../../../lib/auth'
 import { getAdminLang, pick } from '../../../lib/admin-i18n'
 import { getAdminSystemSettings } from '../../../server/services/admin-settings.service'
+import { prisma } from '../../../lib/prisma'
 
 export const dynamic = 'force-dynamic'
 export const revalidate = 0
@@ -20,6 +22,32 @@ export default async function AdminSettingsPage() {
   const lang = await getAdminLang()
   const settings = await getAdminSystemSettings()
 
+  // Fetch logo/favicon file paths from raw settings
+  let initialLogoUrl: string | null = null
+  let initialFaviconUrl: string | null = null
+  try {
+    const rawSetting = await prisma.siteSetting.findUnique({ where: { key: 'adminSystemSettings' } })
+    const value = rawSetting?.value as Record<string, unknown> | null | undefined
+    const logoFileId =
+      value && typeof value.logoFileId === 'number' && Number.isFinite(value.logoFileId)
+        ? value.logoFileId
+        : null
+    const faviconFileId =
+      value && typeof value.faviconFileId === 'number' && Number.isFinite(value.faviconFileId)
+        ? value.faviconFileId
+        : null
+    if (logoFileId !== null) {
+      const file = await prisma.file.findUnique({ where: { id: logoFileId } })
+      if (file) initialLogoUrl = file.filePath
+    }
+    if (faviconFileId !== null) {
+      const file = await prisma.file.findUnique({ where: { id: faviconFileId } })
+      if (file) initialFaviconUrl = file.filePath
+    }
+  } catch {
+    // DB unavailable — leave URLs null
+  }
+
   return (
     <AdminShell
       lang={lang}
@@ -29,13 +57,27 @@ export default async function AdminSettingsPage() {
       <AdminWorkspaceLayout
         ratio="content-heavy"
         main={
-          <AdminSectionCard
-            eyebrow={pick(lang, '系统偏好', 'System preferences')}
-            title={pick(lang, '基础系统设置', 'Core system configuration')}
-            description={pick(lang, '把站点基本信息、预约文案和验证码设置拆成独立分区后，后台会更接近正式可交付状态。', 'Splitting site basics, booking copy and captcha settings into clear zones makes the admin feel much closer to a production handoff.')}
-          >
-            <AdminSettingsForm lang={lang} initialSettings={settings} />
-          </AdminSectionCard>
+          <div className="flex flex-col gap-6">
+            <AdminSectionCard
+              eyebrow={pick(lang, '系统偏好', 'System preferences')}
+              title={pick(lang, '基础系统设置', 'Core system configuration')}
+              description={pick(lang, '把站点基本信息、预约文案和验证码设置拆成独立分区后，后台会更接近正式可交付状态。', 'Splitting site basics, booking copy and captcha settings into clear zones makes the admin feel much closer to a production handoff.')}
+            >
+              <AdminSettingsForm lang={lang} initialSettings={settings} />
+            </AdminSectionCard>
+
+            <AdminSectionCard
+              eyebrow={pick(lang, '品牌形象', 'Brand identity')}
+              title={pick(lang, 'Logo 与 Favicon', 'Logo & Favicon')}
+              description={pick(lang, '上传网站 Logo 和浏览器标签页图标，支持 JPEG、PNG、WebP、SVG 和 ICO 格式。', 'Upload the site logo and browser tab icon. Supports JPEG, PNG, WebP, SVG and ICO formats.')}
+            >
+              <AdminLogoForm
+                initialLogoUrl={initialLogoUrl}
+                initialFaviconUrl={initialFaviconUrl}
+                lang={lang}
+              />
+            </AdminSectionCard>
+          </div>
         }
         aside={
           <>

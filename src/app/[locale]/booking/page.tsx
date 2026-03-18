@@ -5,6 +5,7 @@ import { SiteFooter } from '../../../components/site/SiteFooter'
 import { FloatingActions } from '../../../components/site/FloatingActions'
 import { SectionShell } from '../../../components/site/SectionShell'
 import { BookingForm } from '../../../components/site/BookingForm'
+import { ZenBookingPage } from '../../../components/site/zen/ZenBookingPage'
 import { getMessages } from '../../../lib/copy'
 import { isLocale, Locale } from '../../../lib/i18n'
 import { createPageMetadata } from '../../../lib/seo'
@@ -52,6 +53,10 @@ export default async function BookingPage({ params }: { params: Promise<{ locale
     getBusinessHours(typedLocale).catch(() => []),
     getTurnstileSettings().catch(() => ({ enabled: false, siteKey: '' })),
   ])
+
+  if (settings?.frontendTheme === 'zen') {
+    return <ZenBookingPage locale={typedLocale} />
+  }
 
   const configuredNotice = typedLocale === 'de' ? settings?.bookingNoticeDe : settings?.bookingNoticeEn
 

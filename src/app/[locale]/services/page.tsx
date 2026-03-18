@@ -6,6 +6,7 @@ import { SiteFooter } from '../../../components/site/SiteFooter'
 import { FloatingActions } from '../../../components/site/FloatingActions'
 import { SectionShell } from '../../../components/site/SectionShell'
 import { ServiceCard } from '../../../components/site/ServiceCard'
+import { ZenServicesPage } from '../../../components/site/zen/ZenServicesPage'
 import { getMessages } from '../../../lib/copy'
 import { isLocale, Locale } from '../../../lib/i18n'
 import { createPageMetadata, getBaseUrl } from '../../../lib/seo'
@@ -48,6 +49,10 @@ export default async function ServicesPage({ params }: { params: Promise<{ local
     getSystemSettings().catch(() => null),
   ])
 
+  if (settings?.frontendTheme === 'zen') {
+    return <ZenServicesPage locale={typedLocale} />
+  }
+
   const baseUrl = getBaseUrl().toString().replace(/\/$/, '')
   const itemListJsonLd = buildItemListJsonLd(
     services.map((s) => ({
@@ -75,19 +80,49 @@ export default async function ServicesPage({ params }: { params: Promise<{ local
         }
       >
         <div className="grid gap-6 md:grid-cols-2 xl:grid-cols-3">
-          {services.map((service) => (
-            <ServiceCard
-              key={service.id}
-              name={service.name}
-              summary={service.summary}
-              durationMin={service.durationMin}
-              price={service.price.toString()}
-              featured={service.isFeatured}
-              currency={settings?.currency || 'EUR'}
-              locale={typedLocale}
-              slug={service.slug}
-            />
-          ))}
+          {services.length === 0 ? (
+            <div className="col-span-full rounded-[2rem] border border-stone-200 bg-white p-10 text-center shadow-card">
+              <div className="flex justify-center">
+                <svg
+                  className="h-16 w-16 text-amber-200"
+                  fill="currentColor"
+                  viewBox="0 0 24 24"
+                  aria-hidden="true"
+                >
+                  <path d="M17 8C8 10 5.9 16.17 3.82 21.34L5.71 22l1-2.3A4.49 4.49 0 0 0 8 20C19 20 22 3 22 3c-1 2-8 2-8 2 2-2 4-4 4-4S9 3 7 7c0 0 2-2 4-2-4 2-5 7-5 7 2-2 5-3 5-3-3 2-4 6-4 6 2-2 5-2 5-2-2 2-3 5-3 5 2-1 4-1 4-1-1 2-2 4-2 4l1.5.5C14.5 21 17 8 17 8z" />
+                </svg>
+              </div>
+              <p className="mt-4 font-serif text-lg font-semibold text-brown-900">
+                {typedLocale === 'de' ? 'Noch keine Behandlungen verfügbar' : 'No treatments available yet'}
+              </p>
+              <p className="mt-2 font-sans text-sm text-brown-500">
+                {typedLocale === 'de'
+                  ? 'Wir arbeiten gerade an unserem Angebot. Kontaktieren Sie uns für individuelle Anfragen.'
+                  : 'We are currently preparing our offerings. Contact us for individual inquiries.'}
+              </p>
+              <Link
+                href={`/${typedLocale}/contact`}
+                className="mt-6 inline-flex rounded-full border border-amber-200 bg-amber-50 px-6 py-2.5 font-sans text-sm font-semibold text-amber-800 transition hover:bg-amber-100"
+              >
+                {typedLocale === 'de' ? 'Kontakt aufnehmen' : 'Get in touch'}
+              </Link>
+            </div>
+          ) : (
+            services.map((service) => (
+              <ServiceCard
+                key={service.id}
+                name={service.name}
+                summary={service.summary}
+                durationMin={service.durationMin}
+                price={service.price.toString()}
+                featured={service.isFeatured}
+                currency={settings?.currency || 'EUR'}
+                locale={typedLocale}
+                slug={service.slug}
+                coverImageUrl={service.coverImageFilePath}
+              />
+            ))
+          )}
         </div>
         <div className="mt-12 rounded-[2rem] border border-stone-200 bg-stone-950 p-8 text-center shadow-soft">
           <p className="text-lg font-semibold text-white">

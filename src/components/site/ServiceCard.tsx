@@ -1,4 +1,5 @@
 import Link from 'next/link'
+import Image from 'next/image'
 
 type ServiceCardProps = {
   name: string
@@ -9,6 +10,7 @@ type ServiceCardProps = {
   currency?: string
   locale?: 'de' | 'en'
   slug?: string
+  coverImageUrl?: string | null
 }
 
 export function ServiceCard({
@@ -20,6 +22,7 @@ export function ServiceCard({
   currency = 'EUR',
   locale = 'de',
   slug,
+  coverImageUrl,
 }: ServiceCardProps) {
   const currencySymbol = currency === 'EUR' ? '€' : currency
 
@@ -31,12 +34,44 @@ export function ServiceCard({
         aria-hidden="true"
       />
 
-      {featured ? (
-        <div className="mb-3 inline-flex self-start items-center gap-1.5 rounded-full border border-amber-200 bg-amber-50 px-3 py-1 font-sans text-xs font-semibold uppercase tracking-[0.18em] text-amber-800">
-          <span className="inline-block h-1.5 w-1.5 rounded-full bg-amber-400" aria-hidden="true" />
-          {locale === 'de' ? 'Empfohlen' : 'Featured'}
+      {/* Cover image or placeholder */}
+      {coverImageUrl ? (
+        <div className="relative aspect-[16/9] -mx-5 sm:-mx-6 mb-4 overflow-hidden">
+          <Image
+            src={coverImageUrl}
+            alt={name}
+            fill
+            loading="lazy"
+            className="object-cover"
+          />
+          {featured ? (
+            <div className="absolute top-3 right-3 inline-flex items-center gap-1.5 rounded-full border border-amber-200 bg-amber-50 px-3 py-1 font-sans text-xs font-semibold uppercase tracking-[0.18em] text-amber-800">
+              <span className="inline-block h-1.5 w-1.5 rounded-full bg-amber-400" aria-hidden="true" />
+              {locale === 'de' ? 'Empfohlen' : 'Featured'}
+            </div>
+          ) : null}
         </div>
-      ) : null}
+      ) : (
+        <div className="relative aspect-[16/9] -mx-5 sm:-mx-6 mb-4 overflow-hidden rounded-t-[1.5rem]">
+          <div className="absolute inset-0 bg-gradient-to-br from-amber-50 to-stone-100 flex items-center justify-center">
+            {/* Decorative leaf/flower icon */}
+            <svg
+              className="h-12 w-12 text-amber-200"
+              fill="currentColor"
+              viewBox="0 0 24 24"
+              aria-hidden="true"
+            >
+              <path d="M17 8C8 10 5.9 16.17 3.82 21.34L5.71 22l1-2.3A4.49 4.49 0 0 0 8 20C19 20 22 3 22 3c-1 2-8 2-8 2 2-2 4-4 4-4S9 3 7 7c0 0 2-2 4-2-4 2-5 7-5 7 2-2 5-3 5-3-3 2-4 6-4 6 2-2 5-2 5-2-2 2-3 5-3 5 2-1 4-1 4-1-1 2-2 4-2 4l1.5.5C14.5 21 17 8 17 8z" />
+            </svg>
+          </div>
+          {featured ? (
+            <div className="absolute top-3 right-3 inline-flex items-center gap-1.5 rounded-full border border-amber-200 bg-amber-50 px-3 py-1 font-sans text-xs font-semibold uppercase tracking-[0.18em] text-amber-800">
+              <span className="inline-block h-1.5 w-1.5 rounded-full bg-amber-400" aria-hidden="true" />
+              {locale === 'de' ? 'Empfohlen' : 'Featured'}
+            </div>
+          ) : null}
+        </div>
+      )}
 
       <h3 className="font-serif text-lg font-semibold text-brown-900 transition-colors duration-200 group-hover:text-brown-700 sm:text-xl">
         {name}

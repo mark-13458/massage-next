@@ -11,6 +11,8 @@ import {
   getContactSettings,
   getSystemSettings,
 } from '../../../server/services/site.service'
+import { prisma } from '../../../lib/prisma'
+import { MapEmbed } from '../MapEmbed'
 import { ZenHeader } from './ZenHeader'
 import { ZenHero } from './ZenHero'
 import { ZenFooter } from './ZenFooter'
@@ -29,6 +31,15 @@ export async function ZenHomePage({ locale }: { locale: Locale }) {
 
   const siteName = settings?.siteName || 'Zen Oase'
   const currency = settings?.currency || 'EUR'
+
+  let logoUrl: string | null = null
+  if (settings?.logoFileId) {
+    const logoFile = await prisma.file.findUnique({
+      where: { id: settings.logoFileId },
+      select: { filePath: true },
+    }).catch(() => null)
+    logoUrl = logoFile?.filePath ?? null
+  }
 
   const navLinks = [
     { href: `/${locale}`, label: t.nav.home },
@@ -63,7 +74,7 @@ export async function ZenHomePage({ locale }: { locale: Locale }) {
 
   return (
     <div className="flex min-h-screen flex-col bg-[#FAF8F5] text-[#3D3630]">
-      <ZenHeader locale={locale} siteName={siteName} navLinks={navLinks} bookingLabel={t.nav.booking} />
+      <ZenHeader locale={locale} siteName={siteName} navLinks={navLinks} bookingLabel={t.nav.booking} logoUrl={logoUrl} />
 
       <main className="flex-1 pb-24 sm:pb-0">
         <ZenHero locale={locale} />
@@ -229,6 +240,9 @@ export async function ZenHomePage({ locale }: { locale: Locale }) {
                   </Link>
                 </div>
               </div>
+            </div>
+            <div className="mt-6 overflow-hidden rounded-lg border border-[rgba(155,126,92,0.15)] shadow-sm">
+              <MapEmbed address={contact?.address ?? ''} locale={locale} />
             </div>
           </div>
         </section>
