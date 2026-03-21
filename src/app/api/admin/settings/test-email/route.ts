@@ -1,7 +1,6 @@
 import { NextResponse } from 'next/server'
 import { getCurrentAdmin } from '../../../../../lib/auth'
-import { createMailTransport } from '../../../../../lib/mail'
-import { env } from '../../../../../lib/env'
+import { createMailTransportAsync } from '../../../../../lib/mail'
 
 export async function POST() {
   const admin = await getCurrentAdmin()
@@ -9,17 +8,17 @@ export async function POST() {
     return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
   }
 
-  const transport = createMailTransport()
-  if (!transport) {
+  const result = await createMailTransportAsync()
+  if (!result) {
     return NextResponse.json(
-      { error: 'SMTP configuration missing or invalid' },
+      { error: 'SMTP configuration missing. Please configure SMTP settings first.' },
       { status: 400 }
     )
   }
 
   try {
-    const info = await transport.sendMail({
-      from: `"Massage System" <${env.smtp.from || env.smtp.user}>`,
+    const info = await result.transport.sendMail({
+      from: `"Massage System" <${result.from}>`,
       to: admin.email,
       subject: '✅ SMTP Configuration Test',
       html: `
@@ -34,15 +33,15 @@ export async function POST() {
       `,
     })
 
-    return NextResponse.json({ 
-      status: 'ok', 
+    return NextResponse.json({
+      status: 'ok',
       message: `Test email sent to ${admin.email}`,
-      messageId: info.messageId 
+      messageId: info.messageId,
     })
   } catch (error) {
     console.error('[admin/settings/test-email] send failed:', error)
     return NextResponse.json(
-      { error: 'Failed to send test email' },
+      { error: 'Failed to send test email. Please check your SMTP settings.' },
       { status: 500 }
     )
   }

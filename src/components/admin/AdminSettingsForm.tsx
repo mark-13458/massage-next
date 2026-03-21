@@ -31,6 +31,12 @@ type Settings = {
   bookingRetentionDays: number
   allowDeletionRequests: boolean
   frontendTheme: 'classic' | 'zen'
+  smtpHost: string
+  smtpPort: number
+  smtpSecure: boolean
+  smtpUser: string
+  smtpPass: string
+  smtpFrom: string
 }
 
 type NoticeTone = 'success' | 'error'
@@ -65,6 +71,12 @@ export function AdminSettingsForm({ lang, initialSettings }: { lang: AdminLang; 
     bookingRetentionDays: Number(initialSettings?.bookingRetentionDays) || 180,
     allowDeletionRequests: Boolean(initialSettings?.allowDeletionRequests),
     frontendTheme: (initialSettings as Record<string, unknown>)?.frontendTheme === 'zen' ? 'zen' : 'classic',
+    smtpHost: (initialSettings as Record<string, unknown>)?.smtpHost as string || '',
+    smtpPort: Number((initialSettings as Record<string, unknown>)?.smtpPort) || 587,
+    smtpSecure: Boolean((initialSettings as Record<string, unknown>)?.smtpSecure),
+    smtpUser: (initialSettings as Record<string, unknown>)?.smtpUser as string || '',
+    smtpPass: (initialSettings as Record<string, unknown>)?.smtpPass as string || '',
+    smtpFrom: (initialSettings as Record<string, unknown>)?.smtpFrom as string || '',
   })
   const [message, setMessage] = useState('')
   const [messageTone, setMessageTone] = useState<NoticeTone>('success')
@@ -281,6 +293,39 @@ export function AdminSettingsForm({ lang, initialSettings }: { lang: AdminLang; 
           <label className="flex flex-col gap-2 text-sm text-stone-700">
             <span>{t(lang, '默认描述（英文）', 'Default meta description (English)')}</span>
             <textarea rows={4} value={form.seoMetaDescriptionEn} onChange={(e) => setForm({ ...form, seoMetaDescriptionEn: e.target.value })} className="rounded-2xl border border-stone-200 px-4 py-3 outline-none focus:border-amber-500" />
+          </label>
+        </div>
+      </section>
+
+      <section className="rounded-3xl border border-stone-200 bg-white p-5">
+        <div className="mb-4">
+          <h3 className="text-base font-semibold text-stone-900">{t(lang, '邮件 SMTP 配置', 'Email SMTP configuration')}</h3>
+          <p className="mt-1 text-sm text-stone-600">{t(lang, '配置邮件发送服务器，用于预约确认、提醒等邮件。DB 配置优先于环境变量。', 'Configure the mail server for booking confirmations and reminders. DB settings take priority over environment variables.')}</p>
+        </div>
+        <div className="grid gap-4 md:grid-cols-2">
+          <label className="flex flex-col gap-2 text-sm text-stone-700">
+            <span>{t(lang, 'SMTP 服务器地址', 'SMTP host')}</span>
+            <input value={form.smtpHost} onChange={(e) => setForm({ ...form, smtpHost: e.target.value })} className="rounded-2xl border border-stone-200 px-4 py-3 outline-none focus:border-amber-500" placeholder="smtp.gmail.com" />
+          </label>
+          <label className="flex flex-col gap-2 text-sm text-stone-700">
+            <span>{t(lang, '端口', 'Port')}</span>
+            <input type="number" min="1" max="65535" value={form.smtpPort} onChange={(e) => setForm({ ...form, smtpPort: Number(e.target.value) || 587 })} className="rounded-2xl border border-stone-200 px-4 py-3 outline-none focus:border-amber-500" />
+          </label>
+          <label className="flex flex-col gap-2 text-sm text-stone-700">
+            <span>{t(lang, '用户名（邮箱）', 'Username (email)')}</span>
+            <input type="email" value={form.smtpUser} onChange={(e) => setForm({ ...form, smtpUser: e.target.value })} className="rounded-2xl border border-stone-200 px-4 py-3 outline-none focus:border-amber-500" placeholder="you@example.com" />
+          </label>
+          <label className="flex flex-col gap-2 text-sm text-stone-700">
+            <span>{t(lang, '密码 / 应用专用密码', 'Password / App password')}</span>
+            <input type="password" value={form.smtpPass} onChange={(e) => setForm({ ...form, smtpPass: e.target.value })} className="rounded-2xl border border-stone-200 px-4 py-3 outline-none focus:border-amber-500" placeholder="••••••••" autoComplete="new-password" />
+          </label>
+          <label className="flex flex-col gap-2 text-sm text-stone-700">
+            <span>{t(lang, '发件人地址（留空则同用户名）', 'From address (defaults to username)')}</span>
+            <input type="email" value={form.smtpFrom} onChange={(e) => setForm({ ...form, smtpFrom: e.target.value })} className="rounded-2xl border border-stone-200 px-4 py-3 outline-none focus:border-amber-500" placeholder="noreply@example.com" />
+          </label>
+          <label className="flex items-center gap-2 text-sm text-stone-700 self-end pb-3">
+            <input type="checkbox" checked={form.smtpSecure} onChange={(e) => setForm({ ...form, smtpSecure: e.target.checked })} />
+            {t(lang, '使用 SSL/TLS（端口 465）', 'Use SSL/TLS (port 465)')}
           </label>
         </div>
       </section>

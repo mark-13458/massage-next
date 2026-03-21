@@ -24,6 +24,12 @@ export type AdminSettingsViewModel = {
   privacyConsentRequired: boolean
   bookingRetentionDays: number
   allowDeletionRequests: boolean
+  smtpHost: string
+  smtpPort: number
+  smtpSecure: boolean
+  smtpUser: string
+  smtpPass: string
+  smtpFrom: string
 }
 
 export function toAdminSettingsViewModel(value: unknown): AdminSettingsViewModel | null {
@@ -54,5 +60,11 @@ export function toAdminSettingsViewModel(value: unknown): AdminSettingsViewModel
     privacyConsentRequired: readBoolean(record, 'privacyConsentRequired', true),
     bookingRetentionDays: readNumber(record, 'bookingRetentionDays', 180),
     allowDeletionRequests: readBoolean(record, 'allowDeletionRequests'),
+    smtpHost: readString(record, 'smtpHost'),
+    smtpPort: readNumber(record, 'smtpPort', 587),
+    smtpSecure: readBoolean(record, 'smtpSecure'),
+    smtpUser: readString(record, 'smtpUser'),
+    smtpPass: readString(record, 'smtpPass'),
+    smtpFrom: readString(record, 'smtpFrom'),
   }
 }

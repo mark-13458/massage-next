@@ -74,6 +74,12 @@ export async function PATCH(request: NextRequest) {
     if (json.frontendTheme === 'zen' || json.frontendTheme === 'classic') merged.frontendTheme = json.frontendTheme
     if ('logoFileId' in json) merged.logoFileId = json.logoFileId === null ? null : (typeof json.logoFileId === 'number' && Number.isFinite(json.logoFileId) ? json.logoFileId : prev.logoFileId ?? null)
     if ('faviconFileId' in json) merged.faviconFileId = json.faviconFileId === null ? null : (typeof json.faviconFileId === 'number' && Number.isFinite(json.faviconFileId) ? json.faviconFileId : prev.faviconFileId ?? null)
+    if (typeof json.smtpHost === 'string') merged.smtpHost = json.smtpHost
+    if (typeof json.smtpPort === 'number' && Number.isFinite(json.smtpPort)) merged.smtpPort = Math.max(1, Math.min(65535, Math.floor(json.smtpPort)))
+    if ('smtpSecure' in json) merged.smtpSecure = Boolean(json.smtpSecure)
+    if (typeof json.smtpUser === 'string') merged.smtpUser = json.smtpUser
+    if (typeof json.smtpPass === 'string') merged.smtpPass = json.smtpPass
+    if (typeof json.smtpFrom === 'string') merged.smtpFrom = json.smtpFrom
 
     await prisma.siteSetting.upsert({
       where: { key: SETTINGS_KEY },
