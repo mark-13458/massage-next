@@ -36,68 +36,56 @@ export async function PATCH(request: NextRequest) {
 
   try {
     const json = await request.json()
-    const value = {
-      siteName: typeof json.siteName === 'string' ? json.siteName : 'China TCM Massage',
-      adminEmail: typeof json.adminEmail === 'string' ? json.adminEmail : '',
-      defaultFrontendLocale: json.defaultFrontendLocale === 'en' ? 'en' : 'de',
-      adminDefaultLanguage: json.adminDefaultLanguage === 'en' ? 'en' : 'zh',
-      timezone: typeof json.timezone === 'string' ? json.timezone : 'Europe/Berlin',
-      currency: typeof json.currency === 'string' ? json.currency : 'EUR',
-      bookingNoticeDe:
-        typeof json.bookingNoticeDe === 'string'
-          ? json.bookingNoticeDe
-          : typeof json.bookingNoticeZh === 'string'
-            ? json.bookingNoticeZh
-            : '',
-      bookingNoticeEn: typeof json.bookingNoticeEn === 'string' ? json.bookingNoticeEn : '',
-      cfTurnstileEnabled: Boolean(json.cfTurnstileEnabled),
-      cfTurnstileSiteKey: typeof json.cfTurnstileSiteKey === 'string' ? json.cfTurnstileSiteKey : '',
-      cfTurnstileSecretKey: typeof json.cfTurnstileSecretKey === 'string' ? json.cfTurnstileSecretKey : '',
-      bookingRateLimitWindowMin:
-        typeof json.bookingRateLimitWindowMin === 'number' && Number.isFinite(json.bookingRateLimitWindowMin)
-          ? Math.max(1, Math.min(1440, Math.floor(json.bookingRateLimitWindowMin)))
-          : 15,
-      bookingRateLimitMaxRequests:
-        typeof json.bookingRateLimitMaxRequests === 'number' && Number.isFinite(json.bookingRateLimitMaxRequests)
-          ? Math.max(1, Math.min(20, Math.floor(json.bookingRateLimitMaxRequests)))
-          : 3,
-      seoTitleTemplateDe: typeof json.seoTitleTemplateDe === 'string' ? json.seoTitleTemplateDe : '',
-      seoTitleTemplateEn: typeof json.seoTitleTemplateEn === 'string' ? json.seoTitleTemplateEn : '',
-      seoMetaDescriptionDe: typeof json.seoMetaDescriptionDe === 'string' ? json.seoMetaDescriptionDe : '',
-      seoMetaDescriptionEn: typeof json.seoMetaDescriptionEn === 'string' ? json.seoMetaDescriptionEn : '',
-      featureEnableEmailReminders: json.featureEnableEmailReminders !== false,
-      featureEnableBookingManage: json.featureEnableBookingManage !== false,
-      featureEnableWhatsappReminders: Boolean(json.featureEnableWhatsappReminders),
-      privacyConsentRequired: json.privacyConsentRequired !== false,
-      bookingRetentionDays:
-        typeof json.bookingRetentionDays === 'number' && Number.isFinite(json.bookingRetentionDays)
-          ? Math.max(1, Math.min(3650, Math.floor(json.bookingRetentionDays)))
-          : 180,
-      allowDeletionRequests: Boolean(json.allowDeletionRequests),
-      frontendTheme: json.frontendTheme === 'zen' ? 'zen' : 'classic',
-      logoFileId:
-        json.logoFileId === null
-          ? null
-          : typeof json.logoFileId === 'number' && Number.isFinite(json.logoFileId)
-            ? json.logoFileId
-            : undefined,
-      faviconFileId:
-        json.faviconFileId === null
-          ? null
-          : typeof json.faviconFileId === 'number' && Number.isFinite(json.faviconFileId)
-            ? json.faviconFileId
-            : undefined,
-    }
+
+    // Read existing value first, then merge — prevents partial updates from wiping other fields
+    const existing = await prisma.siteSetting.findUnique({ where: { key: SETTINGS_KEY } })
+    const prev = (existing?.value && typeof existing.value === 'object' && !Array.isArray(existing.value)
+      ? existing.value
+      : {}) as Record<string, unknown>
+
+    const merged: Record<string, unknown> = { ...prev }
+
+    if (typeof json.siteName === 'string') merged.siteName = json.siteName
+    if (typeof json.adminEmail === 'string') merged.adminEmail = json.adminEmail
+    if (json.defaultFrontendLocale === 'en' || json.defaultFrontendLocale === 'de') merged.defaultFrontendLocale = json.defaultFrontendLocale
+    if (json.adminDefaultLanguage === 'en' || json.adminDefaultLanguage === 'zh') merged.adminDefaultLanguage = json.adminDefaultLanguage
+    if (typeof json.timezone === 'string') merged.timezone = json.timezone
+    if (typeof json.currency === 'string') merged.currency = json.currency
+    if (typeof json.bookingNoticeDe === 'string') merged.bookingNoticeDe = json.bookingNoticeDe
+    if (typeof json.bookingNoticeEn === 'string') merged.bookingNoticeEn = json.bookingNoticeEn
+    if ('cfTurnstileEnabled' in json) merged.cfTurnstileEnabled = Boolean(json.cfTurnstileEnabled)
+    if (typeof json.cfTurnstileSiteKey === 'string') merged.cfTurnstileSiteKey = json.cfTurnstileSiteKey
+    if (typeof json.cfTurnstileSecretKey === 'string') merged.cfTurnstileSecretKey = json.cfTurnstileSecretKey
+    if (typeof json.bookingRateLimitWindowMin === 'number' && Number.isFinite(json.bookingRateLimitWindowMin))
+      merged.bookingRateLimitWindowMin = Math.max(1, Math.min(1440, Math.floor(json.bookingRateLimitWindowMin)))
+    if (typeof json.bookingRateLimitMaxRequests === 'number' && Number.isFinite(json.bookingRateLimitMaxRequests))
+      merged.bookingRateLimitMaxRequests = Math.max(1, Math.min(20, Math.floor(json.bookingRateLimitMaxRequests)))
+    if (typeof json.seoTitleTemplateDe === 'string') merged.seoTitleTemplateDe = json.seoTitleTemplateDe
+    if (typeof json.seoTitleTemplateEn === 'string') merged.seoTitleTemplateEn = json.seoTitleTemplateEn
+    if (typeof json.seoMetaDescriptionDe === 'string') merged.seoMetaDescriptionDe = json.seoMetaDescriptionDe
+    if (typeof json.seoMetaDescriptionEn === 'string') merged.seoMetaDescriptionEn = json.seoMetaDescriptionEn
+    if ('featureEnableEmailReminders' in json) merged.featureEnableEmailReminders = json.featureEnableEmailReminders !== false
+    if ('featureEnableBookingManage' in json) merged.featureEnableBookingManage = json.featureEnableBookingManage !== false
+    if ('featureEnableWhatsappReminders' in json) merged.featureEnableWhatsappReminders = Boolean(json.featureEnableWhatsappReminders)
+    if ('privacyConsentRequired' in json) merged.privacyConsentRequired = json.privacyConsentRequired !== false
+    if (typeof json.bookingRetentionDays === 'number' && Number.isFinite(json.bookingRetentionDays))
+      merged.bookingRetentionDays = Math.max(1, Math.min(3650, Math.floor(json.bookingRetentionDays)))
+    if ('allowDeletionRequests' in json) merged.allowDeletionRequests = Boolean(json.allowDeletionRequests)
+    if (json.frontendTheme === 'zen' || json.frontendTheme === 'classic') merged.frontendTheme = json.frontendTheme
+    if ('logoFileId' in json) merged.logoFileId = json.logoFileId === null ? null : (typeof json.logoFileId === 'number' && Number.isFinite(json.logoFileId) ? json.logoFileId : prev.logoFileId ?? null)
+    if ('faviconFileId' in json) merged.faviconFileId = json.faviconFileId === null ? null : (typeof json.faviconFileId === 'number' && Number.isFinite(json.faviconFileId) ? json.faviconFileId : prev.faviconFileId ?? null)
 
     await prisma.siteSetting.upsert({
       where: { key: SETTINGS_KEY },
-      update: { value },
-      create: { key: SETTINGS_KEY, value },
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+      update: { value: merged as any },
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+      create: { key: SETTINGS_KEY, value: merged as any },
     })
 
     revalidateTag(CACHE_TAGS.settings)
 
-    return apiOk({ value })
+    return apiOk({ value: merged })
   } catch (error) {
     console.error('[admin/settings] unexpected error:', error)
     return apiError('Internal server error', 500)

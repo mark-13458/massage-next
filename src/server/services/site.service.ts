@@ -1,4 +1,3 @@
-import { cache } from 'react'
 import { unstable_cache } from 'next/cache'
 import { prisma } from '../../lib/prisma'
 import { Locale } from '../../lib/i18n'
@@ -157,7 +156,8 @@ export const getActiveGallery = unstable_cache(
   { revalidate: 300, tags: [CACHE_TAGS.gallery] }
 )
 
-export const getSystemSettings = cache(async function getSystemSettings() {
+export const getSystemSettings = unstable_cache(
+  async function getSystemSettings() {
   if (!process.env.DATABASE_URL) {
     return null
   }
@@ -216,4 +216,7 @@ export const getSystemSettings = cache(async function getSystemSettings() {
     faviconFileId:
       typeof record.faviconFileId === 'number' && Number.isFinite(record.faviconFileId) ? record.faviconFileId : null,
   } as const
-})
+},
+  ['site-settings'],
+  { revalidate: 300, tags: [CACHE_TAGS.settings] }
+)
