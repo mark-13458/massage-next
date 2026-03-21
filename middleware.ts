@@ -1,19 +1,63 @@
 import { NextResponse } from 'next/server'
 import type { NextRequest } from 'next/server'
-import { randomBytes } from 'crypto'
-import { verifySessionValue, createSessionValue } from './src/lib/auth'
 
 const COOKIE_NAME = 'massage_admin_session'
-// 活跃会话滑动窗口：8 小时无操作则过期
 const SESSION_MAX_AGE = 60 * 60 * 8
 
-export function middleware(request: NextRequest) {
+// Edge-compatible: Web Crypto API
+async function getHmacKey(secret: string): Promise<CryptoKey> {
+  const enc = new TextEncoder()
+  return crypto.subtle.importKey(
+    'raw',
+    enc.encode(secret),
+    { name: 'HMAC', hash: 'SHA-256' },
+    false,
+    ['sign', 'verify'],
+  )
+}
+
+function bufToHex(buf: ArrayBuffer): string {
+  return Array.from(new Uint8Array(buf))
+    .map((b) => b.toString(16).padStart(2, '0'))
+    .join('')
+}
+
+async function sign(payload: string): Promise<string> {
+  const secret = process.env.SESSION_SECRET || 'dev-session-secret'
+  const key = await getHmacKey(secret)
+  const sig = await crypto.subtle.sign('HMAC', key, new TextEncoder().encode(payload))
+  return bufToHex(sig)
+}
+
+async function verifySessionValue(value: string | undefined): Promise<string | null> {
+  if (!value) return null
+  const lastDot = value.lastIndexOf('.')
+  if (lastDot <= 0) return null
+
+  const payload = value.slice(0, lastDot)
+  const signature = value.slice(lastDot + 1)
+  const expected = await sign(payload)
+
+  // Constant-time comparison
+  if (signature.length !== expected.length) return null
+  let diff = 0
+  for (let i = 0; i < signature.length; i++) {
+    diff |= signature.charCodeAt(i) ^ expected.charCodeAt(i)
+  }
+  return diff === 0 ? payload : null
+}
+
+async function createSessionValue(payload: string): Promise<string> {
+  return `${payload}.${await sign(payload)}`
+}
+
+export async function middleware(request: NextRequest) {
   const { pathname } = request.nextUrl
 
-  // 生成 CSP nonce（每次请求唯一）
-  const nonce = randomBytes(16).toString('base64')
+  // Edge-compatible nonce via Web Crypto
+  const nonceBytes = crypto.getRandomValues(new Uint8Array(16))
+  const nonce = btoa(String.fromCharCode(...nonceBytes))
 
-  // CSP with nonce — replaces unsafe-inline for scripts
   const csp = [
     "default-src 'self'",
     `script-src 'self' 'nonce-${nonce}' https://challenges.cloudflare.com`,
@@ -27,7 +71,6 @@ export function middleware(request: NextRequest) {
     "form-action 'self'",
   ].join('; ')
 
-  // 所有请求都注入 x-pathname 和 x-nonce，供根 layout 读取
   const requestHeaders = new Headers(request.headers)
   requestHeaders.set('x-pathname', pathname)
   requestHeaders.set('x-nonce', nonce)
@@ -45,17 +88,16 @@ export function middleware(request: NextRequest) {
   }
 
   const value = request.cookies.get(COOKIE_NAME)?.value
-  const payload = verifySessionValue(value)
+  const payload = await verifySessionValue(value)
 
   if (!payload) {
     const loginUrl = new URL('/admin/login', request.url)
     return NextResponse.redirect(loginUrl)
   }
 
-  // 刷新 cookie 有效期（滑动窗口）
   const response = NextResponse.next({ request: { headers: requestHeaders } })
   response.headers.set('Content-Security-Policy', csp)
-  response.cookies.set(COOKIE_NAME, createSessionValue(payload), {
+  response.cookies.set(COOKIE_NAME, await createSessionValue(payload), {
     httpOnly: true,
     sameSite: 'lax',
     secure: process.env.NODE_ENV === 'production',
@@ -68,7 +110,6 @@ export function middleware(request: NextRequest) {
 
 export const config = {
   matcher: [
-    // 匹配所有路径，排除静态资源和 Next.js 内部路径
     '/((?!_next/static|_next/image|favicon.ico|uploads/).*)',
   ],
 }
