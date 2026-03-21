@@ -171,6 +171,7 @@ export default async function ServiceDetailPage({ params }: Props) {
                 fill
                 priority
                 className="object-cover"
+                unoptimized={service.coverImage.filePath.startsWith('/uploads/')}
               />
             </div>
           )}

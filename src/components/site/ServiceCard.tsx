@@ -43,6 +43,7 @@ export function ServiceCard({
             fill
             loading="lazy"
             className="object-cover"
+            unoptimized={coverImageUrl.startsWith('/uploads/')}
           />
           {featured ? (
             <div className="absolute top-3 right-3 inline-flex items-center gap-1.5 rounded-full border border-amber-200 bg-amber-50 px-3 py-1 font-sans text-xs font-semibold uppercase tracking-[0.18em] text-amber-800">

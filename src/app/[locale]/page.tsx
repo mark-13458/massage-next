@@ -150,6 +150,7 @@ export default async function LocaleHome({ params }: { params: Promise<{ locale:
               currency={settings?.currency || 'EUR'}
               locale={typedLocale}
               slug={service.slug}
+              coverImageUrl={service.coverImageFilePath}
             />
           ))}
           {services.length === 0 && (
