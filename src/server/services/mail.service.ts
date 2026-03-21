@@ -1,5 +1,5 @@
 import { Appointment, Service } from '@prisma/client'
-import { createMailTransport } from '../../lib/mail'
+import { createMailTransportAsync } from '../../lib/mail'
 import { env } from '../../lib/env'
 import { escapeHtml } from '../../lib/utils'
 
@@ -28,16 +28,16 @@ function getFormattedDate(date: Date, locale: string) {
 
 // 通用邮件发送器
 async function sendEmail(to: string, subject: string, html: string) {
-  const transport = createMailTransport()
-  
-  if (!transport) {
+  const result = await createMailTransportAsync()
+
+  if (!result) {
     console.warn('⚠️ SMTP not configured, skipping email send')
     return false
   }
 
   try {
-    await transport.sendMail({
-      from: `"${env.siteName || 'Massage Service'}" <${env.smtp.user}>`,
+    await result.transport.sendMail({
+      from: `"${env.siteName || 'Massage Service'}" <${result.from}>`,
       to,
       subject,
       html,
@@ -47,6 +47,19 @@ async function sendEmail(to: string, subject: string, html: string) {
     console.error(`❌ Failed to send email to ${to}:`, error)
     return false
   }
+}
+
+/** Resolve merchant notification address: DB adminEmail > env.adminEmail > env.smtp.user */
+async function resolveMerchantEmail(): Promise<string | null> {
+  try {
+    const { prisma } = await import('../../lib/prisma')
+    const setting = await prisma.siteSetting.findUnique({ where: { key: 'adminSystemSettings' } })
+    const v = setting?.value as Record<string, unknown> | null | undefined
+    if (v && typeof v.adminEmail === 'string' && v.adminEmail.trim()) {
+      return v.adminEmail.trim()
+    }
+  } catch { /* fall through */ }
+  return env.adminEmail || env.smtp.user || null
 }
 
 // 商家通知：收到新预约
@@ -87,7 +100,7 @@ export async function sendMerchantBookingNotification(booking: BookingWithServic
     </div>
   `
 
-  const to = env.adminEmail || env.smtp.user
+  const to = await resolveMerchantEmail()
   if (!to) {
     console.warn('⚠️ No admin email configured, skipping merchant notification')
     return false

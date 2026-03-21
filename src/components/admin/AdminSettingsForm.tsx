@@ -82,6 +82,9 @@ export function AdminSettingsForm({ lang, initialSettings }: { lang: AdminLang; 
   const [messageTone, setMessageTone] = useState<NoticeTone>('success')
   const [isPending, startTransition] = useTransition()
   const [testEmailPending, setTestEmailPending] = useState(false)
+  const [testEmailTo, setTestEmailTo] = useState('')
+  const [testEmailMsg, setTestEmailMsg] = useState('')
+  const [testEmailTone, setTestEmailTone] = useState<NoticeTone>('success')
   const [cleanupPending, setCleanupPending] = useState(false)
 
   function save() {
@@ -103,15 +106,19 @@ export function AdminSettingsForm({ lang, initialSettings }: { lang: AdminLang; 
   }
 
   async function sendTestEmail() {
-    setMessage('')
+    setTestEmailMsg('')
     setTestEmailPending(true)
     try {
-      await adminRequest('/api/admin/settings/test-email', { method: 'POST' })
-      setMessage(t(lang, '测试邮件已发送，请查收', 'Test email sent, please check inbox'))
-      setMessageTone('success')
+      const res = await adminRequest<{ message?: string }>('/api/admin/settings/test-email', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ to: testEmailTo.trim() || undefined }),
+      })
+      setTestEmailMsg(res?.message || t(lang, '测试邮件已发送，请查收', 'Test email sent, please check inbox'))
+      setTestEmailTone('success')
     } catch (error) {
-      setMessage(error instanceof Error ? error.message : t(lang, '发送测试邮件失败', 'Failed to send test email'))
-      setMessageTone('error')
+      setTestEmailMsg(error instanceof Error ? error.message : t(lang, '发送测试邮件失败', 'Failed to send test email'))
+      setTestEmailTone('error')
     } finally {
       setTestEmailPending(false)
     }
@@ -328,6 +335,27 @@ export function AdminSettingsForm({ lang, initialSettings }: { lang: AdminLang; 
             {t(lang, '使用 SSL/TLS（端口 465）', 'Use SSL/TLS (port 465)')}
           </label>
         </div>
+        <div className="mt-4 flex flex-wrap items-end gap-3 border-t border-stone-100 pt-4">
+          <label className="flex flex-col gap-2 text-sm text-stone-700">
+            <span>{t(lang, '测试收件地址（留空则发到管理员邮箱）', 'Test recipient (leave blank to send to admin email)')}</span>
+            <input
+              type="email"
+              value={testEmailTo}
+              onChange={(e) => setTestEmailTo(e.target.value)}
+              placeholder={t(lang, '例如：you@example.com', 'e.g. you@example.com')}
+              className="w-72 rounded-2xl border border-stone-200 px-4 py-2.5 text-sm outline-none focus:border-amber-500"
+            />
+          </label>
+          <button
+            type="button"
+            onClick={sendTestEmail}
+            disabled={testEmailPending}
+            className="rounded-full border border-amber-400 px-4 py-2.5 text-sm font-medium text-amber-700 transition hover:bg-amber-50 disabled:opacity-50"
+          >
+            {testEmailPending ? t(lang, '发送中…', 'Sending...') : t(lang, '发送测试邮件', 'Send test email')}
+          </button>
+          {testEmailMsg ? <NoticePill message={testEmailMsg} tone={testEmailTone} /> : null}
+        </div>
       </section>
 
       <section className="rounded-3xl border border-stone-200 bg-white p-5">
@@ -339,14 +367,6 @@ export function AdminSettingsForm({ lang, initialSettings }: { lang: AdminLang; 
           <label className="flex items-center gap-2 text-sm text-stone-700">
             <input type="checkbox" checked={form.featureEnableEmailReminders} onChange={(e) => setForm({ ...form, featureEnableEmailReminders: e.target.checked })} />
             {t(lang, '启用邮件提醒', 'Enable email reminders')}
-            <button 
-              type="button" 
-              onClick={sendTestEmail} 
-              disabled={testEmailPending} 
-              className="ml-2 text-xs text-amber-600 underline hover:text-amber-700 disabled:opacity-50"
-            >
-              {testEmailPending ? '...' : t(lang, '发送测试邮件', 'Send test email')}
-            </button>
           </label>
           <label className="flex items-center gap-2 text-sm text-stone-700">
             <input type="checkbox" checked={form.featureEnableBookingManage} onChange={(e) => setForm({ ...form, featureEnableBookingManage: e.target.checked })} />
