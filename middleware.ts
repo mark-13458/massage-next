@@ -54,17 +54,13 @@ async function createSessionValue(payload: string): Promise<string> {
 export async function middleware(request: NextRequest) {
   const { pathname } = request.nextUrl
 
-  // Edge-compatible nonce via Web Crypto
-  const nonceBytes = crypto.getRandomValues(new Uint8Array(16))
-  const nonce = btoa(String.fromCharCode(...nonceBytes))
-
   const csp = [
     "default-src 'self'",
-    `script-src 'self' 'nonce-${nonce}' https://challenges.cloudflare.com`,
+    `script-src 'self' 'unsafe-inline' https://challenges.cloudflare.com`,
     "style-src 'self' 'unsafe-inline'",
     "img-src 'self' data: blob: https://images.pexels.com https://*.pexels.com",
-    "font-src 'self'",
-    "frame-src https://www.google.com https://challenges.cloudflare.com",
+    "font-src 'self' https://fonts.gstatic.com",
+    "frame-src https://www.google.com https://maps.google.com https://challenges.cloudflare.com",
     "connect-src 'self' https://challenges.cloudflare.com",
     "object-src 'none'",
     "base-uri 'self'",
@@ -73,7 +69,6 @@ export async function middleware(request: NextRequest) {
 
   const requestHeaders = new Headers(request.headers)
   requestHeaders.set('x-pathname', pathname)
-  requestHeaders.set('x-nonce', nonce)
 
   if (!pathname.startsWith('/admin')) {
     const res = NextResponse.next({ request: { headers: requestHeaders } })
