@@ -16,6 +16,7 @@ import { createPageMetadata, getBaseUrl } from '../../lib/seo'
 import { buildLocalBusinessJsonLd, buildWebSiteJsonLd, buildFaqPageJsonLd } from '../../lib/structured-data'
 import {
   getActiveFaqs,
+  getActiveGallery,
   getActiveServices,
   getBusinessHours,
   getContactSettings,
@@ -23,7 +24,7 @@ import {
   getSystemSettings,
 } from '../../server/services/site.service'
 
-const homeGallery = [
+const FALLBACK_GALLERY = [
   'https://images.pexels.com/photos/6621462/pexels-photo-6621462.jpeg?auto=compress&cs=tinysrgb&w=1200',
   'https://images.pexels.com/photos/3738348/pexels-photo-3738348.jpeg?auto=compress&cs=tinysrgb&w=1200',
   'https://images.pexels.com/photos/3997989/pexels-photo-3997989.jpeg?auto=compress&cs=tinysrgb&w=1200',
@@ -70,13 +71,23 @@ export default async function LocaleHome({ params }: { params: Promise<{ locale:
   }
 
   const t = getMessages(typedLocale)
-  const [services, testimonials, faqs, hours, contact] = await Promise.all([
+  const [services, testimonials, faqs, hours, contact, gallery] = await Promise.all([
     getActiveServices(typedLocale).catch(() => []),
     getPublishedTestimonials(typedLocale).catch(() => []),
     getActiveFaqs(typedLocale).catch(() => []),
     getBusinessHours(typedLocale).catch(() => []),
     getContactSettings().catch(() => null),
+    getActiveGallery(typedLocale).catch(() => []),
   ])
+
+  // 优先取封面图，不足 3 张用其余启用图补充，再不足用 Pexels 兜底
+  const coverImages = gallery.filter((g) => g.isCover)
+  const otherImages = gallery.filter((g) => !g.isCover)
+  const galleryPool = [...coverImages, ...otherImages].slice(0, 3)
+  const homeGallery: Array<{ src: string; alt: string }> = [
+    ...galleryPool.map((g) => ({ src: g.imageUrl, alt: g.alt || (typedLocale === 'de' ? 'Studio-Atmosphäre' : 'Studio atmosphere') })),
+    ...FALLBACK_GALLERY.slice(galleryPool.length).map((src) => ({ src, alt: typedLocale === 'de' ? 'Studio-Atmosphäre' : 'Studio atmosphere' })),
+  ]
 
   const baseUrl = getBaseUrl().toString().replace(/\/$/, '')
 
@@ -180,17 +191,18 @@ export default async function LocaleHome({ params }: { params: Promise<{ locale:
         <div className="grid gap-5 md:grid-cols-3">
           {homeGallery.map((image, index) => (
             <div
-              key={image}
+              key={image.src}
               className={`group overflow-hidden rounded-[2rem] border border-stone-200 bg-white shadow-card transition-all duration-500 hover:shadow-card-hover ${index === 1 ? 'md:translate-y-8' : ''}`}
             >
               <div className="relative aspect-[4/5] w-full overflow-hidden">
                 <Image
-                  src={image}
-                  alt={typedLocale === 'de' ? 'Studio-Atmosphäre' : 'Studio atmosphere'}
+                  src={image.src}
+                  alt={image.alt}
                   fill
                   sizes="(max-width: 768px) 100vw, 33vw"
                   className="object-cover transition-transform duration-700 group-hover:scale-105"
                   loading="lazy"
+                  unoptimized={image.src.startsWith('/uploads/')}
                 />
                 <div className="absolute inset-0 bg-gradient-to-t from-stone-950/30 to-transparent opacity-0 transition-opacity duration-300 group-hover:opacity-100" />
               </div>
