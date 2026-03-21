@@ -119,29 +119,49 @@ export function BookingForm({ locale, services, contact, hours = [], currency = 
   const currencySymbol = currency === 'EUR' ? '€' : currency
 
   useEffect(() => {
-    if (!turnstile?.enabled || !turnstile.siteKey || !widgetReady || !window.turnstile) return
+    if (!turnstile?.enabled || !turnstile.siteKey) return
     if (widgetId) return
 
-    const container = document.getElementById('turnstile-widget')
-    if (!container) return
-    container.innerHTML = ''
+    function tryRender() {
+      if (!window.turnstile) return false
+      const container = document.getElementById('turnstile-widget')
+      if (!container) return false
+      container.innerHTML = ''
+      const id = window.turnstile.render(container, {
+        sitekey: turnstile!.siteKey,
+        callback: (token: string) => setTurnstileToken(token),
+        'expired-callback': () => setTurnstileToken(''),
+        'error-callback': () => setTurnstileToken(''),
+        theme: 'light',
+      })
+      setWidgetId(id)
+      setWidgetReady(true)
+      return true
+    }
 
-    const id = window.turnstile.render(container, {
-      sitekey: turnstile.siteKey,
-      callback: (token: string) => setTurnstileToken(token),
-      'expired-callback': () => setTurnstileToken(''),
-      'error-callback': () => setTurnstileToken(''),
-      theme: 'light',
-    })
+    // 如果脚本已加载（缓存命中时 onLoad 不触发），直接渲染
+    if (tryRender()) return
 
-    setWidgetId(id)
+    // 否则轮询等待脚本就绪（最多 10 秒）
+    const timer = setInterval(() => {
+      if (tryRender()) clearInterval(timer)
+    }, 200)
+    const timeout = setTimeout(() => clearInterval(timer), 10000)
 
     return () => {
-      try {
-        if (id && window.turnstile) window.turnstile.remove(id)
-      } catch {}
+      clearInterval(timer)
+      clearTimeout(timeout)
     }
-  }, [turnstile?.enabled, turnstile?.siteKey, widgetReady, widgetId])
+  }, [turnstile?.enabled, turnstile?.siteKey, widgetId])
+
+  // 组件卸载时清理 widget
+  useEffect(() => {
+    return () => {
+      if (widgetId && window.turnstile) {
+        try { window.turnstile.remove(widgetId) } catch {}
+      }
+    }
+  }, [widgetId])
 
   async function onSubmit(formData: FormData) {
     setStatus('submitting')
@@ -207,7 +227,6 @@ export function BookingForm({ locale, services, contact, hours = [], currency = 
         <Script
           src="https://challenges.cloudflare.com/turnstile/v0/api.js?render=explicit"
           strategy="afterInteractive"
-          onLoad={() => setWidgetReady(true)}
         />
       ) : null}
 
