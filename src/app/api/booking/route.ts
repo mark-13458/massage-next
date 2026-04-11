@@ -43,16 +43,16 @@ export async function POST(request: NextRequest) {
     const booking = await createBooking(parsed.data, { ipAddress: remoteip ?? undefined })
 
     // Send notification emails (fire and forget to not block response)
-    import('../../../server/services/mail.service').then(({ sendMerchantBookingNotification, sendCustomerReceivedEmail }) => {
+    import('../../../server/services/mail.service').then(({ sendMerchantBookingNotification, sendCustomerConfirmationEmail }) => {
       // 1. Notify merchant (Always sent unless SMTP is missing)
-      sendMerchantBookingNotification(booking).catch(err => 
+      sendMerchantBookingNotification(booking).catch(err =>
         console.error('Failed to send async merchant notification email:', err)
       )
 
-      // 2. Notify customer (Received / Pending) - Checked against feature flag
+      // 2. Notify customer (Confirmed) - Checked against feature flag
       if (booking.customerEmail && systemSettings?.featureEnableEmailReminders !== false) {
-        sendCustomerReceivedEmail(booking).catch(err => 
-          console.error('Failed to send async customer received email:', err)
+        sendCustomerConfirmationEmail(booking).catch(err =>
+          console.error('Failed to send async customer confirmation email:', err)
         )
       }
     })

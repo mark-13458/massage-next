@@ -126,8 +126,8 @@ export async function PATCH(
       data: {
         appointmentDate: new Date(appointmentDate),
         appointmentTime,
-        status: 'PENDING',
-        confirmedAt: null,
+        status: 'CONFIRMED',
+        confirmedAt: new Date(),
         internalNote: notes ? `[客户改约] ${notes}` : '[客户通过链接改约]',
       },
       include: { service: true },
