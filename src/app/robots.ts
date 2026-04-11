@@ -1,8 +1,19 @@
 import type { MetadataRoute } from 'next'
+import { headers } from 'next/headers'
 
-const appUrl = (process.env.APP_URL ?? 'http://localhost:3000').replace(/\/$/, '')
+async function getBaseUrl() {
+  const h = await headers()
+  const host = h.get('x-forwarded-host') || h.get('host') || 'localhost:3000'
+  const proto = h.get('x-forwarded-proto') || 'https'
+  const envUrl = process.env.APP_URL
+  if (envUrl && envUrl !== 'http://localhost' && envUrl !== 'http://localhost:3000') {
+    return envUrl.replace(/\/$/, '')
+  }
+  return `${proto}://${host}`.replace(/\/$/, '')
+}
 
-export default function robots(): MetadataRoute.Robots {
+export default async function robots(): Promise<MetadataRoute.Robots> {
+  const appUrl = await getBaseUrl()
   return {
     rules: [
       {
