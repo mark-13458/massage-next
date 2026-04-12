@@ -163,16 +163,52 @@ body {
   }
 }
 
+/* ── Blog article: body ── */
+.article-body {
+  font-size: 1.125rem;
+  line-height: 1.8;
+}
+.article-body h2 {
+  @apply font-serif text-2xl font-semibold text-brown-900 mt-10 mb-4;
+  line-height: 1.3;
+}
+.article-body h3 {
+  @apply font-serif text-xl font-semibold text-brown-900 mt-8 mb-3;
+  line-height: 1.4;
+}
+.article-body p {
+  @apply text-brown-700 mb-5;
+  line-height: 1.8;
+}
+.article-body ul, .article-body ol {
+  @apply mb-5 pl-6 text-brown-700;
+}
+.article-body li {
+  @apply mb-2;
+}
+.article-body a {
+  @apply text-amber-700 font-medium;
+}
+.article-body a:hover {
+  @apply underline;
+}
+.article-body strong {
+  @apply text-brown-900 font-semibold;
+}
+.article-body blockquote {
+  @apply border-l-4 border-amber-300 pl-5 italic text-brown-600 my-6;
+}
+
 /* ── Blog article: inline images ── */
 .article-image {
-  @apply my-8 overflow-hidden rounded-2xl;
+  @apply my-8 overflow-hidden rounded-2xl shadow-sm;
 }
 .article-image img {
   @apply w-full object-cover;
   aspect-ratio: 16 / 9;
 }
 .article-image figcaption {
-  @apply px-4 py-2 text-xs text-stone-400 text-center;
+  @apply px-4 py-2.5 text-xs text-stone-400 text-center bg-stone-50;
 }
 
 /* ── Blog article: CTA block ── */
@@ -183,13 +219,13 @@ body {
   @apply font-serif text-xl font-semibold text-brown-900 mb-3;
 }
 .article-cta p {
-  @apply text-sm text-brown-600 mb-3;
+  @apply text-sm text-brown-600 mb-3 leading-relaxed;
 }
 .article-cta .cta-button {
   @apply inline-flex items-center justify-center rounded-full bg-brown-900 px-8 py-3
          text-sm font-semibold text-white transition-all duration-200
          hover:-translate-y-0.5 hover:bg-brown-800 hover:shadow-md
-         mb-4;
+         mb-4 no-underline;
 }
 
 /* ── Admin login: override browser autofill styles ── */

@@ -31,6 +31,11 @@ export function createPageMetadata({
   description,
   titleTemplate,
   siteNameOverride,
+  imageUrl,
+  imageAlt,
+  ogType,
+  articleMeta,
+  keywords,
 }: {
   locale: Locale
   pathname: string
@@ -38,6 +43,20 @@ export function createPageMetadata({
   description?: string
   titleTemplate?: string
   siteNameOverride?: string
+  /** Override OG/Twitter image (e.g. article cover) */
+  imageUrl?: string | null
+  imageAlt?: string
+  /** OG type — defaults to 'website', use 'article' for blog posts */
+  ogType?: 'website' | 'article'
+  /** Article-specific OG metadata */
+  articleMeta?: {
+    publishedTime?: string | null
+    modifiedTime?: string | null
+    section?: string
+    tags?: string[]
+  }
+  /** Page-level keywords for meta tag */
+  keywords?: string | null
 }): Metadata {
   const pageTitle = title ?? defaultTitle[locale]
   const pageDescription = description ?? defaultDescription[locale]
@@ -49,7 +68,10 @@ export function createPageMetadata({
   const base = getBaseUrl().toString().replace(/\/$/, '')
   const normalized = normalizePathname(pathname)
 
-  return {
+  const ogImageUrl = imageUrl || `${base}/og-image.jpg`
+  const ogImageAlt = imageAlt || resolvedSiteName
+
+  const metadata: Metadata = {
     title: resolvedTitle,
     description: pageDescription,
     alternates: {
@@ -67,13 +89,13 @@ export function createPageMetadata({
       siteName: resolvedSiteName,
       locale: locale === 'de' ? 'de_DE' : 'en_US',
       alternateLocale: locale === 'de' ? 'en_US' : 'de_DE',
-      type: 'website',
+      type: ogType || 'website',
       images: [
         {
-          url: `${base}/og-image.jpg`,
+          url: ogImageUrl,
           width: 1200,
           height: 630,
-          alt: resolvedSiteName,
+          alt: ogImageAlt,
         },
       ],
     },
@@ -81,9 +103,25 @@ export function createPageMetadata({
       card: 'summary_large_image',
       title: resolvedTitle,
       description: pageDescription,
-      images: [`${base}/og-image.jpg`],
+      images: [ogImageUrl],
     },
   }
+
+  // Article-specific OG tags
+  if (ogType === 'article' && articleMeta) {
+    const og = metadata.openGraph as Record<string, unknown>
+    if (articleMeta.publishedTime) og.publishedTime = articleMeta.publishedTime
+    if (articleMeta.modifiedTime) og.modifiedTime = articleMeta.modifiedTime
+    if (articleMeta.section) og.section = articleMeta.section
+    if (articleMeta.tags?.length) og.tags = articleMeta.tags
+  }
+
+  // Keywords meta tag
+  if (keywords) {
+    metadata.keywords = keywords
+  }
+
+  return metadata
 }
 
 export const defaultSiteMetadata: Metadata = {

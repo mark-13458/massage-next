@@ -210,81 +210,117 @@ function buildArticlePrompt(
   services: { slug: string; name: string; summary: string | null }[],
   contact: { phone: string | null; email: string | null; address: string | null } | null,
 ): string {
+  const loc = locale === 'en' ? 'en' : 'de'
   const serviceLinks = services
     .slice(0, 6)
-    .map((s) => `- <a href="/${locale === 'en' ? 'en' : 'de'}/services/${s.slug}">${s.name}</a>: ${s.summary || ''}`)
+    .map((s) => `- <a href="/${loc}/services/${s.slug}">${s.name}</a>: ${s.summary || ''}`)
     .join('\n')
 
-  const bookingUrl = `/${locale === 'en' ? 'en' : 'de'}/booking`
+  const bookingUrl = `/${loc}/booking`
   const phone = contact?.phone || ''
   const address = contact?.address || ''
 
-  return `You are an expert SEO content writer for a Traditional Chinese Medicine (TCM) massage clinic in Munich, Germany.
+  return `You are a senior health & wellness content strategist writing for China TCM Massage, a Traditional Chinese Medicine massage studio in Munich, Germany. The website serves German and English-speaking audiences.
 
-Write a bilingual blog article (German and English) targeting the keyword: "${keyword}"
+Your task: create a **high-quality, genuinely informative** bilingual blog article for the keyword "${keyword}".
 
-## Requirements
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+CONTENT QUALITY REQUIREMENTS (most important)
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 
-### Structure
-- Title: Include the main keyword, under 60 characters
-- Meta description: Include keyword, under 155 characters
-- Body: 800-1500 words per language, well-structured with H2/H3 headings
-- Keyword density: 1-2% for the target keyword
-- Include a brief summary (2-3 sentences) for each language
-- Write at least 6-8 paragraphs with clear H2 section headings
+1. **Provide real value**: Write as if educating a patient. Include specific, actionable health information — not generic filler. Reference TCM principles (qi, meridians, acupressure points) where relevant, but explain them accessibly.
 
-### Internal Links
-Naturally embed these service page links within the article content where relevant:
+2. **Original perspective**: Don't just rewrite what every other massage website says. Add unique angles:
+   - Compare TCM approaches with Western physiotherapy perspectives
+   - Include practical self-care tips readers can try at home
+   - Mention specific conditions or symptoms and how TCM massage addresses them
+   - Reference scientific studies or TCM literature when applicable
+
+3. **Reader-first writing**:
+   - Use concrete examples and scenarios ("If you sit at a desk for 8 hours...")
+   - Address common misconceptions
+   - Provide clear, structured information with logical flow
+   - Each paragraph should advance the reader's understanding
+
+4. **Natural, fluent language**:
+   - German text must read as native German, NOT translated. Use natural collocations, German medical terminology (Verspannungen, Beschwerden, Wohlbefinden), and conversational-professional tone.
+   - English should be equally polished and natural.
+   - Avoid AI-sounding phrases like "In today's fast-paced world", "In conclusion", "It's important to note", "Furthermore".
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+ARTICLE STRUCTURE
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+- **Title**: Include the keyword naturally, max 60 characters. Make it compelling — not just keyword stuffing.
+- **Summary**: 2-3 sentences capturing the article's value proposition.
+- **Body**: 1000-1800 words per language. Use this structure:
+  - Opening paragraph: Hook the reader with a relatable scenario or surprising fact. Include the keyword naturally.
+  - 4-6 H2 sections, each with 2-4 paragraphs. Use descriptive H2 headings (not just the keyword repeated). Include H3 sub-sections where content warrants it.
+  - Closing section: Summarize key takeaways before the CTA.
+- **HTML**: Use only <h2>, <h3>, <p>, <ul>/<ol>/<li>, <strong>, <blockquote>, <a> tags. No <div> in body content except the CTA block at the end.
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+SEO REQUIREMENTS
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+- **Keyword placement**: In title, first paragraph, at least one H2, meta description, and naturally throughout (1-2% density).
+- **LSI keywords**: Include 5-8 semantically related terms naturally (e.g., for "Rückenmassage" include Wirbelsäule, Muskulatur, Verspannungen, Schmerzlinderung, etc.)
+- **Meta description**: Compelling, includes keyword, 120-155 characters. Write it like an ad — make people want to click.
+- **SEO title**: Include keyword + location/brand, max 60 chars.
+- **Internal links**: Naturally reference 2-3 of these service pages within the text where contextually relevant:
 ${serviceLinks}
 
-### CTA Section
-End each language version with a CTA block using this exact HTML structure:
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+CTA BLOCK
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 
-For German:
+End EACH language version with this exact CTA HTML:
+
+German:
 <div class="article-cta">
   <h3>Jetzt Termin vereinbaren</h3>
-  <p>Erleben Sie die wohltuende Wirkung einer professionellen TCM-Massage. Unsere erfahrenen Therapeuten beraten Sie gerne.</p>
+  <p>Erleben Sie die wohltuende Wirkung einer professionellen TCM-Massage in München. Unsere erfahrenen Therapeuten beraten Sie gerne persönlich.</p>
   <a href="${bookingUrl}" class="cta-button">Termin buchen</a>
   ${phone ? `<p>📞 Tel: ${phone}</p>` : ''}
   ${address ? `<p>📍 ${address}</p>` : ''}
 </div>
 
-For English:
+English:
 <div class="article-cta">
   <h3>Book Your Appointment Now</h3>
-  <p>Experience the healing benefits of professional TCM massage. Our experienced therapists are here to help you.</p>
+  <p>Experience the healing benefits of professional TCM massage in Munich. Our experienced therapists provide personalized consultations.</p>
   <a href="${bookingUrl}" class="cta-button">Book Appointment</a>
   ${phone ? `<p>📞 Tel: ${phone}</p>` : ''}
   ${address ? `<p>📍 ${address}</p>` : ''}
 </div>
 
-### SEO Best Practices
-- Use the keyword in the first paragraph
-- Include related LSI keywords naturally
-- Use descriptive H2/H3 headings that include keyword variations
-- Write in a professional but approachable tone
-- German should be native-quality, not translated
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+URL SLUG
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 
-### URL Slug
-Generate a URL-friendly slug from the German title (lowercase, hyphens, no umlauts — use ae/oe/ue instead).
+Generate from the German title: lowercase, hyphens, replace ä→ae, ö→oe, ü→ue, ß→ss. Max 60 chars.
 
-## Output Format
-Return ONLY valid JSON (no markdown code fences, no extra text):
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+OUTPUT FORMAT
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+Return ONLY valid JSON. No markdown fences. No text before or after the JSON object.
+
 {
-  "titleDe": "German title",
-  "titleEn": "English title",
-  "summaryDe": "German summary (2-3 sentences)",
-  "summaryEn": "English summary (2-3 sentences)",
-  "contentDe": "Full German HTML content with headings, paragraphs, links, and CTA",
-  "contentEn": "Full English HTML content with headings, paragraphs, links, and CTA",
-  "seoTitleDe": "German SEO title (max 60 chars)",
-  "seoTitleEn": "English SEO title (max 60 chars)",
-  "seoDescriptionDe": "German meta description (max 155 chars)",
-  "seoDescriptionEn": "English meta description (max 155 chars)",
-  "seoKeywordsDe": "keyword1, keyword2, keyword3",
-  "seoKeywordsEn": "keyword1, keyword2, keyword3",
-  "suggestedTags": ["tag-slug-1", "tag-slug-2", "tag-slug-3"],
-  "slug": "url-friendly-slug"
+  "titleDe": "German title (max 60 chars, include keyword)",
+  "titleEn": "English title (max 60 chars)",
+  "summaryDe": "German summary 2-3 sentences",
+  "summaryEn": "English summary 2-3 sentences",
+  "contentDe": "Full German HTML — H2/H3 sections, paragraphs, internal links, CTA block at end",
+  "contentEn": "Full English HTML — same structure",
+  "seoTitleDe": "German SEO title | China TCM Massage München (max 60 chars)",
+  "seoTitleEn": "English SEO title | China TCM Massage Munich (max 60 chars)",
+  "seoDescriptionDe": "German meta description 120-155 chars, compelling, includes keyword",
+  "seoDescriptionEn": "English meta description 120-155 chars",
+  "seoKeywordsDe": "hauptkeyword, verwandtes-keyword-1, verwandtes-keyword-2, ...",
+  "seoKeywordsEn": "main-keyword, related-keyword-1, related-keyword-2, ...",
+  "suggestedTags": ["slug-1", "slug-2", "slug-3"],
+  "slug": "seo-friendly-slug-from-german-title"
 }`
 }
 
