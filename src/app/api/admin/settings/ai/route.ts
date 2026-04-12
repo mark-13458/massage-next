@@ -28,6 +28,10 @@ export async function GET() {
     const key = value.apiKey
     value.apiKey = key.slice(0, 4) + '****' + key.slice(-4)
   }
+  if (value && typeof value.pexelsApiKey === 'string' && value.pexelsApiKey.length > 8) {
+    const key = value.pexelsApiKey as string
+    value.pexelsApiKey = key.slice(0, 4) + '****' + key.slice(-4)
+  }
 
   return apiOk({ value: value ?? null })
 }
@@ -65,6 +69,11 @@ export async function PATCH(request: NextRequest) {
 
     if (typeof json.model === 'string') {
       merged.model = json.model
+    }
+
+    // Pexels API Key
+    if (typeof json.pexelsApiKey === 'string' && !json.pexelsApiKey.includes('****')) {
+      merged.pexelsApiKey = json.pexelsApiKey
     }
 
     await prisma.siteSetting.upsert({

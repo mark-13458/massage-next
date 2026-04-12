@@ -163,6 +163,35 @@ body {
   }
 }
 
+/* ── Blog article: inline images ── */
+.article-image {
+  @apply my-8 overflow-hidden rounded-2xl;
+}
+.article-image img {
+  @apply w-full object-cover;
+  aspect-ratio: 16 / 9;
+}
+.article-image figcaption {
+  @apply px-4 py-2 text-xs text-stone-400 text-center;
+}
+
+/* ── Blog article: CTA block ── */
+.article-cta {
+  @apply mt-10 rounded-[2rem] border border-amber-200 bg-amber-50 p-8 text-center;
+}
+.article-cta h3 {
+  @apply font-serif text-xl font-semibold text-brown-900 mb-3;
+}
+.article-cta p {
+  @apply text-sm text-brown-600 mb-3;
+}
+.article-cta .cta-button {
+  @apply inline-flex items-center justify-center rounded-full bg-brown-900 px-8 py-3
+         text-sm font-semibold text-white transition-all duration-200
+         hover:-translate-y-0.5 hover:bg-brown-800 hover:shadow-md
+         mb-4;
+}
+
 /* ── Admin login: override browser autofill styles ── */
 .admin-input:-webkit-autofill,
 .admin-input:-webkit-autofill:hover,

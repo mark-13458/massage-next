@@ -7,6 +7,7 @@ type AISettingsData = {
   provider: string
   apiKey: string
   model: string
+  pexelsApiKey: string
 }
 
 const PROVIDER_OPTIONS = [
@@ -20,6 +21,7 @@ export function AISettingsForm({ lang }: { lang: 'zh' | 'en' }) {
   const [provider, setProvider] = useState('openrouter')
   const [apiKey, setApiKey] = useState('')
   const [model, setModel] = useState('')
+  const [pexelsApiKey, setPexelsApiKey] = useState('')
   const [saving, setSaving] = useState(false)
   const [testing, setTesting] = useState(false)
   const [message, setMessage] = useState<{ type: 'success' | 'error'; text: string } | null>(null)
@@ -33,6 +35,7 @@ export function AISettingsForm({ lang }: { lang: 'zh' | 'en' }) {
           setProvider(v.provider || 'openrouter')
           setApiKey(v.apiKey || '')
           setModel(v.model || '')
+          setPexelsApiKey(v.pexelsApiKey || '')
         }
       })
       .catch(() => {})
@@ -45,7 +48,7 @@ export function AISettingsForm({ lang }: { lang: 'zh' | 'en' }) {
       await adminRequest('/api/admin/settings/ai', {
         method: 'PATCH',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ provider, apiKey, model }),
+        body: JSON.stringify({ provider, apiKey, model, pexelsApiKey }),
       })
       setMessage({ type: 'success', text: zh ? '保存成功' : 'Settings saved' })
     } catch (e) {
@@ -125,6 +128,24 @@ export function AISettingsForm({ lang }: { lang: 'zh' | 'en' }) {
         />
         <p className="mt-1 text-xs text-stone-400">
           {zh ? `留空使用默认: ${currentDefault}` : `Leave empty for default: ${currentDefault}`}
+        </p>
+      </div>
+
+      {/* Pexels API Key */}
+      <div>
+        <label className="mb-1 block text-sm font-medium text-stone-700">
+          Pexels API Key {' '}
+          <span className="font-normal text-stone-400">({zh ? '文章配图' : 'article images'})</span>
+        </label>
+        <input
+          type="password"
+          value={pexelsApiKey}
+          onChange={(e) => setPexelsApiKey(e.target.value)}
+          placeholder={zh ? '输入 Pexels API Key（免费申请）' : 'Enter Pexels API Key (free)'}
+          className="w-full rounded-xl border border-stone-300 px-3 py-2 text-sm focus:border-stone-500 focus:outline-none"
+        />
+        <p className="mt-1 text-xs text-stone-400">
+          {zh ? '用于自动搜索插入文章配图，免费申请：pexels.com/api' : 'Auto-search images for articles. Free at pexels.com/api'}
         </p>
       </div>
 

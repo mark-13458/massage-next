@@ -23,8 +23,14 @@ type GeneratedArticle = {
   slug: string
 }
 
+type PexelsPhoto = {
+  src: { large: string; medium: string }
+  alt: string
+  photographer: string
+}
+
 /**
- * 主入口：从关键词池取词 → AI 生成 → 存库 → 发布
+ * 主入口：从关键词池取词 → AI 生成 → 搜索配图 → 存库 → 发布
  * 返回生成的文章 ID，无关键词时返回 null
  */
 export async function generateArticleFromKeyword(): Promise<{ articleId: number; keyword: string } | null> {
@@ -53,10 +59,26 @@ export async function generateArticleFromKeyword(): Promise<{ articleId: number;
   // 6. 解析 JSON
   const article = parseArticleResponse(rawResponse)
 
-  // 7. 查找或创建标签
+  // 7. 搜索相关图片并插入正文
+  const pexelsKey = await getPexelsApiKey()
+  let coverImageUrl: string | null = null
+
+  if (pexelsKey) {
+    const photos = await searchPexelsPhotos(keyword.keyword, pexelsKey, 4)
+    if (photos.length > 0) {
+      // 第一张做封面
+      coverImageUrl = photos[0].src.large
+
+      // 把图片插入正文（每隔几段插一张）
+      article.contentDe = insertImagesIntoContent(article.contentDe, photos, 'de')
+      article.contentEn = insertImagesIntoContent(article.contentEn, photos, 'en')
+    }
+  }
+
+  // 8. 查找或创建标签
   const tagIds = await resolveTagIds(article.suggestedTags)
 
-  // 8. 保存文章
+  // 9. 保存文章
   const created = await prisma.article.create({
     data: {
       slug: article.slug || `article-${Date.now()}`,
@@ -72,6 +94,7 @@ export async function generateArticleFromKeyword(): Promise<{ articleId: number;
       seoDescriptionEn: article.seoDescriptionEn || null,
       seoKeywordsDe: article.seoKeywordsDe || null,
       seoKeywordsEn: article.seoKeywordsEn || null,
+      coverImageUrl,
       isPublished: true,
       publishedAt: new Date(),
       source: 'AI_GENERATED',
@@ -82,17 +105,103 @@ export async function generateArticleFromKeyword(): Promise<{ articleId: number;
     },
   })
 
-  // 9. 更新关键词状态为 USED
+  // 10. 更新关键词状态为 USED
   await prisma.keywordPool.update({
     where: { id: keyword.id },
     data: { status: 'USED', usedAt: new Date() },
   })
 
-  // 10. 清除缓存
+  // 11. 清除缓存
   revalidateTag(CACHE_TAGS.articles)
 
   return { articleId: created.id, keyword: keyword.keyword }
 }
+
+// ============================================================
+// Pexels 图片搜索
+// ============================================================
+
+/** 从 SiteSetting 读取 Pexels API Key */
+async function getPexelsApiKey(): Promise<string | null> {
+  try {
+    const setting = await prisma.siteSetting.findUnique({ where: { key: 'aiSettings' } })
+    if (!setting?.value) return null
+    const v = setting.value as Record<string, unknown>
+    return typeof v.pexelsApiKey === 'string' && v.pexelsApiKey ? v.pexelsApiKey : null
+  } catch {
+    return null
+  }
+}
+
+/** 搜索 Pexels 图片 */
+async function searchPexelsPhotos(query: string, apiKey: string, count: number): Promise<PexelsPhoto[]> {
+  try {
+    // 用英文搜索词效果更好，加上 massage/TCM 上下文
+    const searchQuery = `${query} massage wellness`
+    const url = `https://api.pexels.com/v1/search?query=${encodeURIComponent(searchQuery)}&per_page=${count}&orientation=landscape`
+
+    const res = await fetch(url, {
+      headers: { Authorization: apiKey },
+    })
+
+    if (!res.ok) {
+      console.error(`[Pexels] API error ${res.status}`)
+      return []
+    }
+
+    const data = await res.json()
+    return (data.photos || []).map((p: Record<string, unknown>) => ({
+      src: {
+        large: (p.src as Record<string, string>)?.large || '',
+        medium: (p.src as Record<string, string>)?.medium || '',
+      },
+      alt: typeof p.alt === 'string' ? p.alt : '',
+      photographer: typeof p.photographer === 'string' ? p.photographer : '',
+    }))
+  } catch (e) {
+    console.error('[Pexels] search error:', e)
+    return []
+  }
+}
+
+/** 将图片按间隔插入 HTML 正文 */
+function insertImagesIntoContent(html: string, photos: PexelsPhoto[], locale: string): string {
+  if (!html || photos.length === 0) return html
+
+  // 按 </h2> 或 </p> 拆分段落，找到合适的插入点
+  // 策略：在第 2 个和第 4 个 </p> 后各插入一张图（跳过第 1 张封面图）
+  const insertPhotos = photos.slice(1) // 跳过封面图
+  if (insertPhotos.length === 0) return html
+
+  let photoIndex = 0
+  let paragraphCount = 0
+  const insertAfterParagraphs = [2, 5, 8] // 在第 2、5、8 段后插图
+
+  const result = html.replace(/<\/p>/gi, (match) => {
+    paragraphCount++
+    if (insertAfterParagraphs.includes(paragraphCount) && photoIndex < insertPhotos.length) {
+      const photo = insertPhotos[photoIndex]
+      photoIndex++
+      const credit = locale === 'de' ? 'Foto von' : 'Photo by'
+      return `${match}
+<figure class="article-image">
+  <img src="${photo.src.large}" alt="${escapeHtml(photo.alt || 'Massage Wellness')}" loading="lazy" />
+  <figcaption>${credit} ${escapeHtml(photo.photographer)} / Pexels</figcaption>
+</figure>`
+    }
+    return match
+  })
+
+  return result
+}
+
+function escapeHtml(str: string): string {
+  return str.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;')
+}
+
+// ============================================================
+// Prompt & 解析
+// ============================================================
 
 /** 构建 SEO 优化的文章生成 prompt */
 function buildArticlePrompt(
@@ -122,6 +231,7 @@ Write a bilingual blog article (German and English) targeting the keyword: "${ke
 - Body: 800-1500 words per language, well-structured with H2/H3 headings
 - Keyword density: 1-2% for the target keyword
 - Include a brief summary (2-3 sentences) for each language
+- Write at least 6-8 paragraphs with clear H2 section headings
 
 ### Internal Links
 Naturally embed these service page links within the article content where relevant:
