@@ -12,15 +12,14 @@ export function GenerateArticleButton({ lang }: { lang: 'zh' | 'en' }) {
     setLoading(true)
     setResult(null)
     try {
-      const res = await fetch('/api/cron/generate-article', {
-        headers: { 'Authorization': `Bearer ${prompt(zh ? '请输入 CRON_SECRET' : 'Enter CRON_SECRET')}` },
-      })
-      const data = await res.json()
-      if (data.success) {
-        setResult({ success: true, text: data.message })
-        setTimeout(() => window.location.reload(), 1500)
+      const res = await fetch('/api/admin/articles/generate', { method: 'POST' })
+      const json = await res.json()
+      if (!res.ok) {
+        setResult({ success: false, text: json.error || 'Failed' })
       } else {
-        setResult({ success: false, text: data.error || 'Failed' })
+        const data = json.data
+        setResult({ success: true, text: data?.message || 'Done' })
+        setTimeout(() => window.location.reload(), 1500)
       }
     } catch (e) {
       setResult({ success: false, text: e instanceof Error ? e.message : 'Error' })
