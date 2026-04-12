@@ -1,5 +1,6 @@
 import { redirect } from 'next/navigation'
 import Link from 'next/link'
+import { AISettingsForm } from '../../../components/admin/AISettingsForm'
 import { AdminInfoList } from '../../../components/admin/AdminInfoList'
 import { AdminLogoForm } from '../../../components/admin/AdminLogoForm'
 import { AdminPasswordForm } from '../../../components/admin/AdminPasswordForm'
@@ -76,6 +77,14 @@ export default async function AdminSettingsPage() {
                 initialFaviconUrl={initialFaviconUrl}
                 lang={lang}
               />
+            </AdminSectionCard>
+
+            <AdminSectionCard
+              eyebrow={pick(lang, 'AI 文章生成', 'AI article generation')}
+              title={pick(lang, 'AI 提供商设置', 'AI provider settings')}
+              description={pick(lang, '配置 AI 服务商和 API 密钥，用于自动生成博客文章。支持 OpenRouter、Google Gemini 和 Claude。', 'Configure the AI provider and API key for automatic blog article generation. Supports OpenRouter, Google Gemini, and Claude.')}
+            >
+              <AISettingsForm lang={lang} />
             </AdminSectionCard>
           </div>
         }

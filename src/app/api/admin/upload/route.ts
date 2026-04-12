@@ -10,11 +10,12 @@ import { env } from '../../../../lib/env'
 
 const MAX_FILE_SIZE = 10 * 1024 * 1024
 const ALLOWED_IMAGE_TYPES = new Set(['image/jpeg', 'image/png', 'image/webp', 'image/gif', 'image/x-icon', 'image/vnd.microsoft.icon'])
-const ALLOWED_USAGES = new Set(['hero', 'gallery', 'service-cover', 'logo', 'favicon'])
+const ALLOWED_USAGES = new Set(['hero', 'gallery', 'service-cover', 'article-cover', 'logo', 'favicon'])
 const MIN_DIMENSIONS: Record<string, { width: number; height: number } | null> = {
   hero: { width: 1200, height: 600 },
   gallery: { width: 600, height: 400 },
   'service-cover': { width: 600, height: 400 },
+  'article-cover': { width: 600, height: 400 },
   logo: null,
   favicon: null,
 }
@@ -148,7 +149,7 @@ export async function POST(request: NextRequest) {
     }
 
     // For file-only usages (service-cover, logo, favicon): create File record and return it
-    if (usage === 'service-cover' || usage === 'logo' || usage === 'favicon') {
+    if (usage === 'service-cover' || usage === 'article-cover' || usage === 'logo' || usage === 'favicon') {
       const createdFile = await prisma.file.create({
         data: {
           originalFilename: file.name,

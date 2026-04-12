@@ -29,6 +29,7 @@ export async function SiteHeader({ locale }: { locale: Locale }) {
     { href: `/${locale}/about`, label: t.nav.about },
     { href: `/${locale}/gallery`, label: t.nav.gallery },
     { href: `/${locale}/contact`, label: t.nav.contact },
+    { href: `/${locale}/blog`, label: locale === 'de' ? 'Blog' : 'Blog' },
   ]
 
   return (

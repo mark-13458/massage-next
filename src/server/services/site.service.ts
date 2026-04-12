@@ -12,6 +12,7 @@ export const CACHE_TAGS = {
   hero: 'site-hero',
   gallery: 'site-gallery',
   settings: 'site-settings',
+  articles: 'site-articles',
 } as const
 
 export const getActiveServices = unstable_cache(
@@ -154,6 +155,88 @@ export const getActiveGallery = unstable_cache(
   },
   ['site-gallery'],
   { revalidate: 300, tags: [CACHE_TAGS.gallery] }
+)
+
+export const getPublishedArticles = unstable_cache(
+  async function getPublishedArticles(locale: Locale) {
+    const articles = await prisma.article.findMany({
+      where: { isPublished: true },
+      include: {
+        coverImage: { select: { filePath: true } },
+        tags: { include: { tag: true } },
+      },
+      orderBy: [{ publishedAt: 'desc' }, { createdAt: 'desc' }],
+      take: 100,
+    })
+
+    return articles.map((a) => ({
+      id: a.id,
+      slug: a.slug,
+      title: locale === 'de' ? a.titleDe : a.titleEn,
+      summary: locale === 'de' ? a.summaryDe : a.summaryEn,
+      coverImageUrl: a.coverImageUrl || a.coverImage?.filePath || null,
+      publishedAt: a.publishedAt?.toISOString() || null,
+      tags: a.tags.map((t) => ({
+        slug: t.tag.slug,
+        name: locale === 'de' ? t.tag.nameDe : t.tag.nameEn,
+      })),
+    }))
+  },
+  ['site-articles'],
+  { revalidate: 300, tags: [CACHE_TAGS.articles] }
+)
+
+export const getArticleBySlug = unstable_cache(
+  async function getArticleBySlug(slug: string, locale: Locale) {
+    const a = await prisma.article.findUnique({
+      where: { slug, isPublished: true },
+      include: {
+        coverImage: { select: { filePath: true } },
+        tags: { include: { tag: true } },
+      },
+    })
+    if (!a) return null
+
+    return {
+      id: a.id,
+      slug: a.slug,
+      titleDe: a.titleDe,
+      titleEn: a.titleEn,
+      title: locale === 'de' ? a.titleDe : a.titleEn,
+      summary: locale === 'de' ? a.summaryDe : a.summaryEn,
+      content: locale === 'de' ? a.contentDe : a.contentEn,
+      seoTitle: locale === 'de' ? a.seoTitleDe : a.seoTitleEn,
+      seoDescription: locale === 'de' ? a.seoDescriptionDe : a.seoDescriptionEn,
+      seoKeywords: locale === 'de' ? a.seoKeywordsDe : a.seoKeywordsEn,
+      coverImageUrl: a.coverImageUrl || a.coverImage?.filePath || null,
+      publishedAt: a.publishedAt?.toISOString() || null,
+      updatedAt: a.updatedAt.toISOString(),
+      tags: a.tags.map((t) => ({
+        slug: t.tag.slug,
+        name: locale === 'de' ? t.tag.nameDe : t.tag.nameEn,
+      })),
+    }
+  },
+  ['site-article-detail'],
+  { revalidate: 300, tags: [CACHE_TAGS.articles] }
+)
+
+export const getArticleTags = unstable_cache(
+  async function getArticleTags(locale: Locale) {
+    const tags = await prisma.articleTag.findMany({
+      include: { _count: { select: { articles: true } } },
+      orderBy: { articles: { _count: 'desc' } },
+    })
+    return tags
+      .filter((t) => t._count.articles > 0)
+      .map((t) => ({
+        slug: t.slug,
+        name: locale === 'de' ? t.nameDe : t.nameEn,
+        count: t._count.articles,
+      }))
+  },
+  ['site-article-tags'],
+  { revalidate: 300, tags: [CACHE_TAGS.articles] }
 )
 
 export const getSystemSettings = unstable_cache(

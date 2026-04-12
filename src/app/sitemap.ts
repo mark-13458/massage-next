@@ -5,7 +5,7 @@ import { prisma } from '../lib/prisma'
 const locales = ['de', 'en']
 // 法律页面（impressum/privacy）设置了 noindex，不收录进 sitemap
 // booking 页设置了 noindex（表单页），不收录
-const staticRoutes = ['', '/services', '/about', '/contact', '/gallery']
+const staticRoutes = ['', '/services', '/about', '/contact', '/gallery', '/blog']
 
 async function getBaseUrl() {
   const h = await headers()
@@ -58,5 +58,39 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
     // 数据库不可用时跳过
   }
 
-  return [...staticEntries, ...serviceEntries]
+  let articleEntries: MetadataRoute.Sitemap = []
+  let tagEntries: MetadataRoute.Sitemap = []
+  try {
+    const articles = await prisma.article.findMany({
+      where: { isPublished: true },
+      select: { slug: true, updatedAt: true },
+    })
+    articleEntries = locales.flatMap((locale) =>
+      articles.map((a) => ({
+        url: `${baseUrl}/${locale}/blog/${a.slug}`,
+        lastModified: a.updatedAt,
+        changeFrequency: 'weekly' as const,
+        priority: 0.7,
+        alternates: buildAlternates(`/blog/${a.slug}`),
+      })),
+    )
+
+    const tags = await prisma.articleTag.findMany({
+      where: { articles: { some: {} } },
+      select: { slug: true, updatedAt: true },
+    })
+    tagEntries = locales.flatMap((locale) =>
+      tags.map((t) => ({
+        url: `${baseUrl}/${locale}/blog/tag/${t.slug}`,
+        lastModified: t.updatedAt,
+        changeFrequency: 'weekly' as const,
+        priority: 0.5,
+        alternates: buildAlternates(`/blog/tag/${t.slug}`),
+      })),
+    )
+  } catch {
+    // DB unavailable
+  }
+
+  return [...staticEntries, ...serviceEntries, ...articleEntries, ...tagEntries]
 }

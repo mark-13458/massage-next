@@ -10,6 +10,7 @@ const navItems = [
   { href: '/admin', labelZh: '概览', labelEn: 'Overview', descZh: '工作台', descEn: 'Dashboard', icon: '◈', exact: true },
   { href: '/admin/appointments', labelZh: '预约管理', labelEn: 'Bookings', descZh: '预约', descEn: 'Bookings', icon: '◌', exact: false },
   { href: '/admin/services', labelZh: '服务项目', labelEn: 'Services', descZh: '服务', descEn: 'Services', icon: '◇', exact: false },
+  { href: '/admin/articles', labelZh: '文章管理', labelEn: 'Articles', descZh: '博客文章', descEn: 'Blog', icon: '▤', exact: false },
   { href: '/admin/content', labelZh: '网站内容', labelEn: 'Content', descZh: '文案与资料', descEn: 'Content', icon: '◎', exact: false },
   { href: '/admin/gallery', labelZh: '图库管理', labelEn: 'Gallery', descZh: '图片资料', descEn: 'Media', icon: '▣', exact: false },
   { href: '/admin/testimonials', labelZh: '客户评价', labelEn: 'Testimonials', descZh: '评价', descEn: 'Reviews', icon: '◉', exact: false },

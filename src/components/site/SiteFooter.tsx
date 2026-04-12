@@ -52,6 +52,11 @@ export async function SiteFooter({ locale }: { locale: Locale }) {
                 </Link>
               </li>
               <li>
+                <Link href={`/${locale}/blog`} className="transition-colors duration-150 hover:text-white cursor-pointer">
+                  Blog
+                </Link>
+              </li>
+              <li>
                 <Link href={`/${locale}/booking`} className="transition-colors duration-150 hover:text-white cursor-pointer">
                   {locale === 'de' ? 'Termin anfragen' : 'Book now'}
                 </Link>
