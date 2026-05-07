@@ -56,12 +56,12 @@ export async function middleware(request: NextRequest) {
 
   const csp = [
     "default-src 'self'",
-    `script-src 'self' 'unsafe-inline' https://challenges.cloudflare.com`,
+    `script-src 'self' 'unsafe-inline' https://challenges.cloudflare.com https://www.googletagmanager.com`,
     "style-src 'self' 'unsafe-inline'",
-    "img-src 'self' data: blob: https://images.pexels.com https://*.pexels.com",
+    "img-src 'self' data: blob: https://images.pexels.com https://*.pexels.com https://www.googletagmanager.com",
     "font-src 'self' https://fonts.gstatic.com",
     "frame-src https://www.google.com https://maps.google.com https://challenges.cloudflare.com https://*.cloudflare.com",
-    "connect-src 'self' https://challenges.cloudflare.com https://*.cloudflare.com",
+    "connect-src 'self' https://challenges.cloudflare.com https://*.cloudflare.com https://www.googletagmanager.com https://www.google-analytics.com https://stats.g.doubleclick.net",
     "object-src 'none'",
     "base-uri 'self'",
     "form-action 'self'",

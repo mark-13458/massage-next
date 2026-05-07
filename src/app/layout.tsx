@@ -1,6 +1,7 @@
 import type { Viewport } from 'next'
 import { headers } from 'next/headers'
 import { Lora, Raleway } from 'next/font/google'
+import Script from 'next/script'
 import './globals.css'
 import { defaultSiteMetadata } from '../lib/seo'
 
@@ -37,7 +38,22 @@ export default async function RootLayout({ children }: { children: React.ReactNo
 
   return (
     <html lang={lang} className={`${lora.variable} ${raleway.variable}`} suppressHydrationWarning>
-      <body className="font-sans">{children}</body>
+      <body className="font-sans">
+        {children}
+        {/* Google tag (gtag.js) - Google Ads AW-17412666826 */}
+        <Script
+          src="https://www.googletagmanager.com/gtag/js?id=AW-17412666826"
+          strategy="afterInteractive"
+        />
+        <Script id="gtag-init" strategy="afterInteractive">
+          {`
+            window.dataLayer = window.dataLayer || [];
+            function gtag(){dataLayer.push(arguments);}
+            gtag('js', new Date());
+            gtag('config', 'AW-17412666826');
+          `}
+        </Script>
+      </body>
     </html>
   )
 }
