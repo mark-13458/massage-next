@@ -5,6 +5,11 @@ import { getContactSettings } from './site.service'
 import { findNextPendingKeyword } from '../repositories/admin/keyword-pool.repository'
 import { CACHE_TAGS } from './site.service'
 import { revalidateTag } from 'next/cache'
+import { writeFile, mkdir } from 'fs/promises'
+import { existsSync } from 'fs'
+import { join } from 'path'
+import { randomUUID } from 'crypto'
+import { getUploadDir, getPublicUrl } from '../../lib/uploads'
 
 type GeneratedArticle = {
   titleDe: string
@@ -23,10 +28,11 @@ type GeneratedArticle = {
   slug: string
 }
 
-type PexelsPhoto = {
-  src: { large: string; medium: string }
-  alt: string
-  photographer: string
+type ImageGenProvider = 'pollinations' | 'openai' | 'stability'
+
+type ImageGenSettings = {
+  provider: ImageGenProvider
+  apiKey: string
 }
 
 /**
@@ -59,20 +65,13 @@ export async function generateArticleFromKeyword(): Promise<{ articleId: number;
   // 6. 解析 JSON
   const article = parseArticleResponse(rawResponse)
 
-  // 7. 搜索相关图片并插入正文
-  const pexelsKey = await getPexelsApiKey()
-  let coverImageUrl: string | null = null
+  // 7. AI 生成图片并插入正文
+  const imageUrls = await generateArticleImages(keyword.keyword, 3)
+  const coverImageUrl: string | null = imageUrls[0] || null
 
-  if (pexelsKey) {
-    const photos = await searchPexelsPhotos(keyword.keyword, pexelsKey, 4)
-    if (photos.length > 0) {
-      // 第一张做封面
-      coverImageUrl = photos[0].src.large
-
-      // 把图片插入正文（每隔几段插一张）
-      article.contentDe = insertImagesIntoContent(article.contentDe, photos, 'de')
-      article.contentEn = insertImagesIntoContent(article.contentEn, photos, 'en')
-    }
+  if (imageUrls.length > 1) {
+    article.contentDe = insertImagesIntoContent(article.contentDe, imageUrls, keyword.keyword)
+    article.contentEn = insertImagesIntoContent(article.contentEn, imageUrls, keyword.keyword)
   }
 
   // 8. 查找或创建标签
@@ -118,81 +117,173 @@ export async function generateArticleFromKeyword(): Promise<{ articleId: number;
 }
 
 // ============================================================
-// Pexels 图片搜索
+// AI 图片生成
 // ============================================================
 
-/** 从 SiteSetting 读取 Pexels API Key */
-async function getPexelsApiKey(): Promise<string | null> {
+/** 从 SiteSetting 读取图片生成配置 */
+async function getImageGenSettings(): Promise<ImageGenSettings> {
   try {
     const setting = await prisma.siteSetting.findUnique({ where: { key: 'aiSettings' } })
-    if (!setting?.value) return null
-    const v = setting.value as Record<string, unknown>
-    return typeof v.pexelsApiKey === 'string' && v.pexelsApiKey ? v.pexelsApiKey : null
+    const v = setting?.value as Record<string, unknown> | null
+    return {
+      provider: (typeof v?.imageGenProvider === 'string' ? v.imageGenProvider : 'pollinations') as ImageGenProvider,
+      apiKey: typeof v?.imageGenApiKey === 'string' ? v.imageGenApiKey : '',
+    }
   } catch {
+    return { provider: 'pollinations', apiKey: '' }
+  }
+}
+
+/** 根据关键词生成一致的 seed 值 */
+function keywordToSeed(keyword: string): number {
+  let h = 0
+  for (const c of keyword) h = (Math.imul(31, h) + c.charCodeAt(0)) | 0
+  return (Math.abs(h) % 9000) + 1000
+}
+
+/** 构建图片生成 prompt */
+function buildImagePrompt(keyword: string): string {
+  return `professional TCM massage therapy ${keyword} wellness spa relaxing warm lighting traditional chinese medicine treatment room`
+}
+
+/** Pollinations.ai — 纯 URL 构造，无需 API Key，无网络请求 */
+function generatePollinationsUrls(keyword: string, count: number): string[] {
+  const seed = keywordToSeed(keyword)
+  const prompt = encodeURIComponent(buildImagePrompt(keyword))
+  return Array.from({ length: count }, (_, i) => {
+    const width = i === 0 ? 1200 : 800
+    const height = i === 0 ? 630 : 533
+    return `https://image.pollinations.ai/prompt/${prompt}?width=${width}&height=${height}&seed=${seed + i}&nologo=true&model=flux`
+  })
+}
+
+/** 将图片数据保存到 uploads 目录，返回公开路径 */
+async function saveImageBuffer(buffer: Buffer, ext: string): Promise<string | null> {
+  try {
+    const filename = `${randomUUID()}${ext}`
+    const uploadDir = getUploadDir()
+    if (!existsSync(uploadDir)) {
+      await mkdir(uploadDir, { recursive: true })
+    }
+    await writeFile(join(uploadDir, filename), buffer)
+    return getPublicUrl(filename)
+  } catch (e) {
+    console.error('[image] save error:', e)
     return null
   }
 }
 
-/** 搜索 Pexels 图片 */
-async function searchPexelsPhotos(query: string, apiKey: string, count: number): Promise<PexelsPhoto[]> {
+/** DALL-E 3 — 生成图片并保存到本地 */
+async function generateDalleImage(keyword: string, apiKey: string): Promise<string | null> {
   try {
-    // 用英文搜索词效果更好，加上 massage/TCM 上下文
-    const searchQuery = `${query} massage wellness`
-    const url = `https://api.pexels.com/v1/search?query=${encodeURIComponent(searchQuery)}&per_page=${count}&orientation=landscape`
-
-    const res = await fetch(url, {
-      headers: { Authorization: apiKey },
+    const res = await fetch('https://api.openai.com/v1/images/generations', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${apiKey}` },
+      body: JSON.stringify({
+        model: 'dall-e-3',
+        prompt: buildImagePrompt(keyword),
+        n: 1,
+        size: '1792x1024',
+        quality: 'standard',
+        response_format: 'url',
+      }),
     })
-
     if (!res.ok) {
-      console.error(`[Pexels] API error ${res.status}`)
-      return []
+      console.error(`[DALL-E] API error ${res.status}`)
+      return null
     }
-
     const data = await res.json()
-    return (data.photos || []).map((p: Record<string, unknown>) => ({
-      src: {
-        large: (p.src as Record<string, string>)?.large || '',
-        medium: (p.src as Record<string, string>)?.medium || '',
-      },
-      alt: typeof p.alt === 'string' ? p.alt : '',
-      photographer: typeof p.photographer === 'string' ? p.photographer : '',
-    }))
+    const imageUrl = data.data?.[0]?.url
+    if (!imageUrl) return null
+
+    // 下载图片并保存到本地（DALL-E URL 有时效限制）
+    const imgRes = await fetch(imageUrl)
+    if (!imgRes.ok) return null
+    const buffer = Buffer.from(await imgRes.arrayBuffer())
+    return saveImageBuffer(buffer, '.webp')
   } catch (e) {
-    console.error('[Pexels] search error:', e)
-    return []
+    console.error('[DALL-E] generation error:', e)
+    return null
   }
 }
 
-/** 将图片按间隔插入 HTML 正文 */
-function insertImagesIntoContent(html: string, photos: PexelsPhoto[], locale: string): string {
-  if (!html || photos.length === 0) return html
+/** Stability AI (stable-image-core) — 生成图片并保存到本地 */
+async function generateStabilityImage(keyword: string, apiKey: string): Promise<string | null> {
+  try {
+    const formData = new FormData()
+    formData.append('prompt', buildImagePrompt(keyword))
+    formData.append('output_format', 'webp')
+    formData.append('aspect_ratio', '16:9')
 
-  // 按 </h2> 或 </p> 拆分段落，找到合适的插入点
-  // 策略：在第 2 个和第 4 个 </p> 后各插入一张图（跳过第 1 张封面图）
-  const insertPhotos = photos.slice(1) // 跳过封面图
-  if (insertPhotos.length === 0) return html
+    const res = await fetch('https://api.stability.ai/v2beta/stable-image/generate/core', {
+      method: 'POST',
+      headers: { Authorization: `Bearer ${apiKey}`, Accept: 'image/*' },
+      body: formData,
+    })
+    if (!res.ok) {
+      console.error(`[Stability] API error ${res.status}`)
+      return null
+    }
+    const buffer = Buffer.from(await res.arrayBuffer())
+    return saveImageBuffer(buffer, '.webp')
+  } catch (e) {
+    console.error('[Stability] generation error:', e)
+    return null
+  }
+}
 
-  let photoIndex = 0
+/**
+ * 根据配置生成文章图片 URL 数组。
+ * 索引 0 为封面图，其余为正文内嵌图。
+ * DALL-E / Stability 仅生成封面，内嵌图统一用免费的 Pollinations。
+ */
+async function generateArticleImages(keyword: string, count: number): Promise<string[]> {
+  const settings = await getImageGenSettings()
+
+  if (settings.provider === 'openai' && settings.apiKey) {
+    const coverPath = await generateDalleImage(keyword, settings.apiKey)
+    if (coverPath) {
+      const inlineUrls = generatePollinationsUrls(keyword, count).slice(1)
+      return [coverPath, ...inlineUrls]
+    }
+  }
+
+  if (settings.provider === 'stability' && settings.apiKey) {
+    const coverPath = await generateStabilityImage(keyword, settings.apiKey)
+    if (coverPath) {
+      const inlineUrls = generatePollinationsUrls(keyword, count).slice(1)
+      return [coverPath, ...inlineUrls]
+    }
+  }
+
+  // 默认：Pollinations.ai（免费，无需 API Key）
+  return generatePollinationsUrls(keyword, count)
+}
+
+/** 将图片 URL 数组按间隔插入 HTML 正文 */
+function insertImagesIntoContent(html: string, imageUrls: string[], keyword: string): string {
+  if (!html || imageUrls.length === 0) return html
+
+  const insertUrls = imageUrls.slice(1) // 跳过封面图
+  if (insertUrls.length === 0) return html
+
+  let urlIndex = 0
   let paragraphCount = 0
-  const insertAfterParagraphs = [2, 5, 8] // 在第 2、5、8 段后插图
+  const insertAfterParagraphs = [2, 5, 8]
 
-  const result = html.replace(/<\/p>/gi, (match) => {
+  return html.replace(/<\/p>/gi, (match) => {
     paragraphCount++
-    if (insertAfterParagraphs.includes(paragraphCount) && photoIndex < insertPhotos.length) {
-      const photo = insertPhotos[photoIndex]
-      photoIndex++
-      const credit = locale === 'de' ? 'Foto von' : 'Photo by'
+    if (insertAfterParagraphs.includes(paragraphCount) && urlIndex < insertUrls.length) {
+      const url = insertUrls[urlIndex]
+      urlIndex++
+      const alt = escapeHtml(`${keyword} massage therapy`)
       return `${match}
 <figure class="article-image">
-  <img src="${photo.src.large}" alt="${escapeHtml(photo.alt || 'Massage Wellness')}" loading="lazy" />
-  <figcaption>${credit} ${escapeHtml(photo.photographer)} / Pexels</figcaption>
+  <img src="${url}" alt="${alt}" loading="lazy" />
 </figure>`
     }
     return match
   })
-
-  return result
 }
 
 function escapeHtml(str: string): string {

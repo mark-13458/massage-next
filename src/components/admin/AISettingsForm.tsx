@@ -8,7 +8,15 @@ type AISettingsData = {
   apiKey: string
   model: string
   pexelsApiKey: string
+  imageGenProvider: string
+  imageGenApiKey: string
 }
+
+const IMAGE_GEN_OPTIONS = [
+  { value: 'pollinations', label: 'Pollinations.ai (免费，无需 Key / Free, no key)' },
+  { value: 'openai', label: 'DALL-E 3 (OpenAI)' },
+  { value: 'stability', label: 'Stability AI' },
+]
 
 const PROVIDER_OPTIONS = [
   { value: 'openrouter', label: 'OpenRouter', defaultModel: 'google/gemini-2.0-flash-001' },
@@ -22,6 +30,8 @@ export function AISettingsForm({ lang }: { lang: 'zh' | 'en' }) {
   const [apiKey, setApiKey] = useState('')
   const [model, setModel] = useState('')
   const [pexelsApiKey, setPexelsApiKey] = useState('')
+  const [imageGenProvider, setImageGenProvider] = useState('pollinations')
+  const [imageGenApiKey, setImageGenApiKey] = useState('')
   const [saving, setSaving] = useState(false)
   const [testing, setTesting] = useState(false)
   const [message, setMessage] = useState<{ type: 'success' | 'error'; text: string } | null>(null)
@@ -36,6 +46,8 @@ export function AISettingsForm({ lang }: { lang: 'zh' | 'en' }) {
           setApiKey(v.apiKey || '')
           setModel(v.model || '')
           setPexelsApiKey(v.pexelsApiKey || '')
+          setImageGenProvider(v.imageGenProvider || 'pollinations')
+          setImageGenApiKey(v.imageGenApiKey || '')
         }
       })
       .catch(() => {})
@@ -48,7 +60,7 @@ export function AISettingsForm({ lang }: { lang: 'zh' | 'en' }) {
       await adminRequest('/api/admin/settings/ai', {
         method: 'PATCH',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ provider, apiKey, model, pexelsApiKey }),
+        body: JSON.stringify({ provider, apiKey, model, pexelsApiKey, imageGenProvider, imageGenApiKey }),
       })
       setMessage({ type: 'success', text: zh ? '保存成功' : 'Settings saved' })
     } catch (e) {
@@ -131,22 +143,51 @@ export function AISettingsForm({ lang }: { lang: 'zh' | 'en' }) {
         </p>
       </div>
 
-      {/* Pexels API Key */}
-      <div>
-        <label className="mb-1 block text-sm font-medium text-stone-700">
-          Pexels API Key {' '}
-          <span className="font-normal text-stone-400">({zh ? '文章配图' : 'article images'})</span>
-        </label>
-        <input
-          type="password"
-          value={pexelsApiKey}
-          onChange={(e) => setPexelsApiKey(e.target.value)}
-          placeholder={zh ? '输入 Pexels API Key（免费申请）' : 'Enter Pexels API Key (free)'}
-          className="w-full rounded-xl border border-stone-300 px-3 py-2 text-sm focus:border-stone-500 focus:outline-none"
-        />
-        <p className="mt-1 text-xs text-stone-400">
-          {zh ? '用于自动搜索插入文章配图，免费申请：pexels.com/api' : 'Auto-search images for articles. Free at pexels.com/api'}
+      {/* Image Generation */}
+      <div className="border-t border-stone-200 pt-4">
+        <p className="mb-3 text-sm font-semibold text-stone-700">
+          {zh ? '文章图片生成' : 'Article Image Generation'}
         </p>
+
+        {/* Image Gen Provider */}
+        <div className="mb-3">
+          <label className="mb-1 block text-sm font-medium text-stone-700">
+            {zh ? '图片生成方式' : 'Image provider'}
+          </label>
+          <select
+            value={imageGenProvider}
+            onChange={(e) => {
+              setImageGenProvider(e.target.value)
+              if (e.target.value === 'pollinations') setImageGenApiKey('')
+            }}
+            className="w-full rounded-xl border border-stone-300 px-3 py-2 text-sm focus:border-stone-500 focus:outline-none"
+          >
+            {IMAGE_GEN_OPTIONS.map((opt) => (
+              <option key={opt.value} value={opt.value}>{opt.label}</option>
+            ))}
+          </select>
+          <p className="mt-1 text-xs text-stone-400">
+            {zh
+              ? 'Pollinations.ai 免费无需配置，DALL-E 3 / Stability AI 需填入对应 API Key'
+              : 'Pollinations.ai is free with no setup. DALL-E 3 / Stability AI require an API Key below.'}
+          </p>
+        </div>
+
+        {/* Image Gen API Key (only for paid providers) */}
+        {imageGenProvider !== 'pollinations' && (
+          <div>
+            <label className="mb-1 block text-sm font-medium text-stone-700">
+              {imageGenProvider === 'openai' ? 'OpenAI API Key' : 'Stability AI API Key'}
+            </label>
+            <input
+              type="password"
+              value={imageGenApiKey}
+              onChange={(e) => setImageGenApiKey(e.target.value)}
+              placeholder={zh ? '输入 API Key' : 'Enter API Key'}
+              className="w-full rounded-xl border border-stone-300 px-3 py-2 text-sm focus:border-stone-500 focus:outline-none"
+            />
+          </div>
+        )}
       </div>
 
       {/* Actions */}
