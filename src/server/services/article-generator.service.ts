@@ -28,7 +28,7 @@ type GeneratedArticle = {
   slug: string
 }
 
-type ImageGenProvider = 'pollinations' | 'openai' | 'stability'
+type ImageGenProvider = 'huggingface' | 'openai' | 'stability'
 
 type ImageGenSettings = {
   provider: ImageGenProvider
@@ -126,35 +126,17 @@ async function getImageGenSettings(): Promise<ImageGenSettings> {
     const setting = await prisma.siteSetting.findUnique({ where: { key: 'aiSettings' } })
     const v = setting?.value as Record<string, unknown> | null
     return {
-      provider: (typeof v?.imageGenProvider === 'string' ? v.imageGenProvider : 'pollinations') as ImageGenProvider,
+      provider: (typeof v?.imageGenProvider === 'string' ? v.imageGenProvider : 'huggingface') as ImageGenProvider,
       apiKey: typeof v?.imageGenApiKey === 'string' ? v.imageGenApiKey : '',
     }
   } catch {
-    return { provider: 'pollinations', apiKey: '' }
+    return { provider: 'huggingface', apiKey: '' }
   }
 }
 
-/** 根据关键词生成一致的 seed 值 */
-function keywordToSeed(keyword: string): number {
-  let h = 0
-  for (const c of keyword) h = (Math.imul(31, h) + c.charCodeAt(0)) | 0
-  return (Math.abs(h) % 9000) + 1000
-}
-
-/** 构建图片生成 prompt */
+/** 构建图片生成 prompt — 面向视觉描述，避免模糊通用 */
 function buildImagePrompt(keyword: string): string {
-  return `professional TCM massage therapy ${keyword} wellness spa relaxing warm lighting traditional chinese medicine treatment room`
-}
-
-/** Pollinations.ai — 纯 URL 构造，无需 API Key，无网络请求 */
-function generatePollinationsUrls(keyword: string, count: number): string[] {
-  const seed = keywordToSeed(keyword)
-  const prompt = encodeURIComponent(buildImagePrompt(keyword))
-  return Array.from({ length: count }, (_, i) => {
-    const width = i === 0 ? 1200 : 800
-    const height = i === 0 ? 630 : 533
-    return `https://image.pollinations.ai/prompt/${prompt}?width=${width}&height=${height}&seed=${seed + i}&nologo=true&model=flux`
-  })
+  return `serene traditional chinese medicine massage treatment room, professional therapist performing ${keyword} therapy, warm amber lighting, zen atmosphere, high-end wellness spa, photorealistic, no text, no watermark`
 }
 
 /** 将图片数据保存到 uploads 目录，返回公开路径 */
@@ -173,7 +155,55 @@ async function saveImageBuffer(buffer: Buffer, ext: string): Promise<string | nu
   }
 }
 
-/** DALL-E 3 — 生成图片并保存到本地 */
+/** Hugging Face Inference API — FLUX.1-schnell，免费，支持重试（冷启动） */
+async function generateHuggingFaceImage(
+  keyword: string,
+  apiKey: string,
+  width: number,
+  height: number,
+): Promise<string | null> {
+  const maxRetries = 3
+  for (let attempt = 0; attempt < maxRetries; attempt++) {
+    try {
+      const res = await fetch(
+        'https://api-inference.huggingface.co/models/black-forest-labs/FLUX.1-schnell',
+        {
+          method: 'POST',
+          headers: { Authorization: `Bearer ${apiKey}`, 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            inputs: buildImagePrompt(keyword),
+            parameters: { width, height, num_inference_steps: 4, guidance_scale: 0.0 },
+          }),
+        },
+      )
+
+      // 503 = 模型冷启动中，等待后重试
+      if (res.status === 503) {
+        const data = await res.json().catch(() => ({})) as Record<string, unknown>
+        const waitMs = Math.min(((data.estimated_time as number) || 20) * 1000, 30000)
+        if (attempt < maxRetries - 1) {
+          await new Promise((r) => setTimeout(r, waitMs))
+          continue
+        }
+        return null
+      }
+
+      if (!res.ok) {
+        console.error(`[HuggingFace] API error ${res.status}`)
+        return null
+      }
+
+      const buffer = Buffer.from(await res.arrayBuffer())
+      return await saveImageBuffer(buffer, '.png')
+    } catch (e) {
+      console.error('[HuggingFace] generation error:', e)
+      return null
+    }
+  }
+  return null
+}
+
+/** DALL-E 3 — 生成图片并保存到本地（URL 有时效，必须下载） */
 async function generateDalleImage(keyword: string, apiKey: string): Promise<string | null> {
   try {
     const res = await fetch('https://api.openai.com/v1/images/generations', {
@@ -196,11 +226,10 @@ async function generateDalleImage(keyword: string, apiKey: string): Promise<stri
     const imageUrl = data.data?.[0]?.url
     if (!imageUrl) return null
 
-    // 下载图片并保存到本地（DALL-E URL 有时效限制）
     const imgRes = await fetch(imageUrl)
     if (!imgRes.ok) return null
     const buffer = Buffer.from(await imgRes.arrayBuffer())
-    return saveImageBuffer(buffer, '.webp')
+    return await saveImageBuffer(buffer, '.png')
   } catch (e) {
     console.error('[DALL-E] generation error:', e)
     return null
@@ -208,12 +237,16 @@ async function generateDalleImage(keyword: string, apiKey: string): Promise<stri
 }
 
 /** Stability AI (stable-image-core) — 生成图片并保存到本地 */
-async function generateStabilityImage(keyword: string, apiKey: string): Promise<string | null> {
+async function generateStabilityImage(
+  keyword: string,
+  apiKey: string,
+  aspectRatio: '16:9' | '3:2',
+): Promise<string | null> {
   try {
     const formData = new FormData()
     formData.append('prompt', buildImagePrompt(keyword))
     formData.append('output_format', 'webp')
-    formData.append('aspect_ratio', '16:9')
+    formData.append('aspect_ratio', aspectRatio)
 
     const res = await fetch('https://api.stability.ai/v2beta/stable-image/generate/core', {
       method: 'POST',
@@ -225,39 +258,52 @@ async function generateStabilityImage(keyword: string, apiKey: string): Promise<
       return null
     }
     const buffer = Buffer.from(await res.arrayBuffer())
-    return saveImageBuffer(buffer, '.webp')
+    return await saveImageBuffer(buffer, '.webp')
   } catch (e) {
     console.error('[Stability] generation error:', e)
     return null
   }
 }
 
+type ImageSize = { width: number; height: number; aspectRatio: '16:9' | '3:2' }
+
+const IMAGE_SIZES: ImageSize[] = [
+  { width: 1200, height: 630, aspectRatio: '16:9' }, // 封面
+  { width: 800, height: 533, aspectRatio: '3:2' },   // 正文图 1
+  { width: 800, height: 533, aspectRatio: '3:2' },   // 正文图 2
+]
+
 /**
- * 根据配置生成文章图片 URL 数组。
- * 索引 0 为封面图，其余为正文内嵌图。
- * DALL-E / Stability 仅生成封面，内嵌图统一用免费的 Pollinations。
+ * 根据配置统一生成所有文章图片，全部下载保存到本地 /uploads/。
+ * 索引 0 为封面，其余为正文内嵌图。
+ * 未配置 API Key 时返回空数组，文章无图。
  */
 async function generateArticleImages(keyword: string, count: number): Promise<string[]> {
-  const settings = await getImageGenSettings()
+  const { provider, apiKey } = await getImageGenSettings()
 
-  if (settings.provider === 'openai' && settings.apiKey) {
-    const coverPath = await generateDalleImage(keyword, settings.apiKey)
-    if (coverPath) {
-      const inlineUrls = generatePollinationsUrls(keyword, count).slice(1)
-      return [coverPath, ...inlineUrls]
-    }
+  if (!apiKey) {
+    console.warn('[image] No image generation API key configured')
+    return []
   }
 
-  if (settings.provider === 'stability' && settings.apiKey) {
-    const coverPath = await generateStabilityImage(keyword, settings.apiKey)
-    if (coverPath) {
-      const inlineUrls = generatePollinationsUrls(keyword, count).slice(1)
-      return [coverPath, ...inlineUrls]
+  const sizes = IMAGE_SIZES.slice(0, count)
+  const results: string[] = []
+
+  for (const size of sizes) {
+    let path: string | null = null
+
+    if (provider === 'huggingface') {
+      path = await generateHuggingFaceImage(keyword, apiKey, size.width, size.height)
+    } else if (provider === 'openai') {
+      path = await generateDalleImage(keyword, apiKey)
+    } else if (provider === 'stability') {
+      path = await generateStabilityImage(keyword, apiKey, size.aspectRatio)
     }
+
+    if (path) results.push(path)
   }
 
-  // 默认：Pollinations.ai（免费，无需 API Key）
-  return generatePollinationsUrls(keyword, count)
+  return results
 }
 
 /** 将图片 URL 数组按间隔插入 HTML 正文 */

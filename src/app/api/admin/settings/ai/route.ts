@@ -81,7 +81,7 @@ export async function PATCH(request: NextRequest) {
     }
 
     // Image generation settings
-    const validImageProviders = ['pollinations', 'openai', 'stability']
+    const validImageProviders = ['huggingface', 'openai', 'stability']
     if (typeof json.imageGenProvider === 'string' && validImageProviders.includes(json.imageGenProvider)) {
       merged.imageGenProvider = json.imageGenProvider
     }

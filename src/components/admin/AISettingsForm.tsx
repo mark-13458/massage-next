@@ -13,10 +13,25 @@ type AISettingsData = {
 }
 
 const IMAGE_GEN_OPTIONS = [
-  { value: 'pollinations', label: 'Pollinations.ai (免费，无需 Key / Free, no key)' },
-  { value: 'openai', label: 'DALL-E 3 (OpenAI)' },
-  { value: 'stability', label: 'Stability AI' },
+  { value: 'huggingface', label: 'Hugging Face — FLUX.1-schnell (免费 / Free)' },
+  { value: 'openai', label: 'DALL-E 3 (OpenAI，高质量 / High quality)' },
+  { value: 'stability', label: 'Stability AI (Stable Image Core)' },
 ]
+
+const IMAGE_GEN_KEY_HINTS: Record<string, { label: string; hint: string }> = {
+  huggingface: {
+    label: 'Hugging Face Token',
+    hint: '免费注册获取：huggingface.co/settings/tokens（选 Read 权限即可）',
+  },
+  openai: {
+    label: 'OpenAI API Key',
+    hint: 'platform.openai.com — DALL-E 3 约 $0.04/张',
+  },
+  stability: {
+    label: 'Stability AI API Key',
+    hint: 'platform.stability.ai — 每月 25 免费积分，约 $0.003/张',
+  },
+}
 
 const PROVIDER_OPTIONS = [
   { value: 'openrouter', label: 'OpenRouter', defaultModel: 'google/gemini-2.0-flash-001' },
@@ -30,7 +45,7 @@ export function AISettingsForm({ lang }: { lang: 'zh' | 'en' }) {
   const [apiKey, setApiKey] = useState('')
   const [model, setModel] = useState('')
   const [pexelsApiKey, setPexelsApiKey] = useState('')
-  const [imageGenProvider, setImageGenProvider] = useState('pollinations')
+  const [imageGenProvider, setImageGenProvider] = useState('huggingface')
   const [imageGenApiKey, setImageGenApiKey] = useState('')
   const [saving, setSaving] = useState(false)
   const [testing, setTesting] = useState(false)
@@ -46,7 +61,7 @@ export function AISettingsForm({ lang }: { lang: 'zh' | 'en' }) {
           setApiKey(v.apiKey || '')
           setModel(v.model || '')
           setPexelsApiKey(v.pexelsApiKey || '')
-          setImageGenProvider(v.imageGenProvider || 'pollinations')
+          setImageGenProvider(v.imageGenProvider || 'huggingface')
           setImageGenApiKey(v.imageGenApiKey || '')
         }
       })
@@ -156,38 +171,31 @@ export function AISettingsForm({ lang }: { lang: 'zh' | 'en' }) {
           </label>
           <select
             value={imageGenProvider}
-            onChange={(e) => {
-              setImageGenProvider(e.target.value)
-              if (e.target.value === 'pollinations') setImageGenApiKey('')
-            }}
+            onChange={(e) => setImageGenProvider(e.target.value)}
             className="w-full rounded-xl border border-stone-300 px-3 py-2 text-sm focus:border-stone-500 focus:outline-none"
           >
             {IMAGE_GEN_OPTIONS.map((opt) => (
               <option key={opt.value} value={opt.value}>{opt.label}</option>
             ))}
           </select>
-          <p className="mt-1 text-xs text-stone-400">
-            {zh
-              ? 'Pollinations.ai 免费无需配置，DALL-E 3 / Stability AI 需填入对应 API Key'
-              : 'Pollinations.ai is free with no setup. DALL-E 3 / Stability AI require an API Key below.'}
-          </p>
         </div>
 
-        {/* Image Gen API Key (only for paid providers) */}
-        {imageGenProvider !== 'pollinations' && (
-          <div>
-            <label className="mb-1 block text-sm font-medium text-stone-700">
-              {imageGenProvider === 'openai' ? 'OpenAI API Key' : 'Stability AI API Key'}
-            </label>
-            <input
-              type="password"
-              value={imageGenApiKey}
-              onChange={(e) => setImageGenApiKey(e.target.value)}
-              placeholder={zh ? '输入 API Key' : 'Enter API Key'}
-              className="w-full rounded-xl border border-stone-300 px-3 py-2 text-sm focus:border-stone-500 focus:outline-none"
-            />
-          </div>
-        )}
+        {/* Image Gen API Key */}
+        <div>
+          <label className="mb-1 block text-sm font-medium text-stone-700">
+            {IMAGE_GEN_KEY_HINTS[imageGenProvider]?.label ?? 'API Key'}
+          </label>
+          <input
+            type="password"
+            value={imageGenApiKey}
+            onChange={(e) => setImageGenApiKey(e.target.value)}
+            placeholder={zh ? '输入 API Key' : 'Enter API Key'}
+            className="w-full rounded-xl border border-stone-300 px-3 py-2 text-sm focus:border-stone-500 focus:outline-none"
+          />
+          <p className="mt-1 text-xs text-stone-400">
+            {IMAGE_GEN_KEY_HINTS[imageGenProvider]?.hint}
+          </p>
+        </div>
       </div>
 
       {/* Actions */}
