@@ -1,10 +1,10 @@
 import { apiError, apiOk } from '../../../../../lib/api-response'
 import { getCurrentAdmin } from '../../../../../lib/auth'
-import { generateArticleFromKeyword } from '../../../../../server/services/article-generator.service'
+import { generateArticleFromKeyword, preflightGenerationCheck } from '../../../../../server/services/article-generator.service'
 
 export const dynamic = 'force-dynamic'
 export const revalidate = 0
-export const maxDuration = 120
+export const maxDuration = 30
 
 /** POST /api/admin/articles/generate — 管理员手动触发 AI 生成文章 */
 export async function POST() {
@@ -17,21 +17,25 @@ export async function POST() {
     return apiError('Unauthorized', 401)
   }
 
-  try {
-    const result = await generateArticleFromKeyword()
+  // 快速预检（仅 DB 查询，< 100ms），不调用 LLM
+  const preflight = await preflightGenerationCheck()
 
-    if (!result) {
-      return apiOk({ success: true, message: '没有待用关键词 / No pending keywords', articleId: null })
+  if (!preflight.ok) {
+    if (preflight.reason === 'no-settings') {
+      return apiError('AI settings not configured. Please set up AI provider in admin settings.', 422)
     }
-
-    return apiOk({
-      success: true,
-      message: `文章已生成: ${result.keyword}`,
-      articleId: result.articleId,
-      keyword: result.keyword,
-    })
-  } catch (error) {
-    console.error('[admin/articles/generate] error:', error)
-    return apiError(error instanceof Error ? error.message : 'Generation failed', 500)
+    return apiOk({ success: true, background: false, message: '没有待用关键词 / No pending keywords', articleId: null })
   }
+
+  // 后台异步执行，不 await，立即返回避免 Cloudflare 524
+  generateArticleFromKeyword().catch((e) =>
+    console.error('[admin/articles/generate] background generation error:', e),
+  )
+
+  return apiOk({
+    success: true,
+    background: true,
+    keyword: preflight.keyword,
+    message: `文章正在后台生成: ${preflight.keyword}`,
+  })
 }

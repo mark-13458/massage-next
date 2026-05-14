@@ -36,6 +36,25 @@ type ImageGenSettings = {
 }
 
 /**
+ * 快速预检：验证 AI 设置已配置且有待用关键词。
+ * 仅做 DB 查询，不调用 LLM，用于 HTTP 路由立即返回前的检查。
+ */
+export async function preflightGenerationCheck(): Promise<
+  | { ok: true; keyword: string }
+  | { ok: false; reason: 'no-settings' | 'no-keywords' }
+> {
+  const aiSettings = await getAISettings()
+  if (!aiSettings) {
+    return { ok: false, reason: 'no-settings' }
+  }
+  const keyword = await findNextPendingKeyword()
+  if (!keyword) {
+    return { ok: false, reason: 'no-keywords' }
+  }
+  return { ok: true, keyword: keyword.keyword }
+}
+
+/**
  * 主入口：从关键词池取词 → AI 生成文章 → 立即存库发布 → 后台异步生成图片
  * 图片生成不阻塞返回，避免 Cloudflare 524 超时
  */
