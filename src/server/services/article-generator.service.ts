@@ -138,7 +138,9 @@ async function generateAndAttachImages(
   contentDe: string,
   contentEn: string,
 ): Promise<void> {
+  console.log(`[image] starting background image generation for article ${articleId}, keyword="${keyword}"`)
   const imageUrls = await generateArticleImages(keyword, 3)
+  console.log(`[image] generated ${imageUrls.length} images for article ${articleId}`)
   if (imageUrls.length === 0) return
 
   const coverImageUrl = imageUrls[0]
@@ -181,11 +183,13 @@ function buildImagePrompt(keyword: string): string {
 async function saveImageBuffer(buffer: Buffer, ext: string): Promise<string | null> {
   try {
     const filename = `${randomUUID()}${ext}`
-    const uploadDir = getUploadDir()
+    // 优先使用 UPLOAD_DIR 环境变量（docker-compose 中设置），其次用 process.cwd()
+    const uploadDir = process.env.UPLOAD_DIR || getUploadDir()
     if (!existsSync(uploadDir)) {
       await mkdir(uploadDir, { recursive: true })
     }
     await writeFile(join(uploadDir, filename), buffer)
+    console.log(`[image] saved ${filename} to ${uploadDir}`)
     return getPublicUrl(filename)
   } catch (e) {
     console.error('[image] save error:', e)
@@ -203,6 +207,7 @@ async function generateHuggingFaceImage(
   const maxRetries = 3
   for (let attempt = 0; attempt < maxRetries; attempt++) {
     try {
+      console.log(`[HuggingFace] attempt ${attempt + 1}/${maxRetries} for keyword "${keyword}" (${width}x${height})`)
       const res = await fetch(
         'https://api-inference.huggingface.co/models/black-forest-labs/FLUX.1-schnell',
         {
@@ -218,7 +223,9 @@ async function generateHuggingFaceImage(
       // 503 = 模型冷启动中，等待后重试
       if (res.status === 503) {
         const data = await res.json().catch(() => ({})) as Record<string, unknown>
-        const waitMs = Math.min(((data.estimated_time as number) || 20) * 1000, 30000)
+        const waitSec = (data.estimated_time as number) || 20
+        const waitMs = Math.min(waitSec * 1000, 30000)
+        console.warn(`[HuggingFace] 503 cold start, estimated ${waitSec}s, waiting ${waitMs}ms`)
         if (attempt < maxRetries - 1) {
           await new Promise((r) => setTimeout(r, waitMs))
           continue
@@ -227,7 +234,16 @@ async function generateHuggingFaceImage(
       }
 
       if (!res.ok) {
-        console.error(`[HuggingFace] API error ${res.status}`)
+        const body = await res.text().catch(() => '')
+        console.error(`[HuggingFace] API error ${res.status}: ${body.slice(0, 300)}`)
+        return null
+      }
+
+      // 检查 Content-Type 确认是图片而非 JSON 错误消息
+      const contentType = res.headers.get('content-type') || ''
+      if (!contentType.startsWith('image/')) {
+        const body = await res.text().catch(() => '')
+        console.error(`[HuggingFace] unexpected content-type "${contentType}": ${body.slice(0, 300)}`)
         return null
       }
 
@@ -320,9 +336,12 @@ async function generateArticleImages(keyword: string, count: number): Promise<st
   const { provider, apiKey } = await getImageGenSettings()
 
   if (!apiKey) {
-    console.warn('[image] No image generation API key configured')
+    console.warn('[image] No image generation API key configured — set imageGenApiKey in admin AI settings')
     return []
   }
+
+  console.log(`[image] generating ${count} images with provider="${provider}" for keyword="${keyword}"`)
+
 
   const sizes = IMAGE_SIZES.slice(0, count)
   const results: string[] = []
