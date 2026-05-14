@@ -5,6 +5,11 @@ import { getContactSettings } from './site.service'
 import { findNextPendingKeyword } from '../repositories/admin/keyword-pool.repository'
 import { CACHE_TAGS } from './site.service'
 import { revalidateTag } from 'next/cache'
+import { writeFile, mkdir } from 'fs/promises'
+import { existsSync } from 'fs'
+import { join } from 'path'
+import { randomUUID } from 'crypto'
+import { getUploadDir, getPublicUrl } from '../../lib/uploads'
 
 type GeneratedArticle = {
   titleDe: string
@@ -23,10 +28,11 @@ type GeneratedArticle = {
   slug: string
 }
 
-type PexelsPhoto = {
-  src: { large: string; medium: string }
-  alt: string
-  photographer: string
+type ImageGenProvider = 'huggingface' | 'openai' | 'stability'
+
+type ImageGenSettings = {
+  provider: ImageGenProvider
+  apiKey: string
 }
 
 /**
@@ -59,20 +65,13 @@ export async function generateArticleFromKeyword(): Promise<{ articleId: number;
   // 6. 解析 JSON
   const article = parseArticleResponse(rawResponse)
 
-  // 7. 搜索相关图片并插入正文
-  const pexelsKey = await getPexelsApiKey()
-  let coverImageUrl: string | null = null
+  // 7. AI 生成图片并插入正文
+  const imageUrls = await generateArticleImages(keyword.keyword, 3)
+  const coverImageUrl: string | null = imageUrls[0] || null
 
-  if (pexelsKey) {
-    const photos = await searchPexelsPhotos(keyword.keyword, pexelsKey, 4)
-    if (photos.length > 0) {
-      // 第一张做封面
-      coverImageUrl = photos[0].src.large
-
-      // 把图片插入正文（每隔几段插一张）
-      article.contentDe = insertImagesIntoContent(article.contentDe, photos, 'de')
-      article.contentEn = insertImagesIntoContent(article.contentEn, photos, 'en')
-    }
+  if (imageUrls.length > 1) {
+    article.contentDe = insertImagesIntoContent(article.contentDe, imageUrls, keyword.keyword)
+    article.contentEn = insertImagesIntoContent(article.contentEn, imageUrls, keyword.keyword)
   }
 
   // 8. 查找或创建标签
@@ -118,81 +117,219 @@ export async function generateArticleFromKeyword(): Promise<{ articleId: number;
 }
 
 // ============================================================
-// Pexels 图片搜索
+// AI 图片生成
 // ============================================================
 
-/** 从 SiteSetting 读取 Pexels API Key */
-async function getPexelsApiKey(): Promise<string | null> {
+/** 从 SiteSetting 读取图片生成配置 */
+async function getImageGenSettings(): Promise<ImageGenSettings> {
   try {
     const setting = await prisma.siteSetting.findUnique({ where: { key: 'aiSettings' } })
-    if (!setting?.value) return null
-    const v = setting.value as Record<string, unknown>
-    return typeof v.pexelsApiKey === 'string' && v.pexelsApiKey ? v.pexelsApiKey : null
+    const v = setting?.value as Record<string, unknown> | null
+    return {
+      provider: (typeof v?.imageGenProvider === 'string' ? v.imageGenProvider : 'huggingface') as ImageGenProvider,
+      apiKey: typeof v?.imageGenApiKey === 'string' ? v.imageGenApiKey : '',
+    }
   } catch {
+    return { provider: 'huggingface', apiKey: '' }
+  }
+}
+
+/** 构建图片生成 prompt — 面向视觉描述，避免模糊通用 */
+function buildImagePrompt(keyword: string): string {
+  return `serene traditional chinese medicine massage treatment room, professional therapist performing ${keyword} therapy, warm amber lighting, zen atmosphere, high-end wellness spa, photorealistic, no text, no watermark`
+}
+
+/** 将图片数据保存到 uploads 目录，返回公开路径 */
+async function saveImageBuffer(buffer: Buffer, ext: string): Promise<string | null> {
+  try {
+    const filename = `${randomUUID()}${ext}`
+    const uploadDir = getUploadDir()
+    if (!existsSync(uploadDir)) {
+      await mkdir(uploadDir, { recursive: true })
+    }
+    await writeFile(join(uploadDir, filename), buffer)
+    return getPublicUrl(filename)
+  } catch (e) {
+    console.error('[image] save error:', e)
     return null
   }
 }
 
-/** 搜索 Pexels 图片 */
-async function searchPexelsPhotos(query: string, apiKey: string, count: number): Promise<PexelsPhoto[]> {
-  try {
-    // 用英文搜索词效果更好，加上 massage/TCM 上下文
-    const searchQuery = `${query} massage wellness`
-    const url = `https://api.pexels.com/v1/search?query=${encodeURIComponent(searchQuery)}&per_page=${count}&orientation=landscape`
+/** Hugging Face Inference API — FLUX.1-schnell，免费，支持重试（冷启动） */
+async function generateHuggingFaceImage(
+  keyword: string,
+  apiKey: string,
+  width: number,
+  height: number,
+): Promise<string | null> {
+  const maxRetries = 3
+  for (let attempt = 0; attempt < maxRetries; attempt++) {
+    try {
+      const res = await fetch(
+        'https://api-inference.huggingface.co/models/black-forest-labs/FLUX.1-schnell',
+        {
+          method: 'POST',
+          headers: { Authorization: `Bearer ${apiKey}`, 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            inputs: buildImagePrompt(keyword),
+            parameters: { width, height, num_inference_steps: 4, guidance_scale: 0.0 },
+          }),
+        },
+      )
 
-    const res = await fetch(url, {
-      headers: { Authorization: apiKey },
-    })
+      // 503 = 模型冷启动中，等待后重试
+      if (res.status === 503) {
+        const data = await res.json().catch(() => ({})) as Record<string, unknown>
+        const waitMs = Math.min(((data.estimated_time as number) || 20) * 1000, 30000)
+        if (attempt < maxRetries - 1) {
+          await new Promise((r) => setTimeout(r, waitMs))
+          continue
+        }
+        return null
+      }
 
-    if (!res.ok) {
-      console.error(`[Pexels] API error ${res.status}`)
-      return []
+      if (!res.ok) {
+        console.error(`[HuggingFace] API error ${res.status}`)
+        return null
+      }
+
+      const buffer = Buffer.from(await res.arrayBuffer())
+      return await saveImageBuffer(buffer, '.png')
+    } catch (e) {
+      console.error('[HuggingFace] generation error:', e)
+      return null
     }
+  }
+  return null
+}
 
+/** DALL-E 3 — 生成图片并保存到本地（URL 有时效，必须下载） */
+async function generateDalleImage(keyword: string, apiKey: string): Promise<string | null> {
+  try {
+    const res = await fetch('https://api.openai.com/v1/images/generations', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${apiKey}` },
+      body: JSON.stringify({
+        model: 'dall-e-3',
+        prompt: buildImagePrompt(keyword),
+        n: 1,
+        size: '1792x1024',
+        quality: 'standard',
+        response_format: 'url',
+      }),
+    })
+    if (!res.ok) {
+      console.error(`[DALL-E] API error ${res.status}`)
+      return null
+    }
     const data = await res.json()
-    return (data.photos || []).map((p: Record<string, unknown>) => ({
-      src: {
-        large: (p.src as Record<string, string>)?.large || '',
-        medium: (p.src as Record<string, string>)?.medium || '',
-      },
-      alt: typeof p.alt === 'string' ? p.alt : '',
-      photographer: typeof p.photographer === 'string' ? p.photographer : '',
-    }))
+    const imageUrl = data.data?.[0]?.url
+    if (!imageUrl) return null
+
+    const imgRes = await fetch(imageUrl)
+    if (!imgRes.ok) return null
+    const buffer = Buffer.from(await imgRes.arrayBuffer())
+    return await saveImageBuffer(buffer, '.png')
   } catch (e) {
-    console.error('[Pexels] search error:', e)
-    return []
+    console.error('[DALL-E] generation error:', e)
+    return null
   }
 }
 
-/** 将图片按间隔插入 HTML 正文 */
-function insertImagesIntoContent(html: string, photos: PexelsPhoto[], locale: string): string {
-  if (!html || photos.length === 0) return html
+/** Stability AI (stable-image-core) — 生成图片并保存到本地 */
+async function generateStabilityImage(
+  keyword: string,
+  apiKey: string,
+  aspectRatio: '16:9' | '3:2',
+): Promise<string | null> {
+  try {
+    const formData = new FormData()
+    formData.append('prompt', buildImagePrompt(keyword))
+    formData.append('output_format', 'webp')
+    formData.append('aspect_ratio', aspectRatio)
 
-  // 按 </h2> 或 </p> 拆分段落，找到合适的插入点
-  // 策略：在第 2 个和第 4 个 </p> 后各插入一张图（跳过第 1 张封面图）
-  const insertPhotos = photos.slice(1) // 跳过封面图
-  if (insertPhotos.length === 0) return html
+    const res = await fetch('https://api.stability.ai/v2beta/stable-image/generate/core', {
+      method: 'POST',
+      headers: { Authorization: `Bearer ${apiKey}`, Accept: 'image/*' },
+      body: formData,
+    })
+    if (!res.ok) {
+      console.error(`[Stability] API error ${res.status}`)
+      return null
+    }
+    const buffer = Buffer.from(await res.arrayBuffer())
+    return await saveImageBuffer(buffer, '.webp')
+  } catch (e) {
+    console.error('[Stability] generation error:', e)
+    return null
+  }
+}
 
-  let photoIndex = 0
+type ImageSize = { width: number; height: number; aspectRatio: '16:9' | '3:2' }
+
+const IMAGE_SIZES: ImageSize[] = [
+  { width: 1200, height: 630, aspectRatio: '16:9' }, // 封面
+  { width: 800, height: 533, aspectRatio: '3:2' },   // 正文图 1
+  { width: 800, height: 533, aspectRatio: '3:2' },   // 正文图 2
+]
+
+/**
+ * 根据配置统一生成所有文章图片，全部下载保存到本地 /uploads/。
+ * 索引 0 为封面，其余为正文内嵌图。
+ * 未配置 API Key 时返回空数组，文章无图。
+ */
+async function generateArticleImages(keyword: string, count: number): Promise<string[]> {
+  const { provider, apiKey } = await getImageGenSettings()
+
+  if (!apiKey) {
+    console.warn('[image] No image generation API key configured')
+    return []
+  }
+
+  const sizes = IMAGE_SIZES.slice(0, count)
+  const results: string[] = []
+
+  for (const size of sizes) {
+    let path: string | null = null
+
+    if (provider === 'huggingface') {
+      path = await generateHuggingFaceImage(keyword, apiKey, size.width, size.height)
+    } else if (provider === 'openai') {
+      path = await generateDalleImage(keyword, apiKey)
+    } else if (provider === 'stability') {
+      path = await generateStabilityImage(keyword, apiKey, size.aspectRatio)
+    }
+
+    if (path) results.push(path)
+  }
+
+  return results
+}
+
+/** 将图片 URL 数组按间隔插入 HTML 正文 */
+function insertImagesIntoContent(html: string, imageUrls: string[], keyword: string): string {
+  if (!html || imageUrls.length === 0) return html
+
+  const insertUrls = imageUrls.slice(1) // 跳过封面图
+  if (insertUrls.length === 0) return html
+
+  let urlIndex = 0
   let paragraphCount = 0
-  const insertAfterParagraphs = [2, 5, 8] // 在第 2、5、8 段后插图
+  const insertAfterParagraphs = [2, 5, 8]
 
-  const result = html.replace(/<\/p>/gi, (match) => {
+  return html.replace(/<\/p>/gi, (match) => {
     paragraphCount++
-    if (insertAfterParagraphs.includes(paragraphCount) && photoIndex < insertPhotos.length) {
-      const photo = insertPhotos[photoIndex]
-      photoIndex++
-      const credit = locale === 'de' ? 'Foto von' : 'Photo by'
+    if (insertAfterParagraphs.includes(paragraphCount) && urlIndex < insertUrls.length) {
+      const url = insertUrls[urlIndex]
+      urlIndex++
+      const alt = escapeHtml(`${keyword} massage therapy`)
       return `${match}
 <figure class="article-image">
-  <img src="${photo.src.large}" alt="${escapeHtml(photo.alt || 'Massage Wellness')}" loading="lazy" />
-  <figcaption>${credit} ${escapeHtml(photo.photographer)} / Pexels</figcaption>
+  <img src="${url}" alt="${alt}" loading="lazy" />
 </figure>`
     }
     return match
   })
-
-  return result
 }
 
 function escapeHtml(str: string): string {

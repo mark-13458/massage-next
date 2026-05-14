@@ -8,6 +8,29 @@ type AISettingsData = {
   apiKey: string
   model: string
   pexelsApiKey: string
+  imageGenProvider: string
+  imageGenApiKey: string
+}
+
+const IMAGE_GEN_OPTIONS = [
+  { value: 'huggingface', label: 'Hugging Face — FLUX.1-schnell (免费 / Free)' },
+  { value: 'openai', label: 'DALL-E 3 (OpenAI，高质量 / High quality)' },
+  { value: 'stability', label: 'Stability AI (Stable Image Core)' },
+]
+
+const IMAGE_GEN_KEY_HINTS: Record<string, { label: string; hint: string }> = {
+  huggingface: {
+    label: 'Hugging Face Token',
+    hint: '免费注册获取：huggingface.co/settings/tokens（选 Read 权限即可）',
+  },
+  openai: {
+    label: 'OpenAI API Key',
+    hint: 'platform.openai.com — DALL-E 3 约 $0.04/张',
+  },
+  stability: {
+    label: 'Stability AI API Key',
+    hint: 'platform.stability.ai — 每月 25 免费积分，约 $0.003/张',
+  },
 }
 
 const PROVIDER_OPTIONS = [
@@ -22,6 +45,8 @@ export function AISettingsForm({ lang }: { lang: 'zh' | 'en' }) {
   const [apiKey, setApiKey] = useState('')
   const [model, setModel] = useState('')
   const [pexelsApiKey, setPexelsApiKey] = useState('')
+  const [imageGenProvider, setImageGenProvider] = useState('huggingface')
+  const [imageGenApiKey, setImageGenApiKey] = useState('')
   const [saving, setSaving] = useState(false)
   const [testing, setTesting] = useState(false)
   const [message, setMessage] = useState<{ type: 'success' | 'error'; text: string } | null>(null)
@@ -36,6 +61,8 @@ export function AISettingsForm({ lang }: { lang: 'zh' | 'en' }) {
           setApiKey(v.apiKey || '')
           setModel(v.model || '')
           setPexelsApiKey(v.pexelsApiKey || '')
+          setImageGenProvider(v.imageGenProvider || 'huggingface')
+          setImageGenApiKey(v.imageGenApiKey || '')
         }
       })
       .catch(() => {})
@@ -48,7 +75,7 @@ export function AISettingsForm({ lang }: { lang: 'zh' | 'en' }) {
       await adminRequest('/api/admin/settings/ai', {
         method: 'PATCH',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ provider, apiKey, model, pexelsApiKey }),
+        body: JSON.stringify({ provider, apiKey, model, pexelsApiKey, imageGenProvider, imageGenApiKey }),
       })
       setMessage({ type: 'success', text: zh ? '保存成功' : 'Settings saved' })
     } catch (e) {
@@ -131,22 +158,44 @@ export function AISettingsForm({ lang }: { lang: 'zh' | 'en' }) {
         </p>
       </div>
 
-      {/* Pexels API Key */}
-      <div>
-        <label className="mb-1 block text-sm font-medium text-stone-700">
-          Pexels API Key {' '}
-          <span className="font-normal text-stone-400">({zh ? '文章配图' : 'article images'})</span>
-        </label>
-        <input
-          type="password"
-          value={pexelsApiKey}
-          onChange={(e) => setPexelsApiKey(e.target.value)}
-          placeholder={zh ? '输入 Pexels API Key（免费申请）' : 'Enter Pexels API Key (free)'}
-          className="w-full rounded-xl border border-stone-300 px-3 py-2 text-sm focus:border-stone-500 focus:outline-none"
-        />
-        <p className="mt-1 text-xs text-stone-400">
-          {zh ? '用于自动搜索插入文章配图，免费申请：pexels.com/api' : 'Auto-search images for articles. Free at pexels.com/api'}
+      {/* Image Generation */}
+      <div className="border-t border-stone-200 pt-4">
+        <p className="mb-3 text-sm font-semibold text-stone-700">
+          {zh ? '文章图片生成' : 'Article Image Generation'}
         </p>
+
+        {/* Image Gen Provider */}
+        <div className="mb-3">
+          <label className="mb-1 block text-sm font-medium text-stone-700">
+            {zh ? '图片生成方式' : 'Image provider'}
+          </label>
+          <select
+            value={imageGenProvider}
+            onChange={(e) => setImageGenProvider(e.target.value)}
+            className="w-full rounded-xl border border-stone-300 px-3 py-2 text-sm focus:border-stone-500 focus:outline-none"
+          >
+            {IMAGE_GEN_OPTIONS.map((opt) => (
+              <option key={opt.value} value={opt.value}>{opt.label}</option>
+            ))}
+          </select>
+        </div>
+
+        {/* Image Gen API Key */}
+        <div>
+          <label className="mb-1 block text-sm font-medium text-stone-700">
+            {IMAGE_GEN_KEY_HINTS[imageGenProvider]?.label ?? 'API Key'}
+          </label>
+          <input
+            type="password"
+            value={imageGenApiKey}
+            onChange={(e) => setImageGenApiKey(e.target.value)}
+            placeholder={zh ? '输入 API Key' : 'Enter API Key'}
+            className="w-full rounded-xl border border-stone-300 px-3 py-2 text-sm focus:border-stone-500 focus:outline-none"
+          />
+          <p className="mt-1 text-xs text-stone-400">
+            {IMAGE_GEN_KEY_HINTS[imageGenProvider]?.hint}
+          </p>
+        </div>
       </div>
 
       {/* Actions */}
