@@ -36,8 +36,8 @@ type ImageGenSettings = {
 }
 
 /**
- * 主入口：从关键词池取词 → AI 生成 → 搜索配图 → 存库 → 发布
- * 返回生成的文章 ID，无关键词时返回 null
+ * 主入口：从关键词池取词 → AI 生成文章 → 立即存库发布 → 后台异步生成图片
+ * 图片生成不阻塞返回，避免 Cloudflare 524 超时
  */
 export async function generateArticleFromKeyword(): Promise<{ articleId: number; keyword: string } | null> {
   // 1. 获取 AI 设置
@@ -65,19 +65,10 @@ export async function generateArticleFromKeyword(): Promise<{ articleId: number;
   // 6. 解析 JSON
   const article = parseArticleResponse(rawResponse)
 
-  // 7. AI 生成图片并插入正文
-  const imageUrls = await generateArticleImages(keyword.keyword, 3)
-  const coverImageUrl: string | null = imageUrls[0] || null
-
-  if (imageUrls.length > 1) {
-    article.contentDe = insertImagesIntoContent(article.contentDe, imageUrls, keyword.keyword)
-    article.contentEn = insertImagesIntoContent(article.contentEn, imageUrls, keyword.keyword)
-  }
-
-  // 8. 查找或创建标签
+  // 7. 查找或创建标签
   const tagIds = await resolveTagIds(article.suggestedTags)
 
-  // 9. 保存文章
+  // 8. 立即保存文章（无图片），避免超时
   const created = await prisma.article.create({
     data: {
       slug: article.slug || `article-${Date.now()}`,
@@ -93,7 +84,7 @@ export async function generateArticleFromKeyword(): Promise<{ articleId: number;
       seoDescriptionEn: article.seoDescriptionEn || null,
       seoKeywordsDe: article.seoKeywordsDe || null,
       seoKeywordsEn: article.seoKeywordsEn || null,
-      coverImageUrl,
+      coverImageUrl: null,
       isPublished: true,
       publishedAt: new Date(),
       source: 'AI_GENERATED',
@@ -104,16 +95,44 @@ export async function generateArticleFromKeyword(): Promise<{ articleId: number;
     },
   })
 
-  // 10. 更新关键词状态为 USED
+  // 9. 更新关键词状态为 USED
   await prisma.keywordPool.update({
     where: { id: keyword.id },
     data: { status: 'USED', usedAt: new Date() },
   })
 
-  // 11. 清除缓存
+  // 10. 清除缓存，让文章立即可见
   revalidateTag(CACHE_TAGS.articles)
 
+  // 11. 后台异步生成图片，不阻塞当前请求
+  generateAndAttachImages(created.id, keyword.keyword, article.contentDe, article.contentEn).catch((e) =>
+    console.error(`[image] background generation failed for article ${created.id}:`, e),
+  )
+
   return { articleId: created.id, keyword: keyword.keyword }
+}
+
+/** 后台异步：生成图片后更新文章的封面和正文配图 */
+async function generateAndAttachImages(
+  articleId: number,
+  keyword: string,
+  contentDe: string,
+  contentEn: string,
+): Promise<void> {
+  const imageUrls = await generateArticleImages(keyword, 3)
+  if (imageUrls.length === 0) return
+
+  const coverImageUrl = imageUrls[0]
+  const updatedContentDe = imageUrls.length > 1 ? insertImagesIntoContent(contentDe, imageUrls, keyword) : contentDe
+  const updatedContentEn = imageUrls.length > 1 ? insertImagesIntoContent(contentEn, imageUrls, keyword) : contentEn
+
+  await prisma.article.update({
+    where: { id: articleId },
+    data: { coverImageUrl, contentDe: updatedContentDe, contentEn: updatedContentEn },
+  })
+
+  revalidateTag(CACHE_TAGS.articles)
+  console.log(`[image] attached ${imageUrls.length} images to article ${articleId}`)
 }
 
 // ============================================================
