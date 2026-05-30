@@ -1,6 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { validateRescheduleToken, rescheduleAppointmentByToken } from '@/server/services/appointment-reschedule.service'
-import { sendCustomerRescheduledEmail } from '@/server/services/mail.service'
+import { sendCustomerRescheduledEmail, sendMerchantRescheduledNotification } from '@/server/services/mail.service'
 import { headers } from 'next/headers'
 
 /**
@@ -109,13 +109,17 @@ export async function POST(
     )
 
     // 发送通知邮件
+    const rescheduledPayload = { ...updated, oldDate, oldTime }
+    const emailPromises: Promise<boolean>[] = []
+
     if (updated.customerEmail) {
-      await sendCustomerRescheduledEmail({
-        ...updated,
-        oldDate,
-        oldTime,
-      })
+      emailPromises.push(sendCustomerRescheduledEmail(rescheduledPayload))
     }
+
+    // 通知商家（管理员）客户已改约
+    emailPromises.push(sendMerchantRescheduledNotification(rescheduledPayload))
+
+    await Promise.allSettled(emailPromises)
 
     return NextResponse.json({
       success: true,
