@@ -80,6 +80,7 @@ export async function PATCH(
 
   const headersList = await headers()
   const ipAddress = headersList.get('x-forwarded-for') || headersList.get('x-real-ip') || 'unknown'
+  const emailRemindersEnabled = settings?.featureEnableEmailReminders !== false
 
   if (action === 'cancel') {
     const updated = await prisma.appointment.update({
@@ -92,19 +93,29 @@ export async function PATCH(
       include: { service: true },
     })
 
-    await createAuditLog({
-      action: 'BOOKING_CANCELLED',
-      entityType: 'APPOINTMENT',
-      entityId: appointment.id,
-      ipAddress,
-      oldValue: { status: appointment.status },
-      newValue: { status: 'CANCELLED' },
-      additionalInfo: { method: 'CUSTOMER_TOKEN', notes },
-    })
+    await Promise.all([
+      createAuditLog({
+        action: 'BOOKING_CANCELLED',
+        entityType: 'APPOINTMENT',
+        entityId: appointment.id,
+        ipAddress,
+        oldValue: { status: appointment.status },
+        newValue: { status: 'CANCELLED' },
+        additionalInfo: { method: 'CUSTOMER_TOKEN', notes },
+      }),
+      prisma.appointmentAudit.create({
+        data: {
+          appointmentId: appointment.id,
+          appointmentUuid: appointment.uuid,
+          action: 'CANCELLED_BY_CUSTOMER',
+          reason: notes || undefined,
+          customerEmail: appointment.customerEmail,
+        },
+      }),
+    ]).catch(() => {})
 
-    // 发送取消通知邮件
     import('../../../../../server/services/mail.service').then(({ sendCustomerCancelledEmail, sendMerchantCancelledNotification }) => {
-      if (appointment.customerEmail) {
+      if (appointment.customerEmail && emailRemindersEnabled) {
         sendCustomerCancelledEmail(updated).catch(err =>
           console.error('Failed to send customer cancellation email:', err)
         )
@@ -136,24 +147,37 @@ export async function PATCH(
       include: { service: true },
     })
 
-    await createAuditLog({
-      action: 'BOOKING_RESCHEDULED',
-      entityType: 'APPOINTMENT',
-      entityId: appointment.id,
-      ipAddress,
-      oldValue: { date: appointment.appointmentDate, time: appointment.appointmentTime },
-      newValue: { date: appointmentDate, time: appointmentTime },
-      additionalInfo: { method: 'CUSTOMER_TOKEN', notes },
-    })
+    await Promise.all([
+      createAuditLog({
+        action: 'BOOKING_RESCHEDULED',
+        entityType: 'APPOINTMENT',
+        entityId: appointment.id,
+        ipAddress,
+        oldValue: { date: appointment.appointmentDate, time: appointment.appointmentTime },
+        newValue: { date: appointmentDate, time: appointmentTime },
+        additionalInfo: { method: 'CUSTOMER_TOKEN', notes },
+      }),
+      prisma.appointmentAudit.create({
+        data: {
+          appointmentId: appointment.id,
+          appointmentUuid: appointment.uuid,
+          action: 'RESCHEDULED',
+          oldAppointmentDate: appointment.appointmentDate,
+          oldAppointmentTime: appointment.appointmentTime,
+          newAppointmentDate: new Date(appointmentDate),
+          newAppointmentTime: appointmentTime,
+          customerEmail: appointment.customerEmail,
+        },
+      }),
+    ]).catch(() => {})
 
-    // 发送改约通知邮件
     import('../../../../../server/services/mail.service').then(({ sendCustomerRescheduledEmail, sendMerchantRescheduledNotification }) => {
       const rescheduledPayload = {
         ...updated,
         oldDate: appointment.appointmentDate,
         oldTime: appointment.appointmentTime,
       }
-      if (appointment.customerEmail) {
+      if (appointment.customerEmail && emailRemindersEnabled) {
         sendCustomerRescheduledEmail(rescheduledPayload).catch(err =>
           console.error('Failed to send customer reschedule email:', err)
         )

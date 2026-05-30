@@ -15,14 +15,26 @@ type BookingManagePanelProps = {
   }
 }
 
+function formatDate(isoDate: string, locale: Locale) {
+  return new Date(isoDate).toLocaleDateString(locale === 'de' ? 'de-DE' : 'en-US', {
+    weekday: 'long',
+    year: 'numeric',
+    month: '2-digit',
+    day: '2-digit',
+  })
+}
+
 export function BookingManagePanel({ locale, token, booking }: BookingManagePanelProps) {
   const [message, setMessage] = useState('')
   const [status, setStatus] = useState<'idle' | 'success' | 'error'>('idle')
   const [currentBooking, setCurrentBooking] = useState(booking)
   const [date, setDate] = useState(booking.appointmentDate.slice(0, 10))
   const [time, setTime] = useState(booking.appointmentTime)
-  const [notes, setNotes] = useState('')
+  const [rescheduleNotes, setRescheduleNotes] = useState('')
+  const [cancelReason, setCancelReason] = useState('')
   const [isPending, startTransition] = useTransition()
+
+  const today = new Date().toISOString().slice(0, 10)
 
   const t = locale === 'de'
     ? {
@@ -32,15 +44,20 @@ export function BookingManagePanel({ locale, token, booking }: BookingManagePane
         date: 'Datum',
         time: 'Uhrzeit',
         status: 'Status',
-        cancel: 'Termin stornieren',
+        cancelSection: 'Termin stornieren',
+        cancelReason: 'Grund (optional)',
+        cancel: 'Jetzt stornieren',
+        rescheduleSection: 'Termin verschieben',
+        rescheduleNotes: 'Hinweis (optional)',
         reschedule: 'Termin verschieben',
-        notes: 'Hinweis (optional)',
         saving: 'Wird verarbeitet…',
-        cancelSuccess: 'Der Termin wurde storniert.',
-        rescheduleSuccess: 'Der Termin wurde erfolgreich geändert und wartet erneut auf Bestätigung.',
+        cancelSuccess: 'Der Termin wurde erfolgreich storniert.',
+        rescheduleSuccess: 'Der Termin wurde erfolgreich geändert.',
         locked: 'Dieser Termin kann nicht mehr online geändert werden.',
         disabled: 'Die Online-Verwaltung dieses Termins ist derzeit deaktiviert.',
         error: 'Die Aktion konnte nicht durchgeführt werden. Bitte versuchen Sie es später erneut.',
+        confirmCancel: 'Termin wirklich stornieren?',
+        timePlaceholder: 'z. B. 10:00',
       }
     : {
         manage: 'Manage booking',
@@ -49,15 +66,20 @@ export function BookingManagePanel({ locale, token, booking }: BookingManagePane
         date: 'Date',
         time: 'Time',
         status: 'Status',
-        cancel: 'Cancel booking',
-        reschedule: 'Reschedule booking',
-        notes: 'Notes (optional)',
+        cancelSection: 'Cancel booking',
+        cancelReason: 'Reason (optional)',
+        cancel: 'Cancel now',
+        rescheduleSection: 'Reschedule booking',
+        rescheduleNotes: 'Notes (optional)',
+        reschedule: 'Reschedule',
         saving: 'Processing…',
         cancelSuccess: 'The booking was cancelled successfully.',
-        rescheduleSuccess: 'The booking was rescheduled and is pending confirmation again.',
+        rescheduleSuccess: 'The booking was rescheduled successfully.',
         locked: 'This booking can no longer be changed online.',
         disabled: 'Online management for this booking is currently disabled.',
         error: 'The action could not be completed. Please try again later.',
+        confirmCancel: 'Cancel this booking?',
+        timePlaceholder: 'e.g. 10:00',
       }
 
   const statusLabel: Record<string, string> = locale === 'de'
@@ -108,6 +130,7 @@ export function BookingManagePanel({ locale, token, booking }: BookingManagePane
 
   return (
     <div className="grid gap-8 lg:grid-cols-[0.95fr_1.05fr]">
+      {/* Booking details */}
       <section className="rounded-3xl border border-stone-200 bg-white p-6 shadow-sm sm:p-8">
         <h2 className="text-2xl font-semibold text-stone-900">{t.manage}</h2>
         <div className="mt-6 space-y-3 text-sm text-stone-700">
@@ -121,7 +144,7 @@ export function BookingManagePanel({ locale, token, booking }: BookingManagePane
           </div>
           <div className="flex items-center justify-between rounded-2xl border border-stone-200 px-4 py-3">
             <span>{t.date}</span>
-            <span className="font-medium text-stone-900">{currentBooking.appointmentDate.slice(0, 10)}</span>
+            <span className="font-medium text-stone-900">{formatDate(currentBooking.appointmentDate, locale)}</span>
           </div>
           <div className="flex items-center justify-between rounded-2xl border border-stone-200 px-4 py-3">
             <span>{t.time}</span>
@@ -134,44 +157,83 @@ export function BookingManagePanel({ locale, token, booking }: BookingManagePane
         </div>
       </section>
 
+      {/* Actions */}
       <section className="rounded-3xl border border-stone-200 bg-white p-6 shadow-sm sm:p-8">
-        <div className="space-y-4">
+        <div className="space-y-6">
           {isLocked ? (
             <div className="rounded-2xl border border-amber-200 bg-amber-50 px-4 py-3 text-sm text-amber-800">
               {t.locked}
             </div>
+          ) : (
+            <>
+              {/* Cancel section */}
+              <div className="rounded-3xl border border-rose-100 p-5">
+                <h3 className="text-base font-semibold text-stone-900">{t.cancelSection}</h3>
+                <div className="mt-3">
+                  <textarea
+                    value={cancelReason}
+                    onChange={(e) => setCancelReason(e.target.value)}
+                    placeholder={t.cancelReason}
+                    rows={2}
+                    className="w-full rounded-2xl border border-stone-200 px-4 py-3 text-sm outline-none focus:border-stone-500"
+                  />
+                </div>
+                <button
+                  type="button"
+                  disabled={isPending}
+                  onClick={() => {
+                    if (!window.confirm(t.confirmCancel)) return
+                    runAction({ action: 'cancel', notes: cancelReason || undefined }, t.cancelSuccess)
+                  }}
+                  className="mt-3 w-full rounded-full bg-rose-600 px-5 py-3 text-sm font-semibold text-white transition hover:bg-rose-500 disabled:cursor-not-allowed disabled:opacity-70"
+                >
+                  {isPending ? t.saving : t.cancel}
+                </button>
+              </div>
+
+              {/* Reschedule section */}
+              <div className="rounded-3xl border border-stone-200 p-5">
+                <h3 className="text-base font-semibold text-stone-900">{t.rescheduleSection}</h3>
+                <div className="mt-4 grid gap-4 sm:grid-cols-2">
+                  <input
+                    type="date"
+                    value={date}
+                    min={today}
+                    onChange={(e) => setDate(e.target.value)}
+                    className="rounded-2xl border border-stone-200 px-4 py-3 outline-none focus:border-stone-500"
+                  />
+                  <input
+                    type="time"
+                    value={time}
+                    placeholder={t.timePlaceholder}
+                    onChange={(e) => setTime(e.target.value)}
+                    className="rounded-2xl border border-stone-200 px-4 py-3 outline-none focus:border-stone-500"
+                  />
+                  <textarea
+                    value={rescheduleNotes}
+                    onChange={(e) => setRescheduleNotes(e.target.value)}
+                    placeholder={t.rescheduleNotes}
+                    rows={3}
+                    className="rounded-2xl border border-stone-200 px-4 py-3 outline-none focus:border-stone-500 sm:col-span-2"
+                  />
+                </div>
+                <button
+                  type="button"
+                  disabled={isPending}
+                  onClick={() => runAction({ action: 'reschedule', appointmentDate: date, appointmentTime: time, notes: rescheduleNotes || undefined }, t.rescheduleSuccess)}
+                  className="mt-4 w-full rounded-full bg-stone-900 px-5 py-3 text-sm font-semibold text-white transition hover:bg-stone-800 disabled:cursor-not-allowed disabled:opacity-70"
+                >
+                  {isPending ? t.saving : t.reschedule}
+                </button>
+              </div>
+            </>
+          )}
+
+          {message ? (
+            <p className={`text-sm ${status === 'success' ? 'text-emerald-700' : 'text-rose-700'}`}>
+              {message}
+            </p>
           ) : null}
-
-          <button
-            type="button"
-            disabled={isPending || isLocked}
-            onClick={() => {
-              if (!window.confirm(locale === 'de' ? 'Termin wirklich stornieren?' : 'Cancel this booking?')) return
-              runAction({ action: 'cancel', notes }, t.cancelSuccess)
-            }}
-            className="w-full rounded-full bg-rose-600 px-5 py-3 text-sm font-semibold text-white transition hover:bg-rose-500 disabled:cursor-not-allowed disabled:opacity-70"
-          >
-            {isPending ? t.saving : t.cancel}
-          </button>
-
-          <div className="rounded-3xl border border-stone-200 p-5">
-            <h3 className="text-base font-semibold text-stone-900">{t.reschedule}</h3>
-            <div className="mt-4 grid gap-4 sm:grid-cols-2">
-              <input type="date" value={date} onChange={(e) => setDate(e.target.value)} disabled={isLocked} className="rounded-2xl border border-stone-200 px-4 py-3 outline-none focus:border-stone-500 disabled:bg-stone-50 disabled:text-stone-400" />
-              <input type="time" value={time} onChange={(e) => setTime(e.target.value)} disabled={isLocked} className="rounded-2xl border border-stone-200 px-4 py-3 outline-none focus:border-stone-500 disabled:bg-stone-50 disabled:text-stone-400" />
-              <textarea value={notes} onChange={(e) => setNotes(e.target.value)} placeholder={t.notes} rows={4} disabled={isLocked} className="rounded-2xl border border-stone-200 px-4 py-3 outline-none focus:border-stone-500 disabled:bg-stone-50 disabled:text-stone-400 sm:col-span-2" />
-            </div>
-            <button
-              type="button"
-              disabled={isPending || isLocked}
-              onClick={() => runAction({ action: 'reschedule', appointmentDate: date, appointmentTime: time, notes }, t.rescheduleSuccess)}
-              className="mt-4 w-full rounded-full bg-stone-900 px-5 py-3 text-sm font-semibold text-white transition hover:bg-stone-800 disabled:cursor-not-allowed disabled:opacity-70"
-            >
-              {isPending ? t.saving : t.reschedule}
-            </button>
-          </div>
-
-          {message ? <p className={`text-sm ${status === 'success' ? 'text-emerald-700' : 'text-rose-700'}`}>{message}</p> : null}
         </div>
       </section>
     </div>
