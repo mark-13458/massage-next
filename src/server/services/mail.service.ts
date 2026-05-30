@@ -289,6 +289,58 @@ export async function sendCustomerCancelledEmail(booking: BookingWithService) {
   return success
 }
 
+// 商家通知：客户取消了预约
+export async function sendMerchantCancelledNotification(
+  booking: BookingWithService,
+  reason?: string
+) {
+  const dateStr = booking.appointmentDate.toLocaleDateString('de-DE', {
+    weekday: 'long',
+    year: 'numeric',
+    month: '2-digit',
+    day: '2-digit',
+  })
+
+  const timeStr = booking.appointmentTime
+  const subject = `[客户取消] ${booking.customerName} - ${dateStr} ${timeStr}`
+
+  const html = `
+    <div style="font-family: sans-serif; max-width: 600px; margin: 0 auto;">
+      <h2 style="color: #dc2626;">客户已取消预约</h2>
+
+      <div style="background: #fef2f2; padding: 15px; border-radius: 5px; margin: 20px 0; border: 1px solid #fee2e2;">
+        <p><strong>客户姓名：</strong> ${escapeHtml(booking.customerName)}</p>
+        <p><strong>联系电话：</strong> <a href="tel:${escapeHtml(booking.customerPhone)}">${escapeHtml(booking.customerPhone)}</a></p>
+        <p><strong>电子邮箱：</strong> ${booking.customerEmail ? escapeHtml(booking.customerEmail) : '未提供'}</p>
+      </div>
+
+      <div style="border: 1px solid #ddd; padding: 15px; border-radius: 5px; margin: 20px 0;">
+        <h3 style="margin-top: 0;">已取消的预约</h3>
+        <p><strong>服务项目：</strong> ${escapeHtml(booking.service.nameDe)} / ${escapeHtml(booking.service.nameEn)}</p>
+        <p><strong>预约日期：</strong> ${dateStr}</p>
+        <p><strong>预约时间：</strong> ${escapeHtml(timeStr)}</p>
+        <p><strong>服务时长：</strong> ${booking.durationMin} 分钟</p>
+        ${reason ? `<p><strong>取消原因：</strong> ${escapeHtml(reason)}</p>` : ''}
+      </div>
+
+      <p style="color: #666; font-size: 14px;">
+        * 该时段已释放，如需处理请 <a href="${env.appUrl}/admin/appointments">查看后台预约列表</a>
+      </p>
+    </div>
+  `
+
+  const to = await resolveMerchantEmail()
+  if (!to) {
+    console.warn('⚠️ No admin email configured, skipping merchant cancellation notification')
+    return false
+  }
+  const success = await sendEmail(to, subject, html)
+  if (success) {
+    console.log(`📧 Merchant cancellation notification sent for booking ${booking.uuid}`)
+  }
+  return success
+}
+
 // 客户通知：预约已改约（Rescheduled）
 export async function sendCustomerRescheduledEmail(booking: BookingWithService & {
   oldDate: Date

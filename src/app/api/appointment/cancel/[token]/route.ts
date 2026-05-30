@@ -1,6 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { validateCancelToken, cancelAppointmentByToken } from '@/server/services/appointment-reschedule.service'
-import { sendCustomerCancelledEmail } from '@/server/services/mail.service'
+import { sendCustomerCancelledEmail, sendMerchantCancelledNotification } from '@/server/services/mail.service'
 import { headers } from 'next/headers'
 
 /**
@@ -70,9 +70,16 @@ export async function POST(
     )
 
     // 发送通知邮件
+    const emailPromises: Promise<boolean>[] = []
+
     if (cancelled.customerEmail) {
-      await sendCustomerCancelledEmail(cancelled)
+      emailPromises.push(sendCustomerCancelledEmail(cancelled))
     }
+
+    // 通知商家（管理员）客户已取消
+    emailPromises.push(sendMerchantCancelledNotification(cancelled, reason))
+
+    await Promise.allSettled(emailPromises)
 
     return NextResponse.json({
       success: true,
