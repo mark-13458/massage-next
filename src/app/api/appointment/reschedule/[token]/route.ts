@@ -110,16 +110,17 @@ export async function POST(
 
     // 发送通知邮件
     const rescheduledPayload = { ...updated, oldDate, oldTime }
-    const emailPromises: Promise<boolean>[] = []
 
     if (updated.customerEmail) {
-      emailPromises.push(sendCustomerRescheduledEmail(rescheduledPayload))
+      await sendCustomerRescheduledEmail(rescheduledPayload).catch(err =>
+        console.error('[RESCHEDULE] Failed to send customer email:', err)
+      )
     }
 
     // 通知商家（管理员）客户已改约
-    emailPromises.push(sendMerchantRescheduledNotification(rescheduledPayload))
-
-    await Promise.allSettled(emailPromises)
+    await sendMerchantRescheduledNotification(rescheduledPayload).catch(err =>
+      console.error('[RESCHEDULE] Failed to send merchant notification:', err)
+    )
 
     return NextResponse.json({
       success: true,
