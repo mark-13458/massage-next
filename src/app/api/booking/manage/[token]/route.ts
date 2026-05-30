@@ -102,14 +102,17 @@ export async function PATCH(
       additionalInfo: { method: 'CUSTOMER_TOKEN', notes },
     })
 
-    // 异步发送取消通知邮件
-    if (appointment.customerEmail) {
-      import('../../../../../server/services/mail.service').then(({ sendCustomerCancelledEmail }) => {
+    // 发送取消通知邮件
+    import('../../../../../server/services/mail.service').then(({ sendCustomerCancelledEmail, sendMerchantCancelledNotification }) => {
+      if (appointment.customerEmail) {
         sendCustomerCancelledEmail(updated).catch(err =>
           console.error('Failed to send customer cancellation email:', err)
         )
-      })
-    }
+      }
+      sendMerchantCancelledNotification(updated, notes).catch(err =>
+        console.error('Failed to send merchant cancellation notification:', err)
+      )
+    })
 
     return NextResponse.json({
       data: { item: { status: updated.status, appointmentDate: updated.appointmentDate, appointmentTime: updated.appointmentTime } },
@@ -143,9 +146,19 @@ export async function PATCH(
       additionalInfo: { method: 'CUSTOMER_TOKEN', notes },
     })
 
-    // 异步发送改约通知邮件（商家）
-    import('../../../../../server/services/mail.service').then(({ sendMerchantBookingNotification }) => {
-      sendMerchantBookingNotification(updated).catch(err =>
+    // 发送改约通知邮件
+    import('../../../../../server/services/mail.service').then(({ sendCustomerRescheduledEmail, sendMerchantRescheduledNotification }) => {
+      const rescheduledPayload = {
+        ...updated,
+        oldDate: appointment.appointmentDate,
+        oldTime: appointment.appointmentTime,
+      }
+      if (appointment.customerEmail) {
+        sendCustomerRescheduledEmail(rescheduledPayload).catch(err =>
+          console.error('Failed to send customer reschedule email:', err)
+        )
+      }
+      sendMerchantRescheduledNotification(rescheduledPayload).catch(err =>
         console.error('Failed to send merchant reschedule notification:', err)
       )
     })
