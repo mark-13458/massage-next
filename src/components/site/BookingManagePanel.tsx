@@ -24,6 +24,12 @@ function formatDate(isoDate: string, locale: Locale) {
   })
 }
 
+function isWithinOneHour(isoDate: string, timeStr: string): boolean {
+  const datePart = isoDate.slice(0, 10)
+  const apptDateTime = new Date(`${datePart}T${timeStr}:00`)
+  return apptDateTime <= new Date(Date.now() + 60 * 60 * 1000)
+}
+
 export function BookingManagePanel({ locale, token, booking }: BookingManagePanelProps) {
   const [message, setMessage] = useState('')
   const [status, setStatus] = useState<'idle' | 'success' | 'error'>('idle')
@@ -35,6 +41,7 @@ export function BookingManagePanel({ locale, token, booking }: BookingManagePane
   const [isPending, startTransition] = useTransition()
 
   const today = new Date().toISOString().slice(0, 10)
+  const tooLate = isWithinOneHour(currentBooking.appointmentDate, currentBooking.appointmentTime)
 
   const t = locale === 'de'
     ? {
@@ -54,6 +61,7 @@ export function BookingManagePanel({ locale, token, booking }: BookingManagePane
         cancelSuccess: 'Der Termin wurde erfolgreich storniert.',
         rescheduleSuccess: 'Der Termin wurde erfolgreich geändert.',
         locked: 'Dieser Termin kann nicht mehr online geändert werden.',
+        tooLate: 'Stornierungen und Änderungen sind nur bis 1 Stunde vor dem Termin möglich. Bitte kontaktieren Sie uns direkt.',
         disabled: 'Die Online-Verwaltung dieses Termins ist derzeit deaktiviert.',
         error: 'Die Aktion konnte nicht durchgeführt werden. Bitte versuchen Sie es später erneut.',
         confirmCancel: 'Termin wirklich stornieren?',
@@ -76,6 +84,7 @@ export function BookingManagePanel({ locale, token, booking }: BookingManagePane
         cancelSuccess: 'The booking was cancelled successfully.',
         rescheduleSuccess: 'The booking was rescheduled successfully.',
         locked: 'This booking can no longer be changed online.',
+        tooLate: 'Cancellations and changes are only possible up to 1 hour before the appointment. Please contact us directly.',
         disabled: 'Online management for this booking is currently disabled.',
         error: 'The action could not be completed. Please try again later.',
         confirmCancel: 'Cancel this booking?',
@@ -86,7 +95,7 @@ export function BookingManagePanel({ locale, token, booking }: BookingManagePane
     ? { PENDING: 'Ausstehend', CONFIRMED: 'Bestätigt', COMPLETED: 'Abgeschlossen', CANCELLED: 'Storniert', NO_SHOW: 'Nicht erschienen' }
     : { PENDING: 'Pending', CONFIRMED: 'Confirmed', COMPLETED: 'Completed', CANCELLED: 'Cancelled', NO_SHOW: 'No show' }
 
-  const isLocked = currentBooking.status === 'CANCELLED' || currentBooking.status === 'COMPLETED'
+  const isLocked = currentBooking.status === 'CANCELLED' || currentBooking.status === 'COMPLETED' || tooLate
 
   function runAction(payload: Record<string, unknown>, successMessage: string) {
     setMessage('')
@@ -162,7 +171,7 @@ export function BookingManagePanel({ locale, token, booking }: BookingManagePane
         <div className="space-y-6">
           {isLocked ? (
             <div className="rounded-2xl border border-amber-200 bg-amber-50 px-4 py-3 text-sm text-amber-800">
-              {t.locked}
+              {tooLate ? t.tooLate : t.locked}
             </div>
           ) : (
             <>

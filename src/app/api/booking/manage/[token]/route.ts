@@ -82,6 +82,17 @@ export async function PATCH(
   const ipAddress = headersList.get('x-forwarded-for') || headersList.get('x-real-ip') || 'unknown'
   const emailRemindersEnabled = settings?.featureEnableEmailReminders !== false
 
+  // 预约前 1 小时内不允许取消或改约
+  const apptDateStr = appointment.appointmentDate.toISOString().slice(0, 10)
+  const apptDateTime = new Date(`${apptDateStr}T${appointment.appointmentTime}:00`)
+  const oneHourFromNow = new Date(Date.now() + 60 * 60 * 1000)
+  if (apptDateTime <= oneHourFromNow) {
+    return NextResponse.json(
+      { error: 'Cancellations and changes are only possible up to 1 hour before the appointment.' },
+      { status: 400 }
+    )
+  }
+
   if (action === 'cancel') {
     const updated = await prisma.appointment.update({
       where: { id: appointment.id },
