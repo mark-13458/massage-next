@@ -49,7 +49,9 @@ export function BlacklistManager({ lang, initial, prefillType, prefillValue }: P
         return
       }
       const data = await res.json()
-      setItems((prev) => [{ ...data.item, createdAt: data.item.createdAt || new Date().toISOString() }, ...prev])
+      const item = data?.data?.item
+      if (!item) return
+      setItems((prev) => [{ ...item, createdAt: item.createdAt || new Date().toISOString() }, ...prev])
       setValue('')
       setReason('')
     })
