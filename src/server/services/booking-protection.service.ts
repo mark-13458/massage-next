@@ -96,6 +96,58 @@ export async function checkBookingFrequencyLimit(input: FrequencyLimitInput): Pr
 }
 
 /**
+ * 检查是否在黑名单中（phone / email / ip 任一匹配即拒绝）
+ */
+export async function isBookingBlacklisted(input: {
+  phone?: string | null
+  email?: string | null
+  ip?: string | null
+}): Promise<boolean> {
+  if (!process.env.DATABASE_URL) return false
+
+  const conditions: { type: string; value: string }[] = []
+  if (input.phone) conditions.push({ type: 'PHONE', value: input.phone })
+  if (input.email) conditions.push({ type: 'EMAIL', value: input.email.toLowerCase() })
+  if (input.ip && input.ip !== 'unknown') conditions.push({ type: 'IP', value: input.ip })
+
+  if (conditions.length === 0) return false
+
+  try {
+    const found = await prisma.bookingBlacklist.findFirst({ where: { OR: conditions } })
+    return found !== null
+  } catch {
+    return false
+  }
+}
+
+/**
+ * 获取全部黑名单记录
+ */
+export async function getBlacklist() {
+  if (!process.env.DATABASE_URL) return []
+  return prisma.bookingBlacklist.findMany({ orderBy: [{ type: 'asc' }, { createdAt: 'desc' }] })
+}
+
+/**
+ * 加入黑名单
+ */
+export async function addToBlacklist(type: 'PHONE' | 'EMAIL' | 'IP', value: string, reason?: string) {
+  const v = type === 'EMAIL' ? value.trim().toLowerCase() : value.trim()
+  return prisma.bookingBlacklist.upsert({
+    where: { type_value: { type, value: v } },
+    update: { reason: reason || null },
+    create: { type, value: v, reason: reason || null },
+  })
+}
+
+/**
+ * 从黑名单移除
+ */
+export async function removeFromBlacklist(id: number) {
+  return prisma.bookingBlacklist.delete({ where: { id } })
+}
+
+/**
  * 记录登录尝试
  */
 export async function recordLoginAttempt(email: string, success: boolean, data?: {

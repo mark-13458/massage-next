@@ -2,6 +2,7 @@ import { NextRequest, NextResponse } from 'next/server'
 import { bookingSchema } from '../../../lib/validations/booking'
 import { verifyTurnstileToken } from '../../../lib/turnstile'
 import { createBooking, RateLimitError } from '../../../server/services/booking.service'
+import { isBookingBlacklisted } from '../../../server/services/booking-protection.service'
 import { getSystemSettings } from '../../../server/services/site.service'
 import { getIpAddress } from '../../../lib/utils'
 
@@ -23,6 +24,32 @@ export async function POST(request: NextRequest) {
     }
 
     const remoteip = getIpAddress(request)
+
+    // 黑名单拦截
+    const blacklisted = await isBookingBlacklisted({
+      phone: parsed.data.customerPhone,
+      email: parsed.data.customerEmail || null,
+      ip: remoteip || null,
+    })
+    if (blacklisted) {
+      return NextResponse.json(
+        { status: 'error', error: 'Booking could not be processed. Please contact us directly.' },
+        { status: 422 }
+      )
+    }
+
+    // 禁止使用店铺自身联系方式预约
+    const storeEmails = [
+      process.env.SMTP_USER,
+      process.env.SMTP_FROM,
+      process.env.ADMIN_EMAIL,
+    ].filter(Boolean).map((e) => e!.toLowerCase())
+    if (parsed.data.customerEmail && storeEmails.includes(parsed.data.customerEmail.toLowerCase())) {
+      return NextResponse.json(
+        { status: 'error', error: 'Please provide a valid personal contact.' },
+        { status: 400 }
+      )
+    }
 
     if (systemSettings?.privacyConsentRequired !== false && !parsed.data.privacyConsent) {
       return NextResponse.json(

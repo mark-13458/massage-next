@@ -1,0 +1,16 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(ls *.md)",
+      "Bash(ls -d */)",
+      "Bash(npx next:*)",
+      "Bash(git add:*)",
+      "Bash(git commit -m ':*)",
+      "Bash(git push:*)",
+      "Bash(npm audit:*)",
+      "WebFetch(domain:www.munichtcmmassage.com)",
+      "Bash(npx prisma:*)",
+      "Bash(git commit -m ' *)"
+    ]
+  }
+}

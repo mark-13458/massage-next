@@ -120,6 +120,36 @@ export default async function AppointmentDetailPage({ params }: { params: Promis
               </div>
             </AdminDetailBlock>
 
+            <AdminDetailBlock title={pick(lang, '封禁操作', 'Block actions')}>
+              <div className="space-y-2 text-sm text-stone-600">
+                <p className="text-xs text-stone-500">{pick(lang, '点击跳转黑名单页并预填信息', 'Click to open blacklist page with prefilled info')}</p>
+                <div className="flex flex-wrap gap-2">
+                  <Link
+                    href={`/admin/settings/blacklist?type=PHONE&value=${encodeURIComponent(appointment.customerPhone)}`}
+                    className="rounded-full border border-rose-200 bg-rose-50 px-3 py-1.5 text-xs font-medium text-rose-700 hover:bg-rose-100"
+                  >
+                    {pick(lang, '封禁电话', 'Block phone')}
+                  </Link>
+                  {appointment.customerEmail && (
+                    <Link
+                      href={`/admin/settings/blacklist?type=EMAIL&value=${encodeURIComponent(appointment.customerEmail)}`}
+                      className="rounded-full border border-rose-200 bg-rose-50 px-3 py-1.5 text-xs font-medium text-rose-700 hover:bg-rose-100"
+                    >
+                      {pick(lang, '封禁邮箱', 'Block email')}
+                    </Link>
+                  )}
+                  {appointment.creationIp && (
+                    <Link
+                      href={`/admin/settings/blacklist?type=IP&value=${encodeURIComponent(appointment.creationIp)}`}
+                      className="rounded-full border border-rose-200 bg-rose-50 px-3 py-1.5 text-xs font-medium text-rose-700 hover:bg-rose-100"
+                    >
+                      {pick(lang, '封禁 IP', 'Block IP')}
+                    </Link>
+                  )}
+                </div>
+              </div>
+            </AdminDetailBlock>
+
             <AdminDetailBlock title={pick(lang, '客户安全链接', 'Customer security links')}>
               <AdminInfoList
                 items={[

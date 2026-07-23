@@ -244,6 +244,17 @@ model AuditLog {
   @@index([createdAt])
 }
 
+model BookingBlacklist {
+  id        Int      @id @default(autoincrement())
+  type      String   // "PHONE" | "EMAIL" | "IP"
+  value     String
+  reason    String?
+  createdAt DateTime @default(now())
+
+  @@unique([type, value])
+  @@index([type])
+}
+
 model BookingFrequencyLimit {
   id            Int       @id @default(autoincrement())
   limitType     String    // "PHONE", "EMAIL", "IP"
