@@ -47,10 +47,19 @@ export async function findAdminAppointments(opts: FindAdminAppointmentsOptions =
 }
 
 export async function findAdminAppointmentById(id: number) {
-  return prisma.appointment.findUnique({
-    where: { id },
-    include: { service: true, confirmedBy: true },
-  })
+  const [appointment, creationLog] = await Promise.all([
+    prisma.appointment.findUnique({
+      where: { id },
+      include: { service: true, confirmedBy: true },
+    }),
+    prisma.auditLog.findFirst({
+      where: { action: 'BOOKING_CREATED', entityType: 'APPOINTMENT', entityId: id },
+      select: { ipAddress: true, userAgent: true },
+    }),
+  ])
+
+  if (!appointment) return null
+  return { ...appointment, creationIp: creationLog?.ipAddress ?? null, creationUserAgent: creationLog?.userAgent ?? null }
 }
 
 export async function findAppointmentByToken(token: string) {

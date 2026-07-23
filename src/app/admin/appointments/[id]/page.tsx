@@ -134,6 +134,7 @@ export default async function AppointmentDetailPage({ params }: { params: Promis
               <AdminInfoList
                 items={[
                   { label: pick(lang, '内部备注', 'Internal note'), value: appointment.internalNote || '—' },
+                  { label: pick(lang, '提交 IP', 'Submission IP'), value: appointment.creationIp || '—' },
                   { label: pick(lang, '提交时间', 'Created at'), value: new Intl.DateTimeFormat('de-DE', { dateStyle: 'medium', timeStyle: 'short' }).format(appointment.createdAt) },
                   { label: pick(lang, '确认时间', 'Confirmed at'), value: appointment.confirmedAt ? new Intl.DateTimeFormat('de-DE', { dateStyle: 'medium', timeStyle: 'short' }).format(appointment.confirmedAt) : '—' },
                   { label: pick(lang, '完成时间', 'Completed at'), value: appointment.completedAt ? new Intl.DateTimeFormat('de-DE', { dateStyle: 'medium', timeStyle: 'short' }).format(appointment.completedAt) : '—' },
