@@ -29,6 +29,8 @@ const nextConfig = {
     ],
     deviceSizes: [640, 750, 828, 1080, 1200, 1920],
     imageSizes: [16, 32, 48, 64, 96, 128, 256, 384],
+    // 源文件名为 UUID，内容不可变，优化结果可长期缓存（默认仅 60 秒）
+    minimumCacheTTL: 31536000,
   },
   async headers() {
     return [
