@@ -40,12 +40,15 @@ export default async function RootLayout({ children }: { children: React.ReactNo
     <html lang={lang} className={`${lora.variable} ${raleway.variable}`} suppressHydrationWarning>
       <body className="font-sans">
         {children}
-        {/* Google tag (gtag.js) - Google Ads AW-17412666826 */}
+        {/* Google tag (gtag.js) - Google Ads AW-17412666826
+            lazyOnload：在 window load 之后再加载。该标签仅做 Ads 基础配置，
+            站内没有任何代码调用 gtag()，因此延后不影响功能，但可把 142 KiB
+            移出关键路径。 */}
         <Script
           src="https://www.googletagmanager.com/gtag/js?id=AW-17412666826"
-          strategy="afterInteractive"
+          strategy="lazyOnload"
         />
-        <Script id="gtag-init" strategy="afterInteractive">
+        <Script id="gtag-init" strategy="lazyOnload">
           {`
             window.dataLayer = window.dataLayer || [];
             function gtag(){dataLayer.push(arguments);}
