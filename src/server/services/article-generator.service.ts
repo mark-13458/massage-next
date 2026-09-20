@@ -10,6 +10,7 @@ import { existsSync } from 'fs'
 import { join } from 'path'
 import { randomUUID } from 'crypto'
 import { getUploadDir, getPublicUrl } from '../../lib/uploads'
+import sharp from 'sharp'
 
 type GeneratedArticle = {
   titleDe: string
@@ -138,7 +139,9 @@ async function generateAndAttachImages(
   contentDe: string,
   contentEn: string,
 ): Promise<void> {
+  console.log(`[image] 后台开始为文章 ${articleId} 生成配图，关键词="${keyword}"`)
   const imageUrls = await generateArticleImages(keyword, 3)
+  console.log(`[image] 文章 ${articleId} 共生成 ${imageUrls.length} 张图`)
   if (imageUrls.length === 0) return
 
   const coverImageUrl = imageUrls[0]
@@ -177,15 +180,27 @@ function buildImagePrompt(keyword: string): string {
   return `serene traditional chinese medicine massage treatment room, professional therapist performing ${keyword} therapy, warm amber lighting, zen atmosphere, high-end wellness spa, photorealistic, no text, no watermark`
 }
 
-/** 将图片数据保存到 uploads 目录，返回公开路径 */
-async function saveImageBuffer(buffer: Buffer, ext: string): Promise<string | null> {
+/**
+ * 统一转成 WebP 后保存到 uploads 目录，返回公开路径。
+ * AI 生成的 PNG 通常 1.5-2.5MB，转 WebP 后约 100-200KB，移动端 LCP 显著改善。
+ */
+async function saveImageBuffer(buffer: Buffer, width?: number, height?: number): Promise<string | null> {
   try {
-    const filename = `${randomUUID()}${ext}`
-    const uploadDir = getUploadDir()
+    const filename = `${randomUUID()}.webp`
+    // 优先用 UPLOAD_DIR 环境变量（docker-compose 已设置），其次 process.cwd()
+    const uploadDir = process.env.UPLOAD_DIR || getUploadDir()
     if (!existsSync(uploadDir)) {
       await mkdir(uploadDir, { recursive: true })
     }
-    await writeFile(join(uploadDir, filename), buffer)
+
+    let pipeline = sharp(buffer)
+    if (width && height) {
+      pipeline = pipeline.resize(width, height, { fit: 'cover', position: 'centre' })
+    }
+    const webp = await pipeline.webp({ quality: 82, effort: 4 }).toBuffer()
+
+    await writeFile(join(uploadDir, filename), webp)
+    console.log(`[image] saved ${filename} (${Math.round(webp.length / 1024)}KB, was ${Math.round(buffer.length / 1024)}KB)`)
     return getPublicUrl(filename)
   } catch (e) {
     console.error('[image] save error:', e)
@@ -203,6 +218,7 @@ async function generateHuggingFaceImage(
   const maxRetries = 3
   for (let attempt = 0; attempt < maxRetries; attempt++) {
     try {
+      console.log(`[HuggingFace] attempt ${attempt + 1}/${maxRetries} "${keyword}" (${width}x${height})`)
       const res = await fetch(
         'https://api-inference.huggingface.co/models/black-forest-labs/FLUX.1-schnell',
         {
@@ -218,7 +234,9 @@ async function generateHuggingFaceImage(
       // 503 = 模型冷启动中，等待后重试
       if (res.status === 503) {
         const data = await res.json().catch(() => ({})) as Record<string, unknown>
-        const waitMs = Math.min(((data.estimated_time as number) || 20) * 1000, 30000)
+        const waitSec = (data.estimated_time as number) || 20
+        const waitMs = Math.min(waitSec * 1000, 30000)
+        console.warn(`[HuggingFace] 503 冷启动中，预计 ${waitSec}s，等待 ${waitMs}ms 后重试`)
         if (attempt < maxRetries - 1) {
           await new Promise((r) => setTimeout(r, waitMs))
           continue
@@ -227,12 +245,21 @@ async function generateHuggingFaceImage(
       }
 
       if (!res.ok) {
-        console.error(`[HuggingFace] API error ${res.status}`)
+        const body = await res.text().catch(() => '')
+        console.error(`[HuggingFace] API error ${res.status}: ${body.slice(0, 300)}`)
+        return null
+      }
+
+      // 校验确实返回了图片，而非 200 + JSON 错误体（否则会存成损坏的图片文件）
+      const contentType = res.headers.get('content-type') || ''
+      if (!contentType.startsWith('image/')) {
+        const body = await res.text().catch(() => '')
+        console.error(`[HuggingFace] 非图片响应 content-type="${contentType}": ${body.slice(0, 300)}`)
         return null
       }
 
       const buffer = Buffer.from(await res.arrayBuffer())
-      return await saveImageBuffer(buffer, '.png')
+      return await saveImageBuffer(buffer, width, height)
     } catch (e) {
       console.error('[HuggingFace] generation error:', e)
       return null
@@ -242,7 +269,12 @@ async function generateHuggingFaceImage(
 }
 
 /** DALL-E 3 — 生成图片并保存到本地（URL 有时效，必须下载） */
-async function generateDalleImage(keyword: string, apiKey: string): Promise<string | null> {
+async function generateDalleImage(
+  keyword: string,
+  apiKey: string,
+  width: number,
+  height: number,
+): Promise<string | null> {
   try {
     const res = await fetch('https://api.openai.com/v1/images/generations', {
       method: 'POST',
@@ -257,7 +289,8 @@ async function generateDalleImage(keyword: string, apiKey: string): Promise<stri
       }),
     })
     if (!res.ok) {
-      console.error(`[DALL-E] API error ${res.status}`)
+      const body = await res.text().catch(() => '')
+      console.error(`[DALL-E] API error ${res.status}: ${body.slice(0, 300)}`)
       return null
     }
     const data = await res.json()
@@ -267,7 +300,7 @@ async function generateDalleImage(keyword: string, apiKey: string): Promise<stri
     const imgRes = await fetch(imageUrl)
     if (!imgRes.ok) return null
     const buffer = Buffer.from(await imgRes.arrayBuffer())
-    return await saveImageBuffer(buffer, '.png')
+    return await saveImageBuffer(buffer, width, height)
   } catch (e) {
     console.error('[DALL-E] generation error:', e)
     return null
@@ -279,6 +312,8 @@ async function generateStabilityImage(
   keyword: string,
   apiKey: string,
   aspectRatio: '16:9' | '3:2',
+  width: number,
+  height: number,
 ): Promise<string | null> {
   try {
     const formData = new FormData()
@@ -292,11 +327,12 @@ async function generateStabilityImage(
       body: formData,
     })
     if (!res.ok) {
-      console.error(`[Stability] API error ${res.status}`)
+      const body = await res.text().catch(() => '')
+      console.error(`[Stability] API error ${res.status}: ${body.slice(0, 300)}`)
       return null
     }
     const buffer = Buffer.from(await res.arrayBuffer())
-    return await saveImageBuffer(buffer, '.webp')
+    return await saveImageBuffer(buffer, width, height)
   } catch (e) {
     console.error('[Stability] generation error:', e)
     return null
@@ -320,9 +356,11 @@ async function generateArticleImages(keyword: string, count: number): Promise<st
   const { provider, apiKey } = await getImageGenSettings()
 
   if (!apiKey) {
-    console.warn('[image] No image generation API key configured')
+    console.warn('[image] 未配置图片生成 API Key — 请在后台 AI 设置中填写 imageGenApiKey')
     return []
   }
+
+  console.log(`[image] 开始生成 ${count} 张图，provider="${provider}"，关键词="${keyword}"`)
 
   const sizes = IMAGE_SIZES.slice(0, count)
   const results: string[] = []
@@ -333,9 +371,9 @@ async function generateArticleImages(keyword: string, count: number): Promise<st
     if (provider === 'huggingface') {
       path = await generateHuggingFaceImage(keyword, apiKey, size.width, size.height)
     } else if (provider === 'openai') {
-      path = await generateDalleImage(keyword, apiKey)
+      path = await generateDalleImage(keyword, apiKey, size.width, size.height)
     } else if (provider === 'stability') {
-      path = await generateStabilityImage(keyword, apiKey, size.aspectRatio)
+      path = await generateStabilityImage(keyword, apiKey, size.aspectRatio, size.width, size.height)
     }
 
     if (path) results.push(path)
@@ -361,7 +399,7 @@ function insertImagesIntoContent(html: string, imageUrls: string[], keyword: str
       const url = insertUrls[urlIndex]
       urlIndex++
       const alt = escapeHtml(`${keyword} massage therapy`)
-      return `${match}\n<figure class="article-image">\n  <img src="${url}" alt="${alt}" loading="lazy" />\n</figure>`
+      return `${match}\n<figure class="article-image">\n  <img src="${url}" alt="${alt}" loading="lazy" decoding="async" width="800" height="533" />\n</figure>`
     }
     return match
   })

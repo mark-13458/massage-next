@@ -1,5 +1,6 @@
 import type { Metadata } from 'next'
 import Link from 'next/link'
+import Image from 'next/image'
 import { notFound } from 'next/navigation'
 import { SiteHeader } from '../../../../components/site/SiteHeader'
 import { SiteFooter } from '../../../../components/site/SiteFooter'
@@ -162,13 +163,14 @@ export default async function BlogArticlePage({ params }: { params: Promise<{ lo
         {/* Cover image */}
         {article.coverImageUrl && (
           <figure className="mb-8 overflow-hidden rounded-[2rem]">
-            <img
+            <Image
               src={article.coverImageUrl}
               alt={article.title}
-              className="w-full object-cover aspect-[2/1]"
-              loading="eager"
               width={1200}
               height={600}
+              sizes="(max-width: 1024px) 100vw, 1024px"
+              priority
+              className="w-full object-cover aspect-[2/1]"
             />
           </figure>
         )}
@@ -246,8 +248,14 @@ export default async function BlogArticlePage({ params }: { params: Promise<{ lo
                   className="group rounded-2xl border border-stone-200 bg-white p-4 shadow-card transition hover:shadow-lg"
                 >
                   {ra.coverImageUrl && (
-                    <div className="mb-3 aspect-[16/9] overflow-hidden rounded-xl">
-                      <img src={ra.coverImageUrl} alt={ra.title} className="h-full w-full object-cover transition group-hover:scale-105" loading="lazy" />
+                    <div className="relative mb-3 aspect-[16/9] overflow-hidden rounded-xl">
+                      <Image
+                        src={ra.coverImageUrl}
+                        alt={ra.title}
+                        fill
+                        sizes="(max-width: 768px) 100vw, 33vw"
+                        className="object-cover transition group-hover:scale-105"
+                      />
                     </div>
                   )}
                   <h3 className="font-serif text-sm font-semibold text-brown-900 group-hover:text-amber-800 transition line-clamp-2">

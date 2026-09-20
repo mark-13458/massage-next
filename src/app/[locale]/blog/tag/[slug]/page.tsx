@@ -1,5 +1,6 @@
 import type { Metadata } from 'next'
 import Link from 'next/link'
+import Image from 'next/image'
 import { notFound } from 'next/navigation'
 import { SiteHeader } from '../../../../../components/site/SiteHeader'
 import { SiteFooter } from '../../../../../components/site/SiteFooter'
@@ -98,11 +99,13 @@ export default async function BlogTagPage({ params }: { params: Promise<{ locale
                 className="group rounded-[2rem] border border-stone-200 bg-white shadow-card transition hover:shadow-lg"
               >
                 {article.coverImageUrl && (
-                  <div className="aspect-[16/9] overflow-hidden rounded-t-[2rem]">
-                    <img
+                  <div className="relative aspect-[16/9] overflow-hidden rounded-t-[2rem]">
+                    <Image
                       src={article.coverImageUrl}
                       alt={article.title}
-                      className="h-full w-full object-cover transition group-hover:scale-105"
+                      fill
+                      sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw"
+                      className="object-cover transition group-hover:scale-105"
                     />
                   </div>
                 )}
