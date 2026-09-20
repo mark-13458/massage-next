@@ -203,7 +203,7 @@ export default async function LocaleHome({ params }: { params: Promise<{ locale:
                   sizes="(max-width: 768px) 100vw, 33vw"
                   className="object-cover transition-transform duration-700 group-hover:scale-105"
                   loading="lazy"
-                  unoptimized={image.src.startsWith('/uploads/')}
+                  unoptimized={image.src.endsWith('.svg')}
                 />
                 <div className="absolute inset-0 bg-gradient-to-t from-stone-950/30 to-transparent opacity-0 transition-opacity duration-300 group-hover:opacity-100" />
               </div>

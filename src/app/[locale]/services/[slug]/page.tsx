@@ -170,8 +170,9 @@ export default async function ServiceDetailPage({ params }: Props) {
                 alt={name}
                 fill
                 priority
+                sizes="(max-width: 1024px) 100vw, 1024px"
                 className="object-cover"
-                unoptimized={service.coverImage.filePath.startsWith('/uploads/')}
+                unoptimized={service.coverImage.filePath.endsWith('.svg')}
               />
             </div>
           )}

@@ -47,7 +47,7 @@ export async function SiteHeader({ locale }: { locale: Locale }) {
             height={32}
             className="h-7 w-auto flex-shrink-0 transition-opacity duration-200 group-hover:opacity-75 sm:h-8"
             priority
-            unoptimized={logoSrc !== '/logo.svg'}
+            unoptimized={logoSrc.endsWith('.svg')}
           />
           <span className="truncate font-serif text-sm font-semibold tracking-wide text-brown-800 transition-colors duration-200 group-hover:text-brown-600 sm:text-base">
             {siteName}

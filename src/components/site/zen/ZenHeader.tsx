@@ -41,7 +41,7 @@ export function ZenHeader({ locale, siteName, navLinks, bookingLabel, logoUrl }:
                 width={40}
                 height={40}
                 className="h-10 w-10 rounded-full object-cover"
-                unoptimized
+                unoptimized={logoUrl.endsWith('.svg')}
               />
             ) : (
               <div className="flex h-10 w-10 items-center justify-center rounded-full bg-[#9B7E5C]">
