@@ -9,7 +9,7 @@ import { ServiceCard } from '../../../components/site/ServiceCard'
 import { ZenServicesPage } from '../../../components/site/zen/ZenServicesPage'
 import { getMessages } from '../../../lib/copy'
 import { isLocale, Locale } from '../../../lib/i18n'
-import { createPageMetadata, getBaseUrl } from '../../../lib/seo'
+import { createPageMetadata, getBaseUrl, serializeJsonLd } from '../../../lib/seo'
 import { buildItemListJsonLd } from '../../../lib/structured-data'
 import { getActiveServices, getSystemSettings } from '../../../server/services/site.service'
 
@@ -66,7 +66,7 @@ export default async function ServicesPage({ params }: { params: Promise<{ local
       {itemListJsonLd && (
         <script
           type="application/ld+json"
-          dangerouslySetInnerHTML={{ __html: JSON.stringify(itemListJsonLd) }}
+          dangerouslySetInnerHTML={{ __html: serializeJsonLd(itemListJsonLd) }}
         />
       )}
       <SiteHeader locale={typedLocale} />

@@ -8,7 +8,7 @@ import { FloatingActions } from '../../../../components/site/FloatingActions'
 import { ServiceCard } from '../../../../components/site/ServiceCard'
 import { ZenServiceDetailPage } from '../../../../components/site/zen/ZenServiceDetailPage'
 import { isLocale, Locale } from '../../../../lib/i18n'
-import { createPageMetadata, getBaseUrl } from '../../../../lib/seo'
+import { createPageMetadata, getBaseUrl, serializeJsonLd } from '../../../../lib/seo'
 import { buildServiceJsonLd } from '../../../../lib/structured-data'
 import { getSystemSettings } from '../../../../server/services/site.service'
 import { prisma } from '../../../../lib/prisma'
@@ -143,11 +143,11 @@ export default async function ServiceDetailPage({ params }: Props) {
     <main>
       <script
         type="application/ld+json"
-        dangerouslySetInnerHTML={{ __html: JSON.stringify(breadcrumbJsonLd) }}
+        dangerouslySetInnerHTML={{ __html: serializeJsonLd(breadcrumbJsonLd) }}
       />
       <script
         type="application/ld+json"
-        dangerouslySetInnerHTML={{ __html: JSON.stringify(serviceJsonLd) }}
+        dangerouslySetInnerHTML={{ __html: serializeJsonLd(serviceJsonLd) }}
       />
       <SiteHeader locale={typedLocale} />
 

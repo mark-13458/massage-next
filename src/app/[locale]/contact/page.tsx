@@ -8,7 +8,7 @@ import { SectionShell } from '../../../components/site/SectionShell'
 import { ZenContactPage } from '../../../components/site/zen/ZenContactPage'
 import { isLocale, Locale } from '../../../lib/i18n'
 import { getMessages } from '../../../lib/copy'
-import { createPageMetadata, getBaseUrl } from '../../../lib/seo'
+import { createPageMetadata, getBaseUrl, serializeJsonLd } from '../../../lib/seo'
 import { buildLocalBusinessJsonLd } from '../../../lib/structured-data'
 import { getBusinessHours, getContactSettings, getSystemSettings } from '../../../server/services/site.service'
 import { MapEmbed } from '../../../components/site/MapEmbed'
@@ -68,7 +68,7 @@ export default async function ContactPage({ params }: { params: Promise<{ locale
     <main>
       <script
         type="application/ld+json"
-        dangerouslySetInnerHTML={{ __html: JSON.stringify(localBusinessJsonLd) }}
+        dangerouslySetInnerHTML={{ __html: serializeJsonLd(localBusinessJsonLd) }}
       />
       <SiteHeader locale={typedLocale} />
       <SectionShell
