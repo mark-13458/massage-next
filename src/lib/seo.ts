@@ -135,3 +135,20 @@ export const defaultSiteMetadata: Metadata = {
     icon: '/favicon.ico',
   },
 }
+
+/**
+ * 安全序列化 JSON-LD，用于 <script type="application/ld+json"> 注入。
+ *
+ * JSON.stringify 会转义引号和反斜杠，但不会转义 `<`。若数据中含有
+ * `</script>`（AI 生成的标题、后台可编辑的站点名等都可能出现），
+ * 会提前闭合 script 标签并执行任意脚本，构成存储型 XSS。
+ *
+ * 这里把 `<`、`>`、`&` 转成等价的 Unicode 转义序列 —— JSON 解析结果
+ * 完全不变，但无法再闭合标签。
+ */
+export function serializeJsonLd(data: unknown): string {
+  return JSON.stringify(data)
+    .replace(/</g, '\\u003c')
+    .replace(/>/g, '\\u003e')
+    .replace(/&/g, '\\u0026')
+}

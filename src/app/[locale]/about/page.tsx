@@ -8,7 +8,7 @@ import { SectionShell } from '../../../components/site/SectionShell'
 import { ZenAboutPage } from '../../../components/site/zen/ZenAboutPage'
 import { isLocale, Locale } from '../../../lib/i18n'
 import { getMessages } from '../../../lib/copy'
-import { createPageMetadata } from '../../../lib/seo'
+import { createPageMetadata, serializeJsonLd } from '../../../lib/seo'
 import { buildFaqPageJsonLd } from '../../../lib/structured-data'
 import { getActiveFaqs, getPublishedTestimonials, getSystemSettings } from '../../../server/services/site.service'
 
@@ -60,7 +60,7 @@ export default async function AboutPage({ params }: { params: Promise<{ locale: 
       {faqJsonLd && (
         <script
           type="application/ld+json"
-          dangerouslySetInnerHTML={{ __html: JSON.stringify(faqJsonLd) }}
+          dangerouslySetInnerHTML={{ __html: serializeJsonLd(faqJsonLd) }}
         />
       )}
       <SiteHeader locale={typedLocale} />

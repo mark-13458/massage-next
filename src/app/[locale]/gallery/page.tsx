@@ -9,7 +9,7 @@ import { SectionShell } from '../../../components/site/SectionShell'
 import { ZenGalleryPage } from '../../../components/site/zen/ZenGalleryPage'
 import { isLocale, Locale } from '../../../lib/i18n'
 import { getMessages } from '../../../lib/copy'
-import { createPageMetadata, getBaseUrl } from '../../../lib/seo'
+import { createPageMetadata, getBaseUrl, serializeJsonLd } from '../../../lib/seo'
 import { buildImageGalleryJsonLd } from '../../../lib/structured-data'
 import { getActiveGallery, getSystemSettings } from '../../../server/services/site.service'
 
@@ -101,7 +101,7 @@ export default async function GalleryPage({ params }: { params: Promise<{ locale
       {imageGalleryJsonLd && (
         <script
           type="application/ld+json"
-          dangerouslySetInnerHTML={{ __html: JSON.stringify(imageGalleryJsonLd) }}
+          dangerouslySetInnerHTML={{ __html: serializeJsonLd(imageGalleryJsonLd) }}
         />
       )}
       <SiteHeader locale={typedLocale} />

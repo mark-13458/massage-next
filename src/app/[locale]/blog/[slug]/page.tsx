@@ -6,7 +6,7 @@ import { SiteHeader } from '../../../../components/site/SiteHeader'
 import { SiteFooter } from '../../../../components/site/SiteFooter'
 import { FloatingActions } from '../../../../components/site/FloatingActions'
 import { isLocale, Locale } from '../../../../lib/i18n'
-import { createPageMetadata, getBaseUrl } from '../../../../lib/seo'
+import { createPageMetadata, getBaseUrl, serializeJsonLd } from '../../../../lib/seo'
 import { getArticleBySlug, getPublishedArticles, getSystemSettings } from '../../../../server/services/site.service'
 
 export async function generateMetadata({ params }: { params: Promise<{ locale: string; slug: string }> }): Promise<Metadata> {
@@ -134,11 +134,11 @@ export default async function BlogArticlePage({ params }: { params: Promise<{ lo
     <main>
       <script
         type="application/ld+json"
-        dangerouslySetInnerHTML={{ __html: JSON.stringify(articleJsonLd) }}
+        dangerouslySetInnerHTML={{ __html: serializeJsonLd(articleJsonLd) }}
       />
       <script
         type="application/ld+json"
-        dangerouslySetInnerHTML={{ __html: JSON.stringify(breadcrumbJsonLd) }}
+        dangerouslySetInnerHTML={{ __html: serializeJsonLd(breadcrumbJsonLd) }}
       />
       <SiteHeader locale={typedLocale} />
 

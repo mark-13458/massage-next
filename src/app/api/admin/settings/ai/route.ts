@@ -71,8 +71,14 @@ export async function PATCH(request: NextRequest) {
       merged.apiKey = json.apiKey
     }
 
+    // 模型名会被拼进 Gemini 请求 URL 的路径，此处做白名单校验，
+    // 避免非法取值落库（与 ai-provider.service.ts 中的出站校验一致）
     if (typeof json.model === 'string') {
-      merged.model = json.model
+      const model = json.model.trim()
+      if (model && (!/^[A-Za-z0-9][A-Za-z0-9._/-]{0,99}$/.test(model) || model.includes('..'))) {
+        return apiError('Invalid model name', 400)
+      }
+      merged.model = model
     }
 
     // Pexels API Key

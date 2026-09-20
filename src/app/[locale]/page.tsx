@@ -12,7 +12,7 @@ import { ZenHomePage } from '../../components/site/zen/ZenHomePage'
 import { MapEmbed } from '../../components/site/MapEmbed'
 import { getMessages } from '../../lib/copy'
 import { isLocale, Locale } from '../../lib/i18n'
-import { createPageMetadata, getBaseUrl } from '../../lib/seo'
+import { createPageMetadata, getBaseUrl, serializeJsonLd } from '../../lib/seo'
 import { buildLocalBusinessJsonLd, buildWebSiteJsonLd, buildFaqPageJsonLd } from '../../lib/structured-data'
 import {
   getActiveFaqs,
@@ -113,16 +113,16 @@ export default async function LocaleHome({ params }: { params: Promise<{ locale:
     <main className="pb-24 sm:pb-0">
       <script
         type="application/ld+json"
-        dangerouslySetInnerHTML={{ __html: JSON.stringify(localBusinessJsonLd) }}
+        dangerouslySetInnerHTML={{ __html: serializeJsonLd(localBusinessJsonLd) }}
       />
       <script
         type="application/ld+json"
-        dangerouslySetInnerHTML={{ __html: JSON.stringify(webSiteJsonLd) }}
+        dangerouslySetInnerHTML={{ __html: serializeJsonLd(webSiteJsonLd) }}
       />
       {faqJsonLd && (
         <script
           type="application/ld+json"
-          dangerouslySetInnerHTML={{ __html: JSON.stringify(faqJsonLd) }}
+          dangerouslySetInnerHTML={{ __html: serializeJsonLd(faqJsonLd) }}
         />
       )}
       <SiteHeader locale={typedLocale} />
